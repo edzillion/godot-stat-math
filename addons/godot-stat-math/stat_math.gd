@@ -46,6 +46,7 @@ const PmfPdfFunctions = preload("res://addons/godot-stat-math/core/pmf_pdf_funct
 const PpfFunctions = preload("res://addons/godot-stat-math/core/ppf_functions.gd")
 const ErrorFunctions = preload("res://addons/godot-stat-math/core/error_functions.gd")
 const HelperFunctions = preload("res://addons/godot-stat-math/core/helper_functions.gd")
+const Sampling = preload("res://addons/godot-stat-math/core/sampling.gd")
 
 func _ready():
 	print("StatMath addon loaded and ready. Access functions via StatMath.ModuleName.function_name() and constants via StatMath.CONSTANT_NAME.")
