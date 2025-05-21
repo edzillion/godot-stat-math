@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://e11whxx06juw"]
+
+[ext_resource type="Script" uid="uid://xjh50t341e83" path="res://addons/godot-stat-math/examples/example.gd" id="1_xp4hk"]
+
+[node name="Example" type="Node"]
+script = ExtResource("1_xp4hk")
