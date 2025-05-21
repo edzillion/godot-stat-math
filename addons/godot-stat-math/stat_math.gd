@@ -51,7 +51,7 @@ const PmfPdfFunctions = preload("res://addons/godot-stat-math/core/pmf_pdf_funct
 const PpfFunctions = preload("res://addons/godot-stat-math/core/ppf_functions.gd")
 const ErrorFunctions = preload("res://addons/godot-stat-math/core/error_functions.gd")
 const HelperFunctions = preload("res://addons/godot-stat-math/core/helper_functions.gd")
-const Sampling = preload("res://addons/godot-stat-math/core/sampling.gd")
+const SamplingGen = preload("res://addons/godot-stat-math/core/sampling_gen.gd")
 
 func _ready() -> void:
 	_initialize_rng()
