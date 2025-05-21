@@ -1,5 +1,10 @@
 extends Node
 
+# --- Configuration for Random Number Generation ---
+const MONTE_GODOT_SEED_VARIABLE_NAME: StringName = &"monte_godot_seed"
+const _default_seed: int = 0 # Default seed if no global override is found
+var _rng: RandomNumberGenerator = null
+
 # --- Core Mathematical & Numerical Constants ---
 # Represents a very large integer, for integer-returning functions where infinity is theoretical.
 const INT_MAX_REPRESENTING_INF := 2147483647
@@ -48,8 +53,9 @@ const ErrorFunctions = preload("res://addons/godot-stat-math/core/error_function
 const HelperFunctions = preload("res://addons/godot-stat-math/core/helper_functions.gd")
 const Sampling = preload("res://addons/godot-stat-math/core/sampling.gd")
 
-func _ready():
-	print("StatMath addon loaded and ready. Access functions via StatMath.ModuleName.function_name() and constants via StatMath.CONSTANT_NAME.")
+func _ready() -> void:
+	_initialize_rng()
+	print("StatMath addon loaded and ready. RNG initialized. Access functions via StatMath.ModuleName.function_name() and constants via StatMath.CONSTANT_NAME.")
 
 # No wrapper functions are needed here.
 # All functions are accessed directly through the preloaded modules, e.g.:
@@ -57,3 +63,49 @@ func _ready():
 # var p = StatMath.CdfFunctions.normal_cdf(x, 0.0, 1.0)
 # var k_val = StatMath.HelperFunctions.binomial_coefficient(10, 3)
 # var eps = StatMath.EPSILON
+
+# --- RNG Management ---
+
+# Helper to create and seed the RNG instance.
+func _create_and_seed_rng(seed_val: int) -> void:
+	_rng = RandomNumberGenerator.new()
+	_rng.seed = seed_val # If seed_val is 0, Godot's RNG will pick a random seed.
+	# The actual seed used (randomized if input was 0) can be read from _rng.seed after this.
+
+func _initialize_rng() -> void:
+	var global_seed_value: Variant = ProjectSettings.get_setting(MONTE_GODOT_SEED_VARIABLE_NAME, _default_seed)
+	var seed_to_use: int
+	
+	if global_seed_value is int:
+		print("StatMath: Found global seed 'monte_godot_seed' with value: %d. Using it." % global_seed_value)
+		seed_to_use = global_seed_value
+	else:
+		# If the global var exists but is not an int, or doesn't exist (get_setting returns default)
+		if ProjectSettings.has_setting(MONTE_GODOT_SEED_VARIABLE_NAME):
+			printerr("StatMath: Global variable 'monte_godot_seed' is set but not an integer. Using default seed: %d." % _default_seed)
+		else:
+			print("StatMath: No global seed 'monte_godot_seed' found or it's not an integer. Using default seed (0 means random)." % str(_default_seed))
+		seed_to_use = _default_seed
+		
+	_create_and_seed_rng(seed_to_use)
+	print("StatMath: Initial RNG created and seeded. Effective seed: %d." % _rng.seed)
+		
+	# Ensure the project setting is actually created if it was defaulted, so user knows it's available.
+	if not ProjectSettings.has_setting(MONTE_GODOT_SEED_VARIABLE_NAME):
+		ProjectSettings.set_setting(MONTE_GODOT_SEED_VARIABLE_NAME, _default_seed)
+		# ProjectSettings.save() # Not strictly necessary for it to be readable by get_setting in same session, but good for persistence if user wants to see it in project.godot
+
+# Returns the addon's RandomNumberGenerator instance.
+func get_rng() -> RandomNumberGenerator:
+	# _initialize_rng should have been called in _ready, so _rng should not be null.
+	# However, as a safeguard if StatMath is used before _ready (e.g. tool script or early access):
+	if _rng == null:
+		push_warning("StatMath.get_rng() called before _ready or RNG failed to initialize. Initializing RNG now.")
+		_initialize_rng()
+	return _rng
+
+# Allows changing the seed of the addon's RandomNumberGenerator instance.
+# This will create a new RNG instance.
+func set_seed(new_seed: int) -> void:
+	_create_and_seed_rng(new_seed)
+	print("StatMath: RNG (re)created and seed explicitly set. Effective seed: %d" % _rng.seed)

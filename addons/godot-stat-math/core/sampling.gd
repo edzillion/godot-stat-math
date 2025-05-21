@@ -46,34 +46,44 @@ static func generate_samples(ndraws: int, method: SamplingMethod, seed: int = 0)
 		return samples
 	samples.resize(ndraws)
 
-	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+	var rng_to_use: RandomNumberGenerator # Declare the RNG variable
+
 	if seed != 0:
-		rng.seed = seed
+		# If a specific seed is provided, create and use a new local RNG instance
+		# This ensures that calls with specific seeds are isolated and deterministic
+		# without affecting the global StatMath._rng.
+		rng_to_use = RandomNumberGenerator.new()
+		rng_to_use.seed = seed
 	else:
-		rng.randomize()
+		# If no specific seed (seed is 0), use the global RNG from StatMath.
+		# This allows StatMath.set_seed() to control the sequence.
+		rng_to_use = StatMath.get_rng()
 
 	_ensure_sobol_vectors_initialized() # Ensure vectors are ready for any SOBOL methods
 
 	match method:
 		SamplingMethod.RANDOM:
 			for i in range(ndraws):
-				samples[i] = rng.randf()
+				samples[i] = rng_to_use.randf()
 		SamplingMethod.SOBOL:
 			samples = _generate_sobol_1d(ndraws)
 		SamplingMethod.SOBOL_RANDOM:
 			var sobol_integers: Array[int] = _get_sobol_1d_integers(ndraws)
-			var random_mask: int = rng.randi() & ((1 << _SOBOL_BITS) - 1) 
+			# Use rng_to_use for the random mask
+			var random_mask: int = rng_to_use.randi() & ((1 << _SOBOL_BITS) - 1) 
 			for i in range(ndraws):
 				samples[i] = float(sobol_integers[i] ^ random_mask) / _SOBOL_MAX_VAL_FLOAT
 		SamplingMethod.HALTON:
 			samples = _generate_halton_1d(ndraws, 2) # Using base 2 for 1D Halton
 		SamplingMethod.HALTON_RANDOM:
 			var halton_samples: Array[float] = _generate_halton_1d(ndraws, 2)
-			var random_offset: float = rng.randf()
+			# Use rng_to_use for the random offset
+			var random_offset: float = rng_to_use.randf()
 			for i in range(ndraws):
 				samples[i] = fmod(halton_samples[i] + random_offset, 1.0)
 		SamplingMethod.LATIN_HYPERCUBE:
-			samples = _generate_latin_hypercube_1d(ndraws, rng)
+			# Pass the appropriately selected rng_to_use
+			samples = _generate_latin_hypercube_1d(ndraws, rng_to_use)
 		_:
 			printerr("Unsupported sampling method: ", SamplingMethod.keys()[method])
 			for i in range(ndraws): samples[i] = -1.0 # Fill with an error indicator

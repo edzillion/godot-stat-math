@@ -1,3 +1,4 @@
+# addons/godot-stat-math/core/distributions.gd
 class_name Distributions extends RefCounted
 
 # Random Variate Generation for Statistical Distributions
@@ -12,7 +13,7 @@ class_name Distributions extends RefCounted
 # Returns 1 (success) with probability p, and 0 (failure) with probability 1-p.
 static func randi_bernoulli(p: float = 0.5) -> int:
 	assert(p >= 0.0 and p <= 1.0, "Success probability (p) must be between 0.0 and 1.0.")
-	if randf() <= p:
+	if StatMath.get_rng().randf() <= p:
 		return 1
 	else:
 		return 0
@@ -64,7 +65,7 @@ static func randi_geometric(p: float) -> int:
 
 	# Inverse transform sampling: k = ceil(log(U) / log(1-p)), where U is randf() in (0,1).
 	# Use StatMath.FLOAT_EPSILON to avoid log(0).
-	var randf_val: float = randf_range(StatMath.FLOAT_EPSILON, 1.0) 
+	var randf_val: float = StatMath.get_rng().randf_range(StatMath.FLOAT_EPSILON, 1.0) 
 	var ra: float = log(randf_val) # ra will be < 0.
 
 	var calc_value_float: float = ra / under # (negative / negative) = positive.
@@ -94,7 +95,7 @@ static func randi_poisson(lambda_param: float) -> int:
 	
 	while(true):
 		k += 1
-		p_val *= randf()
+		p_val *= StatMath.get_rng().randf()
 		if p_val <= l_val:
 			break
 			
@@ -157,7 +158,7 @@ static func randf_uniform(a: float, b: float) -> float:
 	assert(a <= b, "Lower bound (a) must be less than or equal to upper bound (b) for Uniform distribution.")
 	if a == b:
 		return a
-	return randf() * (b - a) + a
+	return StatMath.get_rng().randf() * (b - a) + a
 
 
 # Exponential Distribution (Float): randf_exponential(lambda_param)
@@ -166,9 +167,9 @@ static func randf_uniform(a: float, b: float) -> float:
 static func randf_exponential(lambda_param: float) -> float:
 	assert(lambda_param > 0.0, "Rate parameter (lambda_param) must be positive for Exponential distribution.")
 	# Ensure u is strictly (0,1) to avoid log(0) or log(1) from 1-u.
-	var u: float = randf()
+	var u: float = StatMath.get_rng().randf()
 	while u == 0.0 or u == 1.0: 
-		u = randf()
+		u = StatMath.get_rng().randf()
 	return -log(1.0 - u) / lambda_param
 
 	
@@ -183,9 +184,9 @@ static func randf_erlang(k: int, lambda_param: float) -> float:
 	# Sum of k independent exponential variables, or product of k uniform variables method.
 	var product: float = 1.0
 	for _i in range(k):
-		var u: float = randf()
+		var u: float = StatMath.get_rng().randf()
 		while u == 0.0: # Ensure product does not become 0 due to u being 0.
-			u = randf()
+			u = StatMath.get_rng().randf()
 		product *= u
 		
 	return -log(product) / lambda_param
@@ -195,10 +196,10 @@ static func randf_erlang(k: int, lambda_param: float) -> float:
 # Generates a random float from a standard normal distribution N(0,1).
 # Uses the Box-Muller transform, returning one of the two generated variates.
 static func randf_gaussian() -> float: 
-	var u1: float = randf()
+	var u1: float = StatMath.get_rng().randf()
 	while u1 == 0.0: # Avoid log(0) if randf() could return 0.
-		u1 = randf()
-	var u2: float = randf()
+		u1 = StatMath.get_rng().randf()
+	var u2: float = StatMath.get_rng().randf()
 	
 	var z0: float = sqrt(-2.0 * log(u1)) * cos(2.0 * PI * u2)
 	# var z1: float = sqrt(-2.0 * log(u1)) * sin(2.0 * PI * u2) # The second variable, if needed.
@@ -242,7 +243,7 @@ static func randv_histogram(values: Array, probabilities: Array) -> Variant:
 	for i in range(normalized_probs.size()):
 		normalized_probs[i] = normalized_probs[i] / sum_prob
 
-	var rand_val: float = randf()
+	var rand_val: float = StatMath.get_rng().randf()
 	var running_total: float = 0.0
 	for i in range(normalized_probs.size()):
 		running_total += normalized_probs[i]

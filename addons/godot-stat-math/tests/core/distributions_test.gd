@@ -444,3 +444,43 @@ func test_randv_histogram_zero_sum_probabilities() -> void:
 	var test_call: Callable = func():
 		StatMath.Distributions.randv_histogram(["a", "b"], [0.0, 0.0])
 	await assert_error(test_call).is_runtime_error("Assertion failed: Sum of probabilities must be positive for normalization.") 
+
+
+# --- Test for RNG Determinism ---
+
+func test_rng_determinism_with_set_seed() -> void:
+	const TEST_SEED: int = 777
+	var results_run1: Array = []
+	var results_run2: Array = []
+
+	# First Run
+	StatMath.set_seed(TEST_SEED)
+	results_run1.append(StatMath.Distributions.randi_bernoulli(0.6))      # Expected int
+	results_run1.append(StatMath.Distributions.randf_normal(15.0, 3.5))  # Expected float
+	results_run1.append(StatMath.Distributions.randi_poisson(4.2))       # Expected int
+
+	# Second Run
+	StatMath.set_seed(TEST_SEED) # Reset to the same seed
+	results_run2.append(StatMath.Distributions.randi_bernoulli(0.6))
+	results_run2.append(StatMath.Distributions.randf_normal(15.0, 3.5))
+	results_run2.append(StatMath.Distributions.randi_poisson(4.2))
+
+	assert_int(results_run1.size()).is_equal(results_run2.size()) # Both runs should produce the same number of results.
+	# Ensuring we have the expected number of results for this specific test's logic
+	assert_bool(results_run1.size() == 3) #Test logic expects 3 results to compare.
+
+	# Compare results element by element based on their expected types
+	# Result 0 (int from randi_bernoulli)
+	assert_bool(results_run1[0] is int).is_true() # Result 0 (Run 1) should be an int.
+	assert_bool(results_run2[0] is int).is_true() # Result 0 (Run 2) should be an int.
+	assert_int(results_run1[0]).is_equal(results_run2[0]) # Result 0 (randi_bernoulli) should be deterministic.
+
+	# Result 1 (float from randf_normal)
+	assert_bool(results_run1[1] is float).is_true() # Result 1 (Run 1) should be a float.
+	assert_bool(results_run2[1] is float).is_true() # Result 1 (Run 2) should be a float.
+	assert_float(results_run1[1]).is_equal_approx(results_run2[1], 0.0000001) # Result 1 (randf_normal) should be deterministic.")
+
+	# Result 2 (int from randi_poisson)
+	assert_bool(results_run1[2] is int).is_true() # Result 2 (Run 1) should be an int.
+	assert_bool(results_run2[2] is int).is_true() # Result 2 (Run 2) should be an int.
+	assert_int(results_run1[2]).is_equal(results_run2[2]) # Result 2 (randi_poisson) should be deterministic.") 

@@ -247,4 +247,47 @@ func test_generate_samples_latin_hypercube_ndraws_zero() -> void:
 func test_generate_samples_latin_hypercube_ndraws_negative() -> void:
 	var ndraws: int = -5
 	var samples: Array[float] = StatMath.Sampling.generate_samples(ndraws, StatMath.Sampling.SamplingMethod.LATIN_HYPERCUBE)
-	assert_int(samples.size()).is_equal(0) # "LHS: Should return an empty array for ndraws < 0" 
+	assert_int(samples.size()).is_equal(0) # "LHS: Should return an empty array for ndraws < 0"
+
+
+# --- Test for RNG Determinism with Global StatMath Seed ---
+
+func test_rng_determinism_with_set_seed() -> void:
+	const TEST_SEED: int = 888
+	const NDRAWS: int = 5
+	var results_run1_random: Array[float]
+	var results_run1_lhs: Array[float]
+	var results_run2_random: Array[float]
+	var results_run2_lhs: Array[float]
+
+	# --- First Run ---
+	StatMath.set_seed(TEST_SEED)
+	# Run 1, Part 1: RANDOM samples
+	results_run1_random = StatMath.Sampling.generate_samples(NDRAWS, StatMath.Sampling.SamplingMethod.RANDOM)
+	# Run 1, Part 2: LHS samples (RNG state is now different from start of Part 1)
+	results_run1_lhs = StatMath.Sampling.generate_samples(NDRAWS, StatMath.Sampling.SamplingMethod.LATIN_HYPERCUBE)
+
+
+	# --- Second Run - Mimic the exact sequence of operations on the RNG ---
+	StatMath.set_seed(TEST_SEED) # Reset to the same seed
+	# Run 2, Part 1: RANDOM samples
+	results_run2_random = StatMath.Sampling.generate_samples(NDRAWS, StatMath.Sampling.SamplingMethod.RANDOM)
+	# Run 2, Part 2: LHS samples (RNG state is now different from start of Part 1, same as end of Run 1 Part 1)
+	results_run2_lhs = StatMath.Sampling.generate_samples(NDRAWS, StatMath.Sampling.SamplingMethod.LATIN_HYPERCUBE)
+
+
+	# --- Assertions for RANDOM samples ---
+	assert_int(results_run1_random.size()).is_equal(NDRAWS) # Run 1 RANDOM: Correct number of samples.
+	assert_int(results_run2_random.size()).is_equal(NDRAWS) # Run 2 RANDOM: Correct number of samples.
+	for i in range(NDRAWS):
+		assert_bool(results_run1_random[i] is float).is_true() # Run 1 RANDOM sample %d should be float. % i
+		assert_bool(results_run2_random[i] is float).is_true() # Run 2 RANDOM sample %d should be float. % i
+		assert_float(results_run1_random[i]).is_equal(results_run2_random[i]) # RANDOM samples should be deterministic. Index: %d % i
+
+	# --- Assertions for LHS samples ---
+	assert_int(results_run1_lhs.size()).is_equal(NDRAWS) # Run 1 LHS: Correct number of samples.
+	assert_int(results_run2_lhs.size()).is_equal(NDRAWS) # Run 2 LHS: Correct number of samples.
+	for i in range(NDRAWS):
+		assert_bool(results_run1_lhs[i] is float).is_true() # Run 1 LHS sample %d should be float. % i
+		assert_bool(results_run2_lhs[i] is float).is_true() # Run 2 LHS sample %d should be float. % i
+		assert_float(results_run1_lhs[i]).is_equal(results_run2_lhs[i]) # LHS samples should be deterministic. Index: %d % i
