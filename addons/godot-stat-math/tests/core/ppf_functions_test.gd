@@ -171,4 +171,142 @@ func test_negative_binomial_ppf_p_one() -> void:
 
 func test_negative_binomial_ppf_invalid_r() -> void:
 	var result: int = StatMath.PpfFunctions.negative_binomial_ppf(0.5, 0, 0.5)
-	assert_int(result).is_equal(-1) 
+	assert_int(result).is_equal(-1)
+
+# --- Bernoulli PPF ---
+func test_bernoulli_ppf_p_less_than_one_minus_prob_success() -> void:
+	# CDF(0) = 1 - prob_success. If p <= CDF(0), result is 0.
+	# prob_success = 0.7, 1 - prob_success = 0.3. p = 0.2. 0.2 <= 0.3, so expect 0.
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(0.2, 0.7)
+	assert_int(result).is_equal(0)
+
+func test_bernoulli_ppf_p_greater_than_one_minus_prob_success() -> void:
+	# prob_success = 0.7, 1 - prob_success = 0.3. p = 0.4. 0.4 > 0.3, so expect 1.
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(0.4, 0.7)
+	assert_int(result).is_equal(1)
+
+func test_bernoulli_ppf_p_equals_one_minus_prob_success() -> void:
+	# prob_success = 0.7, 1 - prob_success = 0.3. p = 0.3. 0.3 <= 0.3, so expect 0.
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(0.3, 0.7)
+	assert_int(result).is_equal(0)
+
+func test_bernoulli_ppf_p_zero() -> void:
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(0.0, 0.7)
+	assert_int(result).is_equal(0) # Smallest k is 0
+
+func test_bernoulli_ppf_p_one() -> void:
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(1.0, 0.7)
+	assert_int(result).is_equal(1) # Smallest k to make CDF >= 1.0 is 1
+
+func test_bernoulli_ppf_prob_success_zero() -> void:
+	# prob_success = 0.0. CDF(0) = 1.0.
+	# For p = 0.5, 0.5 <= 1.0, so expect 0.
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(0.5, 0.0)
+	assert_int(result).is_equal(0)
+
+func test_bernoulli_ppf_prob_success_one() -> void:
+	# prob_success = 1.0. CDF(0) = 0.0. CDF(1) = 1.0.
+	# For p = 0.5, 0.5 > 0.0, so expect 1.
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(0.5, 1.0)
+	assert_int(result).is_equal(1)
+
+func test_bernoulli_ppf_invalid_p_too_low() -> void:
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(-0.1, 0.5)
+	assert_int(result).is_equal(-1) # Expect -1 for invalid parameters
+
+func test_bernoulli_ppf_invalid_p_too_high() -> void:
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(1.1, 0.5)
+	assert_int(result).is_equal(-1) # Expect -1 for invalid parameters
+
+func test_bernoulli_ppf_invalid_prob_success_too_low() -> void:
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(0.5, -0.1)
+	assert_int(result).is_equal(-1) # Expect -1 for invalid parameters
+
+func test_bernoulli_ppf_invalid_prob_success_too_high() -> void:
+	var result: int = StatMath.PpfFunctions.bernoulli_ppf(0.5, 1.1)
+	assert_int(result).is_equal(-1) # Expect -1 for invalid parameters
+
+
+# --- Discrete Histogram PPF ---
+func test_discrete_histogram_ppf_basic_cases() -> void:
+	var values: Array[String] = ["A", "B", "C"]
+	var probabilities: Array[float] = [0.2, 0.5, 0.3] # CDF: A=0.2, B=0.7, C=1.0
+	
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.1, values, probabilities)).is_equal("A")
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.2, values, probabilities)).is_equal("A") # p == CDF(A)
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.20001, values, probabilities)).is_equal("B")
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.69999, values, probabilities)).is_equal("B")
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.7, values, probabilities)).is_equal("B") # p == CDF(B)
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.70001, values, probabilities)).is_equal("C")
+
+func test_discrete_histogram_ppf_p_zero() -> void:
+	var values: Array[String] = ["A", "B"]
+	var probabilities: Array[float] = [0.5, 0.5]
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.0, values, probabilities)).is_equal("A")
+
+func test_discrete_histogram_ppf_p_one_exact_sum() -> void:
+	var values: Array[String] = ["A", "B", "C"]
+	var probabilities: Array[float] = [0.2, 0.5, 0.3] # Sums to 1.0
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(1.0, values, probabilities)).is_equal("C")
+
+func test_discrete_histogram_ppf_p_one_sum_less_than_one_fallback() -> void:
+	var values: Array[String] = ["X", "Y"]
+	var probabilities: Array[float] = [0.1, 0.1] # Sums to 0.2
+	# Even if p=1.0, and sum_probs is less, it should return the last value due to the fallback logic.
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(1.0, values, probabilities)).is_equal("Y")
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.15, values, probabilities)).is_equal("Y") # Should also fall into the last bucket here based on logic
+
+func test_discrete_histogram_ppf_single_value() -> void:
+	var values: Array[String] = ["OnlyOne"]
+	var probabilities: Array[float] = [1.0]
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.0, values, probabilities)).is_equal("OnlyOne")
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)).is_equal("OnlyOne")
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(1.0, values, probabilities)).is_equal("OnlyOne")
+
+func test_discrete_histogram_ppf_values_can_be_numbers() -> void:
+	var values: Array[int] = [10, 20, 30]
+	var probabilities: Array[float] = [0.2, 0.5, 0.3]
+	assert_int(StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)).is_equal(20)
+
+func test_discrete_histogram_ppf_invalid_p_too_low() -> void:
+	var values: Array[String] = ["A"]
+	var probabilities: Array[float] = [1.0]
+	assert_that(StatMath.PpfFunctions.discrete_histogram_ppf(-0.1, values, probabilities)).is_null()
+
+func test_discrete_histogram_ppf_invalid_p_too_high() -> void:
+	var values: Array[String] = ["A"]
+	var probabilities: Array[float] = [1.0]
+	assert_that(StatMath.PpfFunctions.discrete_histogram_ppf(1.1, values, probabilities)).is_null()
+
+func test_discrete_histogram_ppf_empty_values() -> void:
+	var values: Array = []
+	var probabilities: Array[float] = [1.0]
+	assert_that(StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)).is_null()
+
+func test_discrete_histogram_ppf_empty_probabilities() -> void:
+	var values: Array[String] = ["A"]
+	var probabilities: Array[float] = []
+	assert_that(StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)).is_null()
+
+func test_discrete_histogram_ppf_size_mismatch() -> void:
+	var values: Array[String] = ["A", "B"]
+	var probabilities: Array[float] = [1.0]
+	assert_that(StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)).is_null()
+
+func test_discrete_histogram_ppf_negative_probability() -> void:
+	var values: Array[String] = ["A", "B"]
+	var probabilities: Array[float] = [-0.1, 1.1]
+	assert_that(StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)).is_null()
+
+func test_discrete_histogram_ppf_probabilities_not_sum_to_one_warning() -> void:
+	# This test mainly checks if the function still works correctly based on cumulative logic.
+	# The warning itself is harder to check in a standard unit test without log capture.
+	var values: Array[String] = ["Low", "High"]
+	var probabilities: Array[float] = [0.1, 0.1] # Sums to 0.2, not 1.0
+	# CDF: Low=0.1, High=0.2
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.05, values, probabilities)).is_equal("Low")
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.1, values, probabilities)).is_equal("Low")
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.15, values, probabilities)).is_equal("High")
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.2, values, probabilities)).is_equal("High")
+	# For p > sum of probabilities (0.2), it should return the last element
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)).is_equal("High") 

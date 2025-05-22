@@ -70,6 +70,16 @@ See the source for full documentation and comments.
 - `error_function_inverse(y: float) -> float`  
   Inverse error function.
 
+### Sampling (via StatMath.SamplingGen)
+
+- `generate_samples_1d(ndraws: int, method: SamplingMethod, seed: int = -1) -> Array[float]`  
+  Generates `ndraws` 1D samples (Array of floats) using the specified method. 
+  If `seed` is not -1, a local RNG seeded with this value is used.
+
+- `generate_samples_2d(ndraws: int, method: SamplingMethod, seed: int = -1) -> Array[Vector2]`  
+  Generates `ndraws` 2D samples (Array of Vector2) using the specified method. 
+  If `seed` is not -1, a local RNG seeded with this value is used.
+
 ## Reproducible Results (Seeding the RNG)
 
 `Godot Stat Math` provides a robust system for controlling the random number generation (RNG) to ensure reproducible results, which is essential for debugging, testing, and consistent behavior in game mechanics.
@@ -97,11 +107,11 @@ There are two main ways to control seeding:
     *   This will re-initialize the global RNG with `new_seed_value`. All subsequent calls to `StatMath` functions that use random numbers (without an explicit per-call seed) will be based on this new seed.
     *   This is useful for specific scenarios where you want to ensure a particular sequence of random events is reproducible from a certain point in your game logic.
 
-3.  **Per-Call Seeding (for `Sampling.generate_samples()`):**
-    *   The `StatMath.Sampling.generate_samples()` function accepts an optional `seed` parameter.
-    *   When a non-zero `seed` is provided to this function, it creates a *local* `RandomNumberGenerator` instance, seeded with the given value. This local RNG is used only for that specific call to `generate_samples()`.
+3.  **Per-Call Seeding (for `SamplingGen.generate_samples_1d()` and `SamplingGen.generate_samples_2d()`):**
+    *   The `StatMath.SamplingGen.generate_samples_1d()` and `StatMath.SamplingGen.generate_samples_2d()` functions accept an optional `seed` parameter (defaulting to -1).
+    *   When a `seed` other than -1 is provided to these functions, it creates a *local* `RandomNumberGenerator` instance, seeded with the given value. This local RNG is used only for that specific call.
     *   This ensures that the output of that particular sampling operation is deterministic based on the provided seed, without affecting the global `StatMath` RNG state.
-    *   If `seed = 0` (the default) is used, `generate_samples()` will use the global `StatMath` RNG (controlled by `monte_godot_seed` or `StatMath.set_seed()`).
+    *   If `seed = -1` (the default) is used, the functions will use the global `StatMath` RNG (controlled by `monte_godot_seed` or `StatMath.set_seed()`).
 
 **How it Works for Determinism:**
 

@@ -654,3 +654,81 @@ static func negative_binomial_ppf(p: float, r_successes: int, prob_success: floa
 	if p > cumulative_prob + StatMath.EPSILON:
 		push_warning("Negative Binomial PPF search reached max_k_trials (%s) for p=%s, r=%s, pr=%s. cum_prob=%s. Result might be capped." % [max_k_trials, p, r_successes, prob_success, cumulative_prob])
 	return k_trials # Return last k_trials (max_k_trials) as best guess.
+
+# Bernoulli Distribution PPF: bernoulli_ppf(p, prob_success)
+# Calculates the PPF for the Bernoulli distribution (a discrete distribution).
+# This is a special case of the Binomial distribution where n (number of trials) is 1.
+# Returns 0 (failure) or 1 (success) such that CDF(k) >= p.
+# Parameters:
+#   p: float - The probability value (must be between 0.0 and 1.0).
+#   prob_success: float - The probability of success (must be between 0.0 and 1.0).
+# Returns: int - 0 or 1. Returns -1 for invalid parameters.
+static func bernoulli_ppf(p: float, prob_success: float) -> int:
+	if not (p >= 0.0 and p <= 1.0):
+		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+		return -1
+	if not (prob_success >= 0.0 and prob_success <= 1.0):
+		push_error("Success probability prob_success must be between 0.0 and 1.0. Received: %s" % prob_success)
+		return -1
+
+	# A Bernoulli trial is a Binomial trial with n=1.
+	# binomial_ppf(p, 1, prob_success) will return 0 or 1.
+	return binomial_ppf(p, 1, prob_success)
+
+# Discrete Histogram PPF: discrete_histogram_ppf(p, values, probabilities)
+# Calculates the PPF for a user-defined discrete distribution represented by a histogram.
+# Returns the value from the 'values' array corresponding to the smallest cumulative probability >= p.
+# Assumes 'values' and 'probabilities' are correctly ordered if a specific order is meaningful.
+# Parameters:
+#   p: float - The probability value (must be between 0.0 and 1.0).
+#   values: Array - An array of outcome values (can be Variant types).
+#   probabilities: Array[float] - An array of corresponding probabilities for each outcome.
+# Returns: Variant - The outcome value from the 'values' array. Returns null for invalid parameters or errors.
+static func discrete_histogram_ppf(p: float, values: Array, probabilities: Array[float]) -> Variant:
+	if not (p >= 0.0 and p <= 1.0):
+		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+		return null
+	if values.is_empty():
+		push_error("Values array cannot be empty for discrete_histogram_ppf.")
+		return null
+	if probabilities.is_empty():
+		push_error("Probabilities array cannot be empty for discrete_histogram_ppf.")
+		return null
+	if values.size() != probabilities.size():
+		push_error("Values and probabilities arrays must have the same size. Received sizes %s and %s." % [values.size(), probabilities.size()])
+		return null
+
+	var sum_probs: float = 0.0
+	for prob_val in probabilities:
+		if prob_val < 0.0:
+			push_error("All probabilities must be non-negative. Found: %s" % prob_val)
+			return null
+		sum_probs += prob_val
+	
+	if abs(sum_probs - 1.0) > StatMath.EPSILON:
+		push_warning("Sum of probabilities (%s) is not close to 1.0 for discrete_histogram_ppf. Normalization may be needed." % sum_probs)
+		# Proceeding, but this might indicate an issue with input data.
+
+	var cumulative_prob: float = 0.0
+	for i in range(values.size()):
+		var current_value: Variant = values[i]
+		var current_prob: float = probabilities[i]
+		
+		if current_prob < 0.0: # Should have been caught above, but as a safeguard during summation.
+			push_error("Encountered negative probability during PPF calculation: %s" % current_prob)
+			return null
+
+		cumulative_prob += current_prob
+		
+		# Smallest value k such that CDF(k) >= p
+		if cumulative_prob >= p - StatMath.EPSILON: # Use EPSILON for float comparison
+			return current_value
+	
+	# If p is very close to 1.0 and the sum of probabilities is slightly less than 1 due to float precision,
+	# or if p=1.0, return the last value.
+	if values.size() > 0:
+		return values[values.size() - 1]
+
+	# Should not be reached if initial checks pass and arrays are not empty.
+	push_error("discrete_histogram_ppf: Failed to find a value. This state should be unreachable.")
+	return null
