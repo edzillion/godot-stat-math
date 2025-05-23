@@ -80,6 +80,16 @@ See the source for full documentation and comments.
   Generates `ndraws` 2D samples (Array of Vector2) using the specified method. 
   If `seed` is not -1, a local RNG seeded with this value is used.
 
+### Draw Without Replacement
+
+These functions are particularly useful for game development scenarios like card games, loot drops, or any situation where you need to sample items without repeating:
+
+- `draw_without_replacement(items: Array, count: int, seed: int = -1) -> Array`  
+  Randomly selects `count` items from the input array without replacement. Useful for card games, loot tables, or any scenario where items should not be repeated.
+
+- `weighted_draw_without_replacement(items: Array, weights: Array, count: int, seed: int = -1) -> Array`  
+  Randomly selects `count` items from the input array without replacement, using the provided weights to influence selection probability. Perfect for weighted loot tables or card rarity systems.
+
 ## Reproducible Results (Seeding the RNG)
 
 `Godot Stat Math` provides a robust system for controlling the random number generation (RNG) to ensure reproducible results, which is essential for debugging, testing, and consistent behavior in game mechanics.
