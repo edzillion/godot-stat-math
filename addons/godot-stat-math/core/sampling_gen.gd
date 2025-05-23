@@ -7,7 +7,10 @@ enum SamplingMethod {
 	SOBOL_RANDOM,
 	HALTON,
 	HALTON_RANDOM,
-	LATIN_HYPERCUBE
+	LATIN_HYPERCUBE,
+	FISHER_YATES, # Classic shuffle then draw
+	RESERVOIR, # For when you don't know draw count in advance
+	SELECTION_TRACKING # For memory-efficient single draws
 }
 
 # Dependencies:
@@ -442,3 +445,128 @@ static func _generate_latin_hypercube_2d(ndraws: int, rng: RandomNumberGenerator
 		samples[i] = Vector2(lhs_x[i], lhs_y[i])
 		
 	return samples
+
+
+# --- Sampling without replacement ---
+
+# Main interface for drawing cards
+static func draw_without_replacement(deck_size: int, draw_count: int, method: SamplingMethod = SamplingMethod.FISHER_YATES) -> Array[int]:
+	if draw_count < 0:
+		printerr("draw_without_replacement: draw_count cannot be negative.")
+		return []
+	if deck_size < 0:
+		printerr("draw_without_replacement: deck_size cannot be negative.")
+		return []
+	if draw_count > deck_size:
+		printerr("draw_without_replacement: draw_count cannot be greater than deck_size.")
+		# Fallback: return all elements from deck_size if user requests more than available
+		# Alternatively, could return an empty array or error. For now, let's adjust draw_count.
+		# Consider changing this behavior based on stricter error handling needs.
+		# draw_count = deck_size 
+		# For now, strict error and empty return:
+		return []
+
+
+	match method:
+		SamplingMethod.FISHER_YATES:
+			return _fisher_yates_draw(deck_size, draw_count)
+		SamplingMethod.RESERVOIR:
+			return _reservoir_draw(deck_size, draw_count)
+		SamplingMethod.SELECTION_TRACKING:
+			return _selection_tracking_draw(deck_size, draw_count)
+	return [] # Should not be reached if method is valid
+
+
+# Fisher-Yates Implementation
+static func _fisher_yates_draw(deck_size: int, draw_count: int) -> Array[int]:
+	var deck: Array[int] = []
+	deck.resize(deck_size) # Pre-allocate for slight efficiency
+	for i in range(deck_size):
+		deck[i] = i
+	
+	var rng: RandomNumberGenerator = StatMath.get_rng()
+
+	# Shuffle only the portion we need for the draw_count
+	# This is a partial Fisher-Yates shuffle (aka Knuth shuffle)
+	for i in range(draw_count):
+		# Pick an element from the unshuffled part of the deck [i, deck_size - 1]
+		var j: int = rng.randi_range(i, deck_size - 1)
+		# Swap it with the current element at index i
+		if i != j: # Optional check, swapping with self is harmless but avoidable
+			var temp: int = deck[i]
+			deck[i] = deck[j]
+			deck[j] = temp
+
+	# The first draw_count elements are now our random sample
+	var result: Array[int] = []
+	# deck.slice returns a generic Array, so we need to cast
+	var slice_to_copy: Array = deck.slice(0, draw_count)
+	result.resize(draw_count) # Pre-allocate
+	for i in range(draw_count):
+		result[i] = slice_to_copy[i] as int
+	return result
+
+
+# Reservoir Sampling Implementation
+# Useful when the total number of items (deck_size) is very large or unknown.
+# For a known, fixed deck_size like in cards, Fisher-Yates is generally preferred.
+static func _reservoir_draw(deck_size: int, draw_count: int) -> Array[int]:
+	var reservoir: Array[int] = []
+	reservoir.resize(draw_count) # Pre-allocate if draw_count is known and non-zero
+	
+	if draw_count == 0: # Edge case: nothing to draw
+		return reservoir
+
+	var rng: RandomNumberGenerator = StatMath.get_rng()
+
+	# Fill the reservoir with the first draw_count items
+	for i in range(draw_count):
+		if i < deck_size: # Ensure we don't read past deck_size if it's smaller than draw_count
+			reservoir[i] = i
+		# else: if deck_size < draw_count, this part of reservoir remains uninitialized
+		# This case should be handled by the initial check in draw_without_replacement
+
+	# Iterate through the rest of the items (from draw_count up to deck_size - 1)
+	for i in range(draw_count, deck_size):
+		var j: int = rng.randi_range(0, i) # Random index up to current item index
+		if j < draw_count:
+			reservoir[j] = i # Replace element in reservoir
+
+	return reservoir
+
+
+# Selection Tracking Implementation
+# Memory efficient for single or few draws from a very large deck,
+# but can be slow if draw_count is large relative to deck_size due to potential retries.
+static func _selection_tracking_draw(deck_size: int, draw_count: int) -> Array[int]:
+	var selected_indices: Dictionary = {} # Using a Dictionary to track selected items
+	var result: Array[int] = []
+	result.resize(draw_count) # Pre-allocate
+	
+	if draw_count == 0: # Edge case
+		return result
+
+	var rng: RandomNumberGenerator = StatMath.get_rng()
+	var items_drawn: int = 0
+
+	# Loop until we have drawn the required number of items
+	# Add a guard against potential infinite loops if logic is flawed or deck_size is too small,
+	# though the draw_count > deck_size check should prevent the latter.
+	var max_attempts: int = (deck_size * 4) + (draw_count * 4) + 20 # Adjusted heuristic for max attempts
+	var attempts: int = 0
+
+	while items_drawn < draw_count and attempts < max_attempts:
+		var random_index: int = rng.randi_range(0, deck_size - 1)
+		if not selected_indices.has(random_index):
+			selected_indices[random_index] = true # Mark as selected
+			result[items_drawn] = random_index    # Add to results
+			items_drawn += 1
+		attempts += 1
+	
+	if items_drawn < draw_count:
+		printerr("_selection_tracking_draw: Failed to draw enough unique items. This might indicate an issue or very high draw_count relative to deck_size.")
+		# Return partially filled array or handle error as appropriate
+		return result.slice(0, items_drawn)
+
+
+	return result

@@ -4,3 +4,5 @@
 reports/
 .cursor/
 monaco/
+.vscode/
+

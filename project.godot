@@ -25,7 +25,7 @@ enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg", "res://addons/godot
 
 [gdunit4]
 
-settings/test/test_lookup_folder="tests"
+settings/test/test_lookup_folder="addons"
 settings/test/test_discovery=true
 ui/toolbar/run_overall=true
 
