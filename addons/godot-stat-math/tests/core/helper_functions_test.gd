@@ -144,4 +144,33 @@ func test_lower_incomplete_gamma_regularized_invalid_a_negative() -> void:
 func test_lower_incomplete_gamma_regularized_invalid_z_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.HelperFunctions.lower_incomplete_gamma_regularized(2.0, -1.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Parameter z must be non-negative for Lower Incomplete Gamma.") 
+	await assert_error(test_call).is_runtime_error("Assertion failed: Parameter z must be non-negative for Lower Incomplete Gamma.")
+
+# --- Sanitize Numeric Array ---
+func test_sanitize_numeric_array_mixed_types() -> void:
+	var input_array: Array = [1.5, "invalid", 2, null, 3.7, false, 4]
+	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(input_array)
+	var expected: Array[float] = [1.5, 2.0, 3.7, 4.0]
+	assert_array(result).is_equal(expected)
+
+func test_sanitize_numeric_array_all_numeric() -> void:
+	var input_array: Array = [3.1, 1, 2.5, 4]
+	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(input_array)
+	var expected: Array[float] = [1.0, 2.5, 3.1, 4.0]
+	assert_array(result).is_equal(expected)
+
+func test_sanitize_numeric_array_all_invalid() -> void:
+	var input_array: Array = ["text", null, false, {}]
+	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(input_array)
+	assert_array(result).is_empty()
+
+func test_sanitize_numeric_array_empty() -> void:
+	var input_array: Array = []
+	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(input_array)
+	assert_array(result).is_empty()
+
+func test_sanitize_numeric_array_sorting() -> void:
+	var input_array: Array = [5, 1, 3, 2, 4]
+	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(input_array)
+	var expected: Array[float] = [1.0, 2.0, 3.0, 4.0, 5.0]
+	assert_array(result).is_equal(expected) 

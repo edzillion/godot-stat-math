@@ -70,3 +70,61 @@ func _ready():
 	print("C: %.1f to %.1f (50th-70th percentile)" % [grade_C, grade_B])
 	print("D: %.1f to %.1f (30th-50th percentile)" % [grade_D, grade_C])
 	print("F: Below %.1f (bottom 30%%)" % grade_D)
+
+	# Example 5: Basic Statistics - Analyzing Player Performance Data
+	print("\n--- Basic Statistics Example ---")
+	# Simulate player performance data (scores, reaction times, etc.)
+	var raw_player_scores = [95.5, "invalid_entry", 87.2, null, 92.1, 88.8, 90.0, 94.3, 89.7, 91.2]
+	print("Raw player data: %s" % [raw_player_scores])
+	
+	# Clean and sort the data
+	var clean_scores: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(raw_player_scores)
+	print("Cleaned and sorted scores: %s" % [clean_scores])
+	
+	# Calculate individual statistics
+	var avg_score: float = StatMath.BasicStats.mean(clean_scores)
+	var median_score: float = StatMath.BasicStats.median(clean_scores)
+	var score_std_dev: float = StatMath.BasicStats.standard_deviation(clean_scores)
+	var score_range: float = StatMath.BasicStats.range_spread(clean_scores)
+	var mad: float = StatMath.BasicStats.median_absolute_deviation(clean_scores)
+	
+	print("Statistical Analysis:")
+	print("  Mean score: %.2f" % avg_score)
+	print("  Median score: %.2f" % median_score)
+	print("  Standard deviation: %.2f" % score_std_dev)
+	print("  Score range: %.2f" % score_range)
+	print("  Median absolute deviation: %.2f" % mad)
+	
+	# Get comprehensive summary
+	var summary: Dictionary = StatMath.BasicStats.summary_statistics(clean_scores)
+	print("\nComprehensive Summary:")
+	for key in summary.keys():
+		if key == "count":
+			print("  %s: %d" % [key, summary[key]])
+		else:
+			print("  %s: %.3f" % [key, summary[key]])
+	
+	# Practical use case: Detecting outliers
+	print("\nOutlier Detection (values > 2 standard deviations from mean):")
+	var outlier_threshold: float = 2.0 * score_std_dev
+	for score in clean_scores:
+		var deviation: float = abs(score - avg_score)
+		if deviation > outlier_threshold:
+			print("  Score %.2f is an outlier (%.2f std devs from mean)" % [score, deviation / score_std_dev])
+	
+	# Performance classification example
+	print("\nPerformance Classification:")
+	for score in clean_scores:
+		var z_score: float = (score - avg_score) / score_std_dev
+		var classification: String
+		if z_score > 1.0:
+			classification = "Above Average"
+		elif z_score > 0.0:
+			classification = "Average+"
+		elif z_score > -1.0:
+			classification = "Average-"
+		else:
+			classification = "Below Average"
+		print("  Score %.2f (z=%.2f): %s" % [score, z_score, classification])
+
+	get_tree().quit()

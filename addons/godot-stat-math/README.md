@@ -28,6 +28,13 @@ var k_val: float = StatMath.HelperFunctions.binomial_coefficient(10, 3)
 
 # Error function
 var erf_val: float = StatMath.ErrorFunctions.error_function(1.0)
+
+# Basic statistics - analyze player scores
+var raw_scores = [95.5, "invalid", 87.2, null, 92.1, 88.8, 90.0]
+var clean_scores: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(raw_scores)
+var avg_score: float = StatMath.BasicStats.mean(clean_scores)
+var score_std_dev: float = StatMath.BasicStats.standard_deviation(clean_scores)
+var summary: Dictionary = StatMath.BasicStats.summary_statistics(clean_scores)
 ```
 
 ## API Reference (Selected)
@@ -61,6 +68,29 @@ See the source for full documentation and comments.
 
 - `gamma_function(z: float) -> float`  
   Gamma function Γ(z).
+
+- `sanitize_numeric_array(input_array: Array) -> Array[float]`  
+  Cleans and sorts an array, keeping only numeric values.
+
+### Basic Statistics
+
+- `mean(data: Array[float]) -> float`  
+  Arithmetic mean (average) of the dataset.
+
+- `median(data: Array[float]) -> float`  
+  Middle value of a sorted dataset.
+
+- `variance(data: Array[float]) -> float`  
+  Population variance of the dataset.
+
+- `standard_deviation(data: Array[float]) -> float`  
+  Population standard deviation of the dataset.
+
+- `median_absolute_deviation(data: Array[float]) -> float`  
+  Robust measure of variability using median of absolute deviations.
+
+- `summary_statistics(data: Array[float]) -> Dictionary`  
+  Comprehensive statistical summary including all basic statistics.
 
 ### Error Functions
 

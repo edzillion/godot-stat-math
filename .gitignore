@@ -5,4 +5,5 @@ reports/
 .cursor/
 monaco/
 .vscode/
+*.uid
 

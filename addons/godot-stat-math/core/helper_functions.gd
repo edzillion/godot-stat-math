@@ -191,3 +191,20 @@ static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
 	# We will return NAN instead of the result of the current unverified algorithm.
 	# To re-enable the experimental algorithm below for testing, comment out the next line.
 	return NAN
+
+# --- Data Preprocessing Functions ---
+
+# Sanitize Numeric Array: Clean and sort numeric data
+# Ingests an Array with elements of any type, sanitizes non-integers/floats, 
+# and returns a sorted Array[float]. Non-numeric values are filtered out.
+# This is useful for preprocessing data before statistical calculations.
+static func sanitize_numeric_array(input_array: Array) -> Array[float]:
+	var sanitized: Array[float] = []
+	
+	for element in input_array:
+		if element is int or element is float:
+			sanitized.append(float(element))
+		# Non-numeric values (strings, nulls, objects, etc.) are silently skipped
+	
+	sanitized.sort()
+	return sanitized
