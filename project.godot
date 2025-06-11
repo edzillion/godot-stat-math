@@ -21,13 +21,14 @@ StatMath="*res://addons/godot-stat-math/stat_math.gd"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg", "res://addons/godot-stat-math/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot-stat-math/plugin.cfg", "res://addons/gdUnit4/plugin.cfg")
 
 [gdunit4]
 
 settings/test/test_lookup_folder="addons"
 settings/test/test_discovery=true
 ui/toolbar/run_overall=true
+report/assert/verbose_errors=false
 
 [rendering]
 

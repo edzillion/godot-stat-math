@@ -69,7 +69,7 @@ static func _ensure_sobol_vectors_initialized() -> void:
 ## @param method: SamplingMethod The sampling method to use.
 ## @param seed: int The random seed (optional, uses global RNG if -1).
 ## @return Array[float] An Array of floats. Empty if ndraws <= 0.
-static func generate_samples_1d(ndraws: int, method: SamplingMethod, seed: int = -1) -> Array[float]:
+static func generate_samples_1d(ndraws: int, method: SamplingMethod, sample_seed: int = -1) -> Array[float]:
 	var samples: Array[float] = []
 	if ndraws <= 0:
 		return samples
@@ -77,9 +77,9 @@ static func generate_samples_1d(ndraws: int, method: SamplingMethod, seed: int =
 	samples.resize(ndraws)
 
 	var rng_to_use: RandomNumberGenerator
-	if seed != -1:
+	if sample_seed != -1:
 		rng_to_use = RandomNumberGenerator.new()
-		rng_to_use.seed = seed
+		rng_to_use.seed = sample_seed
 	else:
 		rng_to_use = StatMath.get_rng()
 
@@ -132,7 +132,7 @@ static func generate_samples_1d(ndraws: int, method: SamplingMethod, seed: int =
 ## @param method: SamplingMethod The sampling method to use.
 ## @param seed: int The random seed (optional, uses global RNG if -1).
 ## @return Array[Vector2] An Array of Vector2. Empty if ndraws <= 0.
-static func generate_samples_2d(ndraws: int, method: SamplingMethod, seed: int = -1) -> Array[Vector2]:
+static func generate_samples_2d(ndraws: int, method: SamplingMethod, sample_seed: int = -1) -> Array[Vector2]:
 	var samples: Array[Vector2] = []
 	if ndraws <= 0:
 		return samples
@@ -140,9 +140,9 @@ static func generate_samples_2d(ndraws: int, method: SamplingMethod, seed: int =
 	samples.resize(ndraws)
 
 	var rng_to_use: RandomNumberGenerator
-	if seed != -1:
+	if sample_seed != -1:
 		rng_to_use = RandomNumberGenerator.new()
-		rng_to_use.seed = seed
+		rng_to_use.seed = sample_seed
 	else:
 		rng_to_use = StatMath.get_rng()
 
