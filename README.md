@@ -28,6 +28,13 @@ var k_val: float = StatMath.HelperFunctions.binomial_coefficient(10, 3)
 
 # Error function
 var erf_val: float = StatMath.ErrorFunctions.error_function(1.0)
+
+# Basic statistics - analyze player scores
+var raw_scores = [95.5, "invalid", 87.2, null, 92.1, 88.8, 90.0]
+var clean_scores: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(raw_scores)
+var avg_score: float = StatMath.BasicStats.mean(clean_scores)
+var score_std_dev: float = StatMath.BasicStats.standard_deviation(clean_scores)
+var summary: Dictionary = StatMath.BasicStats.summary_statistics(clean_scores)
 ```
 
 ## API Reference (Selected)
@@ -62,6 +69,29 @@ See the source for full documentation and comments.
 - `gamma_function(z: float) -> float`  
   Gamma function Γ(z).
 
+- `sanitize_numeric_array(input_array: Array) -> Array[float]`  
+  Cleans and sorts an array, keeping only numeric values.
+
+### Basic Statistics
+
+- `mean(data: Array[float]) -> float`  
+  Arithmetic mean (average) of the dataset.
+
+- `median(data: Array[float]) -> float`  
+  Middle value of a sorted dataset.
+
+- `variance(data: Array[float]) -> float`  
+  Population variance of the dataset.
+
+- `standard_deviation(data: Array[float]) -> float`  
+  Population standard deviation of the dataset.
+
+- `median_absolute_deviation(data: Array[float]) -> float`  
+  Robust measure of variability using median of absolute deviations.
+
+- `summary_statistics(data: Array[float]) -> Dictionary`  
+  Comprehensive statistical summary including all basic statistics.
+
 ### Error Functions
 
 - `error_function(x: float) -> float`  
@@ -80,31 +110,21 @@ See the source for full documentation and comments.
   Generates `ndraws` 2D samples (Array of Vector2) using the specified method. 
   If `seed` is not -1, a local RNG seeded with this value is used.
 
-### Draw Without Replacement
-
-These functions are particularly useful for game development scenarios like card games, loot drops, or any situation where you need to sample items without repeating:
-
-- `draw_without_replacement(items: Array, count: int, seed: int = -1) -> Array`  
-  Randomly selects `count` items from the input array without replacement. Useful for card games, loot tables, or any scenario where items should not be repeated.
-
-- `weighted_draw_without_replacement(items: Array, weights: Array, count: int, seed: int = -1) -> Array`  
-  Randomly selects `count` items from the input array without replacement, using the provided weights to influence selection probability. Perfect for weighted loot tables or card rarity systems.
-
 ## Reproducible Results (Seeding the RNG)
 
 `Godot Stat Math` provides a robust system for controlling the random number generation (RNG) to ensure reproducible results, which is essential for debugging, testing, and consistent behavior in game mechanics.
 
 There are two main ways to control seeding:
 
-1.  **Global Project Seed (`monte_godot_seed`):**
-    *   On startup, `StatMath` looks for a project setting named `monte_godot_seed`.
+1.  **Global Project Seed (`godot_stat_math_seed`):**
+    *   On startup, `StatMath` looks for a project setting named `godot_stat_math_seed`.
     *   If this integer setting exists in your `project.godot` file, `StatMath` will use its value to seed its global RNG.
     *   Example `project.godot` entry:
         ```gdscript
         [application]
         config/name="My Game"
         # ... other settings ...
-        monte_godot_seed=12345
+        godot_stat_math_seed=12345
         ```
     *   If the setting is not found, or is not an integer, `StatMath` will initialize its RNG with a default seed (0, which typically means Godot's RNG will pick a time-based random seed). A message will be printed to the console indicating the seed used.
     *   This method is convenient for setting a consistent seed across your entire project for all runs.
@@ -121,7 +141,7 @@ There are two main ways to control seeding:
     *   The `StatMath.SamplingGen.generate_samples_1d()` and `StatMath.SamplingGen.generate_samples_2d()` functions accept an optional `seed` parameter (defaulting to -1).
     *   When a `seed` other than -1 is provided to these functions, it creates a *local* `RandomNumberGenerator` instance, seeded with the given value. This local RNG is used only for that specific call.
     *   This ensures that the output of that particular sampling operation is deterministic based on the provided seed, without affecting the global `StatMath` RNG state.
-    *   If `seed = -1` (the default) is used, the functions will use the global `StatMath` RNG (controlled by `monte_godot_seed` or `StatMath.set_seed()`).
+    *   If `seed = -1` (the default) is used, the functions will use the global `StatMath` RNG (controlled by `godot_stat_math_seed` or `StatMath.set_seed()`).
 
 **How it Works for Determinism:**
 
@@ -137,7 +157,7 @@ By controlling the seed, you control the sequence of pseudo-random numbers gener
   - `StatMath.HelperFunctions.incomplete_beta(x, a, b)` is currently a placeholder and not implemented. It always returns `NAN` and should not be used for any calculations requiring accuracy.
   - `StatMath.HelperFunctions.lower_incomplete_gamma_regularized(a, z)` is also a placeholder and not fully verified. It may return unreliable or placeholder values.
 - **General Reliability:**
-  - This project is a work in progress. Some results, especially those relying on the above functions, may be unreliable or incorrect. Do not use this addon for critical or scientific/statistical applications requiring high accuracy at this time.
+  - This project is a work in progress. Some results, especially those relying on the above functions, may be unreliable or incorrect. Do not use this addon for critical or scientific/statistical applications requiring high accuracy.
 
 ## Documentation
 
