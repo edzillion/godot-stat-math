@@ -1,7 +1,7 @@
 extends Node
 
 # --- Configuration for Random Number Generation ---
-const MONTE_GODOT_SEED_VARIABLE_NAME: StringName = &"monte_godot_seed"
+const GODOT_STAT_MATH_SEED_VARIABLE_NAME: StringName = &"godot_stat_math_seed"
 const _default_seed: int = 0 # Default seed if no global override is found
 var _rng: RandomNumberGenerator = null
 
@@ -74,26 +74,26 @@ func _create_and_seed_rng(seed_val: int) -> void:
 	# The actual seed used (randomized if input was 0) can be read from _rng.seed after this.
 
 func _initialize_rng() -> void:
-	var global_seed_value: Variant = ProjectSettings.get_setting(MONTE_GODOT_SEED_VARIABLE_NAME, _default_seed)
+	var global_seed_value: Variant = ProjectSettings.get_setting(GODOT_STAT_MATH_SEED_VARIABLE_NAME, _default_seed)
 	var seed_to_use: int
 	
 	if global_seed_value is int:
-		print("StatMath: Found global seed 'monte_godot_seed' with value: %d. Using it." % global_seed_value)
+		print("StatMath: Found global seed 'godot_stat_math_seed' with value: %d. Using it." % global_seed_value)
 		seed_to_use = global_seed_value
 	else:
 		# If the global var exists but is not an int, or doesn't exist (get_setting returns default)
-		if ProjectSettings.has_setting(MONTE_GODOT_SEED_VARIABLE_NAME):
-			printerr("StatMath: Global variable 'monte_godot_seed' is set but not an integer. Using default seed: %d." % _default_seed)
+		if ProjectSettings.has_setting(GODOT_STAT_MATH_SEED_VARIABLE_NAME):
+			printerr("StatMath: Global variable 'godot_stat_math_seed' is set but not an integer. Using default seed: %d." % _default_seed)
 		else:
-			print("StatMath: No global seed 'monte_godot_seed' found or it's not an integer. Using default seed (0 means random)." % str(_default_seed))
+			print("StatMath: No global seed 'godot_stat_math_seed' found or it's not an integer. Using default seed (0 means random)." % str(_default_seed))
 		seed_to_use = _default_seed
 		
 	_create_and_seed_rng(seed_to_use)
 	print("StatMath: Initial RNG created and seeded. Effective seed: %d." % _rng.seed)
 		
 	# Ensure the project setting is actually created if it was defaulted, so user knows it's available.
-	if not ProjectSettings.has_setting(MONTE_GODOT_SEED_VARIABLE_NAME):
-		ProjectSettings.set_setting(MONTE_GODOT_SEED_VARIABLE_NAME, _default_seed)
+	if not ProjectSettings.has_setting(GODOT_STAT_MATH_SEED_VARIABLE_NAME):
+		ProjectSettings.set_setting(GODOT_STAT_MATH_SEED_VARIABLE_NAME, _default_seed)
 		# ProjectSettings.save() # Not strictly necessary for it to be readable by get_setting in same session, but good for persistence if user wants to see it in project.godot
 
 # Returns the addon's RandomNumberGenerator instance.

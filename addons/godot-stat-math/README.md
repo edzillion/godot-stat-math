@@ -116,15 +116,15 @@ See the source for full documentation and comments.
 
 There are two main ways to control seeding:
 
-1.  **Global Project Seed (`monte_godot_seed`):**
-    *   On startup, `StatMath` looks for a project setting named `monte_godot_seed`.
+1.  **Global Project Seed (`godot_stat_math_seed`):**
+    *   On startup, `StatMath` looks for a project setting named `godot_stat_math_seed`.
     *   If this integer setting exists in your `project.godot` file, `StatMath` will use its value to seed its global RNG.
     *   Example `project.godot` entry:
         ```gdscript
         [application]
         config/name="My Game"
         # ... other settings ...
-        monte_godot_seed=12345
+        godot_stat_math_seed=12345
         ```
     *   If the setting is not found, or is not an integer, `StatMath` will initialize its RNG with a default seed (0, which typically means Godot's RNG will pick a time-based random seed). A message will be printed to the console indicating the seed used.
     *   This method is convenient for setting a consistent seed across your entire project for all runs.
@@ -141,7 +141,7 @@ There are two main ways to control seeding:
     *   The `StatMath.SamplingGen.generate_samples_1d()` and `StatMath.SamplingGen.generate_samples_2d()` functions accept an optional `seed` parameter (defaulting to -1).
     *   When a `seed` other than -1 is provided to these functions, it creates a *local* `RandomNumberGenerator` instance, seeded with the given value. This local RNG is used only for that specific call.
     *   This ensures that the output of that particular sampling operation is deterministic based on the provided seed, without affecting the global `StatMath` RNG state.
-    *   If `seed = -1` (the default) is used, the functions will use the global `StatMath` RNG (controlled by `monte_godot_seed` or `StatMath.set_seed()`).
+    *   If `seed = -1` (the default) is used, the functions will use the global `StatMath` RNG (controlled by `godot_stat_math_seed` or `StatMath.set_seed()`).
 
 **How it Works for Determinism:**
 
@@ -157,7 +157,7 @@ By controlling the seed, you control the sequence of pseudo-random numbers gener
   - `StatMath.HelperFunctions.incomplete_beta(x, a, b)` is currently a placeholder and not implemented. It always returns `NAN` and should not be used for any calculations requiring accuracy.
   - `StatMath.HelperFunctions.lower_incomplete_gamma_regularized(a, z)` is also a placeholder and not fully verified. It may return unreliable or placeholder values.
 - **General Reliability:**
-  - This project is a work in progress. Some results, especially those relying on the above functions, may be unreliable or incorrect. Do not use this addon for critical or scientific/statistical applications requiring high accuracy at this time.
+  - This project is a work in progress. Some results, especially those relying on the above functions, may be unreliable or incorrect. Do not use this addon for critical or scientific/statistical applications requiring high accuracy.
 
 ## Documentation
 
