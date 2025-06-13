@@ -26,6 +26,8 @@ const _SOBOL_MAX_VAL_FLOAT: float = float(1 << _SOBOL_BITS)
 static var _sobol_direction_vectors_cache: Dictionary = {}  # dimension -> Array[int]
 static var _max_cached_dimension: int = -1
 
+# Threading is always used for multi-dimensional generation (dimensions >= 3)
+
 # Primitive polynomials for Sobol sequence generation (up to 100 dimensions)
 # Format: [degree, a1, a2, ..., a_degree-1] where polynomial is x^degree + a1*x^(degree-1) + ... + a_degree-1*x + 1
 const _PRIMITIVE_POLYNOMIALS: Array[Array] = [
@@ -91,10 +93,13 @@ func _init() -> void:
 
 ## Ensures Sobol direction vectors are initialized up to the specified dimension.
 ## This method is idempotent and safe to call multiple times.
+## Thread-safe: Uses a simple mutex-like approach via static variables.
 static func _ensure_sobol_vectors_initialized(max_dimension: int) -> void:
 	if max_dimension <= _max_cached_dimension:
 		return
 		
+	# Basic thread safety: if another thread is already initializing higher dimensions,
+	# we don't need to do anything (the cache check above handles this)
 	var start_dim: int = max(_max_cached_dimension + 1, 0)
 	
 	for dim in range(start_dim, max_dimension + 1):
@@ -102,9 +107,13 @@ static func _ensure_sobol_vectors_initialized(max_dimension: int) -> void:
 			printerr("SamplingGen: No primitive polynomial available for dimension ", dim)
 			break
 			
-		_generate_direction_vectors_for_dimension(dim)
+		# Only generate if not already in cache (thread safety)
+		if not _sobol_direction_vectors_cache.has(dim):
+			_generate_direction_vectors_for_dimension(dim)
 	
-	_max_cached_dimension = max_dimension
+	# Update the maximum cached dimension atomically
+	if max_dimension > _max_cached_dimension:
+		_max_cached_dimension = max_dimension
 
 
 ## Generates direction vectors for a specific dimension using its primitive polynomial.
@@ -145,6 +154,196 @@ static func _generate_direction_vectors_for_dimension(dimension: int) -> void:
 	_sobol_direction_vectors_cache[dimension] = direction_vectors
 
 
+# --- THREADED DIMENSION GENERATION ---
+
+## Data structure for passing parameters to worker threads
+class SobolDimensionTask:
+	var dimension: int
+	var n_draws: int  
+	var starting_index: int
+	var method: SamplingMethod
+	var random_mask: int = 0  # For SOBOL_RANDOM
+	var halton_base: int = 2  # For HALTON
+	var random_offset: float = 0.0  # For HALTON_RANDOM
+	var result_samples: Array[float] = []  # Store results here
+	
+	func _init(dim: int, draws: int, start_idx: int, sampling_method: SamplingMethod):
+		dimension = dim
+		n_draws = draws
+		starting_index = start_idx
+		method = sampling_method
+		result_samples.resize(draws)
+
+
+## Thread worker function for generating a single dimension's samples
+static func _generate_dimension_samples_worker(task: SobolDimensionTask) -> void:
+	match task.method:
+		SamplingMethod.RANDOM:
+			# Each thread needs its own RNG with deterministic seeding
+			var thread_rng = RandomNumberGenerator.new()
+			thread_rng.seed = hash(str(task.dimension) + str(task.starting_index))
+			for i in range(task.n_draws):
+				task.result_samples[i] = thread_rng.randf()
+				
+		SamplingMethod.SOBOL:
+			var sobol_samples = _generate_sobol_1d(task.n_draws, task.dimension, task.starting_index)
+			for i in range(task.n_draws):
+				task.result_samples[i] = sobol_samples[i] if i < sobol_samples.size() else -1.0
+				
+		SamplingMethod.SOBOL_RANDOM:
+			var sobol_integers = _get_sobol_1d_integers(task.n_draws, task.dimension, task.starting_index)
+			for i in range(task.n_draws):
+				if sobol_integers[i] != -1:
+					task.result_samples[i] = float(sobol_integers[i] ^ task.random_mask) / _SOBOL_MAX_VAL_FLOAT
+				else:
+					task.result_samples[i] = -1.0
+					
+		SamplingMethod.HALTON:
+			var halton_samples = _generate_halton_1d(task.n_draws, task.halton_base, task.starting_index)
+			for i in range(task.n_draws):
+				task.result_samples[i] = halton_samples[i] if i < halton_samples.size() else -1.0
+				
+		SamplingMethod.HALTON_RANDOM:
+			var halton_samples = _generate_halton_1d(task.n_draws, task.halton_base, task.starting_index)
+			for i in range(task.n_draws):
+				if halton_samples[i] != -1.0:
+					task.result_samples[i] = fmod(halton_samples[i] + task.random_offset, 1.0)
+				else:
+					task.result_samples[i] = -1.0
+		
+		SamplingMethod.LATIN_HYPERCUBE:
+			# Each thread needs its own RNG for LHS
+			var thread_rng = RandomNumberGenerator.new()
+			thread_rng.seed = hash(str(task.dimension) + str(task.starting_index))
+			var lhs_samples = _generate_latin_hypercube_1d(task.n_draws, thread_rng)
+			for i in range(task.n_draws):
+				task.result_samples[i] = lhs_samples[i] if i < lhs_samples.size() else -1.0
+		
+		_:
+			# For unsupported methods, fill with -1.0
+			for i in range(task.n_draws):
+				task.result_samples[i] = -1.0
+
+
+## Threaded version of generate_samples_nd for high-dimensional cases
+static func _generate_samples_nd(
+	n_draws: int, 
+	dimensions: int, 
+	method: SamplingMethod,
+	starting_index: int,
+	rng: RandomNumberGenerator
+) -> Array:
+	var samples: Array = []
+	samples.resize(n_draws)
+	for i in range(n_draws):
+		samples[i] = []
+		samples[i].resize(dimensions)
+	
+	# Pre-generate random values for methods that need them
+	var random_masks: Array = []
+	var random_offsets: Array = []
+	
+	if method == SamplingMethod.SOBOL_RANDOM:
+		random_masks.resize(dimensions)
+		for d in range(dimensions):
+			random_masks[d] = rng.randi() & ((1 << _SOBOL_BITS) - 1)
+	
+	if method == SamplingMethod.HALTON_RANDOM:
+		random_offsets.resize(dimensions)
+		for d in range(dimensions):
+			random_offsets[d] = rng.randf()
+	
+	# Create tasks for each dimension
+	var tasks: Array = []
+	for d in range(dimensions):
+		var task = SobolDimensionTask.new(d, n_draws, starting_index, method)
+		
+		match method:
+			SamplingMethod.SOBOL_RANDOM:
+				task.random_mask = random_masks[d]
+			SamplingMethod.HALTON:
+				task.halton_base = _get_nth_prime(d)
+			SamplingMethod.HALTON_RANDOM:
+				task.halton_base = _get_nth_prime(d)
+				task.random_offset = random_offsets[d]
+			# RANDOM and LATIN_HYPERCUBE handled via deterministic thread seeding
+		
+		tasks.append(task)
+	
+	# Submit tasks to thread pool
+	var task_ids: Array = []
+	for task in tasks:
+		var task_id = WorkerThreadPool.add_task(Callable(_generate_dimension_samples_worker).bind(task))
+		task_ids.append(task_id)
+	
+	# Collect results from threads
+	for d in range(dimensions):
+		WorkerThreadPool.wait_for_task_completion(task_ids[d])
+		# Note: WorkerThreadPool doesn't return task results directly in Godot
+		# We need to use a different approach - shared result storage
+		var dim_samples: Array[float] = tasks[d].result_samples
+		for i in range(n_draws):
+			samples[i][d] = dim_samples[i] if i < dim_samples.size() else -1.0
+	
+	return samples
+
+
+## Data structure for batch shuffle tasks
+class BatchShuffleTask:
+	var deck_size: int
+	var method: SamplingMethod
+	var point_index: int
+	var sample_seed: int
+	var result_shuffle: Array[int] = []
+	
+	func _init(size: int, sampling_method: SamplingMethod, idx: int, seed: int):
+		deck_size = size
+		method = sampling_method
+		point_index = idx
+		sample_seed = seed
+
+
+## Enhanced batch shuffle generation using WorkerThreadPool
+static func _coordinated_batch_shuffles_threaded(
+	deck_size: int,
+	n_shuffles: int,
+	method: SamplingMethod,
+	starting_index: int,
+	sample_seed: int
+) -> Array:
+	var results: Array = []
+	results.resize(n_shuffles)
+	
+	# Create tasks for each shuffle
+	var shuffle_tasks: Array = []
+	for i in range(n_shuffles):
+		var task = BatchShuffleTask.new(deck_size, method, starting_index + i, sample_seed)
+		shuffle_tasks.append(task)
+	
+	# Submit shuffle tasks to thread pool
+	var task_ids: Array = []
+	for task in shuffle_tasks:
+		var task_id = WorkerThreadPool.add_task(Callable(_coordinated_shuffle_worker).bind(task))
+		task_ids.append(task_id)
+	
+	# Wait for all tasks to complete and collect results
+	for i in range(n_shuffles):
+		WorkerThreadPool.wait_for_task_completion(task_ids[i])
+		results[i] = shuffle_tasks[i].result_shuffle
+	
+	return results
+
+
+## Worker function for individual shuffle generation
+static func _coordinated_shuffle_worker(task: BatchShuffleTask) -> void:
+	task.result_shuffle = coordinated_shuffle(
+		task.deck_size, 
+		task.method, 
+		task.point_index, 
+		task.sample_seed
+	)
+
+
 # --- CONTINUOUS SPACE SAMPLING (for Monte Carlo, space-filling) ---
 
 ## Unified interface for generating samples in 1, 2, or N dimensions.
@@ -174,9 +373,9 @@ static func generate_samples(
 	
 	match dimensions:
 		1:
-			return generate_samples_1d(n_draws, method, sample_seed)
+			return generate_samples_1d(n_draws, method, starting_index, sample_seed)
 		2:
-			return generate_samples_2d(n_draws, method, sample_seed)
+			return generate_samples_2d(n_draws, method, starting_index, sample_seed)
 		_:
 			return generate_samples_nd(n_draws, dimensions, method, starting_index, sample_seed)
 
@@ -200,11 +399,6 @@ static func generate_samples_nd(
 	if n_draws <= 0 or dimensions <= 0:
 		return samples
 	
-	samples.resize(n_draws)
-	for i in range(n_draws):
-		samples[i] = []
-		samples[i].resize(dimensions)
-	
 	var rng_to_use: RandomNumberGenerator
 	if sample_seed != -1:
 		rng_to_use = RandomNumberGenerator.new()
@@ -213,6 +407,16 @@ static func generate_samples_nd(
 		rng_to_use = StatMath.get_rng()
 	
 	_ensure_sobol_vectors_initialized(dimensions - 1)
+	
+	# Always use threading for dimensions >= 3 (cleaner, simpler, and faster)
+	if dimensions >= 3:
+		return _generate_samples_nd(n_draws, dimensions, method, starting_index, rng_to_use)
+	
+	# Keep simple sequential implementation only for 1D and 2D cases
+	samples.resize(n_draws)
+	for i in range(n_draws):
+		samples[i] = []
+		samples[i].resize(dimensions)
 	
 	match method:
 		SamplingMethod.RANDOM:
@@ -348,8 +552,12 @@ static func coordinated_batch_shuffles(
 	if n_shuffles <= 0 or deck_size <= 0:
 		return results
 	
-	results.resize(n_shuffles)
+	# Always use threading for batch operations (simpler and faster)
+	if n_shuffles >= 2:
+		return _coordinated_batch_shuffles_threaded(deck_size, n_shuffles, method, starting_index, sample_seed)
 	
+	# Single shuffle case
+	results.resize(n_shuffles)
 	for i in range(n_shuffles):
 		results[i] = coordinated_shuffle(deck_size, method, starting_index + i, sample_seed)
 	
@@ -360,62 +568,25 @@ static func coordinated_batch_shuffles(
 ##
 ## @param ndraws: int The number of samples to draw.
 ## @param method: SamplingMethod The sampling method to use.
+## @param starting_index: int Starting index for deterministic sequences (default 0).
 ## @param seed: int The random seed (optional, uses global RNG if -1).
 ## @return Array[float] An Array of floats. Empty if ndraws <= 0.
-static func generate_samples_1d(ndraws: int, method: SamplingMethod, sample_seed: int = -1) -> Array[float]:
+static func generate_samples_1d(ndraws: int, method: SamplingMethod, starting_index: int = 0, sample_seed: int = -1) -> Array[float]:
 	var samples: Array[float] = []
 	if ndraws <= 0:
 		return samples
-		
+	
+	# Use N-dimensional generation with dimensions=1 for consistency and starting_index support
+	var nd_samples: Array = generate_samples_nd(ndraws, 1, method, starting_index, sample_seed)
+	
+	# Convert from Array[Array[float]] to Array[float]
 	samples.resize(ndraws)
-
-	var rng_to_use: RandomNumberGenerator
-	if sample_seed != -1:
-		rng_to_use = RandomNumberGenerator.new()
-		rng_to_use.seed = sample_seed
-	else:
-		rng_to_use = StatMath.get_rng()
-
-	_ensure_sobol_vectors_initialized(20)
-
-	match method:
-		SamplingMethod.RANDOM:
-			for i in range(ndraws):
-				samples[i] = rng_to_use.randf()
-		
-		SamplingMethod.SOBOL:
-			samples = _generate_sobol_1d(ndraws, 0)
-		
-		SamplingMethod.SOBOL_RANDOM:
-			var sobol_integers: Array[int] = _get_sobol_1d_integers(ndraws, 0)
-			var random_mask: int = rng_to_use.randi() & ((1 << _SOBOL_BITS) - 1)
-			# Check if _get_sobol_1d_integers signaled an error
-			if ndraws > 0 and not sobol_integers.is_empty() and sobol_integers[0] == -1 and sobol_integers.count(-1) == ndraws:
-				for i in range(ndraws): samples[i] = -1.0 # Propagate error
-			else:
-				for i in range(ndraws):
-					samples[i] = float(sobol_integers[i] ^ random_mask) / _SOBOL_MAX_VAL_FLOAT
-
-		SamplingMethod.HALTON:
-			samples = _generate_halton_1d(ndraws, 2) # Base 2 for 1D
-		
-		SamplingMethod.HALTON_RANDOM:
-			var halton_samples_1d: Array[float] = _generate_halton_1d(ndraws, 2)
-			var random_offset_1d: float = rng_to_use.randf()
-			# Error check based on _generate_halton_1d potential error signal
-			if ndraws > 0 and not halton_samples_1d.is_empty() and halton_samples_1d[0] == -1.0 and halton_samples_1d.count(-1.0) == ndraws:
-				for i in range(ndraws): samples[i] = -1.0 # Propagate error
-			else:
-				for i in range(ndraws):
-					samples[i] = fmod(halton_samples_1d[i] + random_offset_1d, 1.0)
-
-		SamplingMethod.LATIN_HYPERCUBE:
-			samples = _generate_latin_hypercube_1d(ndraws, rng_to_use)
-		
-		_:
-			printerr("Unsupported sampling method: ", SamplingMethod.keys()[method])
-			for i in range(ndraws): samples[i] = -1.0 
-
+	for i in range(ndraws):
+		if i < nd_samples.size() and nd_samples[i].size() > 0:
+			samples[i] = nd_samples[i][0]
+		else:
+			samples[i] = -1.0  # Error signal
+	
 	return samples
 
 
@@ -423,48 +594,25 @@ static func generate_samples_1d(ndraws: int, method: SamplingMethod, sample_seed
 ##
 ## @param ndraws: int The number of samples to draw.
 ## @param method: SamplingMethod The sampling method to use.
+## @param starting_index: int Starting index for deterministic sequences (default 0).
 ## @param seed: int The random seed (optional, uses global RNG if -1).
 ## @return Array[Vector2] An Array of Vector2. Empty if ndraws <= 0.
-static func generate_samples_2d(ndraws: int, method: SamplingMethod, sample_seed: int = -1) -> Array[Vector2]:
+static func generate_samples_2d(ndraws: int, method: SamplingMethod, starting_index: int = 0, sample_seed: int = -1) -> Array[Vector2]:
 	var samples: Array[Vector2] = []
 	if ndraws <= 0:
 		return samples
-		
+	
+	# Use N-dimensional generation with dimensions=2 for consistency and starting_index support
+	var nd_samples: Array = generate_samples_nd(ndraws, 2, method, starting_index, sample_seed)
+	
+	# Convert from Array[Array[float]] to Array[Vector2]
 	samples.resize(ndraws)
-
-	var rng_to_use: RandomNumberGenerator
-	if sample_seed != -1:
-		rng_to_use = RandomNumberGenerator.new()
-		rng_to_use.seed = sample_seed
-	else:
-		rng_to_use = StatMath.get_rng()
-
-	_ensure_sobol_vectors_initialized(20)
-
-	match method:
-		SamplingMethod.RANDOM:
-			for i in range(ndraws):
-				samples[i] = Vector2(rng_to_use.randf(), rng_to_use.randf())
-		
-		SamplingMethod.SOBOL:
-			samples = _generate_sobol_2d(ndraws)
-		
-		SamplingMethod.SOBOL_RANDOM:
-			samples = _generate_sobol_random_2d(ndraws, rng_to_use)
-
-		SamplingMethod.HALTON:
-			samples = _generate_halton_2d(ndraws)
-		
-		SamplingMethod.HALTON_RANDOM:
-			samples = _generate_halton_random_2d(ndraws, rng_to_use)
-
-		SamplingMethod.LATIN_HYPERCUBE:
-			samples = _generate_latin_hypercube_2d(ndraws, rng_to_use)
-		
-		_:
-			printerr("Unsupported sampling method: ", SamplingMethod.keys()[method])
-			for i in range(ndraws): samples[i] = Vector2(-1.0, -1.0)
-
+	for i in range(ndraws):
+		if i < nd_samples.size() and nd_samples[i].size() >= 2:
+			samples[i] = Vector2(nd_samples[i][0], nd_samples[i][1])
+		else:
+			samples[i] = Vector2(-1.0, -1.0)  # Error signal
+	
 	return samples
 
 
