@@ -484,3 +484,265 @@ func test_rng_determinism_with_set_seed() -> void:
 	assert_bool(results_run1[2] is int).is_true() # Result 2 (Run 1) should be an int.
 	assert_bool(results_run2[2] is int).is_true() # Result 2 (Run 2) should be an int.
 	assert_int(results_run1[2]).is_equal(results_run2[2]) # Result 2 (randi_poisson) should be deterministic.") 
+
+
+# --- Tests for randf_gamma ---
+
+func test_randf_gamma_basic() -> void:
+	var result: float = StatMath.Distributions.randf_gamma(2.0, 2.0)
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+
+
+func test_randf_gamma_shape_one() -> void:
+	# Gamma(1, θ) is equivalent to Exponential(1/θ)
+	var shape: float = 1.0
+	var scale: float = 2.0
+	var result: float = StatMath.Distributions.randf_gamma(shape, scale)
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_gamma_shape_less_than_one() -> void:
+	# Tests the Johnk's generator path for shape < 1
+	var shape: float = 0.5
+	var scale: float = 1.0
+	var result: float = StatMath.Distributions.randf_gamma(shape, scale)
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_gamma_shape_greater_than_one() -> void:
+	# Tests the Marsaglia-Tsang method for shape >= 1
+	var shape: float = 3.0
+	var scale: float = 0.5
+	var result: float = StatMath.Distributions.randf_gamma(shape, scale)
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_gamma_large_parameters() -> void:
+	var shape: float = 100.0
+	var scale: float = 0.1
+	var result: float = StatMath.Distributions.randf_gamma(shape, scale)
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_gamma_deterministic_with_seed() -> void:
+	var shape: float = 2.0
+	var scale: float = 1.5
+	var seed: int = 12345
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_gamma(shape, scale)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_gamma(shape, scale)
+	
+	assert_float(result1).is_equal_approx(result2, 0.0000001)
+
+
+func test_randf_gamma_invalid_shape_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_gamma(0.0, 1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Shape parameter must be positive for Gamma distribution.")
+
+
+func test_randf_gamma_invalid_shape_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_gamma(-1.0, 1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Shape parameter must be positive for Gamma distribution.")
+
+
+func test_randf_gamma_invalid_scale_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_gamma(2.0, 0.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Scale parameter must be positive for Gamma distribution.")
+
+
+func test_randf_gamma_invalid_scale_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_gamma(2.0, -1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Scale parameter must be positive for Gamma distribution.")
+
+
+# --- Tests for randf_beta ---
+
+func test_randf_beta_basic() -> void:
+	var result: float = StatMath.Distributions.randf_beta(2.0, 3.0)
+	assert_float(result).is_between(0.0, 1.0)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+
+
+func test_randf_beta_symmetric() -> void:
+	# Beta(2, 2) is symmetric around 0.5
+	var alpha: float = 2.0
+	var beta: float = 2.0
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+
+
+func test_randf_beta_skewed_left() -> void:
+	# Beta(1, 3) is skewed toward 0
+	var alpha: float = 1.0
+	var beta: float = 3.0
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+
+
+func test_randf_beta_skewed_right() -> void:
+	# Beta(3, 1) is skewed toward 1
+	var alpha: float = 3.0
+	var beta: float = 1.0
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+
+
+func test_randf_beta_uniform() -> void:
+	# Beta(1, 1) is equivalent to Uniform(0, 1)
+	var alpha: float = 1.0
+	var beta: float = 1.0
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+
+
+func test_randf_beta_large_parameters() -> void:
+	var alpha: float = 100.0
+	var beta: float = 50.0
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+	assert_bool(is_nan(result)).is_false()
+
+
+func test_randf_beta_small_parameters() -> void:
+	var alpha: float = 0.1
+	var beta: float = 0.1
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_beta_deterministic_with_seed() -> void:
+	var alpha: float = 2.5
+	var beta: float = 3.5
+	var seed: int = 67890
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_beta(alpha, beta)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_beta(alpha, beta)
+	
+	assert_float(result1).is_equal_approx(result2, 0.0000001)
+
+
+func test_randf_beta_invalid_alpha_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_beta(0.0, 2.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Alpha parameter must be positive for Beta distribution.")
+
+
+func test_randf_beta_invalid_alpha_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_beta(-1.0, 2.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Alpha parameter must be positive for Beta distribution.")
+
+
+func test_randf_beta_invalid_beta_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_beta(2.0, 0.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Beta parameter must be positive for Beta distribution.")
+
+
+func test_randf_beta_invalid_beta_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_beta(2.0, -1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Beta parameter must be positive for Beta distribution.")
+
+
+# --- Statistical Properties Tests (Gamma and Beta) ---
+
+func test_randf_gamma_statistical_properties() -> void:
+	# Test multiple samples to verify statistical properties
+	var shape: float = 2.0
+	var scale: float = 1.0
+	var samples: Array[float] = []
+	var seed: int = 999
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_gamma(shape, scale))
+	
+	# All samples should be non-negative
+	for sample in samples:
+		assert_float(sample).is_greater_equal(0.0)
+	
+	# Should have reasonable variance (not all the same value)
+	var min_val: float = samples[0]
+	var max_val: float = samples[0]
+	for sample in samples:
+		min_val = min(min_val, sample)
+		max_val = max(max_val, sample)
+	
+	assert_float(max_val - min_val).is_greater(0.1) # Should have some spread
+
+
+func test_randf_beta_statistical_properties() -> void:
+	# Test multiple samples to verify statistical properties
+	var alpha: float = 2.0
+	var beta: float = 3.0
+	var samples: Array[float] = []
+	var seed: int = 777
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_beta(alpha, beta))
+	
+	# All samples should be in [0, 1]
+	for sample in samples:
+		assert_float(sample).is_between(0.0, 1.0)
+	
+	# Should have reasonable variance (not all the same value)
+	var min_val: float = samples[0]
+	var max_val: float = samples[0]
+	for sample in samples:
+		min_val = min(min_val, sample)
+		max_val = max(max_val, sample)
+	
+	assert_float(max_val - min_val).is_greater(0.05) # Should have some spread
+
+
+# --- Game Development Use Cases ---
+
+func test_randf_gamma_damage_variation() -> void:
+	# Example: damage variation where base damage is modified by Gamma distribution
+	var base_damage: float = 100.0
+	var shape: float = 2.0 # Controls variability shape
+	var scale: float = 0.5 # Controls scaling
+	
+	var damage_multiplier: float = StatMath.Distributions.randf_gamma(shape, scale)
+	var final_damage: float = base_damage * damage_multiplier
+	
+	assert_float(damage_multiplier).is_greater_equal(0.0)
+	assert_float(final_damage).is_greater_equal(0.0)
+
+
+func test_randf_beta_quality_scores() -> void:
+	# Example: item quality as a score between 0 and 1
+	var common_quality: float = StatMath.Distributions.randf_beta(2.0, 5.0) # Skewed toward lower quality
+	var rare_quality: float = StatMath.Distributions.randf_beta(5.0, 2.0) # Skewed toward higher quality
+	
+	assert_float(common_quality).is_between(0.0, 1.0)
+	assert_float(rare_quality).is_between(0.0, 1.0)
+
+
+func test_combined_gamma_beta_procedural_generation() -> void:
+	# Example: procedural terrain generation combining both distributions
+	var terrain_roughness: float = StatMath.Distributions.randf_gamma(1.5, 0.8) # Gamma for continuous scaling
+	var biome_blend: float = StatMath.Distributions.randf_beta(3.0, 3.0) # Beta for normalized blending
+	
+	assert_float(terrain_roughness).is_greater_equal(0.0)
+	assert_float(biome_blend).is_between(0.0, 1.0)
+	
+	# Combined effect should be reasonable
+	var combined_effect: float = terrain_roughness * biome_blend
+	assert_float(combined_effect).is_greater_equal(0.0) 

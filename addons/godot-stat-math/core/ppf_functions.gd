@@ -156,6 +156,10 @@ static func beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float:
 	if p == 1.0:
 		return 1.0
 	
+	# Special case: Beta(1,1) is Uniform(0,1), so PPF(p) = p
+	if is_equal_approx(alpha_shape, 1.0) and is_equal_approx(beta_shape, 1.0):
+		return p
+	
 	# Use binary search
 	var lower_bound := 0.0
 	var upper_bound := 1.0

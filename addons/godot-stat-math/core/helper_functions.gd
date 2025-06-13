@@ -208,27 +208,29 @@ static func log_beta_function_direct(a: float, b: float) -> float:
 # For high-precision applications, consider implementing continued fractions method.
 static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
 	assert(a > 0.0, "Shape parameter a must be positive for Incomplete Gamma function.")
-	if z < 0.0:
-		assert(false, "Parameter z must be non-negative for Lower Incomplete Gamma.")
-		push_error("lower_incomplete_gamma_regularized called with negative z=%s. Returning NAN." % z)
-		return NAN 
+	assert(z >= 0.0, "Parameter z must be non-negative for Lower Incomplete Gamma.")
 
 	if z == 0.0:
 		return 0.0
 	
-	# For large z relative to a, use complementary approach
-	if z > a + 10.0:
-		return 1.0  # Approximation: P(a,z) approaches 1 for large z
+	# Special case for a = 1: P(1,z) = 1 - exp(-z)
+	if is_equal_approx(a, 1.0):
+		return 1.0 - exp(-z)
 	
-	# Use series expansion: P(a,z) = e^(-z) * z^a * Σ(z^n / Γ(a+n+1)) / Γ(a)
-	# Simplified as: e^(-z) * z^a * Σ(z^n / (a * (a+1) * ... * (a+n))) / Γ(a)
-	var max_terms: int = 50  # Limit series expansion
-	var tolerance: float = 1e-10
+	# For very large z relative to a, P(a,z) approaches 1
+	# Use a more conservative threshold to avoid premature convergence
+	if z > a + 50.0:
+		return 1.0
 	
-	var log_result: float = -z + a * log(z) - log_gamma(a)
-	var series_sum: float = 1.0  # First term of series
+	# Use series expansion: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / Γ(a+n+1))
+	# Which simplifies to: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / (a*(a+1)*...*(a+n)))
+	var max_terms: int = 100
+	var tolerance: float = 1e-12
+	
+	var series_sum: float = 1.0  # First term (n=0)
 	var term: float = 1.0
 	
+	# Calculate the series sum
 	for n in range(1, max_terms):
 		term *= z / (a + float(n - 1))
 		series_sum += term
@@ -237,14 +239,23 @@ static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
 		if abs(term) < tolerance:
 			break
 	
-	var result: float = exp(log_result) * series_sum
+	# Calculate the final result: (z^a * e^(-z) / Γ(a)) * series_sum
+	var log_prefix: float = a * log(z) - z - log_gamma(a)
+	var result: float = exp(log_prefix) * series_sum
 	
-	# Clamp to valid range [0,1]
-	result = clamp(result, 0.0, 1.0)
+	# Clamp to valid range [0,1] but be careful not to clamp too aggressively
+	# Only clamp if we're slightly outside bounds due to numerical errors
+	if result > 1.0 and result < 1.001:
+		result = 1.0
+	elif result < 0.0 and result > -0.001:
+		result = 0.0
+	elif result < 0.0 or result > 1.0:
+		push_warning("lower_incomplete_gamma_regularized: Result %s is outside [0,1] for a=%s, z=%s. Clamping." % [result, a, z])
+		result = clamp(result, 0.0, 1.0)
 	
-	# Warning for potentially less accurate cases
-	if a < 1.0 or z > 20.0:
-		push_warning("lower_incomplete_gamma_regularized: Using simplified series expansion. For a=%s, z=%s, consider more advanced methods for higher precision." % [a, z])
+	# Warning for edge cases
+	if a < 0.5 or z > 50.0:
+		push_warning("lower_incomplete_gamma_regularized: Using series expansion for a=%s, z=%s. Consider more advanced methods for extreme parameters." % [a, z])
 	
 	return result
 
