@@ -190,7 +190,70 @@ static func randf_erlang(k: int, lambda_param: float) -> float:
 		product *= u
 		
 	return -log(product) / lambda_param
+
+
+# Gamma Distribution (Float): randf_gamma(shape, scale)
+# Generates a random float from a gamma distribution with shape and scale parameters.
+# Uses Marsaglia and Tsang's method for shape >= 1, rejection sampling for shape < 1.
+# Note: This uses scale parameterization (Gamma(α, θ)) where mean = α*θ and var = α*θ²
+static func randf_gamma(shape: float, scale: float = 1.0) -> float:
+	assert(shape > 0.0, "Shape parameter must be positive for Gamma distribution.")
+	assert(scale > 0.0, "Scale parameter must be positive for Gamma distribution.")
 	
+	var alpha: float = shape
+	
+	if alpha < 1.0:
+		# For shape < 1, use Johnk's generator with rejection
+		while true:
+			var u: float = StatMath.get_rng().randf()
+			var v: float = StatMath.get_rng().randf()
+			var x: float = pow(u, 1.0 / alpha)
+			var y: float = pow(v, 1.0 / (1.0 - alpha))
+			if x + y <= 1.0:
+				if x + y > 0.0:
+					return scale * x * (-log(StatMath.get_rng().randf())) / (x + y)
+	else:
+		# For shape >= 1, use Marsaglia and Tsang's method
+		var d: float = alpha - 1.0 / 3.0
+		var c: float = 1.0 / sqrt(9.0 * d)
+		
+		while true:
+			var x: float = randf_gaussian()
+			var cube: float = (1.0 + c * x) * (1.0 + c * x) * (1.0 + c * x)
+			var v: float = cube
+			
+			if v > 0.0:
+				var u: float = StatMath.get_rng().randf()
+				var x_squared: float = x * x
+				
+				if u < 1.0 - 0.0331 * x_squared * x_squared:
+					return scale * d * v
+				if log(u) < 0.5 * x_squared + d * (1.0 - v + log(v)):
+					return scale * d * v
+	
+	# Should never reach here
+	push_error("randf_gamma: Failed to generate value")
+	return 0.0
+
+
+# Beta Distribution (Float): randf_beta(alpha, beta)
+# Generates a random float from a beta distribution using the gamma-to-beta transformation.
+# Uses the relationship: if X~Gamma(α,1) and Y~Gamma(β,1), then X/(X+Y)~Beta(α,β)
+# This avoids the need for complex special functions (incomplete beta, etc.)
+static func randf_beta(alpha: float, beta_param: float) -> float:
+	assert(alpha > 0.0, "Alpha parameter must be positive for Beta distribution.")
+	assert(beta_param > 0.0, "Beta parameter must be positive for Beta distribution.")
+	
+	# Generate two independent gamma variates with scale=1
+	var x: float = randf_gamma(alpha, 1.0)
+	var y: float = randf_gamma(beta_param, 1.0)
+	
+	# Handle edge case where both values are very small
+	if x + y <= 0.0:
+		return 0.5  # Return midpoint as fallback
+	
+	return x / (x + y)
+
 
 # Gaussian (Standard Normal) Distribution (Float): randf_gaussian()
 # Generates a random float from a standard normal distribution N(0,1).

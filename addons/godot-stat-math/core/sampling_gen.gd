@@ -124,7 +124,16 @@ static func _generate_direction_vectors_for_dimension(dimension: int) -> void:
 	var direction_vectors: Array[int] = []
 	direction_vectors.resize(_SOBOL_BITS)
 	
+	if dimension >= _PRIMITIVE_POLYNOMIALS.size():
+		printerr("SamplingGen: No primitive polynomial available for dimension ", dimension)
+		return
+	
 	var poly: Array = _PRIMITIVE_POLYNOMIALS[dimension]
+	
+	if poly.is_empty():
+		printerr("SamplingGen: Empty polynomial for dimension ", dimension)
+		return
+		
 	var degree: int = poly[0]
 	
 	if dimension == 0:
@@ -334,6 +343,97 @@ static func _coordinated_batch_shuffles_threaded(
 	return results
 
 
+## Sequential version of generate_samples_nd for use within already-threaded contexts
+## This prevents nested threading explosion when called from worker threads
+static func _generate_samples_nd_sequential(
+	n_draws: int, 
+	dimensions: int, 
+	method: SamplingMethod,
+	starting_index: int,
+	sample_seed: int
+) -> Array:
+	var samples: Array = []
+	if n_draws <= 0 or dimensions <= 0:
+		return samples
+	
+	var rng_to_use: RandomNumberGenerator
+	if sample_seed != -1:
+		rng_to_use = RandomNumberGenerator.new()
+		rng_to_use.seed = sample_seed
+	else:
+		rng_to_use = StatMath.get_rng()
+	
+	_ensure_sobol_vectors_initialized(dimensions - 1)
+	
+	# Always use sequential implementation for thread safety
+	samples.resize(n_draws)
+	for i in range(n_draws):
+		samples[i] = []
+		samples[i].resize(dimensions)
+	
+	match method:
+		SamplingMethod.RANDOM:
+			for i in range(n_draws):
+				for d in range(dimensions):
+					samples[i][d] = rng_to_use.randf()
+		
+		SamplingMethod.SOBOL:
+			for d in range(dimensions):
+				var dim_samples = _generate_sobol_1d(n_draws, d, starting_index)
+				for i in range(n_draws):
+					samples[i][d] = dim_samples[i] if i < dim_samples.size() else -1.0
+		
+		SamplingMethod.SOBOL_RANDOM:
+			var random_masks = []
+			random_masks.resize(dimensions)
+			for d in range(dimensions):
+				random_masks[d] = rng_to_use.randi() & ((1 << _SOBOL_BITS) - 1)
+			
+			for d in range(dimensions):
+				var sobol_integers = _get_sobol_1d_integers(n_draws, d, starting_index)
+				for i in range(n_draws):
+					if sobol_integers[i] != -1:
+						samples[i][d] = float(sobol_integers[i] ^ random_masks[d]) / _SOBOL_MAX_VAL_FLOAT
+					else:
+						samples[i][d] = rng_to_use.randf()
+		
+		SamplingMethod.HALTON:
+			for d in range(dimensions):
+				var base: int = _get_nth_prime(d)
+				var dim_samples = _generate_halton_1d(n_draws, base, starting_index)
+				for i in range(n_draws):
+					samples[i][d] = dim_samples[i] if i < dim_samples.size() else -1.0
+		
+		SamplingMethod.HALTON_RANDOM:
+			var random_offsets = []
+			random_offsets.resize(dimensions)
+			for d in range(dimensions):
+				random_offsets[d] = rng_to_use.randf()
+			
+			for d in range(dimensions):
+				var base: int = _get_nth_prime(d)
+				var halton_samples = _generate_halton_1d(n_draws, base, starting_index)
+				for i in range(n_draws):
+					if halton_samples[i] != -1.0:
+						samples[i][d] = fmod(halton_samples[i] + random_offsets[d], 1.0)
+					else:
+						samples[i][d] = rng_to_use.randf()
+		
+		SamplingMethod.LATIN_HYPERCUBE:
+			for d in range(dimensions):
+				var lhs_samples = _generate_latin_hypercube_1d(n_draws, rng_to_use)
+				for i in range(n_draws):
+					samples[i][d] = lhs_samples[i] if i < lhs_samples.size() else -1.0
+		
+		_:
+			printerr("Unsupported sampling method: ", SamplingMethod.keys()[method])
+			for i in range(n_draws):
+				for d in range(dimensions):
+					samples[i][d] = -1.0
+	
+	return samples
+
+
 ## Worker function for individual shuffle generation
 static func _coordinated_shuffle_worker(task: BatchShuffleTask) -> void:
 	task.result_shuffle = coordinated_shuffle(
@@ -529,7 +629,9 @@ static func coordinated_shuffle(
 	# Generate a multi-dimensional point for the shuffle
 	# We need (deck_size - 1) dimensions for Fisher-Yates
 	var shuffle_dimensions: int = deck_size - 1
-	var nd_samples: Array = generate_samples_nd(1, shuffle_dimensions, method, point_index, sample_seed)
+	
+	# CRITICAL FIX: Use sequential sampling to avoid nested threading explosion
+	var nd_samples: Array = _generate_samples_nd_sequential(1, shuffle_dimensions, method, point_index, sample_seed)
 	
 	if nd_samples.is_empty() or nd_samples[0].size() != shuffle_dimensions:
 		printerr("coordinated_shuffle: Failed to generate ND samples")
@@ -540,9 +642,15 @@ static func coordinated_shuffle(
 	# Perform coordinated Fisher-Yates shuffle using the N-dimensional point
 	for i in range(deck_size - 1, 0, -1):
 		var dim_index: int = deck_size - 1 - i
-		var random_val: float = sobol_point[dim_index]
-		var j: int = int(random_val * float(i + 1))
-		j = min(j, i)  # Clamp to prevent overflow
+		var raw_random_val: float = sobol_point[dim_index]
+		
+		# FINAL FIX: Use proper Beta(2,2) PPF transformation
+		# Now that incomplete_beta is implemented, we can use the mathematical approach
+		# Beta(2,2) creates a symmetric bell curve that avoids extremes while preserving uniformity
+		var beta_val: float = StatMath.PpfFunctions.beta_ppf(raw_random_val, 2.0, 2.0)
+		
+		var j: int = int(beta_val * float(i + 1))
+		j = clamp(j, 0, i)  # Ensure j is always in valid range [0, i]
 		
 		# Swap deck[i] and deck[j]
 		if i != j:

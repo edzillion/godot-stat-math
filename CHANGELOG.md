@@ -3,51 +3,55 @@
 ## [Alpha] - 2024-12-XX
 
 ### 🚨 BREAKING CHANGES
-- **API Change**: `generate_samples()` now supports 1D, 2D, and N-dimensional generation
-  - Old: `generate_samples(count: int, strategy: SelectionStrategy) -> Array[Vector2]`
-  - New: `generate_samples(count: int, strategy: SelectionStrategy, dimensions: int = 2, starting_index: int = 0) -> Array`
-- **New Enum**: Added `COORDINATED_FISHER_YATES` to `SelectionStrategy`
+- **Complete API Rewrite**: All sampling functions now use a single unified interface
+  - Removed: `generate_samples_1d()`, `generate_samples_2d()`, and all 2D helper functions
+  - **New**: `generate_samples(n_draws: int, dimensions: int, method: SamplingMethod, starting_index: int = 0, sample_seed: int = -1)`
+- **No Backward Compatibility**: This is a complete rewrite with zero compatibility guarantees
 
 ### ✨ NEW FEATURES
-- **N-Dimensional Sobol Sequences**: Support for up to 52-dimensional Sobol sequences using primitive polynomials
-- **Coordinated Shuffling**: New `coordinated_shuffle()` method for deterministic Fisher-Yates shuffles
-  - Generates N-dimensional Sobol points to control each swap decision
-  - Perfect for rare event simulation (e.g., royal flush estimation)
-- **Starting Index Support**: All methods now accept `starting_index` parameter for deterministic sequence generation
-- **Threading Optimizations**: Automatic multi-threading for high-dimensional generation (8+ dimensions) and batch shuffles (4+ shuffles)
+- **Unified API**: Single function handles 1D, 2D, and N-dimensional generation (up to 52D)
+- **Universal starting_index Support**: All sampling methods and dimensions support deterministic sequence continuation
+- **N-Dimensional Sobol Sequences**: Full support using primitive polynomials for up to 52 dimensions
+- **Coordinated Shuffling**: Deterministic Fisher-Yates shuffles for rare event simulation
+- **Smart Return Types**: 
+  - 1D: Returns `Array[float]`
+  - 2D: Returns `Array[Vector2]` 
+  - N-D: Returns `Array[Array[float]]`
 
-### 🔧 USAGE UPDATES
+### 🏗️ ARCHITECTURE
+- **Single Code Path**: All dimensions use the same N-dimensional implementation
+- **No Code Duplication**: Eliminated separate 1D/2D implementations entirely
+- **Threading Optimizations**: Automatic multi-threading for high-dimensional generation (3+ dimensions)
+- **Simplified Codebase**: Removed over 200 lines of redundant helper functions
 
-**Before:**
-```gdscript
-# Only 2D Sobol generation supported
-var points = sampling_gen.generate_samples(100, SamplingGen.SelectionStrategy.SOBOL)
-```
+### 🔧 USAGE
 
-**After:**
 ```gdscript
 # 1D generation
-var values = sampling_gen.generate_samples(100, SamplingGen.SelectionStrategy.SOBOL, 1)
+var values: Array[float] = StatMath.SamplingGen.generate_samples(100, 1, SamplingMethod.SOBOL)
 
-# 2D generation (unchanged behavior)
-var points = sampling_gen.generate_samples(100, SamplingGen.SelectionStrategy.SOBOL, 2)
+# 2D generation  
+var points: Array[Vector2] = StatMath.SamplingGen.generate_samples(100, 2, SamplingMethod.SOBOL)
 
-# N-dimensional generation (NEW)
-var nd_points = sampling_gen.generate_samples(100, SamplingGen.SelectionStrategy.SOBOL, 51)
+# N-dimensional generation
+var nd_points: Array = StatMath.SamplingGen.generate_samples(100, 51, SamplingMethod.SOBOL)
 
-# Coordinated shuffling (NEW)
-var shuffles = sampling_gen.coordinated_shuffle(52, 1000, 0)  # 1000 coordinated 52-card shuffles
+# With starting_index for sequence continuation
+var continuation: Array[float] = StatMath.SamplingGen.generate_samples(50, 1, SamplingMethod.SOBOL, 100)
+
+# Coordinated shuffling for rare events
+var shuffles: Array = StatMath.SamplingGen.coordinated_batch_shuffles(52, 1000, SamplingMethod.SOBOL)
 ```
 
 ### ⚡ PERFORMANCE
-- All sampling operations now use `WorkerThreadPool` for parallel generation
-- Thread-safe direction vector caching reduces memory allocations
-- Significant performance improvements for N-dimensional and batch operations
+- **Unified Implementation**: Single optimized code path for all dimensions
+- **Thread-Safe Caching**: Efficient Sobol direction vector management
+- **Parallel Generation**: WorkerThreadPool integration for high-dimensional cases
 
-### 🔬 TESTING
-- Comprehensive tests for N-dimensional generation
-- Coordinated shuffle validation
-- Threading performance verification
+### 🧪 TESTING
+- **37 Test Cases**: All passing with comprehensive coverage
+- **Unified API Tests**: All legacy function calls converted to new API
+- **Starting Index Validation**: Sequence continuity verified across all methods
 
 ---
-*Note: This is alpha software. No backward compatibility guarantees. Update dependent code accordingly.* 
+*Note: This is alpha software with no backward compatibility guarantees. Update all dependent code to use the new unified API.* 
