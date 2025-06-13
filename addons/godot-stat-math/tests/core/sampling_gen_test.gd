@@ -350,41 +350,46 @@ func test_coordinated_fisher_yates_small_deck_performance() -> void:
 
 func test_generate_samples_1d_random_basic() -> void:
 	var ndraws: int = 10
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var typed_samples: Array[float] = samples as Array[float]
 	
-	assert_int(samples.size()).is_equal(ndraws)
-	for sample_val in samples:
+	assert_int(typed_samples.size()).is_equal(ndraws)
+	for sample_val in typed_samples:
 		assert_float(sample_val).is_between(0.0, 1.0)
 
 
 func test_generate_samples_1d_edge_cases() -> void:
 	# Zero draws
-	var zero_samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(0, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	assert_int(zero_samples.size()).is_equal(0)
+	var zero_samples: Variant = StatMath.SamplingGen.generate_samples(0, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var typed_zero: Array[float] = zero_samples as Array[float]
+	assert_int(typed_zero.size()).is_equal(0)
 	
 	# Negative draws
-	var negative_samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(-5, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	assert_int(negative_samples.size()).is_equal(0)
+	var negative_samples: Variant = StatMath.SamplingGen.generate_samples(-5, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var typed_negative: Array[float] = negative_samples as Array[float]
+	assert_int(typed_negative.size()).is_equal(0)
 
 
 func test_generate_samples_1d_sobol_deterministic() -> void:
 	var ndraws: int = 5
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL)
+	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL)
+	var typed_samples: Array[float] = samples as Array[float]
 	var expected_sobol: Array[float] = [0.0, 0.5, 0.75, 0.25, 0.375]
 	
-	assert_int(samples.size()).is_equal(ndraws)
+	assert_int(typed_samples.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(samples[i]).is_equal_approx(expected_sobol[i], 0.00001)
+		assert_float(typed_samples[i]).is_equal_approx(expected_sobol[i], 0.00001)
 
 
 func test_generate_samples_1d_halton_deterministic() -> void:
 	var ndraws: int = 5
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON)
+	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.HALTON)
+	var typed_samples: Array[float] = samples as Array[float]
 	var expected_halton: Array[float] = [0.5, 0.25, 0.75, 0.125, 0.625]
 	
-	assert_int(samples.size()).is_equal(ndraws)
+	assert_int(typed_samples.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(samples[i]).is_equal_approx(expected_halton[i], 0.00001)
+		assert_float(typed_samples[i]).is_equal_approx(expected_halton[i], 0.00001)
 
 
 func test_generate_samples_1d_seeded_reproducibility() -> void:
@@ -392,27 +397,34 @@ func test_generate_samples_1d_seeded_reproducibility() -> void:
 	var seed: int = 12345
 	
 	# Test SOBOL_RANDOM reproducibility
-	var sobol_1: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, seed)
-	var sobol_2: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, seed)
+	var sobol_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, 0, seed)
+	var sobol_2: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, 0, seed)
 	
-	assert_int(sobol_1.size()).is_equal(ndraws)
+	var typed_sobol_1: Array[float] = sobol_1 as Array[float]
+	var typed_sobol_2: Array[float] = sobol_2 as Array[float]
+	
+	assert_int(typed_sobol_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(sobol_1[i]).is_equal_approx(sobol_2[i], 0.0000001)
+		assert_float(typed_sobol_1[i]).is_equal_approx(typed_sobol_2[i], 0.0000001)
 	
 	# Test LATIN_HYPERCUBE reproducibility
-	var lhs_1: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, seed)
-	var lhs_2: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, seed)
+	var lhs_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 0, seed)
+	var lhs_2: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 0, seed)
 	
-	assert_int(lhs_1.size()).is_equal(ndraws)
+	var typed_lhs_1: Array[float] = lhs_1 as Array[float]
+	var typed_lhs_2: Array[float] = lhs_2 as Array[float]
+	
+	assert_int(typed_lhs_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(lhs_1[i]).is_equal_approx(lhs_2[i], 0.0000001)
+		assert_float(typed_lhs_1[i]).is_equal_approx(typed_lhs_2[i], 0.0000001)
 
 
 func test_generate_samples_1d_latin_hypercube_stratification() -> void:
 	var ndraws: int = 20
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 123)
+	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 0, 123)
+	var typed_samples: Array[float] = samples as Array[float]
 	
-	var sorted_samples: Array[float] = samples.duplicate()
+	var sorted_samples: Array[float] = typed_samples.duplicate()
 	sorted_samples.sort()
 	
 	for i in range(ndraws):
@@ -432,16 +444,18 @@ func test_generate_samples_2d_basic() -> void:
 	]
 	
 	for method in methods:
-		var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, method)
-		assert_int(samples.size()).is_equal(ndraws)
-		for sample_vec in samples:
+		var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 2, method)
+		var typed_samples: Array[Vector2] = samples as Array[Vector2]
+		assert_int(typed_samples.size()).is_equal(ndraws)
+		for sample_vec in typed_samples:
 			assert_float(sample_vec.x).is_between(0.0, 1.0)
 			assert_float(sample_vec.y).is_between(0.0, 1.0)
 
 
 func test_generate_samples_2d_sobol_deterministic() -> void:
 	var ndraws: int = 5
-	var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL)
+	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)
+	var typed_samples: Array[Vector2] = samples as Array[Vector2]
 	var expected_sobol_2d: Array[Vector2] = [
 		Vector2(0.0, 0.0),
 		Vector2(0.5, 0.5), 
@@ -450,9 +464,9 @@ func test_generate_samples_2d_sobol_deterministic() -> void:
 		Vector2(0.375, 0.625)
 	]
 	
-	assert_int(samples.size()).is_equal(ndraws)
+	assert_int(typed_samples.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_vector(samples[i]).is_equal_approx(expected_sobol_2d[i], Vector2(0.00001, 0.00001))
+		assert_vector(typed_samples[i]).is_equal_approx(expected_sobol_2d[i], Vector2(0.00001, 0.00001))
 
 
 # --- DISCRETE INDEX SAMPLING TESTS (updated) ---
@@ -775,14 +789,16 @@ func test_global_rng_determinism() -> void:
 	
 	# Test continuous sampling determinism
 	StatMath.set_global_seed(test_seed)
-	var continuous_1: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var continuous_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var typed_continuous_1: Array[float] = continuous_1 as Array[float]
 	
 	StatMath.set_global_seed(test_seed)
-	var continuous_2: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var continuous_2: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var typed_continuous_2: Array[float] = continuous_2 as Array[float]
 	
-	assert_int(continuous_1.size()).is_equal(ndraws)
+	assert_int(typed_continuous_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(continuous_1[i]).is_equal(continuous_2[i])
+		assert_float(typed_continuous_1[i]).is_equal(typed_continuous_2[i])
 	
 	# Test discrete sampling determinism
 	StatMath.set_global_seed(test_seed)
@@ -805,16 +821,17 @@ func test_starting_index_sobol_sequence_continuity() -> void:
 	var second_half: int = 5
 	
 	# Generate full sequence
-	var full_sequence: Array[float] = StatMath.SamplingGen.generate_samples_1d(
-		total_draws, StatMath.SamplingGen.SamplingMethod.SOBOL
+	var full_sequence: Variant = StatMath.SamplingGen.generate_samples(
+		total_draws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL
 	)
+	var typed_full_sequence: Array[float] = full_sequence as Array[float]
 	
 	# Generate in two parts using starting_index
-	var part1: Array[float] = StatMath.SamplingGen.generate_samples_1d(
-		first_half, StatMath.SamplingGen.SamplingMethod.SOBOL, -1
+	var part1: Variant = StatMath.SamplingGen.generate_samples(
+		first_half, 1, StatMath.SamplingGen.SamplingMethod.SOBOL, 0, -1
 	)
-	var part2: Array[float] = StatMath.SamplingGen.generate_samples_1d(
-		second_half, StatMath.SamplingGen.SamplingMethod.SOBOL, -1
+	var part2: Variant = StatMath.SamplingGen.generate_samples(
+		second_half, 1, StatMath.SamplingGen.SamplingMethod.SOBOL, 0, -1
 	)
 	
 	# Test with explicit starting_index
@@ -825,4 +842,4 @@ func test_starting_index_sobol_sequence_continuity() -> void:
 	
 	# part2_explicit should match the second half of full_sequence
 	for i in range(second_half):
-		assert_float(part2_typed[i]).is_equal_approx(full_sequence[first_half + i], 0.00001)
+		assert_float(part2_typed[i]).is_equal_approx(typed_full_sequence[first_half + i], 0.00001)

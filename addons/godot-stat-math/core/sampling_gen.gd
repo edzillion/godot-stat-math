@@ -371,13 +371,33 @@ static func generate_samples(
 		printerr("generate_samples: dimensions must be >= 1")
 		return null
 	
+	# Use the unified N-dimensional generation for all cases
+	var nd_samples: Array = generate_samples_nd(n_draws, dimensions, method, starting_index, sample_seed)
+	
 	match dimensions:
 		1:
-			return generate_samples_1d(n_draws, method, starting_index, sample_seed)
+			# Convert from Array[Array[float]] to Array[float]
+			var samples_1d: Array[float] = []
+			samples_1d.resize(n_draws)
+			for i in range(n_draws):
+				if i < nd_samples.size() and nd_samples[i].size() > 0:
+					samples_1d[i] = nd_samples[i][0]
+				else:
+					samples_1d[i] = -1.0  # Error signal
+			return samples_1d
 		2:
-			return generate_samples_2d(n_draws, method, starting_index, sample_seed)
+			# Convert from Array[Array[float]] to Array[Vector2]
+			var samples_2d: Array[Vector2] = []
+			samples_2d.resize(n_draws)
+			for i in range(n_draws):
+				if i < nd_samples.size() and nd_samples[i].size() >= 2:
+					samples_2d[i] = Vector2(nd_samples[i][0], nd_samples[i][1])
+				else:
+					samples_2d[i] = Vector2(-1.0, -1.0)  # Error signal
+			return samples_2d
 		_:
-			return generate_samples_nd(n_draws, dimensions, method, starting_index, sample_seed)
+			# Return the N-dimensional array as-is
+			return nd_samples
 
 
 ## Generates N-dimensional samples using the specified method.
@@ -564,58 +584,6 @@ static func coordinated_batch_shuffles(
 	return results
 
 
-## Generates an array of 1D sample values based on the specified method.
-##
-## @param ndraws: int The number of samples to draw.
-## @param method: SamplingMethod The sampling method to use.
-## @param starting_index: int Starting index for deterministic sequences (default 0).
-## @param seed: int The random seed (optional, uses global RNG if -1).
-## @return Array[float] An Array of floats. Empty if ndraws <= 0.
-static func generate_samples_1d(ndraws: int, method: SamplingMethod, starting_index: int = 0, sample_seed: int = -1) -> Array[float]:
-	var samples: Array[float] = []
-	if ndraws <= 0:
-		return samples
-	
-	# Use N-dimensional generation with dimensions=1 for consistency and starting_index support
-	var nd_samples: Array = generate_samples_nd(ndraws, 1, method, starting_index, sample_seed)
-	
-	# Convert from Array[Array[float]] to Array[float]
-	samples.resize(ndraws)
-	for i in range(ndraws):
-		if i < nd_samples.size() and nd_samples[i].size() > 0:
-			samples[i] = nd_samples[i][0]
-		else:
-			samples[i] = -1.0  # Error signal
-	
-	return samples
-
-
-## Generates an array of 2D sample values based on the specified method.
-##
-## @param ndraws: int The number of samples to draw.
-## @param method: SamplingMethod The sampling method to use.
-## @param starting_index: int Starting index for deterministic sequences (default 0).
-## @param seed: int The random seed (optional, uses global RNG if -1).
-## @return Array[Vector2] An Array of Vector2. Empty if ndraws <= 0.
-static func generate_samples_2d(ndraws: int, method: SamplingMethod, starting_index: int = 0, sample_seed: int = -1) -> Array[Vector2]:
-	var samples: Array[Vector2] = []
-	if ndraws <= 0:
-		return samples
-	
-	# Use N-dimensional generation with dimensions=2 for consistency and starting_index support
-	var nd_samples: Array = generate_samples_nd(ndraws, 2, method, starting_index, sample_seed)
-	
-	# Convert from Array[Array[float]] to Array[Vector2]
-	samples.resize(ndraws)
-	for i in range(ndraws):
-		if i < nd_samples.size() and nd_samples[i].size() >= 2:
-			samples[i] = Vector2(nd_samples[i][0], nd_samples[i][1])
-		else:
-			samples[i] = Vector2(-1.0, -1.0)  # Error signal
-	
-	return samples
-
-
 # --- DISCRETE INDEX SAMPLING (for finite populations, card games, bootstrap) ---
 
 ## Enhanced interface for sampling indices from a finite population.
@@ -736,7 +704,8 @@ static func _fisher_yates_draw(population_size: int, draw_count: int, sampling_m
 			pass
 		_:
 			# Pre-generate for deterministic sequences
-			random_values = generate_samples_1d(draw_count, sampling_method, rng.get_seed() if rng.get_seed() != 0 else -1)
+			var samples_variant: Variant = generate_samples(draw_count, 1, sampling_method, 0, rng.get_seed() if rng.get_seed() != 0 else -1)
+			random_values = samples_variant as Array[float]
 
 	# Partial Fisher-Yates shuffle
 	for i in range(draw_count):
@@ -785,7 +754,8 @@ static func _reservoir_draw(population_size: int, draw_count: int, sampling_meth
 				# Generate on-demand for efficiency
 				pass
 			_:
-				random_values = generate_samples_1d(needed_randoms, sampling_method, rng.get_seed() if rng.get_seed() != 0 else -1)
+				var samples_variant: Variant = generate_samples(needed_randoms, 1, sampling_method, 0, rng.get_seed() if rng.get_seed() != 0 else -1)
+				random_values = samples_variant as Array[float]
 
 	# Reservoir algorithm
 	var random_index: int = 0
@@ -821,7 +791,8 @@ static func _selection_tracking_draw(population_size: int, draw_count: int, samp
 			# Generate on-demand
 			pass
 		_:
-			random_values = generate_samples_1d(max_attempts, sampling_method, rng.get_seed() if rng.get_seed() != 0 else -1)
+			var samples_variant: Variant = generate_samples(max_attempts, 1, sampling_method, 0, rng.get_seed() if rng.get_seed() != 0 else -1)
+			random_values = samples_variant as Array[float]
 
 	var items_drawn: int = 0
 	var attempts: int = 0
@@ -955,84 +926,6 @@ static func _generate_sobol_1d(ndraws: int, dimension_index: int, starting_index
 	return samples
 
 
-## Generates 2D Sobol samples.
-static func _generate_sobol_2d(ndraws: int) -> Array[Vector2]:
-	var samples: Array[Vector2] = []
-	if ndraws <= 0:
-		return samples
-	samples.resize(ndraws)
-
-	var sobol_integers_x: Array[int] = _get_sobol_1d_integers(ndraws, 0)
-	var sobol_integers_y: Array[int] = _get_sobol_1d_integers(ndraws, 1)
-
-	# Check if _get_sobol_1d_integers signaled an error for X
-	var error_in_x: bool = false
-	if ndraws > 0 and not sobol_integers_x.is_empty():
-		if sobol_integers_x[0] == -1 and sobol_integers_x.count(-1) == ndraws:
-			error_in_x = true
-	
-	# Check if _get_sobol_1d_integers signaled an error for Y
-	var error_in_y: bool = false
-	if ndraws > 0 and not sobol_integers_y.is_empty():
-		if sobol_integers_y[0] == -1 and sobol_integers_y.count(-1) == ndraws:
-			error_in_y = true
-
-	if error_in_x or error_in_y:
-		for i in range(ndraws): samples[i] = Vector2(-1.0, -1.0) # Propagate error
-		return samples
-
-	for i in range(ndraws):
-		# Additional check for individual -1 in sobol_integers if partial error occurred
-		var x_val: float = -1.0
-		var y_val: float = -1.0
-		if sobol_integers_x[i] != -1:
-			x_val = float(sobol_integers_x[i]) / _SOBOL_MAX_VAL_FLOAT
-		if sobol_integers_y[i] != -1:
-			y_val = float(sobol_integers_y[i]) / _SOBOL_MAX_VAL_FLOAT
-		samples[i] = Vector2(x_val, y_val)
-		
-	return samples
-
-
-## Generates 2D randomized Sobol samples.
-static func _generate_sobol_random_2d(ndraws: int, rng: RandomNumberGenerator) -> Array[Vector2]:
-	var samples: Array[Vector2] = []
-	if ndraws <= 0:
-		return samples
-	samples.resize(ndraws)
-
-	var sobol_integers_x: Array[int] = _get_sobol_1d_integers(ndraws, 0)
-	var sobol_integers_y: Array[int] = _get_sobol_1d_integers(ndraws, 1)
-	
-	var error_in_x: bool = false
-	if ndraws > 0 and not sobol_integers_x.is_empty():
-		if sobol_integers_x[0] == -1 and sobol_integers_x.count(-1) == ndraws:
-			error_in_x = true
-	
-	var error_in_y: bool = false
-	if ndraws > 0 and not sobol_integers_y.is_empty():
-		if sobol_integers_y[0] == -1 and sobol_integers_y.count(-1) == ndraws:
-			error_in_y = true
-
-	if error_in_x or error_in_y:
-		for i in range(ndraws): samples[i] = Vector2(-1.0, -1.0) # Propagate error
-		return samples
-
-	var random_mask_x: int = rng.randi() & ((1 << _SOBOL_BITS) - 1)
-	var random_mask_y: int = rng.randi() & ((1 << _SOBOL_BITS) - 1)
-
-	for i in range(ndraws):
-		var x_val: float = -1.0
-		var y_val: float = -1.0
-		if sobol_integers_x[i] != -1:
-			x_val = float(sobol_integers_x[i] ^ random_mask_x) / _SOBOL_MAX_VAL_FLOAT
-		if sobol_integers_y[i] != -1:
-			y_val = float(sobol_integers_y[i] ^ random_mask_y) / _SOBOL_MAX_VAL_FLOAT
-		samples[i] = Vector2(x_val, y_val)
-		
-	return samples
-
-
 # --- HALTON SEQUENCE IMPLEMENTATION ---
 
 static func _generate_halton_1d(ndraws: int, base: int, starting_index: int = 0) -> Array[float]:
@@ -1058,51 +951,6 @@ static func _generate_halton_1d(ndraws: int, base: int, starting_index: int = 0)
 	return sequence
 
 
-## Generates 2D Halton samples using bases 2 and 3.
-static func _generate_halton_2d(ndraws: int) -> Array[Vector2]:
-	var samples: Array[Vector2] = []
-	if ndraws <= 0: return samples
-	samples.resize(ndraws)
-
-	var halton_x: Array[float] = _generate_halton_1d(ndraws, 2) # Base 2 for X
-	var halton_y: Array[float] = _generate_halton_1d(ndraws, 3) # Base 3 for Y
-
-	# Check for errors from _generate_halton_1d
-	var error_in_x: bool = ndraws > 0 and not halton_x.is_empty() and halton_x[0] == -1.0 and halton_x.count(-1.0) == ndraws
-	var error_in_y: bool = ndraws > 0 and not halton_y.is_empty() and halton_y[0] == -1.0 and halton_y.count(-1.0) == ndraws
-
-	if error_in_x or error_in_y:
-		for i in range(ndraws): samples[i] = Vector2(-1.0, -1.0)
-		return samples
-
-	for i in range(ndraws):
-		samples[i] = Vector2(halton_x[i], halton_y[i])
-	return samples
-
-
-## Generates 2D randomized Halton samples.
-static func _generate_halton_random_2d(ndraws: int, rng: RandomNumberGenerator) -> Array[Vector2]:
-	var samples: Array[Vector2] = []
-	if ndraws <= 0: return samples
-	samples.resize(ndraws)
-	
-	var halton_points_2d: Array[Vector2] = _generate_halton_2d(ndraws)
-	# Check for errors from _generate_halton_2d
-	if ndraws > 0 and not halton_points_2d.is_empty() and halton_points_2d[0] == Vector2(-1.0, -1.0) and halton_points_2d.count(Vector2(-1.0,-1.0)) == ndraws:
-		for i in range(ndraws): samples[i] = Vector2(-1.0, -1.0) # Propagate error
-		return samples
-
-	var random_offset_x: float = rng.randf()
-	var random_offset_y: float = rng.randf()
-
-	for i in range(ndraws):
-		samples[i] = Vector2(
-			fmod(halton_points_2d[i].x + random_offset_x, 1.0),
-			fmod(halton_points_2d[i].y + random_offset_y, 1.0)
-		)
-	return samples
-
-
 # --- LATIN HYPERCUBE IMPLEMENTATION ---
 
 static func _generate_latin_hypercube_1d(ndraws: int, rng: RandomNumberGenerator) -> Array[float]:
@@ -1122,24 +970,3 @@ static func _generate_latin_hypercube_1d(ndraws: int, rng: RandomNumberGenerator
 		lhs_samples[j] = temp
 		
 	return lhs_samples
-
-
-## Generates 2D Latin Hypercube samples.
-static func _generate_latin_hypercube_2d(ndraws: int, rng: RandomNumberGenerator) -> Array[Vector2]:
-	var samples: Array[Vector2] = []
-	if ndraws <= 0:
-		return samples
-	samples.resize(ndraws)
-
-	var lhs_x: Array[float] = _generate_latin_hypercube_1d(ndraws, rng)
-	var lhs_y: Array[float] = _generate_latin_hypercube_1d(ndraws, rng)
-
-	# _generate_latin_hypercube_1d already returns empty on error or ndraws <=0
-	if lhs_x.size() != ndraws or lhs_y.size() != ndraws: 
-		for i in range(ndraws): samples[i] = Vector2(-1.0,-1.0)
-		return samples
-
-	for i in range(ndraws):
-		samples[i] = Vector2(lhs_x[i], lhs_y[i])
-		
-	return samples
