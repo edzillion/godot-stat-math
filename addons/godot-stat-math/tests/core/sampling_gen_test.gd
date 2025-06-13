@@ -236,11 +236,11 @@ func test_rng_determinism_with_set_seed() -> void:
 	var results_run2_random: Array[float]
 	var results_run2_lhs: Array[float]
 
-	StatMath.set_seed(TEST_SEED)
+	StatMath.set_global_seed(TEST_SEED)
 	results_run1_random = StatMath.SamplingGen.generate_samples_1d(NDRAWS, StatMath.SamplingGen.SamplingMethod.RANDOM)
 	results_run1_lhs = StatMath.SamplingGen.generate_samples_1d(NDRAWS, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE)
 
-	StatMath.set_seed(TEST_SEED) 
+	StatMath.set_global_seed(TEST_SEED) 
 	results_run2_random = StatMath.SamplingGen.generate_samples_1d(NDRAWS, StatMath.SamplingGen.SamplingMethod.RANDOM)
 	results_run2_lhs = StatMath.SamplingGen.generate_samples_1d(NDRAWS, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE)
 

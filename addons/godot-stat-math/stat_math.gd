@@ -105,8 +105,8 @@ func get_rng() -> RandomNumberGenerator:
 		_initialize_rng()
 	return _rng
 
-# Allows changing the seed of the addon's RandomNumberGenerator instance.
+# Allows changing the global seed of the addon's RandomNumberGenerator instance.
 # This will create a new RNG instance.
-func set_seed(new_seed: int) -> void:
+func set_global_seed(new_seed: int) -> void:
 	_create_and_seed_rng(new_seed)
 	print("StatMath: RNG (re)created and seed explicitly set. Effective seed: %d" % _rng.seed)

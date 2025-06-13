@@ -2,19 +2,20 @@
 class_name SamplingGen
 
 enum SamplingMethod {
-	RANDOM,
-	SOBOL,
-	SOBOL_RANDOM,
-	HALTON,
-	HALTON_RANDOM,
-	LATIN_HYPERCUBE,
-	FISHER_YATES, # Classic shuffle then draw
-	RESERVOIR, # For when you don't know draw count in advance
-	SELECTION_TRACKING # For memory-efficient single draws
+	RANDOM,           # Pseudo-random sampling
+	SOBOL,            # Sobol quasi-random sequence
+	SOBOL_RANDOM,     # Randomized Sobol sequence
+	HALTON,           # Halton quasi-random sequence
+	HALTON_RANDOM,    # Randomized Halton sequence
+	LATIN_HYPERCUBE   # Latin Hypercube space-filling design
 }
 
-# Dependencies:
-# res://src/core/enums.gd (implicitly used via SamplingMethod)
+enum SelectionStrategy {
+	WITH_REPLACEMENT,    # Allow duplicates (like rolling dice, bootstrap sampling)
+	FISHER_YATES,        # Without replacement - shuffle then draw
+	RESERVOIR,           # Without replacement - when draw count unknown
+	SELECTION_TRACKING   # Without replacement - memory efficient
+}
 
 const _SOBOL_BITS: int = 30
 const _SOBOL_MAX_VAL_FLOAT: float = float(1 << _SOBOL_BITS)
@@ -450,7 +451,7 @@ static func _generate_latin_hypercube_2d(ndraws: int, rng: RandomNumberGenerator
 # --- Sampling without replacement ---
 
 # Main interface for drawing cards
-static func draw_without_replacement(deck_size: int, draw_count: int, method: SamplingMethod = SamplingMethod.FISHER_YATES) -> Array[int]:
+static func draw_without_replacement(deck_size: int, draw_count: int, method: SelectionStrategy = SelectionStrategy.FISHER_YATES) -> Array[int]:
 	if draw_count < 0:
 		printerr("draw_without_replacement: draw_count cannot be negative.")
 		return []
@@ -468,11 +469,11 @@ static func draw_without_replacement(deck_size: int, draw_count: int, method: Sa
 
 
 	match method:
-		SamplingMethod.FISHER_YATES:
+		SelectionStrategy.FISHER_YATES:
 			return _fisher_yates_draw(deck_size, draw_count)
-		SamplingMethod.RESERVOIR:
+		SelectionStrategy.RESERVOIR:
 			return _reservoir_draw(deck_size, draw_count)
-		SamplingMethod.SELECTION_TRACKING:
+		SelectionStrategy.SELECTION_TRACKING:
 			return _selection_tracking_draw(deck_size, draw_count)
 	return [] # Should not be reached if method is valid
 

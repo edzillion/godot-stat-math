@@ -454,13 +454,13 @@ func test_rng_determinism_with_set_seed() -> void:
 	var results_run2: Array = []
 
 	# First Run
-	StatMath.set_seed(TEST_SEED)
+	StatMath.set_global_seed(TEST_SEED)
 	results_run1.append(StatMath.Distributions.randi_bernoulli(0.6))      # Expected int
 	results_run1.append(StatMath.Distributions.randf_normal(15.0, 3.5))  # Expected float
 	results_run1.append(StatMath.Distributions.randi_poisson(4.2))       # Expected int
 
 	# Second Run
-	StatMath.set_seed(TEST_SEED) # Reset to the same seed
+	StatMath.set_global_seed(TEST_SEED) # Reset to the same seed
 	results_run2.append(StatMath.Distributions.randi_bernoulli(0.6))
 	results_run2.append(StatMath.Distributions.randf_normal(15.0, 3.5))
 	results_run2.append(StatMath.Distributions.randi_poisson(4.2))

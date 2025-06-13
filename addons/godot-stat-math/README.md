@@ -129,10 +129,10 @@ There are two main ways to control seeding:
     *   If the setting is not found, or is not an integer, `StatMath` will initialize its RNG with a default seed (0, which typically means Godot's RNG will pick a time-based random seed). A message will be printed to the console indicating the seed used.
     *   This method is convenient for setting a consistent seed across your entire project for all runs.
 
-2.  **Runtime Seeding (`StatMath.set_seed()`):**
+2.  **Runtime Seeding (`StatMath.set_global_seed()`):**
     *   You can change the seed of the global `StatMath` RNG at any point during runtime by calling:
         ```gdscript
-        StatMath.set_seed(new_seed_value)
+        StatMath.set_global_seed(new_seed_value)
         ```
     *   This will re-initialize the global RNG with `new_seed_value`. All subsequent calls to `StatMath` functions that use random numbers (without an explicit per-call seed) will be based on this new seed.
     *   This is useful for specific scenarios where you want to ensure a particular sequence of random events is reproducible from a certain point in your game logic.
@@ -141,7 +141,7 @@ There are two main ways to control seeding:
     *   The `StatMath.SamplingGen.generate_samples_1d()` and `StatMath.SamplingGen.generate_samples_2d()` functions accept an optional `seed` parameter (defaulting to -1).
     *   When a `seed` other than -1 is provided to these functions, it creates a *local* `RandomNumberGenerator` instance, seeded with the given value. This local RNG is used only for that specific call.
     *   This ensures that the output of that particular sampling operation is deterministic based on the provided seed, without affecting the global `StatMath` RNG state.
-    *   If `seed = -1` (the default) is used, the functions will use the global `StatMath` RNG (controlled by `godot_stat_math_seed` or `StatMath.set_seed()`).
+    *   If `seed = -1` (the default) is used, the functions will use the global `StatMath` RNG (controlled by `godot_stat_math_seed` or `StatMath.set_global_seed()`).
 
 **How it Works for Determinism:**
 
