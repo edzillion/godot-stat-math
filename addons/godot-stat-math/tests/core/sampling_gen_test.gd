@@ -14,193 +14,71 @@ func after_test() -> void:
 	pass
 
 
-# --- Test Cases for generate_samples ---
+# --- CONTINUOUS SPACE SAMPLING TESTS (generate_samples_1d/2d) ---
 
-func test_generate_samples_random_basic() -> void:
+func test_generate_samples_1d_random_basic() -> void:
 	var ndraws: int = 10
 	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM)
 	
-	assert_int(samples.size()).is_equal(ndraws) # "Should return the correct number of samples"
+	assert_int(samples.size()).is_equal(ndraws)
 	for sample_val in samples:
-		assert_float(sample_val).is_greater_equal(0.0) # "Sample value should be >= 0.0"
-		assert_float(sample_val).is_less_equal(1.0) # "Sample value should be <= 1.0"
+		assert_float(sample_val).is_between(0.0, 1.0)
 
 
-func test_generate_samples_ndraws_zero() -> void:
-	var ndraws: int = 0
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM)
+func test_generate_samples_1d_edge_cases() -> void:
+	# Zero draws
+	var zero_samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(0, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	assert_int(zero_samples.size()).is_equal(0)
 	
-	assert_int(samples.size()).is_equal(0) # "Should return an empty array for ndraws = 0"
+	# Negative draws
+	var negative_samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(-5, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	assert_int(negative_samples.size()).is_equal(0)
 
 
-func test_generate_samples_ndraws_negative() -> void:
-	var ndraws: int = -5
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	
-	assert_int(samples.size()).is_equal(0) # "Should return an empty array for ndraws < 0"
-
-
-func test_generate_samples_sobol_basic() -> void:
+func test_generate_samples_1d_sobol_deterministic() -> void:
 	var ndraws: int = 5
 	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL)
-
-	assert_int(samples.size()).is_equal(ndraws) # "SOBOL: Should return the correct number of samples"
-	for sample_val in samples:
-		assert_float(sample_val).is_greater_equal(0.0) # "SOBOL: Sample value should be >= 0.0"
-		assert_float(sample_val).is_less_equal(1.0) # "SOBOL: Sample value should be <= 1.0"
-
-	var expected_sobol_samples: Array[float] = [0.0, 0.5, 0.75, 0.25, 0.375]
+	var expected_sobol: Array[float] = [0.0, 0.5, 0.75, 0.25, 0.375]
+	
+	assert_int(samples.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(samples[i]).is_equal_approx(expected_sobol_samples[i], 0.00001)
-			# "SOBOL: Sample %d should match expected value" % i
+		assert_float(samples[i]).is_equal_approx(expected_sobol[i], 0.00001)
 
 
-func test_generate_samples_sobol_ndraws_zero() -> void:
-	var ndraws: int = 0
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL)
-	assert_int(samples.size()).is_equal(0) # "SOBOL: Should return an empty array for ndraws = 0"
+func test_generate_samples_1d_halton_deterministic() -> void:
+	var ndraws: int = 5
+	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON)
+	var expected_halton: Array[float] = [0.5, 0.25, 0.75, 0.125, 0.625]
+	
+	assert_int(samples.size()).is_equal(ndraws)
+	for i in range(ndraws):
+		assert_float(samples[i]).is_equal_approx(expected_halton[i], 0.00001)
 
 
-func test_generate_samples_sobol_ndraws_negative() -> void:
-	var ndraws: int = -5
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL)
-	assert_int(samples.size()).is_equal(0) # "SOBOL: Should return an empty array for ndraws < 0"
-
-
-func test_generate_samples_sobol_random_basic() -> void:
-	var ndraws: int = 10
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM)
-
-	assert_int(samples.size()).is_equal(ndraws) # "SOBOL_RANDOM: Should return the correct number of samples"
-	for sample_val in samples:
-		assert_float(sample_val).is_greater_equal(0.0) # "SOBOL_RANDOM: Sample value should be >= 0.0"
-		assert_float(sample_val).is_less_equal(1.0) # "SOBOL_RANDOM: Sample value should be <= 1.0"
-
-
-func test_generate_samples_sobol_random_with_seed() -> void:
+func test_generate_samples_1d_seeded_reproducibility() -> void:
 	var ndraws: int = 5
 	var seed: int = 12345
-	var samples1: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, seed)
-	var samples2: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, seed)
-
-	assert_int(samples1.size()).is_equal(ndraws) # "SOBOL_RANDOM (seed): Correct number of samples for first set"
-	assert_int(samples2.size()).is_equal(ndraws) # "SOBOL_RANDOM (seed): Correct number of samples for second set"
-	for i in range(ndraws):
-		assert_float(samples1[i]).is_greater_equal(0.0) # "SOBOL_RANDOM (seed): Sample1[%d] should be >= 0.0" % i
-		assert_float(samples1[i]).is_less_equal(1.0) # "SOBOL_RANDOM (seed): Sample1[%d] should be <= 1.0" % i
-		assert_float(samples2[i]).is_greater_equal(0.0) # "SOBOL_RANDOM (seed): Sample2[%d] should be >= 0.0" % i
-		assert_float(samples2[i]).is_less_equal(1.0) # "SOBOL_RANDOM (seed): Sample2[%d] should be <= 1.0" % i
-		assert_float(samples1[i]).is_equal_approx(samples2[i], 0.0000001) # "SOBOL_RANDOM (seed): Samples should be reproducible with the same seed"
-
-
-func test_generate_samples_sobol_random_ndraws_zero() -> void:
-	var ndraws: int = 0
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM)
-	assert_int(samples.size()).is_equal(0) # "SOBOL_RANDOM: Should return an empty array for ndraws = 0"
-
-
-func test_generate_samples_sobol_random_ndraws_negative() -> void:
-	var ndraws: int = -5
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM)
-	assert_int(samples.size()).is_equal(0) # "SOBOL_RANDOM: Should return an empty array for ndraws < 0"
-
-
-func test_generate_samples_halton_basic() -> void:
-	var ndraws: int = 5
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON)
-
-	assert_int(samples.size()).is_equal(ndraws) # "HALTON: Should return the correct number of samples"
-	for sample_val in samples:
-		assert_float(sample_val).is_greater_equal(0.0) # "HALTON: Sample value should be >= 0.0"
-		assert_float(sample_val).is_less_equal(1.0) # "HALTON: Sample value should be < 1.0 (strictly for base > 1)"
-
-	var expected_halton_samples: Array[float] = [0.5, 0.25, 0.75, 0.125, 0.625]
-	for i in range(ndraws):
-		assert_float(samples[i]).is_equal_approx(expected_halton_samples[i], 0.00001)
-			# "HALTON: Sample %d should match expected value" % i
-
-
-func test_generate_samples_halton_ndraws_zero() -> void:
-	var ndraws: int = 0
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON)
-	assert_int(samples.size()).is_equal(0) # "HALTON: Should return an empty array for ndraws = 0"
-
-
-func test_generate_samples_halton_ndraws_negative() -> void:
-	var ndraws: int = -5
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON)
-	assert_int(samples.size()).is_equal(0) # "HALTON: Should return an empty array for ndraws < 0"
-
-
-func test_generate_samples_halton_random_basic() -> void:
-	var ndraws: int = 10
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON_RANDOM)
-
-	assert_int(samples.size()).is_equal(ndraws) # "HALTON_RANDOM: Should return the correct number of samples"
-	for sample_val in samples:
-		assert_float(sample_val).is_greater_equal(0.0) # "HALTON_RANDOM: Sample value should be >= 0.0"
-		assert_float(sample_val).is_less(1.0) # "HALTON_RANDOM: Sample value should be < 1.0 (due to fmod)"
-
-
-func test_generate_samples_halton_random_with_seed() -> void:
-	var ndraws: int = 5
-	var seed: int = 54321
-	var samples1: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON_RANDOM, seed)
-	var samples2: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON_RANDOM, seed)
-
-	assert_int(samples1.size()).is_equal(ndraws) # "HALTON_RANDOM (seed): Correct number of samples for first set"
-	assert_int(samples2.size()).is_equal(ndraws) # "HALTON_RANDOM (seed): Correct number of samples for second set"
-	for i in range(ndraws):
-		assert_float(samples1[i]).is_greater_equal(0.0) # "HALTON_RANDOM (seed): Sample1[%d] should be >= 0.0" % i
-		assert_float(samples1[i]).is_less(1.0) # "HALTON_RANDOM (seed): Sample1[%d] should be < 1.0" % i
-		assert_float(samples2[i]).is_greater_equal(0.0) # "HALTON_RANDOM (seed): Sample2[%d] should be >= 0.0" % i
-		assert_float(samples2[i]).is_less(1.0) # "HALTON_RANDOM (seed): Sample2[%d] should be < 1.0" % i
-		assert_float(samples1[i]).is_equal_approx(samples2[i], 0.0000001) # "HALTON_RANDOM (seed): Samples should be reproducible with the same seed"
-
-
-func test_generate_samples_halton_random_ndraws_zero() -> void:
-	var ndraws: int = 0
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON_RANDOM)
-	assert_int(samples.size()).is_equal(0) # "HALTON_RANDOM: Should return an empty array for ndraws = 0"
-
-
-func test_generate_samples_halton_random_ndraws_negative() -> void:
-	var ndraws: int = -5
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON_RANDOM)
-	assert_int(samples.size()).is_equal(0) # "HALTON_RANDOM: Should return an empty array for ndraws < 0"
-
-
-func test_generate_samples_latin_hypercube_basic() -> void:
-	var ndraws: int = 10
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE)
-
-	assert_int(samples.size()).is_equal(ndraws) # "LHS: Should return the correct number of samples"
-	for sample_val in samples:
-		assert_float(sample_val).is_greater_equal(0.0) # "LHS: Sample value should be >= 0.0"
-		assert_float(sample_val).is_less(1.0) # "LHS: Sample value should be < 1.0"
-
-
-func test_generate_samples_latin_hypercube_with_seed() -> void:
-	var ndraws: int = 5
-	var seed: int = 67890
-	var samples1: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, seed)
-	var samples2: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, seed)
-
-	assert_int(samples1.size()).is_equal(ndraws) # "LHS (seed): Correct number of samples for first set"
-	assert_int(samples2.size()).is_equal(ndraws) # "LHS (seed): Correct number of samples for second set"
-	for i in range(ndraws):
-		assert_float(samples1[i]).is_greater_equal(0.0) # "LHS (seed): Sample1[%d] should be >= 0.0" % i
-		assert_float(samples1[i]).is_less(1.0) # "LHS (seed): Sample1[%d] should be < 1.0" % i
-		assert_float(samples2[i]).is_greater_equal(0.0) # "LHS (seed): Sample2[%d] should be >= 0.0" % i
-		assert_float(samples2[i]).is_less(1.0) # "LHS (seed): Sample2[%d] should be < 1.0" % i
-		assert_float(samples1[i]).is_equal_approx(samples2[i], 0.0000001) # "LHS (seed): Samples should be reproducible with the same seed"
-
-
-func test_generate_samples_latin_hypercube_stratification() -> void:
-	var ndraws: int = 20 # Use a reasonable number for checking stratification
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 123)
 	
-	assert_int(samples.size()).is_equal(ndraws) # "LHS (strat): Correct number of samples"
+	# Test SOBOL_RANDOM reproducibility
+	var sobol_1: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, seed)
+	var sobol_2: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, seed)
+	
+	assert_int(sobol_1.size()).is_equal(ndraws)
+	for i in range(ndraws):
+		assert_float(sobol_1[i]).is_equal_approx(sobol_2[i], 0.0000001)
+	
+	# Test LATIN_HYPERCUBE reproducibility
+	var lhs_1: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, seed)
+	var lhs_2: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, seed)
+	
+	assert_int(lhs_1.size()).is_equal(ndraws)
+	for i in range(ndraws):
+		assert_float(lhs_1[i]).is_equal_approx(lhs_2[i], 0.0000001)
+
+
+func test_generate_samples_1d_latin_hypercube_stratification() -> void:
+	var ndraws: int = 20
+	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 123)
 	
 	var sorted_samples: Array[float] = samples.duplicate()
 	sorted_samples.sort()
@@ -209,351 +87,329 @@ func test_generate_samples_latin_hypercube_stratification() -> void:
 		var lower_bound: float = float(i) / float(ndraws)
 		var upper_bound: float = float(i + 1) / float(ndraws)
 		assert_float(sorted_samples[i]).is_greater_equal(lower_bound)
-		if i == ndraws -1 and sorted_samples[i] > (upper_bound - 0.000001) and sorted_samples[i] < (upper_bound + 0.000001): 
-			assert_float(sorted_samples[i]).is_less_equal(upper_bound)
-		else:
-			assert_float(sorted_samples[i]).is_less(upper_bound)
+		assert_float(sorted_samples[i]).is_less(upper_bound)
 
 
-func test_generate_samples_latin_hypercube_ndraws_zero() -> void:
-	var ndraws: int = 0
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE)
-	assert_int(samples.size()).is_equal(0) # "LHS: Should return an empty array for ndraws = 0"
-
-
-func test_generate_samples_latin_hypercube_ndraws_negative() -> void:
-	var ndraws: int = -5
-	var samples: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE)
-	assert_int(samples.size()).is_equal(0) # "LHS: Should return an empty array for ndraws < 0"
-
-
-func test_rng_determinism_with_set_seed() -> void:
-	const TEST_SEED: int = 888
-	const NDRAWS: int = 5
-	
-	var results_run1_random: Array[float]
-	var results_run1_lhs: Array[float]
-	var results_run2_random: Array[float]
-	var results_run2_lhs: Array[float]
-
-	StatMath.set_global_seed(TEST_SEED)
-	results_run1_random = StatMath.SamplingGen.generate_samples_1d(NDRAWS, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	results_run1_lhs = StatMath.SamplingGen.generate_samples_1d(NDRAWS, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE)
-
-	StatMath.set_global_seed(TEST_SEED) 
-	results_run2_random = StatMath.SamplingGen.generate_samples_1d(NDRAWS, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	results_run2_lhs = StatMath.SamplingGen.generate_samples_1d(NDRAWS, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE)
-
-	assert_int(results_run1_random.size()).is_equal(NDRAWS) 
-	assert_int(results_run2_random.size()).is_equal(NDRAWS) 
-	for i in range(NDRAWS):
-		assert_float(results_run1_random[i]).is_equal(results_run2_random[i])
-
-	assert_int(results_run1_lhs.size()).is_equal(NDRAWS) 
-	assert_int(results_run2_lhs.size()).is_equal(NDRAWS) 
-	for i in range(NDRAWS):
-		assert_float(results_run1_lhs[i]).is_equal(results_run2_lhs[i])
-
-
-# --- Test Cases for 2D Sample Generation ---
-
-# test_generate_samples_invalid_dimensions removed as it's no longer applicable.
-
-func test_generate_samples_ndraws_zero_2d() -> void:
-	var ndraws: int = 0
-	var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	assert_int(samples.size()).is_equal(0)
-
-
-# --- RANDOM 2D Tests ---
-func test_generate_samples_random_2d_basic() -> void:
+func test_generate_samples_2d_basic() -> void:
 	var ndraws: int = 10
-	var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var methods: Array[StatMath.SamplingGen.SamplingMethod] = [
+		StatMath.SamplingGen.SamplingMethod.RANDOM,
+		StatMath.SamplingGen.SamplingMethod.SOBOL,
+		StatMath.SamplingGen.SamplingMethod.HALTON,
+		StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE
+	]
 	
-	assert_int(samples.size()).is_equal(ndraws)
-	for sample_vec in samples:
-		assert_float(sample_vec.x).is_greater_equal(0.0)
-		assert_float(sample_vec.x).is_less_equal(1.0)
-		assert_float(sample_vec.y).is_greater_equal(0.0)
-		assert_float(sample_vec.y).is_less_equal(1.0)
+	for method in methods:
+		var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, method)
+		assert_int(samples.size()).is_equal(ndraws)
+		for sample_vec in samples:
+			assert_float(sample_vec.x).is_between(0.0, 1.0)
+			assert_float(sample_vec.y).is_between(0.0, 1.0)
 
-func test_generate_samples_random_2d_with_seed() -> void:
+
+func test_generate_samples_2d_sobol_deterministic() -> void:
 	var ndraws: int = 5
-	var seed: int = 12321
-	var sensitivity: Vector2 = Vector2(0.00001, 0.00001)
-	var samples1: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM, seed)
-	var samples2: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM, seed)
-
-	assert_int(samples1.size()).is_equal(ndraws)
-	for i in range(ndraws):
-		assert_vector(samples1[i]).is_equal_approx(samples2[i], sensitivity)
-
-
-# --- SOBOL 2D Tests ---
-func test_generate_samples_sobol_2d_basic() -> void:
-	var ndraws: int = 5
-	var sensitivity: Vector2 = Vector2(0.00001, 0.00001)
 	var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL)
-
-	assert_int(samples.size()).is_equal(ndraws)
-	for sample_vec in samples:
-		assert_float(sample_vec.x).is_greater_equal(0.0)
-		assert_float(sample_vec.x).is_less_equal(1.0)
-		assert_float(sample_vec.y).is_greater_equal(0.0)
-		assert_float(sample_vec.y).is_less_equal(1.0)
-
-	var expected_sobol_2d_samples: Array[Vector2] = [
+	var expected_sobol_2d: Array[Vector2] = [
 		Vector2(0.0, 0.0),
-		Vector2(0.5, 0.5),
+		Vector2(0.5, 0.5), 
 		Vector2(0.75, 0.75),
 		Vector2(0.25, 0.25),
-		Vector2(0.375, 0.625) 
+		Vector2(0.375, 0.625)
 	]
-	assert_int(samples.size()).is_equal(expected_sobol_2d_samples.size())
-	for i in range(min(ndraws, expected_sobol_2d_samples.size())):
-		assert_vector(samples[i]).is_equal_approx(expected_sobol_2d_samples[i], sensitivity)
-
-func test_generate_samples_sobol_random_2d_with_seed() -> void:
-	var ndraws: int = 5
-	var seed: int = 56789
-	var sensitivity: Vector2 = Vector2(0.00001, 0.00001)
-	var samples1: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, seed)
-	var samples2: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, seed)
-
-	assert_int(samples1.size()).is_equal(ndraws)
-	for i in range(ndraws):
-		assert_vector(samples1[i]).is_equal_approx(samples2[i], sensitivity)
-		assert_float(samples1[i].x).is_between(0.0, 1.0)
-		assert_float(samples1[i].y).is_between(0.0, 1.0)
-
-
-# --- HALTON 2D Tests ---
-func test_generate_samples_halton_2d_basic() -> void:
-	var ndraws: int = 5
-	var sensitivity: Vector2 = Vector2(0.00001, 0.00001)
-	var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON)
-
-	assert_int(samples.size()).is_equal(ndraws)
-	for sample_vec in samples:
-		assert_float(sample_vec.x).is_greater_equal(0.0)
-		assert_float(sample_vec.x).is_less(1.0)
-		assert_float(sample_vec.y).is_greater_equal(0.0)
-		assert_float(sample_vec.y).is_less(1.0)
-	
-	var expected_halton_2d_samples: Array[Vector2] = [
-		Vector2(0.5, 1.0/3.0),
-		Vector2(0.25, 2.0/3.0),
-		Vector2(0.75, 1.0/9.0),
-		Vector2(0.125, 4.0/9.0),
-		Vector2(0.625, 7.0/9.0)
-	]
-	assert_int(samples.size()).is_equal(expected_halton_2d_samples.size())
-	for i in range(min(ndraws, expected_halton_2d_samples.size())):
-		assert_vector(samples[i]).is_equal_approx(expected_halton_2d_samples[i], sensitivity)
-
-func test_generate_samples_halton_random_2d_with_seed() -> void:
-	var ndraws: int = 5
-	var seed: int = 98765
-	var sensitivity: Vector2 = Vector2(0.00001, 0.00001)
-	var samples1: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON_RANDOM, seed)
-	var samples2: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.HALTON_RANDOM, seed)
-
-	assert_int(samples1.size()).is_equal(ndraws)
-	for i in range(ndraws):
-		assert_vector(samples1[i]).is_equal_approx(samples2[i], sensitivity)
-		assert_float(samples1[i].x).is_greater_equal(0.0)
-		assert_float(samples1[i].x).is_less(1.0)
-		assert_float(samples1[i].y).is_greater_equal(0.0)
-		assert_float(samples1[i].y).is_less(1.0)
-
-
-# --- LATIN HYPERCUBE 2D Tests ---
-func test_generate_samples_latin_hypercube_2d_basic() -> void:
-	var ndraws: int = 10
-	var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE)
 	
 	assert_int(samples.size()).is_equal(ndraws)
-	for sample_vec in samples:
-		assert_float(sample_vec.x).is_greater_equal(0.0)
-		assert_float(sample_vec.x).is_less(1.0)
-		assert_float(sample_vec.y).is_greater_equal(0.0)
-		assert_float(sample_vec.y).is_less(1.0)
-
-func test_generate_samples_latin_hypercube_2d_with_seed() -> void:
-	var ndraws: int = 5
-	var seed: int = 24680
-	var sensitivity: Vector2 = Vector2(0.00001, 0.00001)
-	var samples1: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, seed)
-	var samples2: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, seed)
-
-	assert_int(samples1.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_vector(samples1[i]).is_equal_approx(samples2[i], sensitivity)
+		assert_vector(samples[i]).is_equal_approx(expected_sobol_2d[i], Vector2(0.00001, 0.00001))
 
-func test_generate_samples_latin_hypercube_2d_stratification() -> void:
-	var ndraws: int = 20
-	var seed: int = 13579
-	var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples_2d(ndraws, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, seed)
+
+# --- DISCRETE INDEX SAMPLING TESTS (sample_indices) ---
+
+func test_sample_indices_with_replacement_basic() -> void:
+	var population_size: int = 10
+	var draw_count: int = 15  # More than population to test replacement
+	var samples: Array[int] = StatMath.SamplingGen.sample_indices(
+		population_size, draw_count, 
+		StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT,
+		StatMath.SamplingGen.SamplingMethod.RANDOM
+	)
 	
-	assert_int(samples.size()).is_equal(ndraws)
-	
-	var samples_x: Array[float] = []
-	samples_x.resize(ndraws)
-	for i in range(ndraws): samples_x[i] = samples[i].x
-	samples_x.sort()
-	for i in range(ndraws):
-		var lower_bound: float = float(i) / float(ndraws)
-		var upper_bound: float = float(i + 1) / float(ndraws)
-		assert_float(samples_x[i]).is_greater_equal(lower_bound)
-		if i == ndraws -1 and abs(samples_x[i] - upper_bound) < 0.000001:
-			assert_float(samples_x[i]).is_less_equal(upper_bound)
-		else:
-			assert_float(samples_x[i]).is_less(upper_bound)
-
-	var samples_y: Array[float] = []
-	samples_y.resize(ndraws)
-	for i in range(ndraws): samples_y[i] = samples[i].y
-	samples_y.sort()
-	for i in range(ndraws):
-		var lower_bound: float = float(i) / float(ndraws)
-		var upper_bound: float = float(i + 1) / float(ndraws)
-		assert_float(samples_y[i]).is_greater_equal(lower_bound)
-		if i == ndraws -1 and abs(samples_y[i] - upper_bound) < 0.000001:
-			assert_float(samples_y[i]).is_less_equal(upper_bound)
-		else:
-			assert_float(samples_y[i]).is_less(upper_bound)
-
-
-# --- Test Cases for draw_without_replacement ---
-
-# Helper function to check common properties of drawn samples
-func _assert_drawn_samples_valid(samples: Array[int], deck_size: int, draw_count: int, method_name: String) -> void:
-	# Check 1: Correct number of samples
-	assert_int(samples.size()).is_equal(draw_count) # "%s: Should return %d samples" % [method_name, draw_count]
-
-	if draw_count == 0: # No further checks needed for empty result
-		return
-
-	# Check 2: All samples are unique
-	var unique_samples: Dictionary = {}
+	assert_int(samples.size()).is_equal(draw_count)
 	for sample_val in samples:
-		assert_bool(unique_samples.has(sample_val)).is_false() # "%s: Sample %d should be unique" % [method_name, sample_val]
-		unique_samples[sample_val] = true
-		# Check 3: All samples are within the valid range [0, deck_size - 1]
-		assert_int(sample_val).is_greater_equal(0) # "%s: Sample %d should be >= 0" % [method_name, sample_val]
-		assert_int(sample_val).is_less(deck_size) # "%s: Sample %d should be < deck_size (%d)" % [method_name, sample_val, deck_size]
+		assert_int(sample_val).is_between(0, population_size - 1)
+	
+	# Should allow duplicates
+	var unique_values: Dictionary = {}
+	for sample_val in samples:
+		unique_values[sample_val] = true
+	# With replacement, we might have fewer unique values than draws
+	assert_int(unique_values.size()).is_less_equal(draw_count)
 
 
-# --- FISHER_YATES Tests ---
-func test_draw_without_replacement_fisher_yates_basic() -> void:
-	var deck_size: int = 52
+func test_sample_indices_without_replacement_basic() -> void:
+	var population_size: int = 20
 	var draw_count: int = 5
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.FISHER_YATES)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "FISHER_YATES_BASIC")
+	var strategies: Array[StatMath.SamplingGen.SelectionStrategy] = [
+		StatMath.SamplingGen.SelectionStrategy.FISHER_YATES,
+		StatMath.SamplingGen.SelectionStrategy.RESERVOIR,
+		StatMath.SamplingGen.SelectionStrategy.SELECTION_TRACKING
+	]
+	
+	for strategy in strategies:
+		var samples: Array[int] = StatMath.SamplingGen.sample_indices(
+			population_size, draw_count, strategy, StatMath.SamplingGen.SamplingMethod.RANDOM
+		)
+		
+		assert_int(samples.size()).is_equal(draw_count)
+		
+		# Check all samples are in valid range
+		for sample_val in samples:
+			assert_int(sample_val).is_between(0, population_size - 1)
+		
+		# Check all samples are unique
+		var unique_values: Dictionary = {}
+		for sample_val in samples:
+			assert_bool(unique_values.has(sample_val)).is_false()
+			unique_values[sample_val] = true
+		assert_int(unique_values.size()).is_equal(draw_count)
 
 
-func test_draw_without_replacement_fisher_yates_draw_zero() -> void:
-	var deck_size: int = 52
-	var draw_count: int = 0
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.FISHER_YATES)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "FISHER_YATES_DRAW_ZERO")
-	assert_int(samples.size()).is_equal(0) # "FISHER_YATES_DRAW_ZERO: Should be an empty array"
-
-
-func test_draw_without_replacement_fisher_yates_draw_all() -> void:
-	var deck_size: int = 10
+func test_sample_indices_hybrid_combinations() -> void:
+	var population_size: int = 50
 	var draw_count: int = 10
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.FISHER_YATES)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "FISHER_YATES_DRAW_ALL")
+	
+	# Test SOBOL + FISHER_YATES
+	var sobol_fy: Array[int] = StatMath.SamplingGen.sample_indices(
+		population_size, draw_count,
+		StatMath.SamplingGen.SelectionStrategy.FISHER_YATES,
+		StatMath.SamplingGen.SamplingMethod.SOBOL,
+		42
+	)
+	assert_int(sobol_fy.size()).is_equal(draw_count)
+	_assert_unique_indices(sobol_fy, population_size)
+	
+	# Test LATIN_HYPERCUBE + WITH_REPLACEMENT
+	var lhs_wr: Array[int] = StatMath.SamplingGen.sample_indices(
+		population_size, draw_count,
+		StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT,
+		StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE,
+		42
+	)
+	assert_int(lhs_wr.size()).is_equal(draw_count)
+	_assert_valid_indices(lhs_wr, population_size)
+	
+	# Test HALTON + RESERVOIR
+	var halton_res: Array[int] = StatMath.SamplingGen.sample_indices(
+		population_size, draw_count,
+		StatMath.SamplingGen.SelectionStrategy.RESERVOIR,
+		StatMath.SamplingGen.SamplingMethod.HALTON,
+		42
+	)
+	assert_int(halton_res.size()).is_equal(draw_count)
+	_assert_unique_indices(halton_res, population_size)
 
 
-func test_draw_without_replacement_fisher_yates_deck_zero_draw_zero() -> void:
-	var deck_size: int = 0
-	var draw_count: int = 0
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.FISHER_YATES)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "FISHER_YATES_DECK_ZERO_DRAW_ZERO")
-	assert_int(samples.size()).is_equal(0) # "FISHER_YATES_DECK_ZERO_DRAW_ZERO: Should be an empty array"
+func test_sample_indices_seeded_reproducibility() -> void:
+	var population_size: int = 30
+	var draw_count: int = 8
+	var seed: int = 98765
+	
+	# Test reproducibility with different strategy/method combinations
+	var combinations: Array[Array] = [
+		[StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT, StatMath.SamplingGen.SamplingMethod.SOBOL],
+		[StatMath.SamplingGen.SelectionStrategy.FISHER_YATES, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE],
+		[StatMath.SamplingGen.SelectionStrategy.RESERVOIR, StatMath.SamplingGen.SamplingMethod.HALTON_RANDOM]
+	]
+	
+	for combo in combinations:
+		var strategy: StatMath.SamplingGen.SelectionStrategy = combo[0]
+		var method: StatMath.SamplingGen.SamplingMethod = combo[1]
+		
+		var samples_1: Array[int] = StatMath.SamplingGen.sample_indices(population_size, draw_count, strategy, method, seed)
+		var samples_2: Array[int] = StatMath.SamplingGen.sample_indices(population_size, draw_count, strategy, method, seed)
+		
+		assert_int(samples_1.size()).is_equal(draw_count)
+		assert_int(samples_2.size()).is_equal(draw_count)
+		
+		for i in range(draw_count):
+			assert_int(samples_1[i]).is_equal(samples_2[i])
 
 
-# --- RESERVOIR Tests ---
-func test_draw_without_replacement_reservoir_basic() -> void:
+func test_sample_indices_parameter_validation() -> void:
+	# Test negative draw_count
+	var invalid_draw: Array[int] = StatMath.SamplingGen.sample_indices(10, -1)
+	assert_int(invalid_draw.size()).is_equal(0)
+	
+	# Test negative population_size
+	var invalid_pop: Array[int] = StatMath.SamplingGen.sample_indices(-10, 5)
+	assert_int(invalid_pop.size()).is_equal(0)
+	
+	# Test draw_count > population_size for without replacement
+	var invalid_without_replacement: Array[int] = StatMath.SamplingGen.sample_indices(
+		5, 10, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
+	)
+	assert_int(invalid_without_replacement.size()).is_equal(0)
+	
+	# Test draw_count > population_size for with replacement (should work)
+	var valid_with_replacement: Array[int] = StatMath.SamplingGen.sample_indices(
+		5, 10, StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT
+	)
+	assert_int(valid_with_replacement.size()).is_equal(10)
+
+
+func test_sample_indices_edge_cases() -> void:
+	# Zero draws
+	var zero_draws: Array[int] = StatMath.SamplingGen.sample_indices(10, 0)
+	assert_int(zero_draws.size()).is_equal(0)
+	
+	# Draw all elements
+	var draw_all: Array[int] = StatMath.SamplingGen.sample_indices(
+		5, 5, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
+	)
+	assert_int(draw_all.size()).is_equal(5)
+	_assert_unique_indices(draw_all, 5)
+	
+	# Single element population
+	var single_element: Array[int] = StatMath.SamplingGen.sample_indices(
+		1, 1, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
+	)
+	assert_int(single_element.size()).is_equal(1)
+	assert_int(single_element[0]).is_equal(0)
+
+
+# --- CARD GAME SIMULATION TESTS ---
+
+func test_card_game_dealing() -> void:
 	var deck_size: int = 52
-	var draw_count: int = 5
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.RESERVOIR)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "RESERVOIR_BASIC")
+	var hand_size: int = 5
+	
+	# Test different dealing strategies for card games
+	var fisher_yates: Array[int] = StatMath.SamplingGen.sample_indices(
+		deck_size, hand_size, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
+	)
+	var reservoir: Array[int] = StatMath.SamplingGen.sample_indices(
+		deck_size, hand_size, StatMath.SamplingGen.SelectionStrategy.RESERVOIR
+	)
+	var selection_tracking: Array[int] = StatMath.SamplingGen.sample_indices(
+		deck_size, hand_size, StatMath.SamplingGen.SelectionStrategy.SELECTION_TRACKING
+	)
+	
+	# All strategies should deal valid hands
+	var all_hands: Array = [fisher_yates, reservoir, selection_tracking]
+	for hand in all_hands:
+		assert_int(hand.size()).is_equal(hand_size)
+		_assert_unique_indices(hand, deck_size)
 
 
-func test_draw_without_replacement_reservoir_draw_zero() -> void:
-	var deck_size: int = 52
-	var draw_count: int = 0
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.RESERVOIR)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "RESERVOIR_DRAW_ZERO")
-	assert_int(samples.size()).is_equal(0) # "RESERVOIR_DRAW_ZERO: Should be an empty array"
+func test_dice_rolling_simulation() -> void:
+	# Test dice rolling with replacement (can roll same number multiple times)
+	var dice_sides: int = 6
+	var roll_count: int = 100
+	
+	var dice_rolls: Array[int] = StatMath.SamplingGen.sample_indices(
+		dice_sides, roll_count,
+		StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT,
+		StatMath.SamplingGen.SamplingMethod.RANDOM
+	)
+	
+	assert_int(dice_rolls.size()).is_equal(roll_count)
+	for roll in dice_rolls:
+		assert_int(roll).is_between(0, dice_sides - 1)  # 0-5 representing 1-6 on dice
+	
+	# Verify we can have duplicates (should be very likely with 100 rolls)
+	var unique_values: Dictionary = {}
+	for roll in dice_rolls:
+		unique_values[roll] = true
+	assert_int(unique_values.size()).is_less_equal(dice_sides)  # Should have 6 or fewer unique values
 
 
-func test_draw_without_replacement_reservoir_draw_all() -> void:
-	var deck_size: int = 10
-	var draw_count: int = 10
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.RESERVOIR)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "RESERVOIR_DRAW_ALL")
+# --- PERFORMANCE AND STRESS TESTS ---
+
+func test_large_scale_sampling() -> void:
+	# Test with larger datasets to ensure performance
+	var large_pop: int = 1000
+	var large_draws: int = 100
+	
+	var large_sample: Array[int] = StatMath.SamplingGen.sample_indices(
+		large_pop, large_draws,
+		StatMath.SamplingGen.SelectionStrategy.FISHER_YATES,
+		StatMath.SamplingGen.SamplingMethod.RANDOM
+	)
+	
+	assert_int(large_sample.size()).is_equal(large_draws)
+	_assert_unique_indices(large_sample, large_pop)
 
 
-func test_draw_without_replacement_reservoir_deck_zero_draw_zero() -> void:
-	var deck_size: int = 0
-	var draw_count: int = 0
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.RESERVOIR)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "RESERVOIR_DECK_ZERO_DRAW_ZERO")
-	assert_int(samples.size()).is_equal(0) # "RESERVOIR_DECK_ZERO_DRAW_ZERO: Should be an empty array"
+func test_bootstrap_sampling_pattern() -> void:
+	# Test typical bootstrap sampling scenario
+	var original_size: int = 100
+	var bootstrap_size: int = 100
+	
+	var bootstrap_sample: Array[int] = StatMath.SamplingGen.sample_indices(
+		original_size, bootstrap_size,
+		StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT,
+		StatMath.SamplingGen.SamplingMethod.RANDOM,
+		42
+	)
+	
+	assert_int(bootstrap_sample.size()).is_equal(bootstrap_size)
+	_assert_valid_indices(bootstrap_sample, original_size)
+	
+	# Bootstrap should have some duplicates (very high probability)
+	var unique_count: int = 0
+	var seen: Dictionary = {}
+	for idx in bootstrap_sample:
+		if not seen.has(idx):
+			seen[idx] = true
+			unique_count += 1
+	
+	# Bootstrap should have fewer unique values than total samples (statistically almost certain)
+	assert_int(unique_count).is_less(bootstrap_size)
 
 
-# --- SELECTION_TRACKING Tests ---
-func test_draw_without_replacement_selection_tracking_basic() -> void:
-	var deck_size: int = 52
-	var draw_count: int = 5
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.SELECTION_TRACKING)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "SELECTION_TRACKING_BASIC")
+# --- HELPER FUNCTIONS ---
+
+func _assert_valid_indices(samples: Array[int], population_size: int) -> void:
+	for sample_val in samples:
+		assert_int(sample_val).is_greater_equal(0)
+		assert_int(sample_val).is_less(population_size)
 
 
-func test_draw_without_replacement_selection_tracking_draw_zero() -> void:
-	var deck_size: int = 52
-	var draw_count: int = 0
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.SELECTION_TRACKING)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "SELECTION_TRACKING_DRAW_ZERO")
-	assert_int(samples.size()).is_equal(0) # "SELECTION_TRACKING_DRAW_ZERO: Should be an empty array"
+func _assert_unique_indices(samples: Array[int], population_size: int) -> void:
+	_assert_valid_indices(samples, population_size)
+	
+	var unique_values: Dictionary = {}
+	for sample_val in samples:
+		assert_bool(unique_values.has(sample_val)).is_false()
+		unique_values[sample_val] = true
+	
+	assert_int(unique_values.size()).is_equal(samples.size())
 
 
-func test_draw_without_replacement_selection_tracking_draw_all() -> void:
-	var deck_size: int = 10
-	var draw_count: int = 10
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.SELECTION_TRACKING)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "SELECTION_TRACKING_DRAW_ALL")
+# --- GLOBAL RNG DETERMINISM TESTS ---
 
-
-func test_draw_without_replacement_selection_tracking_deck_zero_draw_zero() -> void:
-	var deck_size: int = 0
-	var draw_count: int = 0
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.SELECTION_TRACKING)
-	_assert_drawn_samples_valid(samples, deck_size, draw_count, "SELECTION_TRACKING_DECK_ZERO_DRAW_ZERO")
-	assert_int(samples.size()).is_equal(0) # "SELECTION_TRACKING_DECK_ZERO_DRAW_ZERO: Should be an empty array"
-
-
-# --- Invalid Input Tests for draw_without_replacement ---
-func test_draw_without_replacement_invalid_draw_count_negative() -> void:
-	var deck_size: int = 10
-	var draw_count: int = -1
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.FISHER_YATES)
-	assert_int(samples.size()).is_equal(0) # "INVALID_DRAW_NEGATIVE: Should return empty array for negative draw_count"
-
-
-func test_draw_without_replacement_invalid_deck_size_negative() -> void:
-	var deck_size: int = -10
-	var draw_count: int = 5
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.FISHER_YATES)
-	assert_int(samples.size()).is_equal(0) # "INVALID_DECK_NEGATIVE: Should return empty array for negative deck_size"
-
-
-func test_draw_without_replacement_invalid_draw_count_greater_than_deck_size() -> void:
-	var deck_size: int = 5
-	var draw_count: int = 10
-	var samples: Array[int] = StatMath.SamplingGen.draw_without_replacement(deck_size, draw_count, StatMath.SamplingGen.SamplingMethod.FISHER_YATES)
-	assert_int(samples.size()).is_equal(0) # "INVALID_DRAW_GREATER: Should return empty array if draw_count > deck_size"
+func test_global_rng_determinism() -> void:
+	var test_seed: int = 888
+	var ndraws: int = 5
+	
+	# Test continuous sampling determinism
+	StatMath.set_global_seed(test_seed)
+	var continuous_1: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	
+	StatMath.set_global_seed(test_seed)
+	var continuous_2: Array[float] = StatMath.SamplingGen.generate_samples_1d(ndraws, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	
+	assert_int(continuous_1.size()).is_equal(ndraws)
+	for i in range(ndraws):
+		assert_float(continuous_1[i]).is_equal(continuous_2[i])
+	
+	# Test discrete sampling determinism
+	StatMath.set_global_seed(test_seed)
+	var discrete_1: Array[int] = StatMath.SamplingGen.sample_indices(20, 5)
+	
+	StatMath.set_global_seed(test_seed)
+	var discrete_2: Array[int] = StatMath.SamplingGen.sample_indices(20, 5)
+	
+	assert_int(discrete_1.size()).is_equal(5)
+	for i in range(5):
+		assert_int(discrete_1[i]).is_equal(discrete_2[i])

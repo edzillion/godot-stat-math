@@ -64,6 +64,8 @@ static func _ensure_sobol_vectors_initialized() -> void:
 		_SOBOL_DIRECTION_VECTORS_DIM_SPECIFIC[1][j] = v_jm1 ^ v_jm2 ^ (v_jm2 >> 2)
 
 
+# --- CONTINUOUS SPACE SAMPLING (for Monte Carlo, space-filling) ---
+
 ## Generates an array of 1D sample values based on the specified method.
 ##
 ## @param ndraws: int The number of samples to draw.
@@ -176,7 +178,236 @@ static func generate_samples_2d(ndraws: int, method: SamplingMethod, sample_seed
 	return samples
 
 
-# --- Private Static Helper Functions ---
+# --- DISCRETE INDEX SAMPLING (for finite populations, card games, bootstrap) ---
+
+## Enhanced interface for sampling indices from a finite population.
+## Combines sampling methods (how to generate random numbers) with selection strategies 
+## (how to use those numbers to select indices).
+##
+## @param population_size: int The size of the population to sample from (0 to population_size-1).
+## @param draw_count: int The number of indices to draw.
+## @param selection_strategy: SelectionStrategy How to select indices (with/without replacement).
+## @param sampling_method: SamplingMethod How to generate the underlying random numbers.
+## @param sample_seed: int The random seed (optional, uses global RNG if -1).
+## @return Array[int] An Array of integers representing selected indices. Empty if invalid parameters.
+static func sample_indices(
+	population_size: int, 
+	draw_count: int, 
+	selection_strategy: SelectionStrategy = SelectionStrategy.FISHER_YATES,
+	sampling_method: SamplingMethod = SamplingMethod.RANDOM,
+	sample_seed: int = -1
+) -> Array[int]:
+	if draw_count < 0:
+		printerr("sample_indices: draw_count cannot be negative.")
+		return []
+	if population_size < 0:
+		printerr("sample_indices: population_size cannot be negative.")
+		return []
+	if selection_strategy != SelectionStrategy.WITH_REPLACEMENT and draw_count > population_size:
+		printerr("sample_indices: Without replacement, draw_count cannot exceed population_size.")
+		return []
+
+	var rng_to_use: RandomNumberGenerator
+	if sample_seed != -1:
+		rng_to_use = RandomNumberGenerator.new()
+		rng_to_use.seed = sample_seed
+	else:
+		rng_to_use = StatMath.get_rng()
+
+	match selection_strategy:
+		SelectionStrategy.WITH_REPLACEMENT:
+			return _with_replacement_draw(population_size, draw_count, sampling_method, rng_to_use)
+		SelectionStrategy.FISHER_YATES:
+			return _fisher_yates_draw(population_size, draw_count, sampling_method, rng_to_use)
+		SelectionStrategy.RESERVOIR:
+			return _reservoir_draw(population_size, draw_count, sampling_method, rng_to_use)
+		SelectionStrategy.SELECTION_TRACKING:
+			return _selection_tracking_draw(population_size, draw_count, sampling_method, rng_to_use)
+	
+	printerr("sample_indices: Unsupported selection strategy: ", SelectionStrategy.keys()[selection_strategy])
+	return []
+
+
+# --- PRIVATE IMPLEMENTATION METHODS ---
+
+## Sampling with replacement - allows duplicates.
+static func _with_replacement_draw(population_size: int, draw_count: int, sampling_method: SamplingMethod, rng: RandomNumberGenerator) -> Array[int]:
+	var result: Array[int] = []
+	if draw_count <= 0:
+		return result
+	result.resize(draw_count)
+
+	# Generate random values using the specified sampling method
+	var random_values: Array[float] = []
+	match sampling_method:
+		SamplingMethod.RANDOM:
+			random_values.resize(draw_count)
+			for i in range(draw_count):
+				random_values[i] = rng.randf()
+		SamplingMethod.SOBOL:
+			random_values = _generate_sobol_1d(draw_count, 0)
+		SamplingMethod.SOBOL_RANDOM:
+			var sobol_integers: Array[int] = _get_sobol_1d_integers(draw_count, 0)
+			var random_mask: int = rng.randi() & ((1 << _SOBOL_BITS) - 1)
+			random_values.resize(draw_count)
+			for i in range(draw_count):
+				if sobol_integers[i] != -1:
+					random_values[i] = float(sobol_integers[i] ^ random_mask) / _SOBOL_MAX_VAL_FLOAT
+				else:
+					random_values[i] = rng.randf() # Fallback on error
+		SamplingMethod.HALTON:
+			random_values = _generate_halton_1d(draw_count, 2)
+		SamplingMethod.HALTON_RANDOM:
+			var halton_samples: Array[float] = _generate_halton_1d(draw_count, 2)
+			var random_offset: float = rng.randf()
+			random_values.resize(draw_count)
+			for i in range(draw_count):
+				if halton_samples[i] != -1.0:
+					random_values[i] = fmod(halton_samples[i] + random_offset, 1.0)
+				else:
+					random_values[i] = rng.randf() # Fallback on error
+		SamplingMethod.LATIN_HYPERCUBE:
+			random_values = _generate_latin_hypercube_1d(draw_count, rng)
+		_:
+			# Fallback to RANDOM
+			random_values.resize(draw_count)
+			for i in range(draw_count):
+				random_values[i] = rng.randf()
+
+	# Convert random values to indices
+	for i in range(draw_count):
+		result[i] = int(random_values[i] * float(population_size)) % population_size
+
+	return result
+
+
+## Fisher-Yates shuffle with custom sampling method for randomness.
+static func _fisher_yates_draw(population_size: int, draw_count: int, sampling_method: SamplingMethod, rng: RandomNumberGenerator) -> Array[int]:
+	var deck: Array[int] = []
+	deck.resize(population_size)
+	for i in range(population_size):
+		deck[i] = i
+	
+	# Generate enough random values for the shuffle
+	var random_values: Array[float] = []
+	match sampling_method:
+		SamplingMethod.RANDOM:
+			# Generate on-demand for efficiency
+			pass
+		_:
+			# Pre-generate for deterministic sequences
+			random_values = generate_samples_1d(draw_count, sampling_method, rng.get_seed() if rng.get_seed() != 0 else -1)
+
+	# Partial Fisher-Yates shuffle
+	for i in range(draw_count):
+		var random_val: float
+		if random_values.is_empty():
+			random_val = rng.randf()
+		else:
+			random_val = random_values[i] if i < random_values.size() else rng.randf()
+		
+		# Map to valid range [i, population_size - 1]
+		var j: int = i + int(random_val * float(population_size - i))
+		j = min(j, population_size - 1) # Clamp to prevent overflow
+		
+		# Swap
+		if i != j:
+			var temp: int = deck[i]
+			deck[i] = deck[j]
+			deck[j] = temp
+
+	# Return first draw_count elements
+	var result: Array[int] = []
+	result.resize(draw_count)
+	for i in range(draw_count):
+		result[i] = deck[i]
+	return result
+
+
+## Reservoir sampling with custom sampling method.
+static func _reservoir_draw(population_size: int, draw_count: int, sampling_method: SamplingMethod, rng: RandomNumberGenerator) -> Array[int]:
+	var reservoir: Array[int] = []
+	reservoir.resize(draw_count)
+	
+	if draw_count == 0:
+		return reservoir
+
+	# Fill reservoir with first draw_count items
+	for i in range(min(draw_count, population_size)):
+		reservoir[i] = i
+
+	# Generate random values for the algorithm
+	var needed_randoms: int = max(0, population_size - draw_count)
+	var random_values: Array[float] = []
+	if needed_randoms > 0:
+		match sampling_method:
+			SamplingMethod.RANDOM:
+				# Generate on-demand for efficiency
+				pass
+			_:
+				random_values = generate_samples_1d(needed_randoms, sampling_method, rng.get_seed() if rng.get_seed() != 0 else -1)
+
+	# Reservoir algorithm
+	var random_index: int = 0
+	for i in range(draw_count, population_size):
+		var random_val: float
+		if random_values.is_empty():
+			random_val = rng.randf()
+		else:
+			random_val = random_values[random_index] if random_index < random_values.size() else rng.randf()
+			random_index += 1
+		
+		var j: int = int(random_val * float(i + 1))
+		if j < draw_count:
+			reservoir[j] = i
+
+	return reservoir
+
+
+## Selection tracking with custom sampling method.
+static func _selection_tracking_draw(population_size: int, draw_count: int, sampling_method: SamplingMethod, rng: RandomNumberGenerator) -> Array[int]:
+	var selected_indices: Dictionary = {}
+	var result: Array[int] = []
+	result.resize(draw_count)
+	
+	if draw_count == 0:
+		return result
+
+	# Pre-generate random values for deterministic sequences
+	var max_attempts: int = (population_size * 4) + (draw_count * 4) + 20
+	var random_values: Array[float] = []
+	match sampling_method:
+		SamplingMethod.RANDOM:
+			# Generate on-demand
+			pass
+		_:
+			random_values = generate_samples_1d(max_attempts, sampling_method, rng.get_seed() if rng.get_seed() != 0 else -1)
+
+	var items_drawn: int = 0
+	var attempts: int = 0
+
+	while items_drawn < draw_count and attempts < max_attempts:
+		var random_val: float
+		if random_values.is_empty():
+			random_val = rng.randf()
+		else:
+			random_val = random_values[attempts] if attempts < random_values.size() else rng.randf()
+		
+		var random_index: int = int(random_val * float(population_size))
+		if not selected_indices.has(random_index):
+			selected_indices[random_index] = true
+			result[items_drawn] = random_index
+			items_drawn += 1
+		attempts += 1
+	
+	if items_drawn < draw_count:
+		printerr("_selection_tracking_draw: Failed to draw enough unique items.")
+		return result.slice(0, items_drawn)
+
+	return result
+
+
+# --- SOBOL SEQUENCE IMPLEMENTATION ---
 
 ## Generates Sobol sequence integers for a specific dimension.
 static func _get_sobol_1d_integers(ndraws: int, dimension_index: int) -> Array[int]:
@@ -327,7 +558,6 @@ static func _generate_sobol_random_2d(ndraws: int, rng: RandomNumberGenerator) -
 	var random_mask_x: int = rng.randi() & ((1 << _SOBOL_BITS) - 1)
 	var random_mask_y: int = rng.randi() & ((1 << _SOBOL_BITS) - 1)
 
-
 	for i in range(ndraws):
 		var x_val: float = -1.0
 		var y_val: float = -1.0
@@ -339,6 +569,8 @@ static func _generate_sobol_random_2d(ndraws: int, rng: RandomNumberGenerator) -
 		
 	return samples
 
+
+# --- HALTON SEQUENCE IMPLEMENTATION ---
 
 static func _generate_halton_1d(ndraws: int, base: int) -> Array[float]:
 	var sequence: Array[float] = []
@@ -408,6 +640,8 @@ static func _generate_halton_random_2d(ndraws: int, rng: RandomNumberGenerator) 
 	return samples
 
 
+# --- LATIN HYPERCUBE IMPLEMENTATION ---
+
 static func _generate_latin_hypercube_1d(ndraws: int, rng: RandomNumberGenerator) -> Array[float]:
 	var lhs_samples: Array[float] = []
 	if ndraws <= 0:
@@ -446,128 +680,3 @@ static func _generate_latin_hypercube_2d(ndraws: int, rng: RandomNumberGenerator
 		samples[i] = Vector2(lhs_x[i], lhs_y[i])
 		
 	return samples
-
-
-# --- Sampling without replacement ---
-
-# Main interface for drawing cards
-static func draw_without_replacement(deck_size: int, draw_count: int, method: SelectionStrategy = SelectionStrategy.FISHER_YATES) -> Array[int]:
-	if draw_count < 0:
-		printerr("draw_without_replacement: draw_count cannot be negative.")
-		return []
-	if deck_size < 0:
-		printerr("draw_without_replacement: deck_size cannot be negative.")
-		return []
-	if draw_count > deck_size:
-		printerr("draw_without_replacement: draw_count cannot be greater than deck_size.")
-		# Fallback: return all elements from deck_size if user requests more than available
-		# Alternatively, could return an empty array or error. For now, let's adjust draw_count.
-		# Consider changing this behavior based on stricter error handling needs.
-		# draw_count = deck_size 
-		# For now, strict error and empty return:
-		return []
-
-
-	match method:
-		SelectionStrategy.FISHER_YATES:
-			return _fisher_yates_draw(deck_size, draw_count)
-		SelectionStrategy.RESERVOIR:
-			return _reservoir_draw(deck_size, draw_count)
-		SelectionStrategy.SELECTION_TRACKING:
-			return _selection_tracking_draw(deck_size, draw_count)
-	return [] # Should not be reached if method is valid
-
-
-# Fisher-Yates Implementation
-static func _fisher_yates_draw(deck_size: int, draw_count: int) -> Array[int]:
-	var deck: Array[int] = []
-	deck.resize(deck_size) # Pre-allocate for slight efficiency
-	for i in range(deck_size):
-		deck[i] = i
-	
-	var rng: RandomNumberGenerator = StatMath.get_rng()
-
-	# Shuffle only the portion we need for the draw_count
-	# This is a partial Fisher-Yates shuffle (aka Knuth shuffle)
-	for i in range(draw_count):
-		# Pick an element from the unshuffled part of the deck [i, deck_size - 1]
-		var j: int = rng.randi_range(i, deck_size - 1)
-		# Swap it with the current element at index i
-		if i != j: # Optional check, swapping with self is harmless but avoidable
-			var temp: int = deck[i]
-			deck[i] = deck[j]
-			deck[j] = temp
-
-	# The first draw_count elements are now our random sample
-	var result: Array[int] = []
-	# deck.slice returns a generic Array, so we need to cast
-	var slice_to_copy: Array = deck.slice(0, draw_count)
-	result.resize(draw_count) # Pre-allocate
-	for i in range(draw_count):
-		result[i] = slice_to_copy[i] as int
-	return result
-
-
-# Reservoir Sampling Implementation
-# Useful when the total number of items (deck_size) is very large or unknown.
-# For a known, fixed deck_size like in cards, Fisher-Yates is generally preferred.
-static func _reservoir_draw(deck_size: int, draw_count: int) -> Array[int]:
-	var reservoir: Array[int] = []
-	reservoir.resize(draw_count) # Pre-allocate if draw_count is known and non-zero
-	
-	if draw_count == 0: # Edge case: nothing to draw
-		return reservoir
-
-	var rng: RandomNumberGenerator = StatMath.get_rng()
-
-	# Fill the reservoir with the first draw_count items
-	for i in range(draw_count):
-		if i < deck_size: # Ensure we don't read past deck_size if it's smaller than draw_count
-			reservoir[i] = i
-		# else: if deck_size < draw_count, this part of reservoir remains uninitialized
-		# This case should be handled by the initial check in draw_without_replacement
-
-	# Iterate through the rest of the items (from draw_count up to deck_size - 1)
-	for i in range(draw_count, deck_size):
-		var j: int = rng.randi_range(0, i) # Random index up to current item index
-		if j < draw_count:
-			reservoir[j] = i # Replace element in reservoir
-
-	return reservoir
-
-
-# Selection Tracking Implementation
-# Memory efficient for single or few draws from a very large deck,
-# but can be slow if draw_count is large relative to deck_size due to potential retries.
-static func _selection_tracking_draw(deck_size: int, draw_count: int) -> Array[int]:
-	var selected_indices: Dictionary = {} # Using a Dictionary to track selected items
-	var result: Array[int] = []
-	result.resize(draw_count) # Pre-allocate
-	
-	if draw_count == 0: # Edge case
-		return result
-
-	var rng: RandomNumberGenerator = StatMath.get_rng()
-	var items_drawn: int = 0
-
-	# Loop until we have drawn the required number of items
-	# Add a guard against potential infinite loops if logic is flawed or deck_size is too small,
-	# though the draw_count > deck_size check should prevent the latter.
-	var max_attempts: int = (deck_size * 4) + (draw_count * 4) + 20 # Adjusted heuristic for max attempts
-	var attempts: int = 0
-
-	while items_drawn < draw_count and attempts < max_attempts:
-		var random_index: int = rng.randi_range(0, deck_size - 1)
-		if not selected_indices.has(random_index):
-			selected_indices[random_index] = true # Mark as selected
-			result[items_drawn] = random_index    # Add to results
-			items_drawn += 1
-		attempts += 1
-	
-	if items_drawn < draw_count:
-		printerr("_selection_tracking_draw: Failed to draw enough unique items. This might indicate an issue or very high draw_count relative to deck_size.")
-		# Return partially filled array or handle error as appropriate
-		return result.slice(0, items_drawn)
-
-
-	return result
