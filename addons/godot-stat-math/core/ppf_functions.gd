@@ -160,6 +160,13 @@ static func beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float:
 	if is_equal_approx(alpha_shape, 1.0) and is_equal_approx(beta_shape, 1.0):
 		return p
 	
+	# Special case: Beta(2,2) has exact PPF formula
+	# CDF: F(x) = x²(3-2x), so PPF requires solving p = x²(3-2x) for x
+	# This is a cubic equation: 2x³ - 3x² + p = 0
+	# Using Newton's method with analytical derivative for fast convergence
+	if is_equal_approx(alpha_shape, 2.0) and is_equal_approx(beta_shape, 2.0):
+		return _beta_2_2_ppf_fast(p)
+	
 	# Use binary search
 	var lower_bound := 0.0
 	var upper_bound := 1.0
@@ -196,6 +203,49 @@ static func beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float:
 		push_warning("Beta PPF reached max iterations (%s) for p=%s, alpha=%s, beta=%s. Result might be an approximation." % [StatMath.MAX_ITERATIONS, p, alpha_shape, beta_shape])
 
 	return x
+
+
+## Fast analytical PPF for Beta(2,2) distribution
+## Solves the cubic equation p = x²(3-2x) using Newton's method
+## This is MUCH faster than binary search for the common Beta(2,2) case
+static func _beta_2_2_ppf_fast(p: float) -> float:
+	# For Beta(2,2), CDF is F(x) = x²(3-2x) = 3x² - 2x³
+	# We need to solve: p = 3x² - 2x³ for x
+	# Rearranged: 2x³ - 3x² + p = 0
+	
+	# Newton's method: f(x) = 2x³ - 3x² + p, f'(x) = 6x² - 6x = 6x(x-1)
+	var x: float = 0.5  # Good initial guess for Beta(2,2) - symmetric around 0.5
+	
+	# Special cases for speed
+	if p <= 0.001:
+		return p / 3.0  # Linear approximation near 0
+	elif p >= 0.999:
+		return 1.0 - (1.0 - p) / 3.0  # Linear approximation near 1
+	
+	# Newton's method iterations
+	for i in range(6):  # Usually converges in 3-4 iterations
+		var f_x: float = 2.0 * x * x * x - 3.0 * x * x + p
+		var df_x: float = 6.0 * x * (x - 1.0)
+		
+		# Check for convergence
+		if abs(f_x) < 1e-12:
+			break
+		
+		# Avoid division by zero (shouldn't happen for valid Beta(2,2))
+		if abs(df_x) < 1e-15:
+			break
+			
+		var x_new: float = x - f_x / df_x
+		
+		# Clamp to valid range and check convergence
+		x_new = clamp(x_new, 0.0, 1.0)
+		if abs(x_new - x) < 1e-12:
+			break
+			
+		x = x_new
+	
+	return clamp(x, 0.0, 1.0)
+
 
 # Gamma Distribution PPF: gamma_ppf(p, k_shape, theta_scale)
 # Calculates the PPF for the Gamma distribution.

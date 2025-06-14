@@ -297,22 +297,25 @@ static func _generate_samples_nd(
 	return samples
 
 
-## Data structure for batch shuffle tasks
-class BatchShuffleTask:
+## Data structure for batch chunk processing - handles multiple shuffles per thread
+class BatchChunkTask:
 	var deck_size: int
 	var method: SamplingMethod
-	var point_index: int
+	var starting_point_index: int
 	var sample_seed: int
-	var result_shuffle: Array[int] = []
+	var chunk_size: int
+	var result_shuffles: Array = []  # Store multiple shuffle results here
 	
-	func _init(size: int, sampling_method: SamplingMethod, idx: int, seed: int):
+	func _init(size: int, sampling_method: SamplingMethod, start_idx: int, seed: int, n_shuffles: int):
 		deck_size = size
 		method = sampling_method
-		point_index = idx
+		starting_point_index = start_idx
 		sample_seed = seed
+		chunk_size = n_shuffles
+		result_shuffles.resize(n_shuffles)
 
 
-## Enhanced batch shuffle generation using WorkerThreadPool
+## Optimized batch shuffle generation using chunk-based threading
 static func _coordinated_batch_shuffles_threaded(
 	deck_size: int,
 	n_shuffles: int,
@@ -323,24 +326,131 @@ static func _coordinated_batch_shuffles_threaded(
 	var results: Array = []
 	results.resize(n_shuffles)
 	
-	# Create tasks for each shuffle
-	var shuffle_tasks: Array = []
-	for i in range(n_shuffles):
-		var task = BatchShuffleTask.new(deck_size, method, starting_index + i, sample_seed)
-		shuffle_tasks.append(task)
+	# Determine optimal chunk size based on available processors and workload
+	var thread_count: int = min(OS.get_processor_count(), n_shuffles)
+	var shuffles_per_thread: int = ceili(float(n_shuffles) / float(thread_count))
 	
-	# Submit shuffle tasks to thread pool
+	# Adjust for small batches - don't over-thread
+	if n_shuffles < thread_count * 2:
+		thread_count = max(1, n_shuffles / 2)
+		shuffles_per_thread = ceili(float(n_shuffles) / float(thread_count))
+	
+	var chunk_tasks: Array = []
 	var task_ids: Array = []
-	for task in shuffle_tasks:
-		var task_id = WorkerThreadPool.add_task(Callable(_coordinated_shuffle_worker).bind(task))
+	
+	# Create and submit ALL chunk tasks to thread pool FIRST
+	for thread_idx in range(thread_count):
+		var start_shuffle: int = thread_idx * shuffles_per_thread
+		var end_shuffle: int = min(start_shuffle + shuffles_per_thread, n_shuffles)
+		
+		if start_shuffle >= end_shuffle:
+			break  # No more work for this thread
+		
+		var actual_chunk_size: int = end_shuffle - start_shuffle
+		var task = BatchChunkTask.new(
+			deck_size, 
+			method, 
+			starting_index + start_shuffle, 
+			sample_seed, 
+			actual_chunk_size
+		)
+		chunk_tasks.append(task)
+		
+		var task_id = WorkerThreadPool.add_task(Callable(_batch_chunk_worker).bind(task))
 		task_ids.append(task_id)
 	
-	# Wait for all tasks to complete and collect results
-	for i in range(n_shuffles):
-		WorkerThreadPool.wait_for_task_completion(task_ids[i])
-		results[i] = shuffle_tasks[i].result_shuffle
+	# NOW wait for ALL tasks to complete in parallel - this is the key fix!
+	for task_id in task_ids:
+		WorkerThreadPool.wait_for_task_completion(task_id)
+	
+	# Finally, assemble results from all completed chunks
+	for i in range(chunk_tasks.size()):
+		var chunk_results: Array = chunk_tasks[i].result_shuffles
+		var start_idx: int = i * shuffles_per_thread
+		
+		# Copy chunk results to final results array
+		for j in range(chunk_results.size()):
+			var result_idx: int = start_idx + j
+			if result_idx < results.size():
+				results[result_idx] = chunk_results[j]
 	
 	return results
+
+
+## Enhanced worker function that does batch sample generation per chunk
+static func _batch_chunk_worker(task: BatchChunkTask) -> void:
+	# MAJOR OPTIMIZATION: Generate all samples for this chunk at once!
+	var shuffle_dimensions: int = task.deck_size - 1
+	if shuffle_dimensions <= 0:
+		# Handle trivial case
+		for i in range(task.chunk_size):
+			var deck: Array[int] = []
+			if task.deck_size == 1:
+				deck.append(0)
+			task.result_shuffles[i] = deck
+		return
+	
+	# Generate ALL samples for this chunk in one go - HUGE performance gain!
+	var all_chunk_samples: Array = _generate_samples_nd_sequential(
+		task.chunk_size, 
+		shuffle_dimensions, 
+		task.method, 
+		task.starting_point_index, 
+		task.sample_seed
+	)
+	
+	# Now do the shuffles using pre-generated samples
+	for i in range(task.chunk_size):
+		if i < all_chunk_samples.size() and all_chunk_samples[i].size() == shuffle_dimensions:
+			task.result_shuffles[i] = _coordinated_shuffle_with_samples(
+				task.deck_size, 
+				all_chunk_samples[i]
+			)
+		else:
+			# Fallback on error
+			task.result_shuffles[i] = _create_unshuffled_deck(task.deck_size)
+
+
+## Helper function to create an unshuffled deck for error cases
+static func _create_unshuffled_deck(deck_size: int) -> Array[int]:
+	var deck: Array[int] = []
+	deck.resize(deck_size)
+	for i in range(deck_size):
+		deck[i] = i
+	return deck
+
+
+## Optimized shuffle using pre-generated samples - avoids redundant sample generation
+static func _coordinated_shuffle_with_samples(deck_size: int, sobol_point: Array) -> Array[int]:
+	if deck_size <= 1:
+		var result: Array[int] = []
+		if deck_size == 1:
+			result.append(0)
+		return result
+	
+	var deck: Array[int] = []
+	deck.resize(deck_size)
+	for i in range(deck_size):
+		deck[i] = i
+	
+	# Perform coordinated Fisher-Yates shuffle using the pre-generated N-dimensional point
+	for i in range(deck_size - 1, 0, -1):
+		var dim_index: int = deck_size - 1 - i
+		var raw_random_val: float = sobol_point[dim_index] if dim_index < sobol_point.size() else 0.5
+		
+		# Use proper Beta(2,2) PPF transformation
+		var beta_val: float = StatMath.PpfFunctions.beta_ppf(raw_random_val, 2.0, 2.0)
+		
+		var j: int = int(beta_val * float(i + 1))
+		j = clamp(j, 0, i)  # Ensure j is always in valid range [0, i]
+		
+		# Swap deck[i] and deck[j]
+		if i != j:
+			var temp: int = deck[i]
+			deck[i] = deck[j]
+			deck[j] = temp
+	
+	return deck
 
 
 ## Sequential version of generate_samples_nd for use within already-threaded contexts
@@ -679,6 +789,10 @@ static func coordinated_batch_shuffles(
 	var results: Array = []
 	if n_shuffles <= 0 or deck_size <= 0:
 		return results
+	
+	# Fast path for RANDOM method - no need for complex ND generation
+	if method == SamplingMethod.RANDOM:
+		return _fast_random_batch_shuffles(deck_size, n_shuffles, sample_seed)
 	
 	# Always use threading for batch operations (simpler and faster)
 	if n_shuffles >= 2:
@@ -1078,3 +1192,30 @@ static func _generate_latin_hypercube_1d(ndraws: int, rng: RandomNumberGenerator
 		lhs_samples[j] = temp
 		
 	return lhs_samples
+
+
+# Fast random batch shuffles
+static func _fast_random_batch_shuffles(deck_size: int, n_shuffles: int, sample_seed: int) -> Array:
+	var results: Array = []
+	results.resize(n_shuffles)
+	
+	for i in range(n_shuffles):
+		results[i] = _fast_random_shuffle(deck_size, sample_seed)
+	
+	return results
+
+
+static func _fast_random_shuffle(deck_size: int, sample_seed: int) -> Array[int]:
+	var deck: Array[int] = []
+	deck.resize(deck_size)
+	for i in range(deck_size):
+		deck[i] = i
+	
+	# Fisher-Yates shuffle
+	for i in range(deck_size - 1, 0, -1):
+		var j: int = int(randf() * float(i + 1))
+		var temp: int = deck[i]
+		deck[i] = deck[j]
+		deck[j] = temp
+	
+	return deck
