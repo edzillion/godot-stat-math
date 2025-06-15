@@ -36,7 +36,7 @@ jobs:
         run: |
           echo "Creating addon zip for version ${{ steps.extract-version.outputs.version-string }}"
           cd addons
-          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip godot-stat-math/
+          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip godot-stat-math/ -x "*.uid"
           
           # Create a short commit hash for identification
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-8)
