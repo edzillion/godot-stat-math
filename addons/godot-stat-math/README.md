@@ -18,7 +18,7 @@
 
 ## Example Usage
 
-```python
+```gdscript
 # Generate random numbers from various distributions
 var normal_val: float = StatMath.Distributions.randf_normal(0.0, 1.0)
 var weibull_val: float = StatMath.Distributions.randf_weibull(2.0, 1.5)
@@ -58,77 +58,98 @@ See the source for full documentation and comments.
 ### Distributions
 
 **Integer Distributions:**
-- `randi_bernoulli(p: float) -> int` - Returns 1 with probability `p`, 0 otherwise
-- `randi_binomial(p: float, n: int) -> int` - Number of successes in `n` Bernoulli trials
-- `randi_geometric(p: float) -> int` - Number of trials until first success
-- `randi_poisson(lambda_param: float) -> int` - Number of events in fixed interval
+```gdscript
+randi_bernoulli(p: float) -> int          # Returns 1 with probability p, 0 otherwise
+randi_binomial(p: float, n: int) -> int   # Number of successes in n Bernoulli trials
+randi_geometric(p: float) -> int          # Number of trials until first success
+randi_poisson(lambda_param: float) -> int # Number of events in fixed interval
+```
 
 **Continuous Distributions:**
-- `randf_uniform(a: float, b: float) -> float` - Uniform distribution on [a, b]
-- `randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float` - Normal (Gaussian) distribution
-- `randf_exponential(lambda_param: float) -> float` - Exponential distribution
-- `randf_gamma(shape: float, scale: float = 1.0) -> float` - Gamma distribution
-- `randf_beta(alpha: float, beta_param: float) -> float` - Beta distribution
-- `randf_weibull(scale_param: float, shape_param: float) -> float` - Weibull distribution
-- `randf_pareto(scale_param: float, shape_param: float) -> float` - Pareto distribution
-- `randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float` - Cauchy distribution
-- `randf_triangular(min_value: float, max_value: float, mode_value: float) -> float` - Triangular distribution
+```gdscript
+randf_uniform(a: float, b: float) -> float                                    # Uniform distribution on [a, b]
+randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float                   # Normal (Gaussian) distribution
+randf_exponential(lambda_param: float) -> float                              # Exponential distribution
+randf_gamma(shape: float, scale: float = 1.0) -> float                       # Gamma distribution
+randf_beta(alpha: float, beta_param: float) -> float                         # Beta distribution
+randf_weibull(scale_param: float, shape_param: float) -> float               # Weibull distribution
+randf_pareto(scale_param: float, shape_param: float) -> float                # Pareto distribution
+randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float             # Cauchy distribution
+randf_triangular(min_value: float, max_value: float, mode_value: float) -> float # Triangular distribution
+```
 
 ### CDF Functions
 
-- `uniform_cdf(x: float, a: float, b: float) -> float` - Uniform CDF
-- `normal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float` - Normal CDF
-- `exponential_cdf(x: float, lambda_param: float) -> float` - Exponential CDF
-- `gamma_cdf(x: float, k_shape: float, theta_scale: float) -> float` - Gamma CDF
-- `beta_cdf(x: float, alpha: float, beta_param: float) -> float` - Beta CDF
-- `weibull_cdf(x: float, scale_param: float, shape_param: float) -> float` - Weibull CDF
-- `pareto_cdf(x: float, scale_param: float, shape_param: float) -> float` - Pareto CDF
-- `binomial_cdf(k: int, n: int, p: float) -> float` - Binomial CDF
-- `poisson_cdf(k: int, lambda_param: float) -> float` - Poisson CDF
+```gdscript
+uniform_cdf(x: float, a: float, b: float) -> float                           # Uniform CDF
+normal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float          # Normal CDF
+exponential_cdf(x: float, lambda_param: float) -> float                     # Exponential CDF
+gamma_cdf(x: float, k_shape: float, theta_scale: float) -> float            # Gamma CDF
+beta_cdf(x: float, alpha: float, beta_param: float) -> float                # Beta CDF
+weibull_cdf(x: float, scale_param: float, shape_param: float) -> float      # Weibull CDF
+pareto_cdf(x: float, scale_param: float, shape_param: float) -> float       # Pareto CDF
+binomial_cdf(k: int, n: int, p: float) -> float                             # Binomial CDF
+poisson_cdf(k: int, lambda_param: float) -> float                           # Poisson CDF
+```
 
 ### PPF Functions (Quantiles/Inverse CDFs)
 
-- `uniform_ppf(p: float, a: float, b: float) -> float` - Uniform quantile function
-- `normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float` - Normal quantile function
-- `exponential_ppf(p: float, lambda_param: float) -> float` - Exponential quantile function
-- `gamma_ppf(p: float, k_shape: float, theta_scale: float) -> float` - Gamma quantile function
-- `beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float` - Beta quantile function
-- `weibull_ppf(p: float, scale_param: float, shape_param: float) -> float` - Weibull quantile function
-- `pareto_ppf(p: float, scale_param: float, shape_param: float) -> float` - Pareto quantile function
-- `binomial_ppf(p: float, n: int, prob_success: float) -> int` - Binomial quantile function
-- `poisson_ppf(p: float, lambda_param: float) -> int` - Poisson quantile function
+```gdscript
+uniform_ppf(p: float, a: float, b: float) -> float                           # Uniform quantile function
+normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float          # Normal quantile function
+exponential_ppf(p: float, lambda_param: float) -> float                     # Exponential quantile function
+gamma_ppf(p: float, k_shape: float, theta_scale: float) -> float            # Gamma quantile function
+beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float          # Beta quantile function
+weibull_ppf(p: float, scale_param: float, shape_param: float) -> float      # Weibull quantile function
+pareto_ppf(p: float, scale_param: float, shape_param: float) -> float       # Pareto quantile function
+binomial_ppf(p: float, n: int, prob_success: float) -> int                  # Binomial quantile function
+poisson_ppf(p: float, lambda_param: float) -> int                           # Poisson quantile function
+```
 
 ### Helper Functions
 
-- `binomial_coefficient(n: int, r: int) -> float` - Number of ways to choose `r` from `n`
-- `gamma_function(z: float) -> float` - Gamma function Γ(z)
-- `beta_function(a: float, b: float) -> float` - Beta function B(a,b)
-- `incomplete_beta(x_val: float, a: float, b: float) -> float` - Regularized incomplete beta function
-- `lower_incomplete_gamma_regularized(a: float, z: float) -> float` - Regularized lower incomplete gamma function
-- `sanitize_numeric_array(input_array: Array) -> Array[float]` - Cleans and sorts an array, keeping only numeric values
+```gdscript
+binomial_coefficient(n: int, r: int) -> float                                # Number of ways to choose r from n
+gamma_function(z: float) -> float                                            # Gamma function Γ(z)
+beta_function(a: float, b: float) -> float                                   # Beta function B(a,b)
+incomplete_beta(x_val: float, a: float, b: float) -> float                  # Regularized incomplete beta function
+lower_incomplete_gamma_regularized(a: float, z: float) -> float             # Regularized lower incomplete gamma function
+sanitize_numeric_array(input_array: Array) -> Array[float]                  # Cleans and sorts an array, keeping only numeric values
+```
 
 ### Basic Statistics
 
-- `mean(data: Array[float]) -> float` - Arithmetic mean (average) of the dataset
-- `median(data: Array[float]) -> float` - Middle value of a sorted dataset
-- `variance(data: Array[float]) -> float` - Population variance of the dataset
-- `standard_deviation(data: Array[float]) -> float` - Population standard deviation of the dataset
-- `sample_variance(data: Array[float]) -> float` - Sample variance (with Bessel's correction)
-- `sample_standard_deviation(data: Array[float]) -> float` - Sample standard deviation
-- `median_absolute_deviation(data: Array[float]) -> float` - Robust measure of variability using median of absolute deviations
-- `summary_statistics(data: Array[float]) -> Dictionary` - Comprehensive statistical summary including all basic statistics
+```gdscript
+mean(data: Array[float]) -> float                                            # Arithmetic mean (average) of the dataset
+median(data: Array[float]) -> float                                          # Middle value of a sorted dataset
+variance(data: Array[float]) -> float                                        # Population variance of the dataset
+standard_deviation(data: Array[float]) -> float                              # Population standard deviation of the dataset
+sample_variance(data: Array[float]) -> float                                 # Sample variance (with Bessel's correction)
+sample_standard_deviation(data: Array[float]) -> float                       # Sample standard deviation
+median_absolute_deviation(data: Array[float]) -> float                       # Robust measure of variability using median of absolute deviations
+summary_statistics(data: Array[float]) -> Dictionary                         # Comprehensive statistical summary including all basic statistics
+```
 
 ### Error Functions
 
-- `error_function(x: float) -> float` - Computes erf(x)
-- `complementary_error_function(x: float) -> float` - Computes erfc(x) = 1 - erf(x)
-- `error_function_inverse(y: float) -> float` - Inverse error function
-- `complementary_error_function_inverse(y: float) -> float` - Inverse complementary error function
+```gdscript
+error_function(x: float) -> float                                            # Computes erf(x)
+complementary_error_function(x: float) -> float                              # Computes erfc(x) = 1 - erf(x)
+error_function_inverse(y: float) -> float                                    # Inverse error function
+complementary_error_function_inverse(y: float) -> float                      # Inverse complementary error function
+```
 
 ### Sampling (via StatMath.SamplingGen)
 
-- `generate_samples(n_draws: int, dimensions: int = 1, method: SamplingMethod = SamplingMethod.RANDOM, starting_index: int = 0, sample_seed: int = -1) -> Variant` - Unified sampling function that returns Array[float] for 1D, Array[Vector2] for 2D, or Array[Array[float]] for higher dimensions
-- `coordinated_shuffle(deck_size: int, method: SamplingMethod = SamplingMethod.SOBOL, point_index: int = 0, sample_seed: int = -1) -> Array[int]` - Performs coordinated Fisher-Yates shuffle using multi-dimensional sampling
+```gdscript
+# Unified sampling function that returns Array[float] for 1D, Array[Vector2] for 2D, or Array[Array[float]] for higher dimensions
+generate_samples(n_draws: int, dimensions: int = 1, method: SamplingMethod = SamplingMethod.RANDOM, 
+                starting_index: int = 0, sample_seed: int = -1) -> Variant
+
+# Performs coordinated Fisher-Yates shuffle using multi-dimensional sampling
+coordinated_shuffle(deck_size: int, method: SamplingMethod = SamplingMethod.SOBOL, 
+                   point_index: int = 0, sample_seed: int = -1) -> Array[int]
+```
 
 **Sampling Methods:**
 - `RANDOM` - Pseudo-random sampling
@@ -159,7 +180,7 @@ There are two main ways to control seeding:
 
 2.  **Runtime Seeding (`StatMath.set_global_seed()`):**
     *   You can change the seed of the global `StatMath` RNG at any point during runtime by calling:
-        ```python
+        ```gdscript
         StatMath.set_global_seed(new_seed_value)
         ```
     *   This will re-initialize the global RNG with `new_seed_value`. All subsequent calls to `StatMath` functions that use random numbers (without an explicit per-call seed) will be based on this new seed.
