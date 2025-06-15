@@ -61,7 +61,6 @@ jobs:
         with:
           godot-version: "4.4"
           paths: "res://addons/godot-stat-math/tests"
-          arguments: "--no-debug --quiet"
 
   build-and-release:
     needs: [check-release-validity, run-tests]
