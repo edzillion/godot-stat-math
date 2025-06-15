@@ -1,3 +1,4 @@
+# res://addons/godot-stat-math/stat_math.gd
 extends Node
 
 # --- Configuration for Random Number Generation ---

@@ -1,4 +1,4 @@
-# addons/godot-stat-math/core/distributions.gd
+# res://addons/godot-stat-math/core/distributions.gd
 class_name Distributions extends RefCounted
 
 # Random Variate Generation for Statistical Distributions

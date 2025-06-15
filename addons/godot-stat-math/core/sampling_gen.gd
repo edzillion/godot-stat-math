@@ -1,4 +1,4 @@
-# res://src/core/sampling_gen.gd
+# res://addons/godot-stat-math/core/sampling_gen.gd
 class_name SamplingGen
 
 enum SamplingMethod {

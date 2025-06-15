@@ -1,3 +1,4 @@
+# res://addons/godot-stat-math/core/cdf_functions.gd
 extends RefCounted
 
 # Cumulative Distribution Functions (CDF)
