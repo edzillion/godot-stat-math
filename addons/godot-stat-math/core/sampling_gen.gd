@@ -28,6 +28,13 @@ static var _max_cached_dimension: int = -1
 
 # Threading is always used for multi-dimensional generation (dimensions >= 3)
 
+# Memory pooling for performance optimization
+static var _deck_pool: Dictionary = {}  # deck_size -> Array[Array[int]]
+static var _pool_mutex: Mutex = Mutex.new()
+
+# Pool configuration
+const MAX_POOLED_DECKS_PER_SIZE: int = 16
+
 # Primitive polynomials for Sobol sequence generation (up to 100 dimensions)
 # Format: [degree, a1, a2, ..., a_degree-1] where polynomial is x^degree + a1*x^(degree-1) + ... + a_degree-1*x + 1
 const _PRIMITIVE_POLYNOMIALS: Array[Array] = [
@@ -89,6 +96,55 @@ const _PRIMITIVE_POLYNOMIALS: Array[Array] = [
 
 func _init() -> void:
 	_ensure_sobol_vectors_initialized(51)  # Initialize up to 51 dimensions for 52-card deck support
+
+
+# --- MEMORY POOL MANAGEMENT ---
+# Only deck pooling is implemented - provides significant performance gains
+# for shuffle operations without the complexity of full sample pooling
+
+## Gets a deck array from the pool or creates a new one
+static func _get_pooled_deck(deck_size: int) -> Array[int]:
+	_pool_mutex.lock()
+	
+	var pool_key: int = deck_size
+	if not _deck_pool.has(pool_key):
+		_deck_pool[pool_key] = []
+	
+	var deck_array_pool: Array = _deck_pool[pool_key]
+	var deck: Array[int]
+	
+	if deck_array_pool.size() > 0:
+		deck = deck_array_pool.pop_back() as Array[int]
+		_pool_mutex.unlock()
+		# Reset deck to default state [0, 1, 2, ..., deck_size-1]
+		for i in range(deck_size):
+			deck[i] = i
+	else:
+		_pool_mutex.unlock()
+		# Create new deck
+		deck = []
+		deck.resize(deck_size)
+		for i in range(deck_size):
+			deck[i] = i
+	
+	return deck
+
+
+## Returns a deck array to the pool for reuse
+static func _return_pooled_deck(deck: Array[int], deck_size: int) -> void:
+	_pool_mutex.lock()
+	
+	var pool_key: int = deck_size
+	if not _deck_pool.has(pool_key):
+		_deck_pool[pool_key] = []
+	
+	var deck_array_pool: Array = _deck_pool[pool_key]
+	
+	# Only keep reasonable number of pooled decks per size
+	if deck_array_pool.size() < MAX_POOLED_DECKS_PER_SIZE:
+		deck_array_pool.append(deck)
+	
+	_pool_mutex.unlock()
 
 
 ## Ensures Sobol direction vectors are initialized up to the specified dimension.
@@ -297,25 +353,23 @@ static func _generate_samples_nd(
 	return samples
 
 
-## Data structure for batch chunk processing - handles multiple shuffles per thread
-class BatchChunkTask:
+## Data structure for batch shuffle processing with pre-generated samples
+class BatchShuffleTask:
 	var deck_size: int
-	var method: SamplingMethod
-	var starting_point_index: int
-	var sample_seed: int
 	var chunk_size: int
+	var sample_slice: Array = []  # Pre-generated samples for this chunk
 	var result_shuffles: Array = []  # Store multiple shuffle results here
 	
-	func _init(size: int, sampling_method: SamplingMethod, start_idx: int, seed: int, n_shuffles: int):
+	func _init(size: int, n_shuffles: int, samples: Array):
 		deck_size = size
-		method = sampling_method
-		starting_point_index = start_idx
-		sample_seed = seed
 		chunk_size = n_shuffles
+		sample_slice = samples
 		result_shuffles.resize(n_shuffles)
 
 
-## Optimized batch shuffle generation using chunk-based threading
+## Optimized two-phase batch shuffle generation
+## Phase 1: Multi-threaded bulk sample generation
+## Phase 2: Multi-threaded shuffling with pre-generated samples
 static func _coordinated_batch_shuffles_threaded(
 	deck_size: int,
 	n_shuffles: int,
@@ -323,10 +377,36 @@ static func _coordinated_batch_shuffles_threaded(
 	starting_index: int,
 	sample_seed: int
 ) -> Array:
+	var shuffle_dimensions: int = deck_size - 1
+	if shuffle_dimensions <= 0:
+		# Handle trivial case
+		var results: Array = []
+		results.resize(n_shuffles)
+		for i in range(n_shuffles):
+			var deck: Array[int] = []
+			if deck_size == 1:
+				deck.append(0)
+			results[i] = deck
+		return results
+	
+	var rng_to_use: RandomNumberGenerator = StatMath.get_rng()
+	if sample_seed != -1:
+		rng_to_use.seed = sample_seed
+	
+	# PHASE 1: Multi-threaded bulk sample generation for ALL shuffles
+	var all_samples: Array = _generate_samples_nd(
+		n_shuffles, 
+		shuffle_dimensions, 
+		method, 
+		starting_index, 
+		rng_to_use
+	)
+	
+	# PHASE 2: Multi-threaded shuffling with pre-generated samples
 	var results: Array = []
 	results.resize(n_shuffles)
 	
-	# Determine optimal chunk size based on available processors and workload
+	# Determine optimal thread count for shuffle processing
 	var thread_count: int = min(OS.get_processor_count(), n_shuffles)
 	var shuffles_per_thread: int = ceili(float(n_shuffles) / float(thread_count))
 	
@@ -335,10 +415,10 @@ static func _coordinated_batch_shuffles_threaded(
 		thread_count = max(1, n_shuffles / 2)
 		shuffles_per_thread = ceili(float(n_shuffles) / float(thread_count))
 	
-	var chunk_tasks: Array = []
+	var shuffle_tasks: Array = []
 	var task_ids: Array = []
 	
-	# Create and submit ALL chunk tasks to thread pool FIRST
+	# Create shuffle tasks with sample slices
 	for thread_idx in range(thread_count):
 		var start_shuffle: int = thread_idx * shuffles_per_thread
 		var end_shuffle: int = min(start_shuffle + shuffles_per_thread, n_shuffles)
@@ -347,25 +427,34 @@ static func _coordinated_batch_shuffles_threaded(
 			break  # No more work for this thread
 		
 		var actual_chunk_size: int = end_shuffle - start_shuffle
-		var task = BatchChunkTask.new(
-			deck_size, 
-			method, 
-			starting_index + start_shuffle, 
-			sample_seed, 
-			actual_chunk_size
-		)
-		chunk_tasks.append(task)
 		
-		var task_id = WorkerThreadPool.add_task(Callable(_batch_chunk_worker).bind(task))
+		# Extract sample slice for this chunk
+		var sample_slice: Array = []
+		sample_slice.resize(actual_chunk_size)
+		for i in range(actual_chunk_size):
+			var sample_idx: int = start_shuffle + i
+			if sample_idx < all_samples.size():
+				sample_slice[i] = all_samples[sample_idx]
+			else:
+				# Fallback for edge case
+				sample_slice[i] = []
+				sample_slice[i].resize(shuffle_dimensions)
+				for d in range(shuffle_dimensions):
+					sample_slice[i][d] = 0.5  # Default value
+		
+		var task = BatchShuffleTask.new(deck_size, actual_chunk_size, sample_slice)
+		shuffle_tasks.append(task)
+		
+		var task_id = WorkerThreadPool.add_task(Callable(_batch_shuffle_worker).bind(task))
 		task_ids.append(task_id)
 	
-	# NOW wait for ALL tasks to complete in parallel - this is the key fix!
+	# Wait for all shuffle tasks to complete
 	for task_id in task_ids:
 		WorkerThreadPool.wait_for_task_completion(task_id)
 	
-	# Finally, assemble results from all completed chunks
-	for i in range(chunk_tasks.size()):
-		var chunk_results: Array = chunk_tasks[i].result_shuffles
+	# Assemble results from all completed shuffle tasks
+	for i in range(shuffle_tasks.size()):
+		var chunk_results: Array = shuffle_tasks[i].result_shuffles
 		var start_idx: int = i * shuffles_per_thread
 		
 		# Copy chunk results to final results array
@@ -377,34 +466,15 @@ static func _coordinated_batch_shuffles_threaded(
 	return results
 
 
-## Enhanced worker function that does batch sample generation per chunk
-static func _batch_chunk_worker(task: BatchChunkTask) -> void:
-	# MAJOR OPTIMIZATION: Generate all samples for this chunk at once!
-	var shuffle_dimensions: int = task.deck_size - 1
-	if shuffle_dimensions <= 0:
-		# Handle trivial case
-		for i in range(task.chunk_size):
-			var deck: Array[int] = []
-			if task.deck_size == 1:
-				deck.append(0)
-			task.result_shuffles[i] = deck
-		return
-	
-	# Generate ALL samples for this chunk in one go - HUGE performance gain!
-	var all_chunk_samples: Array = _generate_samples_nd_sequential(
-		task.chunk_size, 
-		shuffle_dimensions, 
-		task.method, 
-		task.starting_point_index, 
-		task.sample_seed
-	)
-	
-	# Now do the shuffles using pre-generated samples
+## Simplified worker function that only does shuffling with pre-generated samples
+## No sample generation needed - samples are pre-generated in Phase 1
+static func _batch_shuffle_worker(task: BatchShuffleTask) -> void:
+	# Simply process each shuffle with its pre-generated samples
 	for i in range(task.chunk_size):
-		if i < all_chunk_samples.size() and all_chunk_samples[i].size() == shuffle_dimensions:
+		if i < task.sample_slice.size():
 			task.result_shuffles[i] = _coordinated_shuffle_with_samples(
 				task.deck_size, 
-				all_chunk_samples[i]
+				task.sample_slice[i]
 			)
 		else:
 			# Fallback on error
@@ -413,11 +483,8 @@ static func _batch_chunk_worker(task: BatchChunkTask) -> void:
 
 ## Helper function to create an unshuffled deck for error cases
 static func _create_unshuffled_deck(deck_size: int) -> Array[int]:
-	var deck: Array[int] = []
-	deck.resize(deck_size)
-	for i in range(deck_size):
-		deck[i] = i
-	return deck
+	# Use pooled deck array for performance
+	return _get_pooled_deck(deck_size)
 
 
 ## Optimized shuffle using pre-generated samples - avoids redundant sample generation
@@ -428,10 +495,8 @@ static func _coordinated_shuffle_with_samples(deck_size: int, sobol_point: Array
 			result.append(0)
 		return result
 	
-	var deck: Array[int] = []
-	deck.resize(deck_size)
-	for i in range(deck_size):
-		deck[i] = i
+	# Use pooled deck array for performance
+	var deck: Array[int] = _get_pooled_deck(deck_size)
 	
 	# Perform coordinated Fisher-Yates shuffle using the pre-generated N-dimensional point
 	for i in range(deck_size - 1, 0, -1):
@@ -450,98 +515,9 @@ static func _coordinated_shuffle_with_samples(deck_size: int, sobol_point: Array
 			deck[i] = deck[j]
 			deck[j] = temp
 	
+	# Note: We don't return the deck to pool here since it's being returned as result
+	# The caller is responsible for the returned array
 	return deck
-
-
-## Sequential version of generate_samples_nd for use within already-threaded contexts
-## This prevents nested threading explosion when called from worker threads
-static func _generate_samples_nd_sequential(
-	n_draws: int, 
-	dimensions: int, 
-	method: SamplingMethod,
-	starting_index: int,
-	sample_seed: int
-) -> Array:
-	var samples: Array = []
-	if n_draws <= 0 or dimensions <= 0:
-		return samples
-	
-	var rng_to_use: RandomNumberGenerator
-	if sample_seed != -1:
-		rng_to_use = RandomNumberGenerator.new()
-		rng_to_use.seed = sample_seed
-	else:
-		rng_to_use = StatMath.get_rng()
-	
-	_ensure_sobol_vectors_initialized(dimensions - 1)
-	
-	# Always use sequential implementation for thread safety
-	samples.resize(n_draws)
-	for i in range(n_draws):
-		samples[i] = []
-		samples[i].resize(dimensions)
-	
-	match method:
-		SamplingMethod.RANDOM:
-			for i in range(n_draws):
-				for d in range(dimensions):
-					samples[i][d] = rng_to_use.randf()
-		
-		SamplingMethod.SOBOL:
-			for d in range(dimensions):
-				var dim_samples = _generate_sobol_1d(n_draws, d, starting_index)
-				for i in range(n_draws):
-					samples[i][d] = dim_samples[i] if i < dim_samples.size() else -1.0
-		
-		SamplingMethod.SOBOL_RANDOM:
-			var random_masks = []
-			random_masks.resize(dimensions)
-			for d in range(dimensions):
-				random_masks[d] = rng_to_use.randi() & ((1 << _SOBOL_BITS) - 1)
-			
-			for d in range(dimensions):
-				var sobol_integers = _get_sobol_1d_integers(n_draws, d, starting_index)
-				for i in range(n_draws):
-					if sobol_integers[i] != -1:
-						samples[i][d] = float(sobol_integers[i] ^ random_masks[d]) / _SOBOL_MAX_VAL_FLOAT
-					else:
-						samples[i][d] = rng_to_use.randf()
-		
-		SamplingMethod.HALTON:
-			for d in range(dimensions):
-				var base: int = _get_nth_prime(d)
-				var dim_samples = _generate_halton_1d(n_draws, base, starting_index)
-				for i in range(n_draws):
-					samples[i][d] = dim_samples[i] if i < dim_samples.size() else -1.0
-		
-		SamplingMethod.HALTON_RANDOM:
-			var random_offsets = []
-			random_offsets.resize(dimensions)
-			for d in range(dimensions):
-				random_offsets[d] = rng_to_use.randf()
-			
-			for d in range(dimensions):
-				var base: int = _get_nth_prime(d)
-				var halton_samples = _generate_halton_1d(n_draws, base, starting_index)
-				for i in range(n_draws):
-					if halton_samples[i] != -1.0:
-						samples[i][d] = fmod(halton_samples[i] + random_offsets[d], 1.0)
-					else:
-						samples[i][d] = rng_to_use.randf()
-		
-		SamplingMethod.LATIN_HYPERCUBE:
-			for d in range(dimensions):
-				var lhs_samples = _generate_latin_hypercube_1d(n_draws, rng_to_use)
-				for i in range(n_draws):
-					samples[i][d] = lhs_samples[i] if i < lhs_samples.size() else -1.0
-		
-		_:
-			printerr("Unsupported sampling method: ", SamplingMethod.keys()[method])
-			for i in range(n_draws):
-				for d in range(dimensions):
-					samples[i][d] = -1.0
-	
-	return samples
 
 
 ## Worker function for individual shuffle generation
@@ -629,12 +605,9 @@ static func generate_samples_nd(
 	if n_draws <= 0 or dimensions <= 0:
 		return samples
 	
-	var rng_to_use: RandomNumberGenerator
+	var rng_to_use: RandomNumberGenerator = StatMath.get_rng()
 	if sample_seed != -1:
-		rng_to_use = RandomNumberGenerator.new()
 		rng_to_use.seed = sample_seed
-	else:
-		rng_to_use = StatMath.get_rng()
 	
 	_ensure_sobol_vectors_initialized(dimensions - 1)
 	
@@ -731,6 +704,10 @@ static func coordinated_shuffle(
 			result.append(0)
 		return result
 	
+	var rng_to_use: RandomNumberGenerator = StatMath.get_rng()
+	if sample_seed != -1:
+		rng_to_use.seed = sample_seed
+	
 	var deck: Array[int] = []
 	deck.resize(deck_size)
 	for i in range(deck_size):
@@ -740,8 +717,8 @@ static func coordinated_shuffle(
 	# We need (deck_size - 1) dimensions for Fisher-Yates
 	var shuffle_dimensions: int = deck_size - 1
 	
-	# CRITICAL FIX: Use sequential sampling to avoid nested threading explosion
-	var nd_samples: Array = _generate_samples_nd_sequential(1, shuffle_dimensions, method, point_index, sample_seed)
+	# Generate a single multi-dimensional point using multithreading
+	var nd_samples: Array = _generate_samples_nd(1, shuffle_dimensions, method, point_index, rng_to_use)
 	
 	if nd_samples.is_empty() or nd_samples[0].size() != shuffle_dimensions:
 		printerr("coordinated_shuffle: Failed to generate ND samples")
@@ -835,12 +812,9 @@ static func sample_indices(
 		printerr("sample_indices: Without replacement, draw_count cannot exceed population_size.")
 		return []
 
-	var rng_to_use: RandomNumberGenerator
+	var rng_to_use: RandomNumberGenerator = StatMath.get_rng()
 	if sample_seed != -1:
-		rng_to_use = RandomNumberGenerator.new()
 		rng_to_use.seed = sample_seed
-	else:
-		rng_to_use = StatMath.get_rng()
 
 	match selection_strategy:
 		SelectionStrategy.WITH_REPLACEMENT:
