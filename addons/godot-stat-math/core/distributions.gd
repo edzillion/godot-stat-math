@@ -239,7 +239,7 @@ static func randf_gamma(shape: float, scale: float = 1.0) -> float:
 # Beta Distribution (Float): randf_beta(alpha, beta)
 # Generates a random float from a beta distribution using the gamma-to-beta transformation.
 # Uses the relationship: if X~Gamma(α,1) and Y~Gamma(β,1), then X/(X+Y)~Beta(α,β)
-# This avoids the need for complex special functions (incomplete beta, etc.)
+# This avoids the need for complex special functions ("incomplete" beta, etc.)
 static func randf_beta(alpha: float, beta_param: float) -> float:
 	assert(alpha > 0.0, "Alpha parameter must be positive for Beta distribution.")
 	assert(beta_param > 0.0, "Beta parameter must be positive for Beta distribution.")
@@ -279,6 +279,33 @@ static func randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float:
 	if sigma == 0.0:
 		return mu # If sigma is 0, all values are the mean.
 	return mu + sigma * randf_gaussian()
+
+
+# Cauchy Distribution (Float): randf_cauchy(location, scale)
+# Generates a random float from a Cauchy (Lorentzian) distribution with location and scale parameters.
+# Uses the ratio of two independent standard normal variates: X/Y where X,Y ~ N(0,1).
+# Note: Cauchy distribution has undefined mean and variance due to heavy tails.
+# Useful for modeling extreme events, market fluctuations, and procedural generation with dramatic outliers.
+# Parameters:
+#   location: float - The location parameter (median of the distribution, default: 0.0).
+#   scale: float - The scale parameter (controls spread, must be > 0.0, default: 1.0).
+# Returns: float - A Cauchy-distributed random value.
+static func randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float:
+	assert(scale > 0.0, "Scale parameter must be positive for Cauchy distribution.")
+	
+	# Handle degenerate case where scale is zero (though assertion above prevents this)
+	if scale == 0.0:
+		return location
+	
+	var x: float = randf_gaussian()  # N(0,1)
+	var y: float = randf_gaussian()  # N(0,1)
+	
+	# Robust handling of near-zero denominator
+	# Use a threshold that balances numerical stability with preserving heavy tails
+	while abs(y) < 1e-8:
+		y = randf_gaussian()
+	
+	return location + scale * (x / y)
 
 
 static func randv_histogram(values: Array, probabilities: Array) -> Variant:

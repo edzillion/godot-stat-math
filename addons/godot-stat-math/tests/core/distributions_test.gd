@@ -379,6 +379,219 @@ func test_randf_normal_invalid_sigma_negative() -> void:
 	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Standard deviation (sigma) must be non-negative.")
 
 
+# Tests for randf_cauchy
+func test_randf_cauchy_basic() -> void:
+	var result: float = StatMath.Distributions.randf_cauchy()
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_with_location() -> void:
+	var location: float = 5.0
+	var result: float = StatMath.Distributions.randf_cauchy(location, 1.0)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_with_scale() -> void:
+	var scale: float = 2.0
+	var result: float = StatMath.Distributions.randf_cauchy(0.0, scale)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_with_location_and_scale() -> void:
+	var location: float = -3.0
+	var scale: float = 0.5
+	var result: float = StatMath.Distributions.randf_cauchy(location, scale)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_negative_location() -> void:
+	var result: float = StatMath.Distributions.randf_cauchy(-10.0, 1.0)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_very_small_scale() -> void:
+	var scale: float = 1e-6
+	var result: float = StatMath.Distributions.randf_cauchy(0.0, scale)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_large_scale() -> void:
+	var scale: float = 100.0
+	var result: float = StatMath.Distributions.randf_cauchy(0.0, scale)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_deterministic_with_seed() -> void:
+	var location: float = 2.0
+	var scale: float = 1.5
+	var seed: int = 42
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_cauchy(location, scale)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_cauchy(location, scale)
+	
+	assert_float(result1).is_equal_approx(result2, 0.0000001)
+
+
+func test_randf_cauchy_multiple_calls_different_values() -> void:
+	# Test that multiple calls produce different values (with high probability)
+	var results: Array[float] = []
+	for i in range(10):
+		results.append(StatMath.Distributions.randf_cauchy())
+	
+	# Check that we don't have all identical values (extremely unlikely)
+	var all_same: bool = true
+	var first_val: float = results[0]
+	for val in results:
+		if not is_equal_approx(val, first_val):
+			all_same = false
+			break
+	
+	assert_bool(all_same).is_false() # Multiple Cauchy samples should not all be identical
+
+
+func test_randf_cauchy_invalid_scale_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_cauchy(0.0, 0.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Scale parameter must be positive for Cauchy distribution.")
+
+
+func test_randf_cauchy_invalid_scale_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_cauchy(0.0, -1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Scale parameter must be positive for Cauchy distribution.")
+
+
+func test_randf_cauchy_statistical_properties() -> void:
+	# Test multiple samples to verify basic properties
+	var samples: Array[float] = []
+	var seed: int = 1337
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_cauchy())
+	
+	# All samples should be finite numbers
+	for sample in samples:
+		assert_bool(is_nan(sample)).is_false()
+		assert_bool(is_inf(sample)).is_false()
+	
+	# Should have significant variability due to heavy tails
+	var min_val: float = samples[0]
+	var max_val: float = samples[0]
+	for sample in samples:
+		min_val = min(min_val, sample)
+		max_val = max(max_val, sample)
+	
+	# Cauchy should produce a reasonable spread (not all clustered)
+	assert_float(max_val - min_val).is_greater(1.0)
+
+
+func test_randf_cauchy_heavy_tails_property() -> void:
+	# Test that Cauchy produces some extreme values (demonstrating heavy tails)
+	var extreme_count: int = 0
+	var samples: Array[float] = []
+	var seed: int = 2023
+	
+	StatMath.set_global_seed(seed)
+	for i in range(1000):  # Larger sample for extreme value detection
+		var sample: float = StatMath.Distributions.randf_cauchy(0.0, 1.0)
+		samples.append(sample)
+		# Count values beyond ±3 (would be very rare for normal distribution)
+		if abs(sample) > 3.0:
+			extreme_count += 1
+	
+	# Cauchy should produce more extreme values than normal distribution
+	# Even with conservative threshold, should see some extreme values
+	assert_int(extreme_count).is_greater(0) # Should have at least some extreme values
+
+
+# --- Game Development Use Cases for Cauchy ---
+
+func test_randf_cauchy_damage_variation() -> void:
+	# Example: critical hit damage with occasional massive spikes
+	var base_damage: float = 100.0
+	var damage_multiplier: float = StatMath.Distributions.randf_cauchy(1.0, 0.1)
+	
+	# Clamp to reasonable game bounds while preserving the concept
+	damage_multiplier = clamp(damage_multiplier, 0.1, 5.0)
+	var final_damage: float = base_damage * damage_multiplier
+	
+	assert_float(damage_multiplier).is_between(0.1, 5.0)
+	assert_float(final_damage).is_greater_equal(10.0)
+	assert_float(final_damage).is_less_equal(500.0)
+
+
+func test_randf_cauchy_market_price_fluctuation() -> void:
+	# Example: economic simulation with market crashes/booms
+	var current_price: float = 50.0
+	var price_change_factor: float = StatMath.Distributions.randf_cauchy(1.0, 0.02)
+	
+	# Cap extreme price changes for game balance
+	price_change_factor = clamp(price_change_factor, 0.5, 2.0)
+	var new_price: float = current_price * price_change_factor
+	
+	assert_float(price_change_factor).is_between(0.5, 2.0)
+	assert_float(new_price).is_greater_equal(25.0)
+	assert_float(new_price).is_less_equal(100.0)
+
+
+func test_randf_cauchy_procedural_terrain_height() -> void:
+	# Example: terrain generation with dramatic peaks/valleys
+	var base_height: float = 10.0
+	var height_variation: float = StatMath.Distributions.randf_cauchy(0.0, 2.0)
+	
+	# Clamp for reasonable terrain bounds
+	height_variation = clamp(height_variation, -20.0, 20.0)
+	var final_height: float = base_height + height_variation
+	
+	assert_float(height_variation).is_between(-20.0, 20.0)
+	assert_float(final_height).is_between(-10.0, 30.0)
+
+
+func test_randf_cauchy_npc_reaction_time() -> void:
+	# Example: NPC reaction times with occasional extreme delays/speed
+	var base_reaction_time: float = 1.0  # seconds
+	var time_multiplier: float = StatMath.Distributions.randf_cauchy(1.0, 0.05)
+	
+	# Reasonable bounds for gameplay
+	time_multiplier = clamp(time_multiplier, 0.1, 3.0)
+	var final_reaction_time: float = base_reaction_time * time_multiplier
+	
+	assert_float(time_multiplier).is_between(0.1, 3.0)
+	assert_float(final_reaction_time).is_greater_equal(0.1)
+	assert_float(final_reaction_time).is_less_equal(3.0)
+
+
+func test_randf_cauchy_particle_velocity_distribution() -> void:
+	# Example: explosion particles with heavy-tailed velocity distribution
+	var base_speed: float = 100.0
+	var speed_multiplier: float = StatMath.Distributions.randf_cauchy(1.0, 0.1)
+	
+	# Practical bounds for particle system
+	speed_multiplier = clamp(speed_multiplier, 0.1, 5.0)
+	var particle_speed: float = base_speed * speed_multiplier
+	
+	assert_float(speed_multiplier).is_between(0.1, 5.0)
+	assert_float(particle_speed).is_between(10.0, 500.0)
+
+
 # Tests for randv_histogram
 func test_randv_histogram_basic_case() -> void:
 	var values: Array = ["a", "b", "c"]

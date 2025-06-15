@@ -1051,7 +1051,7 @@ static func _get_sobol_1d_integers(ndraws: int, dimension_index: int, starting_i
 		return integers
 	integers.resize(ndraws)
 
-	_ensure_sobol_vectors_initialized(20)
+	_ensure_sobol_vectors_initialized(dimension_index)
 	
 	if dimension_index < 0 or dimension_index >= _PRIMITIVE_POLYNOMIALS.size():
 		printerr("Sobol: Invalid dimension_index: ", dimension_index)
