@@ -1,0 +1,134 @@
+name: "Verify Release"
+
+on:
+  pull_request:
+    branches: ["release"]
+    types: [opened, reopened, synchronize]
+
+env:
+  VERSION_FILE: project.godot
+  VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
+
+jobs:
+  check-release-validity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version
+
+      - name: Check that a release exists for the HEAD commit
+        uses: cardinalby/git-get-release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          commitSha: ${{ github.event.pull_request.head.sha }}
+        id: check-release
+
+      - name: Check that the release tag matches the version string
+        run: |
+          # For stable releases, the tag should match the version exactly
+          if [[ "${{ steps.check-release.outputs.tag_name }}" == "${{ steps.extract-version.outputs.version-string }}" ]]; then
+            echo "✅ Release tag matches version string"
+            exit 0
+          fi
+
+          # If we get here, tag doesn't match
+          echo "❌ Release tag '${{ steps.check-release.outputs.tag_name }}' does not match version '${{ steps.extract-version.outputs.version-string }}'"
+          exit 1
+
+  run-tests:
+    needs: check-release-validity
+    runs-on: ubuntu-22.04
+    permissions:
+      checks: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests"
+
+  build-and-release:
+    needs: [check-release-validity, run-tests]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version
+
+      - name: Create addon release zip
+        run: |
+          echo "Creating release zip for Godot Stat Math v${{ steps.extract-version.outputs.version-string }}"
+          
+          # Create clean addon zip
+          cd addons
+          zip -r ../godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip godot-stat-math/
+          
+          # Verify zip contents
+          echo "Release zip contents:"
+          zipinfo ../godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip
+          
+          # Get file size for summary
+          FILE_SIZE=$(stat -c%s ../godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip)
+          echo "Zip file size: ${FILE_SIZE} bytes"
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.extract-version.outputs.version-string }}
+          name: Godot Stat Math v${{ steps.extract-version.outputs.version-string }}
+          body: |
+            # Godot Stat Math v${{ steps.extract-version.outputs.version-string }}
+            
+            A statistical functions addon for Godot 4.0+
+            
+            ## Installation
+            1. Download `godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip`
+            2. Extract to your project's `addons/` folder
+            3. Enable the plugin in Project Settings → Plugins
+            
+            ## Usage
+            ```gdscript
+            # Access statistical functions via the StatMath singleton
+            var mean_value = StatMath.mean([1, 2, 3, 4, 5])
+            ```
+            
+            Built from commit ${{ github.sha }}
+          artifacts: "godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip"
+          draft: false
+          prerelease: false
+          generateReleaseNotes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate release summary
+        run: |
+          echo "## 🚀 Release Created Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: v${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact**: godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 Release is now available on the [Releases page](https://github.com/${{ github.repository }}/releases)" >> $GITHUB_STEP_SUMMARY

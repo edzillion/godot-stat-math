@@ -1,0 +1,61 @@
+name: "Build Develop"
+
+on:
+  push:
+    branches: ["develop"]
+
+env:
+  VERSION_FILE: project.godot
+  VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
+
+jobs:
+  build-addon:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version
+
+      - name: Create addon zip
+        run: |
+          echo "Creating addon zip for version ${{ steps.extract-version.outputs.version-string }}"
+          cd addons
+          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip godot-stat-math/
+          
+          # Create a short commit hash for identification
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-8)
+          
+          echo "Created: godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip"
+          echo "Commit: ${SHORT_SHA}"
+          
+          # List contents for verification
+          echo "Zip contents:"
+          zipinfo ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip
+
+      - name: Upload development artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-stat-math-dev-build
+          path: "godot-stat-math-*-dev.zip"
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Generate build summary
+        run: |
+          echo "## 🔧 Development Build Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact**: godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📥 Download the artifact from the **Actions** tab to test this build." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ This is a development build - not for production use." >> $GITHUB_STEP_SUMMARY

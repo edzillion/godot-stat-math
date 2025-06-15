@@ -1,0 +1,69 @@
+name: "Submit Release"
+
+on:
+  push:
+    branches: ["release"]
+
+env:
+  VERSION_FILE: project.godot
+  VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
+
+jobs:
+  finalize-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version
+
+      - name: Update release status
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.extract-version.outputs.version-string }}
+          commit: ${{ github.sha }}
+          allowUpdates: true
+          updateOnlyUnreleased: false
+          prerelease: false
+          draft: false
+          body: |
+            # Godot Stat Math v${{ steps.extract-version.outputs.version-string }}
+            
+            ✅ **Released and ready for production use!**
+            
+            A statistical functions addon for Godot 4.0+
+            
+            ## Installation
+            1. Download `godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip`
+            2. Extract to your project's `addons/` folder
+            3. Enable the plugin in Project Settings → Plugins
+            
+            ## Usage
+            ```gdscript
+            # Access statistical functions via the StatMath singleton
+            var mean_value = StatMath.mean([1, 2, 3, 4, 5])
+            var std_dev = StatMath.standard_deviation([1, 2, 3, 4, 5])
+            ```
+            
+            ## What's New
+            See the [CHANGELOG](https://github.com/${{ github.repository }}/blob/release/CHANGELOG.md) for details.
+            
+            ---
+            🎉 Released from commit ${{ github.sha }}
+
+      - name: Generate completion summary
+        run: |
+          echo "## ✅ Release Finalized" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: v${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Production Ready" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release Page**: [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.extract-version.outputs.version-string }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🌟 The addon is now live and ready for community use!" >> $GITHUB_STEP_SUMMARY
