@@ -18,7 +18,7 @@
 
 ## Example Usage
 
-```gdscript
+```python
 # Generate random numbers from various distributions
 var normal_val: float = StatMath.Distributions.randf_normal(0.0, 1.0)
 var weibull_val: float = StatMath.Distributions.randf_weibull(2.0, 1.5)
@@ -148,7 +148,7 @@ There are two main ways to control seeding:
     *   On startup, `StatMath` looks for a project setting named `godot_stat_math_seed`.
     *   If this integer setting exists in your `project.godot` file, `StatMath` will use its value to seed its global RNG.
     *   Example `project.godot` entry:
-        ```gdscript
+        ```ini
         [application]
         config/name="My Game"
         # ... other settings ...
@@ -159,7 +159,7 @@ There are two main ways to control seeding:
 
 2.  **Runtime Seeding (`StatMath.set_global_seed()`):**
     *   You can change the seed of the global `StatMath` RNG at any point during runtime by calling:
-        ```gdscript
+        ```python
         StatMath.set_global_seed(new_seed_value)
         ```
     *   This will re-initialize the global RNG with `new_seed_value`. All subsequent calls to `StatMath` functions that use random numbers (without an explicit per-call seed) will be based on this new seed.
