@@ -10,7 +10,39 @@ env:
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
 
 jobs:
+  check-version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Extract old version string
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version-old
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+
+      - name: Extract new version string
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version-new
+
+      - name: Check semantic version bump
+        uses: CapsCollective/version-actions/check-version-bump@v1.0
+        with:
+          new-version: ${{ steps.extract-version-new.outputs.version-string }}
+          old-version: ${{ steps.extract-version-old.outputs.version-string }}
+
   check-release-validity:
+    needs: check-version-bump
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -44,7 +76,7 @@ jobs:
           exit 1
 
   run-tests:
-    needs: check-release-validity
+    needs: [check-version-bump, check-release-validity]
     runs-on: ubuntu-22.04
     permissions:
       checks: write
