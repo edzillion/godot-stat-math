@@ -1,4 +1,4 @@
-name: "Submit Release"
+name: "Build Release"
 
 on:
   push:
@@ -9,9 +9,11 @@ env:
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
 
 jobs:
-  finalize-release:
+  build-and-release:
     runs-on: ubuntu-latest
     permissions:
+      checks: write
+      actions: read
       contents: write
     steps:
       - name: Checkout
@@ -24,19 +26,33 @@ jobs:
           version-regex: ${{ env.VERSION_REGEX }}
         id: extract-version
 
-      - name: Update release status
+      - name: Run GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests"
+
+      - name: Create addon release zip
+        run: |
+          echo "Creating release zip for Godot Stat Math v${{ steps.extract-version.outputs.version-string }}"
+          cd addons
+          zip -r ../godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip godot-stat-math/
+          
+          # Verify zip contents
+          echo "Release zip contents:"
+          zipinfo ../godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip
+          
+          # Get file size for summary
+          FILE_SIZE=$(stat -c%s ../godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip)
+          echo "Zip file size: ${FILE_SIZE} bytes"
+
+      - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.extract-version.outputs.version-string }}
-          commit: ${{ github.sha }}
-          allowUpdates: true
-          updateOnlyUnreleased: false
-          prerelease: false
-          draft: false
+          name: Godot Stat Math v${{ steps.extract-version.outputs.version-string }}
           body: |
             # Godot Stat Math v${{ steps.extract-version.outputs.version-string }}
-            
-            ✅ **Released and ready for production use!**
             
             A statistical functions addon for Godot 4.0+
             
@@ -52,18 +68,20 @@ jobs:
             var std_dev = StatMath.standard_deviation([1, 2, 3, 4, 5])
             ```
             
-            ## What's New
-            See the [CHANGELOG](https://github.com/${{ github.repository }}/blob/release/CHANGELOG.md) for details.
-            
-            ---
-            🎉 Released from commit ${{ github.sha }}
+            Built from commit ${{ github.sha }}
+          artifacts: "godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip"
+          draft: false
+          prerelease: false
+          generateReleaseNotes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate completion summary
+      - name: Generate build summary
         run: |
-          echo "## ✅ Release Finalized" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Release Created Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version**: v${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: Production Ready" >> $GITHUB_STEP_SUMMARY
-          echo "- **Release Page**: [View Release](https://github.com/${{ github.repository }}/releases/tag/${{ steps.extract-version.outputs.version-string }})" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact**: godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🌟 The addon is now live and ready for community use!" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 Release is now available on the [Releases page](https://github.com/${{ github.repository }}/releases)" >> $GITHUB_STEP_SUMMARY
