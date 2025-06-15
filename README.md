@@ -9,24 +9,32 @@
 
 ## Features
 
-- Random variate generation for common distributions (Bernoulli, Binomial, Poisson, Normal, Exponential, etc.)
+- Random variate generation for common distributions (Bernoulli, Binomial, Poisson, Normal, Exponential, Gamma, Beta, Weibull, Pareto, Cauchy, Triangular, etc.)
 - CDF, PMF, and PPF functions for many distributions
-- Special functions: error function, gamma, beta, and more
+- Special functions: error function, gamma, beta, incomplete beta, incomplete gamma, and more
+- Basic statistical analysis functions (mean, median, variance, standard deviation, etc.)
+- Advanced sampling methods (Sobol, Halton, Latin Hypercube)
 - All functions and constants are accessible via the `StatMath` singleton
 
 ## Example Usage
 
 ```gdscript
-# Generate a random number from a normal distribution
-var x: float = StatMath.Distributions.randf_normal(0.0, 1.0)
+# Generate random numbers from various distributions
+var normal_val: float = StatMath.Distributions.randf_normal(0.0, 1.0)
+var weibull_val: float = StatMath.Distributions.randf_weibull(2.0, 1.5)
+var binomial_val: int = StatMath.Distributions.randi_binomial(0.3, 10)
 
-# Compute the CDF of the normal distribution
-var p: float = StatMath.CdfFunctions.normal_cdf(x, 0.0, 1.0)
+# Compute CDFs (cumulative distribution functions)
+var normal_cdf: float = StatMath.CdfFunctions.normal_cdf(1.0, 0.0, 1.0)
+var weibull_cdf: float = StatMath.CdfFunctions.weibull_cdf(2.0, 2.0, 1.5)
 
-# Binomial coefficient
-var k_val: float = StatMath.HelperFunctions.binomial_coefficient(10, 3)
+# Compute PPFs (percent point functions / quantiles)
+var normal_quantile: float = StatMath.PpfFunctions.normal_ppf(0.95, 0.0, 1.0)
+var weibull_quantile: float = StatMath.PpfFunctions.weibull_ppf(0.95, 2.0, 1.5)
 
-# Error function
+# Mathematical helper functions
+var binom_coeff: float = StatMath.HelperFunctions.binomial_coefficient(10, 3)
+var gamma_val: float = StatMath.HelperFunctions.gamma_function(2.5)
 var erf_val: float = StatMath.ErrorFunctions.error_function(1.0)
 
 # Basic statistics - analyze player scores
@@ -35,6 +43,11 @@ var clean_scores: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array
 var avg_score: float = StatMath.BasicStats.mean(clean_scores)
 var score_std_dev: float = StatMath.BasicStats.standard_deviation(clean_scores)
 var summary: Dictionary = StatMath.BasicStats.summary_statistics(clean_scores)
+
+# Advanced sampling for procedural generation
+var sobol_samples_1d: Array[float] = StatMath.SamplingGen.generate_samples(100, 1, StatMath.SamplingGen.SamplingMethod.SOBOL)
+var sobol_samples_2d: Array[Vector2] = StatMath.SamplingGen.generate_samples(100, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)
+var sobol_samples_3d: Array = StatMath.SamplingGen.generate_samples(100, 3, StatMath.SamplingGen.SamplingMethod.SOBOL)
 ```
 
 ## API Reference (Selected)
@@ -44,71 +57,86 @@ See the source for full documentation and comments.
 
 ### Distributions
 
-- `randi_bernoulli(p: float) -> int`  
-  Returns 1 with probability `p`, 0 otherwise.
+**Integer Distributions:**
+- `randi_bernoulli(p: float) -> int` - Returns 1 with probability `p`, 0 otherwise
+- `randi_binomial(p: float, n: int) -> int` - Number of successes in `n` Bernoulli trials
+- `randi_geometric(p: float) -> int` - Number of trials until first success
+- `randi_poisson(lambda_param: float) -> int` - Number of events in fixed interval
 
-- `randi_binomial(p: float, n: int) -> int`  
-  Number of successes in `n` Bernoulli trials.
-
-- `randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float`  
-  Random float from a normal (Gaussian) distribution.
+**Continuous Distributions:**
+- `randf_uniform(a: float, b: float) -> float` - Uniform distribution on [a, b]
+- `randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float` - Normal (Gaussian) distribution
+- `randf_exponential(lambda_param: float) -> float` - Exponential distribution
+- `randf_gamma(shape: float, scale: float = 1.0) -> float` - Gamma distribution
+- `randf_beta(alpha: float, beta_param: float) -> float` - Beta distribution
+- `randf_weibull(scale_param: float, shape_param: float) -> float` - Weibull distribution
+- `randf_pareto(scale_param: float, shape_param: float) -> float` - Pareto distribution
+- `randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float` - Cauchy distribution
+- `randf_triangular(min_value: float, max_value: float, mode_value: float) -> float` - Triangular distribution
 
 ### CDF Functions
 
-- `normal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float`  
-  Cumulative probability for the normal distribution.
+- `uniform_cdf(x: float, a: float, b: float) -> float` - Uniform CDF
+- `normal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float` - Normal CDF
+- `exponential_cdf(x: float, lambda_param: float) -> float` - Exponential CDF
+- `gamma_cdf(x: float, k_shape: float, theta_scale: float) -> float` - Gamma CDF
+- `beta_cdf(x: float, alpha: float, beta_param: float) -> float` - Beta CDF
+- `weibull_cdf(x: float, scale_param: float, shape_param: float) -> float` - Weibull CDF
+- `pareto_cdf(x: float, scale_param: float, shape_param: float) -> float` - Pareto CDF
+- `binomial_cdf(k: int, n: int, p: float) -> float` - Binomial CDF
+- `poisson_cdf(k: int, lambda_param: float) -> float` - Poisson CDF
 
-- `binomial_cdf(k: int, n: int, p: float) -> float`  
-  Probability of ≤k successes in n binomial trials.
+### PPF Functions (Quantiles/Inverse CDFs)
+
+- `uniform_ppf(p: float, a: float, b: float) -> float` - Uniform quantile function
+- `normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float` - Normal quantile function
+- `exponential_ppf(p: float, lambda_param: float) -> float` - Exponential quantile function
+- `gamma_ppf(p: float, k_shape: float, theta_scale: float) -> float` - Gamma quantile function
+- `beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float` - Beta quantile function
+- `weibull_ppf(p: float, scale_param: float, shape_param: float) -> float` - Weibull quantile function
+- `pareto_ppf(p: float, scale_param: float, shape_param: float) -> float` - Pareto quantile function
+- `binomial_ppf(p: float, n: int, prob_success: float) -> int` - Binomial quantile function
+- `poisson_ppf(p: float, lambda_param: float) -> int` - Poisson quantile function
 
 ### Helper Functions
 
-- `binomial_coefficient(n: int, r: int) -> float`  
-  Number of ways to choose `r` from `n`.
-
-- `gamma_function(z: float) -> float`  
-  Gamma function Γ(z).
-
-- `sanitize_numeric_array(input_array: Array) -> Array[float]`  
-  Cleans and sorts an array, keeping only numeric values.
+- `binomial_coefficient(n: int, r: int) -> float` - Number of ways to choose `r` from `n`
+- `gamma_function(z: float) -> float` - Gamma function Γ(z)
+- `beta_function(a: float, b: float) -> float` - Beta function B(a,b)
+- `incomplete_beta(x_val: float, a: float, b: float) -> float` - Regularized incomplete beta function
+- `lower_incomplete_gamma_regularized(a: float, z: float) -> float` - Regularized lower incomplete gamma function
+- `sanitize_numeric_array(input_array: Array) -> Array[float]` - Cleans and sorts an array, keeping only numeric values
 
 ### Basic Statistics
 
-- `mean(data: Array[float]) -> float`  
-  Arithmetic mean (average) of the dataset.
-
-- `median(data: Array[float]) -> float`  
-  Middle value of a sorted dataset.
-
-- `variance(data: Array[float]) -> float`  
-  Population variance of the dataset.
-
-- `standard_deviation(data: Array[float]) -> float`  
-  Population standard deviation of the dataset.
-
-- `median_absolute_deviation(data: Array[float]) -> float`  
-  Robust measure of variability using median of absolute deviations.
-
-- `summary_statistics(data: Array[float]) -> Dictionary`  
-  Comprehensive statistical summary including all basic statistics.
+- `mean(data: Array[float]) -> float` - Arithmetic mean (average) of the dataset
+- `median(data: Array[float]) -> float` - Middle value of a sorted dataset
+- `variance(data: Array[float]) -> float` - Population variance of the dataset
+- `standard_deviation(data: Array[float]) -> float` - Population standard deviation of the dataset
+- `sample_variance(data: Array[float]) -> float` - Sample variance (with Bessel's correction)
+- `sample_standard_deviation(data: Array[float]) -> float` - Sample standard deviation
+- `median_absolute_deviation(data: Array[float]) -> float` - Robust measure of variability using median of absolute deviations
+- `summary_statistics(data: Array[float]) -> Dictionary` - Comprehensive statistical summary including all basic statistics
 
 ### Error Functions
 
-- `error_function(x: float) -> float`  
-  Computes erf(x).
-
-- `error_function_inverse(y: float) -> float`  
-  Inverse error function.
+- `error_function(x: float) -> float` - Computes erf(x)
+- `complementary_error_function(x: float) -> float` - Computes erfc(x) = 1 - erf(x)
+- `error_function_inverse(y: float) -> float` - Inverse error function
+- `complementary_error_function_inverse(y: float) -> float` - Inverse complementary error function
 
 ### Sampling (via StatMath.SamplingGen)
 
-- `generate_samples_1d(ndraws: int, method: SamplingMethod, seed: int = -1) -> Array[float]`  
-  Generates `ndraws` 1D samples (Array of floats) using the specified method. 
-  If `seed` is not -1, a local RNG seeded with this value is used.
+- `generate_samples(n_draws: int, dimensions: int = 1, method: SamplingMethod = SamplingMethod.RANDOM, starting_index: int = 0, sample_seed: int = -1) -> Variant` - Unified sampling function that returns Array[float] for 1D, Array[Vector2] for 2D, or Array[Array[float]] for higher dimensions
+- `coordinated_shuffle(deck_size: int, method: SamplingMethod = SamplingMethod.SOBOL, point_index: int = 0, sample_seed: int = -1) -> Array[int]` - Performs coordinated Fisher-Yates shuffle using multi-dimensional sampling
 
-- `generate_samples_2d(ndraws: int, method: SamplingMethod, seed: int = -1) -> Array[Vector2]`  
-  Generates `ndraws` 2D samples (Array of Vector2) using the specified method. 
-  If `seed` is not -1, a local RNG seeded with this value is used.
+**Sampling Methods:**
+- `RANDOM` - Pseudo-random sampling
+- `SOBOL` - Sobol quasi-random sequence
+- `SOBOL_RANDOM` - Randomized Sobol sequence
+- `HALTON` - Halton quasi-random sequence
+- `HALTON_RANDOM` - Randomized Halton sequence
+- `LATIN_HYPERCUBE` - Latin Hypercube space-filling design
 
 ## Reproducible Results (Seeding the RNG)
 
@@ -137,11 +165,11 @@ There are two main ways to control seeding:
     *   This will re-initialize the global RNG with `new_seed_value`. All subsequent calls to `StatMath` functions that use random numbers (without an explicit per-call seed) will be based on this new seed.
     *   This is useful for specific scenarios where you want to ensure a particular sequence of random events is reproducible from a certain point in your game logic.
 
-3.  **Per-Call Seeding (for `SamplingGen.generate_samples_1d()` and `SamplingGen.generate_samples_2d()`):**
-    *   The `StatMath.SamplingGen.generate_samples_1d()` and `StatMath.SamplingGen.generate_samples_2d()` functions accept an optional `seed` parameter (defaulting to -1).
-    *   When a `seed` other than -1 is provided to these functions, it creates a *local* `RandomNumberGenerator` instance, seeded with the given value. This local RNG is used only for that specific call.
+3.  **Per-Call Seeding (for `SamplingGen.generate_samples()`):**
+    *   The `StatMath.SamplingGen.generate_samples()` function accepts an optional `sample_seed` parameter (defaulting to -1).
+    *   When a `sample_seed` other than -1 is provided, it creates a *local* `RandomNumberGenerator` instance, seeded with the given value. This local RNG is used only for that specific call.
     *   This ensures that the output of that particular sampling operation is deterministic based on the provided seed, without affecting the global `StatMath` RNG state.
-    *   If `seed = -1` (the default) is used, the functions will use the global `StatMath` RNG (controlled by `godot_stat_math_seed` or `StatMath.set_global_seed()`).
+    *   If `sample_seed = -1` (the default) is used, the function will use the global `StatMath` RNG (controlled by `godot_stat_math_seed` or `StatMath.set_global_seed()`).
 
 **How it Works for Determinism:**
 
@@ -150,14 +178,6 @@ By controlling the seed, you control the sequence of pseudo-random numbers gener
 *   **Debugging:** If a bug appears due to a specific random outcome, you can reproduce it by using the same seed.
 *   **Testing:** Ensures tests that rely on random data behave consistently.
 *   **Gameplay:** Can be used to create "daily challenges" with the same layout/events for all players, or to allow players to share seeds for specific game setups.
-
-## Known Limitations / TODOs
-
-- **Placeholder Functions:**
-  - `StatMath.HelperFunctions.incomplete_beta(x, a, b)` is currently a placeholder and not implemented. It always returns `NAN` and should not be used for any calculations requiring accuracy.
-  - `StatMath.HelperFunctions.lower_incomplete_gamma_regularized(a, z)` is also a placeholder and not fully verified. It may return unreliable or placeholder values.
-- **General Reliability:**
-  - This project is a work in progress. Some results, especially those relying on the above functions, may be unreliable or incorrect. Do not use this addon for critical or scientific/statistical applications requiring high accuracy.
 
 ## Documentation
 
