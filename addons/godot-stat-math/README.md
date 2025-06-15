@@ -4,7 +4,7 @@
 
 **Godot Stat Math** is a Godot 4 addon providing common statistical functions for game developers, exposed via the global `StatMath` autoload singleton. It is designed for practical, game-oriented use—if you need scientific-grade accuracy, consider a dedicated scientific library.
 
-> **Work in Progress:**  
+> **⚠️ Work in Progress:**  
 > This addon is under active development. Comments, suggestions, and contributions are very welcome! Please open an issue or pull request if you have feedback or ideas.
 
 ## Features
