@@ -16,12 +16,8 @@ extends RefCounted
 #   b: float - The upper bound of the distribution (must be >= a).
 # Returns: float - The value x, or NAN if parameters are invalid.
 static func uniform_ppf(p: float, a: float, b: float) -> float:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return NAN
-	if b < a:
-		push_error("Parameter b must be greater than or equal to a. Received a=%s, b=%s" % [a,b])
-		return NAN
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(b >= a, "Parameter b must be greater than or equal to a. Received a=%s, b=%s" % [a,b])
 	
 	return a + p * (b - a)
 
@@ -36,12 +32,8 @@ static func uniform_ppf(p: float, a: float, b: float) -> float:
 #   sigma: float - The standard deviation of the distribution (must be > 0.0, default: 1.0).
 # Returns: float - The value x. Returns -INF if p=0, INF if p=1, or NAN for invalid sigma.
 static func normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return NAN
-	if sigma <= 0.0:
-		push_error("Standard deviation sigma must be positive. Received: %s" % sigma)
-		return NAN
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(sigma > 0.0, "Standard deviation sigma must be positive. Received: %s" % sigma)
 	
 	# Handle edge cases
 	if p == 0.0:
@@ -116,12 +108,8 @@ static func normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 #   lambda_param: float - The rate parameter of the distribution (must be > 0.0).
 # Returns: float - The value x. Returns 0.0 if p=0, INF if p=1, or NAN for invalid lambda_param.
 static func exponential_ppf(p: float, lambda_param: float) -> float:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return NAN
-	if lambda_param <= 0.0:
-		push_error("Rate lambda_param must be positive. Received: %s" % lambda_param)
-		return NAN
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(lambda_param > 0.0, "Rate lambda_param must be positive. Received: %s" % lambda_param)
 	
 	if p == 1.0: # CDF approaches 1 as x -> INF
 		return INF
@@ -140,15 +128,9 @@ static func exponential_ppf(p: float, lambda_param: float) -> float:
 #   beta_shape: float - The beta shape parameter (must be > 0.0).
 # Returns: float - The value x. Returns 0.0 if p=0, 1.0 if p=1, or NAN for invalid parameters or if search fails.
 static func beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return NAN
-	if alpha_shape <= 0.0:
-		push_error("Shape parameter alpha_shape must be positive. Received: %s" % alpha_shape)
-		return NAN
-	if beta_shape <= 0.0:
-		push_error("Shape parameter beta_shape must be positive. Received: %s" % beta_shape)
-		return NAN
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(alpha_shape > 0.0, "Shape parameter alpha_shape must be positive. Received: %s" % alpha_shape)
+	assert(beta_shape > 0.0, "Shape parameter beta_shape must be positive. Received: %s" % beta_shape)
 	
 	# Handle edge cases
 	if p == 0.0:
@@ -258,15 +240,9 @@ static func _beta_2_2_ppf_fast(p: float) -> float:
 #   theta_scale: float - The scale parameter theta (must be > 0.0).
 # Returns: float - The value x. Returns 0.0 if p=0, INF if p=1, or NAN for invalid parameters or if search fails.
 static func gamma_ppf(p: float, k_shape: float, theta_scale: float) -> float:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return NAN
-	if k_shape <= 0.0:
-		push_error("Shape parameter k_shape must be positive. Received: %s" % k_shape)
-		return NAN
-	if theta_scale <= 0.0:
-		push_error("Scale parameter theta_scale must be positive. Received: %s" % theta_scale)
-		return NAN
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(k_shape > 0.0, "Shape parameter k_shape must be positive. Received: %s" % k_shape)
+	assert(theta_scale > 0.0, "Scale parameter theta_scale must be positive. Received: %s" % theta_scale)
 		
 	# Handle edge cases
 	if p == 0.0:
@@ -349,12 +325,8 @@ static func gamma_ppf(p: float, k_shape: float, theta_scale: float) -> float:
 # Returns: float - The value x. Inherits return behavior (0.0 for p=0, INF for p=1, NAN for errors) from gamma_ppf.
 static func chi_square_ppf(p: float, k_df: float) -> float:
 	# Chi-square with k_df degrees of freedom is Gamma(shape=k_df/2, scale=2)
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return NAN
-	if k_df <= 0.0:
-		push_error("Degrees of freedom k_df must be positive. Received: %s" % k_df)
-		return NAN
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(k_df > 0.0, "Degrees of freedom k_df must be positive. Received: %s" % k_df)
 		
 	return gamma_ppf(p, k_df / 2.0, 2.0)
 
@@ -369,15 +341,9 @@ static func chi_square_ppf(p: float, k_df: float) -> float:
 #   d2: float - The denominator degrees of freedom (must be > 0.0).
 # Returns: float - The value x. Returns 0.0 if p=0, INF if p=1, or NAN for invalid parameters or if search fails.
 static func f_ppf(p: float, d1: float, d2: float) -> float:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return NAN
-	if d1 <= 0.0:
-		push_error("Degrees of freedom d1 must be positive. Received: %s" % d1)
-		return NAN
-	if d2 <= 0.0:
-		push_error("Degrees of freedom d2 must be positive. Received: %s" % d2)
-		return NAN
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(d1 > 0.0, "Degrees of freedom d1 must be positive. Received: %s" % d1)
+	assert(d2 > 0.0, "Degrees of freedom d2 must be positive. Received: %s" % d2)
 		
 	# Handle edge cases
 	if p == 0.0:
@@ -444,12 +410,8 @@ static func f_ppf(p: float, d1: float, d2: float) -> float:
 #   df: float - The degrees of freedom (must be > 0.0).
 # Returns: float - The value x. Returns -INF if p=0, 0.0 if p=0.5, INF if p=1, or NAN for invalid df.
 static func t_ppf(p: float, df: float) -> float:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return NAN
-	if df <= 0.0:
-		push_error("Degrees of freedom df must be positive. Received: %s" % df)
-		return NAN
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(df > 0.0, "Degrees of freedom df must be positive. Received: %s" % df)
 		
 	# Handle edge cases
 	if p == 0.0:
@@ -513,15 +475,9 @@ static func t_ppf(p: float, df: float) -> float:
 #   prob_success: float - The probability of success on each trial (must be between 0.0 and 1.0).
 # Returns: int - The smallest k. Returns 0 if p=0, n if p=1, or -1 for invalid parameters or if search fails.
 static func binomial_ppf(p: float, n: int, prob_success: float) -> int:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return -1 # Error code for int function
-	if n < 0:
-		push_error("Number of trials n must be non-negative. Received: %s" % n)
-		return -1
-	if not (prob_success >= 0.0 and prob_success <= 1.0):
-		push_error("Success probability pr must be between 0.0 and 1.0. Received: %s" % prob_success)
-		return -1
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(n >= 0, "Number of trials n must be non-negative. Received: %s" % n)
+	assert(prob_success >= 0.0 and prob_success <= 1.0, "Success probability pr must be between 0.0 and 1.0. Received: %s" % prob_success)
 	
 	if n == 0: # If 0 trials, result is always 0 successes
 		return 0
@@ -558,12 +514,8 @@ static func binomial_ppf(p: float, n: int, prob_success: float) -> int:
 # Returns: int - The smallest k. Returns 0 if p=0 or lambda_param=0. Returns -1 for invalid parameters
 # or if PMF calculation fails. May return a capped k if p is very close to 1.
 static func poisson_ppf(p: float, lambda_param: float) -> int:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return -1 # Error code for int function
-	if lambda_param < 0.0: # lambda = 0 is a valid degenerate case (always 0 events)
-		push_error("Rate lambda_param must be non-negative. Received: %s" % lambda_param)
-		return -1
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(lambda_param >= 0.0, "Rate lambda_param must be non-negative. Received: %s" % lambda_param)
 
 	if lambda_param == 0.0: # If rate is 0, always 0 events
 		return 0
@@ -615,12 +567,8 @@ static func poisson_ppf(p: float, lambda_param: float) -> int:
 # Returns StatMath.INT_MAX_REPRESENTING_INF if p=1.0 and prob_success < 1.0.
 # Returns -1 for invalid parameters.
 static func geometric_ppf(p: float, prob_success: float) -> int:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return -1
-	if not (prob_success > 0.0 and prob_success <= 1.0):
-		push_error("Success probability pr must be in (0, 1]. Received: %s" % prob_success)
-		return -1
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(prob_success > 0.0 and prob_success <= 1.0, "Success probability pr must be in (0, 1]. Received: %s" % prob_success)
 
 	if prob_success == 1.0: # If success is certain on each trial
 		return 1 # First trial is guaranteed to be a success. Applies for any p > 0.
@@ -658,15 +606,9 @@ static func geometric_ppf(p: float, prob_success: float) -> int:
 # Returns StatMath.INT_MAX_REPRESENTING_INF if p=1.0 and prob_success < 1.0.
 # Returns -1 for invalid parameters or if PMF calculation fails. May return a capped k.
 static func negative_binomial_ppf(p: float, r_successes: int, prob_success: float) -> int:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return -1
-	if r_successes <= 0:
-		push_error("Number of successes r_successes must be a positive integer. Received: %s" % r_successes)
-		return -1
-	if not (prob_success > 0.0 and prob_success <= 1.0):
-		push_error("Success probability pr must be in (0, 1]. Received: %s" % prob_success)
-		return -1
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(r_successes > 0, "Number of successes r_successes must be a positive integer. Received: %s" % r_successes)
+	assert(prob_success > 0.0 and prob_success <= 1.0, "Success probability pr must be in (0, 1]. Received: %s" % prob_success)
 
 	if prob_success == 1.0: # If success is certain on each trial
 		return r_successes # Exactly r_successes trials are needed.
@@ -718,12 +660,8 @@ static func negative_binomial_ppf(p: float, r_successes: int, prob_success: floa
 #   prob_success: float - The probability of success (must be between 0.0 and 1.0).
 # Returns: int - 0 or 1. Returns -1 for invalid parameters.
 static func bernoulli_ppf(p: float, prob_success: float) -> int:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return -1
-	if not (prob_success >= 0.0 and prob_success <= 1.0):
-		push_error("Success probability prob_success must be between 0.0 and 1.0. Received: %s" % prob_success)
-		return -1
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(prob_success >= 0.0 and prob_success <= 1.0, "Success probability prob_success must be between 0.0 and 1.0. Received: %s" % prob_success)
 
 	# A Bernoulli trial is a Binomial trial with n=1.
 	# binomial_ppf(p, 1, prob_success) will return 0 or 1.
@@ -739,24 +677,14 @@ static func bernoulli_ppf(p: float, prob_success: float) -> int:
 #   probabilities: Array[float] - An array of corresponding probabilities for each outcome.
 # Returns: Variant - The outcome value from the 'values' array. Returns null for invalid parameters or errors.
 static func discrete_histogram_ppf(p: float, values: Array, probabilities: Array[float]) -> Variant:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return null
-	if values.is_empty():
-		push_error("Values array cannot be empty for discrete_histogram_ppf.")
-		return null
-	if probabilities.is_empty():
-		push_error("Probabilities array cannot be empty for discrete_histogram_ppf.")
-		return null
-	if values.size() != probabilities.size():
-		push_error("Values and probabilities arrays must have the same size. Received sizes %s and %s." % [values.size(), probabilities.size()])
-		return null
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(not values.is_empty(), "Values array cannot be empty for discrete_histogram_ppf.")
+	assert(not probabilities.is_empty(), "Probabilities array cannot be empty for discrete_histogram_ppf.")
+	assert(values.size() == probabilities.size(), "Values and probabilities arrays must have the same size. Received sizes %s and %s." % [values.size(), probabilities.size()])
 
 	var sum_probs: float = 0.0
 	for prob_val in probabilities:
-		if prob_val < 0.0:
-			push_error("All probabilities must be non-negative. Found: %s" % prob_val)
-			return null
+		assert(prob_val >= 0.0, "All probabilities must be non-negative. Found: %s" % prob_val)
 		sum_probs += prob_val
 	
 	if abs(sum_probs - 1.0) > StatMath.EPSILON:
@@ -768,9 +696,7 @@ static func discrete_histogram_ppf(p: float, values: Array, probabilities: Array
 		var current_value: Variant = values[i]
 		var current_prob: float = probabilities[i]
 		
-		if current_prob < 0.0: # Should have been caught above, but as a safeguard during summation.
-			push_error("Encountered negative probability during PPF calculation: %s" % current_prob)
-			return null
+		assert(current_prob >= 0.0, "Encountered negative probability during PPF calculation: %s" % current_prob)
 
 		cumulative_prob += current_prob
 		
@@ -797,15 +723,9 @@ static func discrete_histogram_ppf(p: float, values: Array, probabilities: Array
 #   shape_param: float - The shape parameter (controls tail heaviness, must be > 0.0).
 # Returns: float - The value x. Returns scale_param if p=0, INF if p=1, or NAN for invalid parameters.
 static func pareto_ppf(p: float, scale_param: float, shape_param: float) -> float:
-	if not (p >= 0.0 and p <= 1.0):
-		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return NAN
-	if scale_param <= 0.0:
-		push_error("Scale parameter must be positive. Received: %s" % scale_param)
-		return NAN
-	if shape_param <= 0.0:
-		push_error("Shape parameter must be positive. Received: %s" % shape_param)
-		return NAN
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(scale_param > 0.0, "Scale parameter must be positive. Received: %s" % scale_param)
+	assert(shape_param > 0.0, "Shape parameter must be positive. Received: %s" % shape_param)
 	
 	# Handle edge cases
 	if p == 0.0:
