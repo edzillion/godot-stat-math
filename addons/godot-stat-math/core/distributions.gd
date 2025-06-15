@@ -6,7 +6,6 @@ class_name Distributions extends RefCounted
 # common statistical distributions. These are essential for simulations, modeling,
 # and various forms of statistical analysis.
 
-# INT64_MAX_VAL is now defined in StatMath autoload
 
 # Bernoulli Distribution: randi_bernoulli(p)
 # Generates an integer (0 or 1) from a Bernoulli distribution.
@@ -308,6 +307,77 @@ static func randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float:
 	return location + scale * (x / y)
 
 
+# Triangular Distribution (Float): randf_triangular(min_value, max_value, mode_value)
+# Generates a random float from a triangular distribution with specified bounds and mode.
+# The distribution forms a triangle shape with peak at mode_value between min_value and max_value.
+# Uses inverse transform sampling method for efficiency and accuracy.
+# Commonly used in game development for intuitive parameter generation where you know min/most_likely/max values.
+# Parameters:
+#   min_value: float - The minimum possible value (left bound of triangle).
+#   max_value: float - The maximum possible value (right bound of triangle).
+#   mode_value: float - The most likely value (peak of triangle), must satisfy min_value ≤ mode_value ≤ max_value.
+# Returns: float - A triangular-distributed random value between min_value and max_value.
+static func randf_triangular(min_value: float, max_value: float, mode_value: float) -> float:
+	assert(max_value >= min_value, "Maximum value must be greater than or equal to minimum value for Triangular distribution.")
+	assert(min_value <= mode_value, "Mode value must be greater than or equal to minimum value for Triangular distribution.")
+	assert(mode_value <= max_value, "Mode value must be less than or equal to maximum value for Triangular distribution.")
+	
+	# Handle degenerate case where all values are the same
+	if is_equal_approx(min_value, max_value):
+		return min_value
+	
+	var uniform_random: float = StatMath.get_rng().randf()  # Random number in [0,1)
+	var total_range: float = max_value - min_value           # Total width of distribution
+	var left_range: float = mode_value - min_value          # Width from min to mode
+	var right_range: float = max_value - mode_value         # Width from mode to max
+	
+	# Calculate the cumulative probability at the mode (where the triangle peaks)
+	var mode_cumulative_probability: float = left_range / total_range
+	
+	# Use inverse transform method based on which side of the triangle we're sampling from
+	if uniform_random < mode_cumulative_probability:
+		# Left side of triangle: from min_value to mode_value
+		# Formula: min + sqrt(U * total_range * left_range)
+		var left_area_factor: float = uniform_random * total_range * left_range
+		return min_value + sqrt(left_area_factor)
+	else:
+		# Right side of triangle: from mode_value to max_value  
+		# Formula: max - sqrt((1-U) * total_range * right_range)
+		var right_area_factor: float = (1.0 - uniform_random) * total_range * right_range
+		return max_value - sqrt(right_area_factor)
+
+
+# Pareto Distribution (Float): randf_pareto(scale_param, shape_param)
+# Generates a random float from a Pareto distribution (also known as power law distribution).
+# Models the famous "80/20 rule" and heavy-tailed distributions common in economics and nature.
+# Uses inverse transform sampling method for efficiency and mathematical accuracy.
+# Commonly used in game development for wealth distribution, loot rarity, city sizes, and resource allocation.
+# Parameters:
+#   scale_param: float - The scale parameter (minimum possible value, must be > 0.0).
+#   shape_param: float - The shape parameter (controls heaviness of tail, must be > 0.0).
+#                       Higher values = lighter tail, more concentration near minimum.
+#                       Lower values = heavier tail, more extreme values possible.
+# Returns: float - A Pareto-distributed random value ≥ scale_param.
+# Note: Mean exists only if shape_param > 1, variance exists only if shape_param > 2.
+static func randf_pareto(scale_param: float, shape_param: float) -> float:
+	assert(scale_param > 0.0, "Scale parameter must be positive for Pareto distribution.")
+	assert(shape_param > 0.0, "Shape parameter must be positive for Pareto distribution.")
+	
+	# Efficient method using exponential transformation:
+	# If Y ~ Exponential(shape), then X = scale * exp(Y) ~ Pareto(scale, shape)
+	# This avoids expensive pow() operations and reuses existing exponential code
+	var exponential_variate: float = randf_exponential(shape_param)
+	
+	return scale_param * exp(exponential_variate)
+
+
+# Histogram Distribution (Variant): randv_histogram(values, probabilities)
+# Generates a random value from a discrete distribution based on provided values and probabilities.
+# Uses cumulative distribution function (CDF) to determine which value to return.
+# Parameters:
+#   values: Array - Array of values to sample from.
+#   probabilities: Array - Array of probabilities for each value.
+# Returns: Variant - A random value from the distribution.
 static func randv_histogram(values: Array, probabilities: Array) -> Variant:
 	assert(!values.is_empty(), "Values array cannot be empty.")
 	assert(values.size() == probabilities.size(), "Values and probabilities arrays must have the same size.")

@@ -786,3 +786,39 @@ static func discrete_histogram_ppf(p: float, values: Array, probabilities: Array
 	# Should not be reached if initial checks pass and arrays are not empty.
 	push_error("discrete_histogram_ppf: Failed to find a value. This state should be unreachable.")
 	return null
+
+# Pareto Distribution PPF: pareto_ppf(p, scale_param, shape_param)
+# Calculates the PPF for the Pareto distribution.
+# Returns the value x such that P(X <= x) = p.
+# Uses the closed-form solution: x = scale / (1-p)^(1/shape) for 0 ≤ p < 1.
+# Parameters:
+#   p: float - The probability value (must be between 0.0 and 1.0).
+#   scale_param: float - The scale parameter (minimum possible value, must be > 0.0).
+#   shape_param: float - The shape parameter (controls tail heaviness, must be > 0.0).
+# Returns: float - The value x. Returns scale_param if p=0, INF if p=1, or NAN for invalid parameters.
+static func pareto_ppf(p: float, scale_param: float, shape_param: float) -> float:
+	if not (p >= 0.0 and p <= 1.0):
+		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+		return NAN
+	if scale_param <= 0.0:
+		push_error("Scale parameter must be positive. Received: %s" % scale_param)
+		return NAN
+	if shape_param <= 0.0:
+		push_error("Shape parameter must be positive. Received: %s" % shape_param)
+		return NAN
+	
+	# Handle edge cases
+	if p == 0.0:
+		return scale_param  # Minimum value of Pareto distribution
+	if p == 1.0:
+		return INF  # Pareto has infinite support on the upper end
+	
+	# Closed-form solution: PPF(p) = scale / (1-p)^(1/shape)
+	# Optimized using logarithms to avoid expensive fractional power:
+	# (1-p)^(1/shape) = exp(ln(1-p) / shape)
+	# This is exactly the inverse transform sampling formula!
+	var one_minus_p: float = 1.0 - p
+	var log_term: float = log(one_minus_p) / shape_param
+	var exp_term: float = exp(log_term)
+	
+	return scale_param / exp_term

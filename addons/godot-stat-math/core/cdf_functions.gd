@@ -175,3 +175,26 @@ static func negative_binomial_cdf(k_trials: int, r_successes: int, p_prob: float
 	for i in range(r_successes, k_trials + 1):
 		cumulative_prob += StatMath.PmfPdfFunctions.negative_binomial_pmf(i, r_successes, p_prob)
 	return cumulative_prob
+
+
+# Pareto Distribution CDF: F(x; scale, shape)
+# Calculates the probability that a random variable from a Pareto distribution
+# with scale parameter (minimum value) and shape parameter is less than or equal to x.
+# Uses the closed-form solution: F(x) = 1 - (scale/x)^shape for x >= scale.
+# Parameters:
+#   x: float - The value at which to evaluate the CDF.
+#   scale_param: float - The scale parameter (minimum possible value, must be > 0.0).
+#   shape_param: float - The shape parameter (controls tail heaviness, must be > 0.0).
+# Returns: float - The cumulative probability P(X <= x).
+static func pareto_cdf(x: float, scale_param: float, shape_param: float) -> float:
+	assert(scale_param > 0.0, "Scale parameter must be positive for Pareto CDF.")
+	assert(shape_param > 0.0, "Shape parameter must be positive for Pareto CDF.")
+	
+	if x < scale_param:
+		return 0.0  # Pareto distribution has support [scale, +∞)
+	
+	# Closed-form solution: F(x) = 1 - (scale/x)^shape
+	var ratio: float = scale_param / x
+	var power_term: float = pow(ratio, shape_param)
+	
+	return 1.0 - power_term

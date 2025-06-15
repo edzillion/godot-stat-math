@@ -513,4 +513,274 @@ func test_discrete_histogram_ppf_probabilities_not_sum_to_one_warning() -> void:
 	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.15, values, probabilities)).is_equal("High")
 	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.2, values, probabilities)).is_equal("High")
 	# For p > sum of probabilities (0.2), it should return the last element
-	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)).is_equal("High") 
+	assert_str(StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)).is_equal("High")
+
+
+# --- Pareto PPF ---
+func test_pareto_ppf_basic_calculation() -> void:
+	# For p = 0.5, scale = 2, shape = 2: F⁻¹(0.5) = 2 / (1-0.5)^(1/2) = 2 / 0.707... ≈ 2.828
+	var result: float = StatMath.PpfFunctions.pareto_ppf(0.5, 2.0, 2.0)
+	var expected: float = 2.0 / pow(0.5, 1.0/2.0) # 2 / sqrt(0.5) ≈ 2.828
+	assert_float(result).is_equal_approx(expected, 1e-6)
+
+func test_pareto_ppf_precise_calculation() -> void:
+	# For p = 0.875, scale = 2, shape = 3: F⁻¹(0.875) = 2 / (1-0.875)^(1/3) = 2 / 0.125^(1/3) = 2 / 0.5 = 4
+	var result: float = StatMath.PpfFunctions.pareto_ppf(0.875, 2.0, 3.0)
+	assert_float(result).is_equal_approx(4.0, 1e-6)
+
+func test_pareto_ppf_p_zero() -> void:
+	var result: float = StatMath.PpfFunctions.pareto_ppf(0.0, 2.0, 3.0)
+	assert_float(result).is_equal_approx(2.0, 1e-7) # Should return scale parameter
+
+func test_pareto_ppf_p_one() -> void:
+	var result: float = StatMath.PpfFunctions.pareto_ppf(1.0, 2.0, 3.0)
+	assert_float(result).is_equal_approx(INF, 1e-6)
+
+func test_pareto_ppf_monotonicity() -> void:
+	# PPF should be monotonically increasing in p
+	var scale: float = 2.0
+	var shape: float = 3.0
+	
+	var p1: float = 0.1
+	var p2: float = 0.3
+	var p3: float = 0.5
+	var p4: float = 0.7
+	var p5: float = 0.9
+	
+	var result1: float = StatMath.PpfFunctions.pareto_ppf(p1, scale, shape)
+	var result2: float = StatMath.PpfFunctions.pareto_ppf(p2, scale, shape)
+	var result3: float = StatMath.PpfFunctions.pareto_ppf(p3, scale, shape)
+	var result4: float = StatMath.PpfFunctions.pareto_ppf(p4, scale, shape)
+	var result5: float = StatMath.PpfFunctions.pareto_ppf(p5, scale, shape)
+	
+	# Should be monotonically increasing
+	assert_float(result1).is_less(result2)
+	assert_float(result2).is_less(result3)
+	assert_float(result3).is_less(result4)
+	assert_float(result4).is_less(result5)
+
+func test_pareto_ppf_different_shapes() -> void:
+	var p: float = 0.5
+	var scale: float = 2.0
+	
+	# Higher shape parameter = smaller values for same p (faster decay)
+	var ppf_shape_1: float = StatMath.PpfFunctions.pareto_ppf(p, scale, 1.0)
+	var ppf_shape_3: float = StatMath.PpfFunctions.pareto_ppf(p, scale, 3.0)
+	var ppf_shape_5: float = StatMath.PpfFunctions.pareto_ppf(p, scale, 5.0)
+	
+	assert_float(ppf_shape_1).is_greater(ppf_shape_3)
+	assert_float(ppf_shape_3).is_greater(ppf_shape_5)
+	
+	# All should be at least the scale parameter
+	assert_float(ppf_shape_1).is_greater_equal(scale)
+	assert_float(ppf_shape_3).is_greater_equal(scale)
+	assert_float(ppf_shape_5).is_greater_equal(scale)
+
+func test_pareto_ppf_bounds() -> void:
+	# PPF should always return values >= scale parameter
+	var test_cases: Array[Array] = [
+		[0.1, 1.0, 0.5], [0.5, 3.0, 2.0], [0.9, 2.0, 4.0],
+		[0.25, 10.0, 1.5], [0.75, 1.0, 10.0]
+	]
+	
+	for case in test_cases:
+		var p: float = case[0]
+		var scale: float = case[1]
+		var shape: float = case[2]
+		
+		var result: float = StatMath.PpfFunctions.pareto_ppf(p, scale, shape)
+		
+		assert_float(result).is_greater_equal(scale)
+		assert_bool(is_nan(result)).is_false()
+		assert_bool(is_inf(result)).is_false()
+
+func test_pareto_ppf_deterministic() -> void:
+	# Same parameters should give same results
+	var p: float = 0.3
+	var scale: float = 2.5
+	var shape: float = 3.0
+	
+	var result1: float = StatMath.PpfFunctions.pareto_ppf(p, scale, shape)
+	var result2: float = StatMath.PpfFunctions.pareto_ppf(p, scale, shape)
+	
+	assert_float(result1).is_equal_approx(result2, 1e-15)
+
+func test_pareto_ppf_consistency_with_cdf() -> void:
+	# Test that PPF and CDF are inverse functions (round-trip test)
+	var original_p: float = 0.6
+	var scale: float = 2.0
+	var shape: float = 3.0
+	
+	# Calculate PPF of original_p, then CDF of that result
+	var ppf_result: float = StatMath.PpfFunctions.pareto_ppf(original_p, scale, shape)
+	var cdf_result: float = StatMath.CdfFunctions.pareto_cdf(ppf_result, scale, shape)
+	
+	# Should get back close to original_p
+	assert_float(cdf_result).is_equal_approx(original_p, 1e-6)
+
+func test_pareto_ppf_extreme_probabilities() -> void:
+	var scale: float = 2.0
+	var shape: float = 3.0
+	
+	# Very small p
+	var small_p: float = 0.001
+	var result_small: float = StatMath.PpfFunctions.pareto_ppf(small_p, scale, shape)
+	assert_float(result_small).is_greater(scale)
+	assert_float(result_small).is_less(scale * 2.0) # Should be close to scale
+	
+	# Very large p
+	var large_p: float = 0.999
+	var result_large: float = StatMath.PpfFunctions.pareto_ppf(large_p, scale, shape)
+	assert_float(result_large).is_greater_equal(scale * 5.0) # Should be much larger than scale
+
+func test_pareto_ppf_invalid_p_negative() -> void:
+	var result: float = StatMath.PpfFunctions.pareto_ppf(-0.1, 2.0, 3.0)
+	assert_bool(is_nan(result)).is_true()
+
+func test_pareto_ppf_invalid_p_greater_than_one() -> void:
+	var result: float = StatMath.PpfFunctions.pareto_ppf(1.1, 2.0, 3.0)
+	assert_bool(is_nan(result)).is_true()
+
+func test_pareto_ppf_invalid_scale_zero() -> void:
+	var result: float = StatMath.PpfFunctions.pareto_ppf(0.5, 0.0, 3.0)
+	assert_bool(is_nan(result)).is_true()
+
+func test_pareto_ppf_invalid_scale_negative() -> void:
+	var result: float = StatMath.PpfFunctions.pareto_ppf(0.5, -1.0, 3.0)
+	assert_bool(is_nan(result)).is_true()
+
+func test_pareto_ppf_invalid_shape_zero() -> void:
+	var result: float = StatMath.PpfFunctions.pareto_ppf(0.5, 2.0, 0.0)
+	assert_bool(is_nan(result)).is_true()
+
+func test_pareto_ppf_invalid_shape_negative() -> void:
+	var result: float = StatMath.PpfFunctions.pareto_ppf(0.5, 2.0, -1.0)
+	assert_bool(is_nan(result)).is_true()
+
+# --- Game Development Use Cases for Pareto PPF ---
+
+func test_pareto_ppf_wealth_generation() -> void:
+	# Example: generating player wealth from uniform randomness
+	var uniform_inputs: Array[float] = [0.1, 0.3, 0.5, 0.7, 0.9]
+	var min_wealth: float = 100.0
+	var wealth_inequality: float = 2.0 # Lower shape = more inequality
+	
+	var wealth_values: Array[float] = []
+	for uniform_val in uniform_inputs:
+		var wealth: float = StatMath.PpfFunctions.pareto_ppf(uniform_val, min_wealth, wealth_inequality)
+		wealth_values.append(wealth)
+	
+	# All wealth values should be valid
+	for wealth in wealth_values:
+		assert_float(wealth).is_greater_equal(min_wealth)
+		assert_bool(is_nan(wealth)).is_false()
+		assert_bool(is_inf(wealth)).is_false()
+	
+	# Should maintain ordering (monotonicity)
+	for i in range(wealth_values.size() - 1):
+		assert_float(wealth_values[i]).is_less(wealth_values[i + 1])
+
+func test_pareto_ppf_loot_value_generation() -> void:
+	# Example: generating loot values with Pareto distribution
+	var random_seeds: Array[float] = [0.2, 0.4, 0.6, 0.8]
+	var base_loot_value: float = 10.0
+	var rarity_factor: float = 3.0 # Higher shape = less extreme values
+	
+	var loot_values: Array[float] = []
+	for seed in random_seeds:
+		var loot_value: float = StatMath.PpfFunctions.pareto_ppf(seed, base_loot_value, rarity_factor)
+		loot_values.append(loot_value)
+	
+	# All loot values should be valid
+	for loot_value in loot_values:
+		assert_float(loot_value).is_greater_equal(base_loot_value)
+		assert_bool(is_nan(loot_value)).is_false()
+	
+	# Should maintain ordering
+	for i in range(loot_values.size() - 1):
+		assert_float(loot_values[i]).is_less_equal(loot_values[i + 1])
+
+func test_pareto_ppf_damage_scaling() -> void:
+	# Example: scaling base damage using Pareto distribution for crits
+	var crit_probability: float = 0.8 # High probability for significant crit
+	var base_damage: float = 25.0
+	var crit_scaling: float = 2.5
+	
+	var crit_damage: float = StatMath.PpfFunctions.pareto_ppf(crit_probability, base_damage, crit_scaling)
+	
+	# Should be at least base damage
+	assert_float(crit_damage).is_greater_equal(base_damage)
+	
+	# Should be a reasonable multiplier for high probability
+	assert_float(crit_damage).is_greater(base_damage * 1.5)
+	assert_float(crit_damage).is_less(base_damage * 10.0) # Not too extreme
+
+func test_pareto_ppf_npc_attribute_distribution() -> void:
+	# Example: distributing NPC attributes with realistic inequality
+	var attribute_probabilities: Array[float] = [0.1, 0.25, 0.5, 0.75, 0.9]
+	var min_attribute: float = 10.0
+	var attribute_distribution: float = 1.8 # Lower shape for more variation
+	
+	var attribute_values: Array[float] = []
+	for prob in attribute_probabilities:
+		var attribute: float = StatMath.PpfFunctions.pareto_ppf(prob, min_attribute, attribute_distribution)
+		attribute_values.append(attribute)
+	
+	# All attributes should be valid
+	for attribute in attribute_values:
+		assert_float(attribute).is_greater_equal(min_attribute)
+		assert_bool(is_nan(attribute)).is_false()
+	
+	# Should show increasing values with increasing probability
+	for i in range(attribute_values.size() - 1):
+		assert_float(attribute_values[i]).is_less(attribute_values[i + 1])
+	
+	# Lower probabilities should give values closer to minimum
+	assert_float(attribute_values[0]).is_less(attribute_values[-1] * 0.5)
+
+func test_pareto_ppf_market_pricing() -> void:
+	# Example: generating market prices with Pareto distribution
+	var price_distribution_points: Array[float] = [0.3, 0.6, 0.9]
+	var base_item_price: float = 50.0
+	var market_concentration: float = 2.2
+	
+	var market_prices: Array[float] = []
+	for point in price_distribution_points:
+		var price: float = StatMath.PpfFunctions.pareto_ppf(point, base_item_price, market_concentration)
+		market_prices.append(price)
+	
+	# All prices should be valid
+	for price in market_prices:
+		assert_float(price).is_greater_equal(base_item_price)
+		assert_bool(is_nan(price)).is_false()
+	
+	# Should maintain ordering
+	for i in range(market_prices.size() - 1):
+		assert_float(market_prices[i]).is_less(market_prices[i + 1])
+	
+	# Prices should be reasonable for game economy
+	assert_float(market_prices[0]).is_less(base_item_price * 5.0)
+
+func test_pareto_ppf_procedural_generation_scaling() -> void:
+	# Example: using Pareto PPF for procedural generation with realistic scaling
+	var generation_seeds: Array[float] = [0.05, 0.15, 0.35, 0.65, 0.95]
+	var base_scale: float = 1.0
+	var scaling_factor: float = 3.0
+	
+	var scaled_values: Array[float] = []
+	for seed in generation_seeds:
+		var scaled_value: float = StatMath.PpfFunctions.pareto_ppf(seed, base_scale, scaling_factor)
+		scaled_values.append(scaled_value)
+	
+	# All scaled values should be valid
+	for value in scaled_values:
+		assert_float(value).is_greater_equal(base_scale)
+		assert_bool(is_nan(value)).is_false()
+		assert_bool(is_inf(value)).is_false()
+	
+	# Should maintain ordering
+	for i in range(scaled_values.size() - 1):
+		assert_float(scaled_values[i]).is_less_equal(scaled_values[i + 1])
+	
+	# Lower seeds should give values closer to base scale (more reasonable ratio)
+	assert_float(scaled_values[0]).is_less(scaled_values[-1] * 0.8) 

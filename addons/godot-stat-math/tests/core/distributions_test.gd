@@ -958,4 +958,638 @@ func test_combined_gamma_beta_procedural_generation() -> void:
 	
 	# Combined effect should be reasonable
 	var combined_effect: float = terrain_roughness * biome_blend
-	assert_float(combined_effect).is_greater_equal(0.0) 
+	assert_float(combined_effect).is_greater_equal(0.0)
+
+
+# --- Tests for randf_triangular ---
+
+func test_randf_triangular_basic() -> void:
+	var min_val: float = 0.0
+	var max_val: float = 10.0
+	var mode_val: float = 3.0
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_float(result).is_greater_equal(min_val)
+	assert_float(result).is_less_equal(max_val)
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_triangular_symmetric() -> void:
+	# Mode in the center creates symmetric triangular distribution
+	var min_val: float = -5.0
+	var max_val: float = 5.0
+	var mode_val: float = 0.0  # Centered mode
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_left_skewed() -> void:
+	# Mode closer to minimum creates left-skewed distribution
+	var min_val: float = 0.0
+	var max_val: float = 100.0
+	var mode_val: float = 10.0  # Mode near minimum
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_right_skewed() -> void:
+	# Mode closer to maximum creates right-skewed distribution
+	var min_val: float = 0.0
+	var max_val: float = 100.0
+	var mode_val: float = 90.0  # Mode near maximum
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_mode_at_minimum() -> void:
+	# Mode at minimum creates right-skewed triangle
+	var min_val: float = 5.0
+	var max_val: float = 15.0
+	var mode_val: float = 5.0  # Mode equals minimum
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_mode_at_maximum() -> void:
+	# Mode at maximum creates left-skewed triangle
+	var min_val: float = 2.0
+	var max_val: float = 8.0
+	var mode_val: float = 8.0  # Mode equals maximum
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_negative_range() -> void:
+	var min_val: float = -20.0
+	var max_val: float = -5.0
+	var mode_val: float = -10.0
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_mixed_sign_range() -> void:
+	var min_val: float = -10.0
+	var max_val: float = 10.0
+	var mode_val: float = 2.0
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_small_range() -> void:
+	var min_val: float = 0.9
+	var max_val: float = 1.1
+	var mode_val: float = 1.0
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_large_range() -> void:
+	var min_val: float = -1000.0
+	var max_val: float = 1000.0
+	var mode_val: float = 100.0
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_deterministic_with_seed() -> void:
+	var min_val: float = 1.0
+	var max_val: float = 5.0
+	var mode_val: float = 3.0
+	var seed: int = 54321
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result1).is_equal_approx(result2, 0.0000001)
+
+
+func test_randf_triangular_multiple_calls_different_values() -> void:
+	# Test that multiple calls produce different values (with high probability)
+	var min_val: float = 0.0
+	var max_val: float = 1.0
+	var mode_val: float = 0.3
+	var results: Array[float] = []
+	
+	for i in range(10):
+		results.append(StatMath.Distributions.randf_triangular(min_val, max_val, mode_val))
+	
+	# Check that we don't have all identical values (extremely unlikely)
+	var all_same: bool = true
+	var first_val: float = results[0]
+	for val in results:
+		if not is_equal_approx(val, first_val):
+			all_same = false
+			break
+	
+	assert_bool(all_same).is_false()
+
+
+func test_randf_triangular_degenerate_case_equal_bounds() -> void:
+	# When min equals max, should return that value
+	var value: float = 42.0
+	var result: float = StatMath.Distributions.randf_triangular(value, value, value)
+	assert_float(result).is_equal_approx(value, 0.0000001)
+
+
+func test_randf_triangular_nearly_equal_bounds() -> void:
+	# Test with very close but not equal bounds
+	var min_val: float = 1.0
+	var max_val: float = 1.0000001
+	var mode_val: float = 1.00000005
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_invalid_mode_too_low() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_triangular(5.0, 10.0, 3.0)  # mode < min
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Mode value must be greater than or equal to minimum value for Triangular distribution.")
+
+
+func test_randf_triangular_invalid_mode_too_high() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_triangular(5.0, 10.0, 12.0)  # mode > max
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Mode value must be less than or equal to maximum value for Triangular distribution.")
+
+
+func test_randf_triangular_invalid_max_less_than_min() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_triangular(10.0, 5.0, 7.0)  # max < min
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Maximum value must be greater than or equal to minimum value for Triangular distribution.")
+
+
+func test_randf_triangular_invalid_max_equal_min_with_different_mode() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_triangular(5.0, 5.0, 7.0)  # max = min but mode ≠ min
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Mode value must be less than or equal to maximum value for Triangular distribution.")
+
+
+# --- Statistical Properties Tests ---
+
+func test_randf_triangular_statistical_properties() -> void:
+	# Test multiple samples to verify statistical properties
+	var min_val: float = 0.0
+	var max_val: float = 10.0
+	var mode_val: float = 3.0
+	var samples: Array[float] = []
+	var seed: int = 11111
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_triangular(min_val, max_val, mode_val))
+	
+	# All samples should be within bounds
+	for sample in samples:
+		assert_float(sample).is_greater_equal(min_val)
+		assert_float(sample).is_less_equal(max_val)
+	
+	# Should have reasonable variance (not all the same value)
+	var sample_min: float = samples[0]
+	var sample_max: float = samples[0]
+	for sample in samples:
+		sample_min = min(sample_min, sample)
+		sample_max = max(sample_max, sample)
+	
+	assert_float(sample_max - sample_min).is_greater(1.0)
+
+
+func test_randf_triangular_mode_bias_verification() -> void:
+	# Test that values cluster around the mode more than uniform distribution would
+	var min_val: float = 0.0
+	var max_val: float = 100.0
+	var mode_val: float = 25.0  # Mode closer to minimum
+	var near_mode_count: int = 0
+	var seed: int = 22222
+	
+	StatMath.set_global_seed(seed)
+	for i in range(1000):  # Larger sample for statistical significance
+		var sample: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+		# Count samples within 10 units of the mode
+		if abs(sample - mode_val) <= 10.0:
+			near_mode_count += 1
+	
+	# Should have more samples near mode than uniform distribution would
+	# Uniform would have ~20% in this range, triangular should have more
+	var near_mode_proportion: float = float(near_mode_count) / 1000.0
+	assert_float(near_mode_proportion).is_greater(0.25)  # Conservative threshold
+
+
+# --- Game Development Use Cases ---
+
+func test_randf_triangular_weapon_damage() -> void:
+	# Example: weapon damage with min/typical/max values
+	var min_damage: float = 50.0
+	var max_damage: float = 150.0
+	var typical_damage: float = 80.0  # Most common damage value
+	
+	var damage: float = StatMath.Distributions.randf_triangular(min_damage, max_damage, typical_damage)
+	
+	assert_float(damage).is_between(min_damage, max_damage)
+
+
+func test_randf_triangular_npc_stat_generation() -> void:
+	# Example: NPC attribute generation
+	var min_strength: float = 8.0
+	var max_strength: float = 18.0
+	var average_strength: float = 12.0
+	
+	var npc_strength: float = StatMath.Distributions.randf_triangular(min_strength, max_strength, average_strength)
+	
+	assert_float(npc_strength).is_between(min_strength, max_strength)
+
+
+func test_randf_triangular_loot_quality() -> void:
+	# Example: loot quality distribution
+	var min_quality: float = 0.1  # Poor quality
+	var max_quality: float = 1.0  # Perfect quality
+	var common_quality: float = 0.3  # Most items are low-medium quality
+	
+	var item_quality: float = StatMath.Distributions.randf_triangular(min_quality, max_quality, common_quality)
+	
+	assert_float(item_quality).is_between(min_quality, max_quality)
+
+
+func test_randf_triangular_skill_check_difficulty() -> void:
+	# Example: skill check difficulty scaling
+	var easy_threshold: float = 5.0
+	var hard_threshold: float = 20.0
+	var typical_threshold: float = 12.0
+	
+	var check_difficulty: float = StatMath.Distributions.randf_triangular(easy_threshold, hard_threshold, typical_threshold)
+	
+	assert_float(check_difficulty).is_between(easy_threshold, hard_threshold)
+
+
+func test_randf_triangular_resource_spawn_rate() -> void:
+	# Example: resource spawn timing
+	var min_spawn_time: float = 5.0   # seconds
+	var max_spawn_time: float = 30.0  # seconds  
+	var typical_spawn_time: float = 15.0  # Most common spawn interval
+	
+	var next_spawn_time: float = StatMath.Distributions.randf_triangular(min_spawn_time, max_spawn_time, typical_spawn_time)
+	
+	assert_float(next_spawn_time).is_between(min_spawn_time, max_spawn_time)
+
+
+func test_randf_triangular_procedural_terrain_height() -> void:
+	# Example: terrain height generation with preferred elevations
+	var sea_level: float = 0.0
+	var mountain_peak: float = 1000.0
+	var common_elevation: float = 200.0  # Hills and plains
+	
+	var terrain_height: float = StatMath.Distributions.randf_triangular(sea_level, mountain_peak, common_elevation)
+	
+	assert_float(terrain_height).is_between(sea_level, mountain_peak)
+
+
+func test_randf_triangular_ai_decision_confidence() -> void:
+	# Example: AI confidence in decisions
+	var min_confidence: float = 0.0
+	var max_confidence: float = 1.0
+	var typical_confidence: float = 0.7  # AI is usually fairly confident
+	
+	var decision_confidence: float = StatMath.Distributions.randf_triangular(min_confidence, max_confidence, typical_confidence)
+	
+	assert_float(decision_confidence).is_between(min_confidence, max_confidence)
+
+
+func test_randf_triangular_pricing_variation() -> void:
+	# Example: market price fluctuation in economic simulation
+	var min_price: float = 80.0   # 20% below base price
+	var max_price: float = 120.0  # 20% above base price
+	var fair_price: float = 95.0  # Slightly below base (buyer's market)
+	
+	var market_price: float = StatMath.Distributions.randf_triangular(min_price, max_price, fair_price)
+	
+	assert_float(market_price).is_between(min_price, max_price)
+
+
+func test_randf_triangular_multiple_parameters() -> void:
+	# Example: complex entity with multiple triangular attributes
+	var health: float = StatMath.Distributions.randf_triangular(80.0, 120.0, 100.0)
+	var speed: float = StatMath.Distributions.randf_triangular(3.0, 8.0, 5.0)
+	var accuracy: float = StatMath.Distributions.randf_triangular(0.6, 0.95, 0.8)
+	
+	assert_float(health).is_between(80.0, 120.0)
+	assert_float(speed).is_between(3.0, 8.0)
+	assert_float(accuracy).is_between(0.6, 0.95)
+	
+	# All attributes should be reasonable for a game entity
+	assert_float(health).is_greater(0.0)
+	assert_float(speed).is_greater(0.0)
+	assert_float(accuracy).is_greater(0.0)
+
+
+# --- Tests for randf_pareto ---
+
+func test_randf_pareto_basic() -> void:
+	var scale: float = 1.0
+	var shape: float = 1.0
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_float(result).is_greater_equal(scale)
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_pareto_scale_parameter() -> void:
+	var scale: float = 5.0
+	var shape: float = 2.0
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	# Result should always be >= scale parameter
+	assert_float(result).is_greater_equal(scale)
+
+
+func test_randf_pareto_different_shapes() -> void:
+	var scale: float = 1.0
+	
+	# Test different shape parameters
+	var heavy_tail_result: float = StatMath.Distributions.randf_pareto(scale, 0.5)  # Heavy tail
+	var medium_tail_result: float = StatMath.Distributions.randf_pareto(scale, 1.0)  # Medium tail
+	var light_tail_result: float = StatMath.Distributions.randf_pareto(scale, 3.0)   # Light tail
+	
+	assert_float(heavy_tail_result).is_greater_equal(scale)
+	assert_float(medium_tail_result).is_greater_equal(scale)
+	assert_float(light_tail_result).is_greater_equal(scale)
+
+
+func test_randf_pareto_large_scale() -> void:
+	var scale: float = 100.0
+	var shape: float = 1.5
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_float(result).is_greater_equal(scale)
+
+
+func test_randf_pareto_small_scale() -> void:
+	var scale: float = 0.001
+	var shape: float = 2.0
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_float(result).is_greater_equal(scale)
+
+
+func test_randf_pareto_very_small_shape() -> void:
+	# Very small shape = very heavy tail
+	var scale: float = 1.0
+	var shape: float = 0.1
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_float(result).is_greater_equal(scale)
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_pareto_large_shape() -> void:
+	# Large shape = light tail, concentrated near minimum
+	var scale: float = 1.0
+	var shape: float = 10.0
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_float(result).is_greater_equal(scale)
+
+
+func test_randf_pareto_deterministic_with_seed() -> void:
+	var scale: float = 2.0
+	var shape: float = 1.5
+	var seed: int = 98765
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_float(result1).is_equal_approx(result2, 0.0000001)
+
+
+func test_randf_pareto_multiple_calls_different_values() -> void:
+	# Test that multiple calls produce different values (with high probability)
+	var scale: float = 1.0
+	var shape: float = 2.0
+	var results: Array[float] = []
+	
+	for i in range(10):
+		results.append(StatMath.Distributions.randf_pareto(scale, shape))
+	
+	# Check that we don't have all identical values (extremely unlikely)
+	var all_same: bool = true
+	var first_val: float = results[0]
+	for val in results:
+		if not is_equal_approx(val, first_val):
+			all_same = false
+			break
+	
+	assert_bool(all_same).is_false()
+
+
+func test_randf_pareto_invalid_scale_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_pareto(0.0, 1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Scale parameter must be positive for Pareto distribution.")
+
+
+func test_randf_pareto_invalid_scale_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_pareto(-1.0, 1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Scale parameter must be positive for Pareto distribution.")
+
+
+func test_randf_pareto_invalid_shape_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_pareto(1.0, 0.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Shape parameter must be positive for Pareto distribution.")
+
+
+func test_randf_pareto_invalid_shape_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_pareto(1.0, -1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Shape parameter must be positive for Pareto distribution.")
+
+
+# --- Statistical Properties Tests ---
+
+func test_randf_pareto_statistical_properties() -> void:
+	# Test multiple samples to verify statistical properties
+	var scale: float = 1.0
+	var shape: float = 2.0
+	var samples: Array[float] = []
+	var seed: int = 33333
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_pareto(scale, shape))
+	
+	# All samples should be >= scale
+	for sample in samples:
+		assert_float(sample).is_greater_equal(scale)
+	
+	# Should have reasonable variance (not all the same value)
+	var sample_min: float = samples[0]
+	var sample_max: float = samples[0]
+	for sample in samples:
+		sample_min = min(sample_min, sample)
+		sample_max = max(sample_max, sample)
+	
+	assert_float(sample_max - sample_min).is_greater(0.1)
+
+
+func test_randf_pareto_heavy_tail_property() -> void:
+	# Test that Pareto produces some extreme values (demonstrating heavy tails)
+	var scale: float = 1.0
+	var shape: float = 0.8  # Heavy tail
+	var extreme_count: int = 0
+	var seed: int = 44444
+	
+	StatMath.set_global_seed(seed)
+	for i in range(1000):  # Larger sample for extreme value detection
+		var sample: float = StatMath.Distributions.randf_pareto(scale, shape)
+		# Count values beyond 10x the scale (would be rare for lighter distributions)
+		if sample > scale * 10.0:
+			extreme_count += 1
+	
+	# Pareto should produce some extreme values due to heavy tail
+	assert_int(extreme_count).is_greater(0)
+
+
+func test_randf_pareto_concentration_near_minimum() -> void:
+	# Test that higher shape values concentrate more values near the minimum
+	var scale: float = 1.0
+	var shape: float = 5.0  # High shape = concentration near minimum
+	var near_minimum_count: int = 0
+	var seed: int = 55555
+	
+	StatMath.set_global_seed(seed)
+	for i in range(1000):
+		var sample: float = StatMath.Distributions.randf_pareto(scale, shape)
+		# Count samples within 50% of scale
+		if sample <= scale * 1.5:
+			near_minimum_count += 1
+	
+	# High shape should concentrate most values near the minimum
+	var near_minimum_proportion: float = float(near_minimum_count) / 1000.0
+	assert_float(near_minimum_proportion).is_greater(0.6)  # Should be majority
+
+
+# --- Game Development Use Cases ---
+
+func test_randf_pareto_wealth_distribution() -> void:
+	# Example: 80/20 wealth distribution in economic simulation
+	var minimum_wealth: float = 100.0
+	var wealth_inequality: float = 1.16  # Shape ~1.16 gives 80/20 distribution
+	
+	var player_wealth: float = StatMath.Distributions.randf_pareto(minimum_wealth, wealth_inequality)
+	
+	assert_float(player_wealth).is_greater_equal(minimum_wealth)
+
+
+func test_randf_pareto_loot_rarity() -> void:
+	# Example: loot drop rarity using Pareto for "common items common, rare items rare"
+	var base_value: float = 1.0
+	var rarity_factor: float = 0.8  # Lower = more extreme rare items
+	
+	var loot_value_multiplier: float = StatMath.Distributions.randf_pareto(base_value, rarity_factor)
+	
+	assert_float(loot_value_multiplier).is_greater_equal(base_value)
+
+
+func test_randf_pareto_city_population() -> void:
+	# Example: city size distribution (few large cities, many small towns)
+	var minimum_population: float = 1000.0
+	var urbanization_factor: float = 1.2
+	
+	var city_population: float = StatMath.Distributions.randf_pareto(minimum_population, urbanization_factor)
+	
+	assert_float(city_population).is_greater_equal(minimum_population)
+
+
+func test_randf_pareto_resource_deposits() -> void:
+	# Example: natural resource deposit sizes
+	var minimum_deposit_size: float = 10.0
+	var deposit_distribution: float = 1.5
+	
+	var resource_amount: float = StatMath.Distributions.randf_pareto(minimum_deposit_size, deposit_distribution)
+	
+	assert_float(resource_amount).is_greater_equal(minimum_deposit_size)
+
+
+func test_randf_pareto_market_price_spikes() -> void:
+	# Example: market price volatility with occasional massive spikes
+	var base_price_multiplier: float = 1.0
+	var volatility_factor: float = 0.9  # Heavy tail for price spikes
+	
+	var price_spike_multiplier: float = StatMath.Distributions.randf_pareto(base_price_multiplier, volatility_factor)
+	
+	assert_float(price_spike_multiplier).is_greater_equal(base_price_multiplier)
+
+
+func test_randf_pareto_player_skill_gaps() -> void:
+	# Example: modeling skill gaps in competitive games
+	var minimum_skill_rating: float = 1000.0
+	var skill_distribution: float = 1.3
+	
+	var player_skill: float = StatMath.Distributions.randf_pareto(minimum_skill_rating, skill_distribution)
+	
+	assert_float(player_skill).is_greater_equal(minimum_skill_rating)
+
+
+func test_randf_pareto_quest_reward_scaling() -> void:
+	# Example: quest reward distribution where most rewards are modest, few are huge
+	var base_reward: float = 50.0
+	var reward_scaling: float = 1.1  # Slight heavy tail
+	
+	var quest_reward: float = StatMath.Distributions.randf_pareto(base_reward, reward_scaling)
+	
+	assert_float(quest_reward).is_greater_equal(base_reward)
+
+
+func test_randf_pareto_network_effect_scaling() -> void:
+	# Example: network effects where popular content becomes extremely popular
+	var minimum_views: float = 100.0
+	var virality_factor: float = 0.7  # Heavy tail for viral content
+	
+	var content_popularity: float = StatMath.Distributions.randf_pareto(minimum_views, virality_factor)
+	
+	assert_float(content_popularity).is_greater_equal(minimum_views)
+
+
+func test_randf_pareto_power_law_scaling() -> void:
+	# Example: general power law scaling for various game mechanics
+	var base_value: float = 1.0
+	var power_law_exponent: float = 2.0
+	
+	var scaled_value: float = StatMath.Distributions.randf_pareto(base_value, power_law_exponent)
+	
+	assert_float(scaled_value).is_greater_equal(base_value)
+
+
+func test_randf_pareto_multiple_applications() -> void:
+	# Example: multiple Pareto applications in a complex system
+	var guild_size: float = StatMath.Distributions.randf_pareto(5.0, 1.5)
+	var territory_value: float = StatMath.Distributions.randf_pareto(1000.0, 1.2)
+	var influence_points: float = StatMath.Distributions.randf_pareto(100.0, 0.9)
+	
+	assert_float(guild_size).is_greater_equal(5.0)
+	assert_float(territory_value).is_greater_equal(1000.0)
+	assert_float(influence_points).is_greater_equal(100.0)
+	
+	# All values should be reasonable for a game system
+	assert_float(guild_size).is_greater(0.0)
+	assert_float(territory_value).is_greater(0.0)
+	assert_float(influence_points).is_greater(0.0) 
