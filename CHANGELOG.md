@@ -1,6 +1,13 @@
 # Changelog - Godot Stat Math
 
-## [Alpha 0.0.2] - 2025-06-15
+## [Alpha 0.0.3] - 2025-06-15
+
+### 🔧 PACKAGING FIX
+- **Fixed Release Tags**: Corrected double-v prefix issue in automated release process
+
+---
+
+## [Alpha 0.0.2] - 2025-06-15 (PACKAGING ERROR - SUPERSEDED)
 
 ### 🚨 BREAKING CHANGES
 - **Complete SamplingGen API Rewrite**: All sampling functions now use a single unified interface
