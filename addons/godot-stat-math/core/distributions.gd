@@ -11,7 +11,9 @@ class_name Distributions extends RefCounted
 # Generates an integer (0 or 1) from a Bernoulli distribution.
 # Returns 1 (success) with probability p, and 0 (failure) with probability 1-p.
 static func randi_bernoulli(p: float = 0.5) -> int:
-	assert(p >= 0.0 and p <= 1.0, "Success probability (p) must be between 0.0 and 1.0.")
+	if not (p >= 0.0 and p <= 1.0):
+		push_error("Success probability (p) must be between 0.0 and 1.0. Received: %s" % p)
+		return -1
 	if StatMath.get_rng().randf() <= p:
 		return 1
 	else:
@@ -23,8 +25,12 @@ static func randi_bernoulli(p: float = 0.5) -> int:
 # Bernoulli trials, each with success probability p.
 # Algorithm uses repeated generation from a geometric distribution.
 static func randi_binomial(p: float, n: int) -> int:
-	assert(p >= 0.0 and p <= 1.0, "Success probability (p) must be between 0.0 and 1.0.")
-	assert(n >= 0, "Number of trials (n) must be non-negative.")
+	if not (p >= 0.0 and p <= 1.0):
+		push_error("Success probability (p) must be between 0.0 and 1.0. Received: %s" % p)
+		return -1
+	if not (n >= 0):
+		push_error("Number of trials (n) must be non-negative. Received: %s" % n)
+		return -1
 
 	if is_equal_approx(p, 0.0): # If probability of success is 0
 		return 0 # Then there are 0 successes
@@ -50,7 +56,9 @@ static func randi_binomial(p: float, n: int) -> int:
 #   p: float - Success probability per trial (0.0 < p <= 1.0).
 # Returns: int - Number of trials.
 static func randi_geometric(p: float) -> int:
-	assert(p > 0.0 and p <= 1.0, "Success probability (p) must be in (0,1].")
+	if not (p > 0.0 and p <= 1.0):
+		push_error("Success probability (p) must be in (0,1]. Received: %s" % p)
+		return -1
 	
 	if p == 1.0:
 		return 1
@@ -87,7 +95,9 @@ static func randi_geometric(p: float) -> int:
 # Generates an integer from a Poisson distribution with mean lambda_param (average rate of events).
 # Uses Knuth's algorithm (multiplying uniform random numbers).
 static func randi_poisson(lambda_param: float) -> int:
-	assert(lambda_param > 0.0, "Rate parameter (lambda_param) must be positive.")
+	if not (lambda_param > 0.0):
+		push_error("Rate parameter (lambda_param) must be positive. Received: %s" % lambda_param)
+		return -1
 	var l_val: float = exp(-lambda_param)
 	var k: int = 0
 	var p_val: float = 1.0
@@ -104,7 +114,9 @@ static func randi_poisson(lambda_param: float) -> int:
 # Pseudo Random Integer Generation (Custom/Specific use case)
 # Generates an integer based on an iterative Bernoulli process with increasing success probability.
 static func randi_pseudo(c_param: float) -> int:
-	assert(c_param > 0.0 and c_param <= 1.0, "Probability increment (c_param) must be in (0.0, 1.0].")
+	if not (c_param > 0.0 and c_param <= 1.0):
+		push_error("Probability increment (c_param) must be in (0.0, 1.0]. Received: %s" % c_param)
+		return -1
 	var current_c: float = c_param
 	var trial: int = 0
 	while current_c < 1.0:
@@ -123,8 +135,12 @@ static func randi_pseudo(c_param: float) -> int:
 # Siege Random Integer Generation (Custom/Specific use case)
 # Simulates a scenario where capture probability changes based on win/loss outcomes.
 static func randi_seige(w: float, c_0: float, c_win: float, c_lose: float) -> int:
-	assert(w >= 0.0 and w <= 1.0, "Parameter w (win probability) must be between 0.0 and 1.0.")
-	assert(c_0 >= 0.0 and c_0 <= 1.0, "Parameter c_0 (initial capture probability) must be between 0.0 and 1.0.")
+	if not (w >= 0.0 and w <= 1.0):
+		push_error("Parameter w (win probability) must be between 0.0 and 1.0. Received: %s" % w)
+		return -1
+	if not (c_0 >= 0.0 and c_0 <= 1.0):
+		push_error("Parameter c_0 (initial capture probability) must be between 0.0 and 1.0. Received: %s" % c_0)
+		return -1
 
 	var c_val: float = c_0
 	var trials: int = 0
@@ -154,7 +170,9 @@ static func randi_seige(w: float, c_0: float, c_win: float, c_lose: float) -> in
 # Generates a random float uniformly distributed in the interval [a, b).
 # If a = b, returns a.
 static func randf_uniform(a: float, b: float) -> float:
-	assert(a <= b, "Lower bound (a) must be less than or equal to upper bound (b) for Uniform distribution.")
+	if not (a <= b):
+		push_error("Lower bound (a) must be less than or equal to upper bound (b) for Uniform distribution. Received a=%s, b=%s" % [a, b])
+		return NAN
 	if a == b:
 		return a
 	return StatMath.get_rng().randf() * (b - a) + a
@@ -164,7 +182,9 @@ static func randf_uniform(a: float, b: float) -> float:
 # Generates a random float from an exponential distribution with rate parameter lambda_param.
 # Uses inverse transform sampling method: -log(1-U)/lambda, where U is Uniform(0,1).
 static func randf_exponential(lambda_param: float) -> float:
-	assert(lambda_param > 0.0, "Rate parameter (lambda_param) must be positive for Exponential distribution.")
+	if not (lambda_param > 0.0):
+		push_error("Rate parameter (lambda_param) must be positive for Exponential distribution. Received: %s" % lambda_param)
+		return NAN
 	# Ensure u is strictly (0,1) to avoid log(0) or log(1) from 1-u.
 	var u: float = StatMath.get_rng().randf()
 	while u == 0.0 or u == 1.0: 
@@ -178,8 +198,12 @@ static func randf_exponential(lambda_param: float) -> float:
 # An Erlang(k, lambda) variate is the sum of k independent Exponential(lambda) variates.
 # This implementation uses the method based on product of k uniform variates.
 static func randf_erlang(k: int, lambda_param: float) -> float:
-	assert(k > 0, "Shape parameter (k) must be a positive integer for Erlang distribution.")
-	assert(lambda_param > 0.0, "Rate parameter (lambda_param) must be positive for Erlang distribution.")
+	if not (k > 0):
+		push_error("Shape parameter (k) must be a positive integer for Erlang distribution. Received: %s" % k)
+		return NAN
+	if not (lambda_param > 0.0):
+		push_error("Rate parameter (lambda_param) must be positive for Erlang distribution. Received: %s" % lambda_param)
+		return NAN
 	# Sum of k independent exponential variables, or product of k uniform variables method.
 	var product: float = 1.0
 	for _i in range(k):
@@ -196,8 +220,12 @@ static func randf_erlang(k: int, lambda_param: float) -> float:
 # Uses Marsaglia and Tsang's method for shape >= 1, rejection sampling for shape < 1.
 # Note: This uses scale parameterization (Gamma(α, θ)) where mean = α*θ and var = α*θ²
 static func randf_gamma(shape: float, scale: float = 1.0) -> float:
-	assert(shape > 0.0, "Shape parameter must be positive for Gamma distribution.")
-	assert(scale > 0.0, "Scale parameter must be positive for Gamma distribution.")
+	if not (shape > 0.0):
+		push_error("Shape parameter must be positive for Gamma distribution. Received: %s" % shape)
+		return NAN
+	if not (scale > 0.0):
+		push_error("Scale parameter must be positive for Gamma distribution. Received: %s" % scale)
+		return NAN
 	
 	var alpha: float = shape
 	
@@ -240,8 +268,12 @@ static func randf_gamma(shape: float, scale: float = 1.0) -> float:
 # Uses the relationship: if X~Gamma(α,1) and Y~Gamma(β,1), then X/(X+Y)~Beta(α,β)
 # This avoids the need for complex special functions ("incomplete" beta, etc.)
 static func randf_beta(alpha: float, beta_param: float) -> float:
-	assert(alpha > 0.0, "Alpha parameter must be positive for Beta distribution.")
-	assert(beta_param > 0.0, "Beta parameter must be positive for Beta distribution.")
+	if not (alpha > 0.0):
+		push_error("Alpha parameter must be positive for Beta distribution. Received: %s" % alpha)
+		return NAN
+	if not (beta_param > 0.0):
+		push_error("Beta parameter must be positive for Beta distribution. Received: %s" % beta_param)
+		return NAN
 	
 	# Generate two independent gamma variates with scale=1
 	var x: float = randf_gamma(alpha, 1.0)
@@ -274,7 +306,9 @@ static func randf_gaussian() -> float:
 # Defaults to N(0,1) if mu and sigma are not provided.
 # Transforms a standard normal variate: Z*sigma + mu.
 static func randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float: 
-	assert(sigma >= 0.0, "Standard deviation (sigma) must be non-negative.")
+	if not (sigma >= 0.0):
+		push_error("Standard deviation (sigma) must be non-negative. Received: %s" % sigma)
+		return NAN
 	if sigma == 0.0:
 		return mu # If sigma is 0, all values are the mean.
 	return mu + sigma * randf_gaussian()
@@ -290,7 +324,9 @@ static func randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float:
 #   scale: float - The scale parameter (controls spread, must be > 0.0, default: 1.0).
 # Returns: float - A Cauchy-distributed random value.
 static func randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float:
-	assert(scale > 0.0, "Scale parameter must be positive for Cauchy distribution.")
+	if not (scale > 0.0):
+		push_error("Scale parameter must be positive for Cauchy distribution. Received: %s" % scale)
+		return NAN
 	
 	# Handle degenerate case where scale is zero (though assertion above prevents this)
 	if scale == 0.0:
@@ -318,9 +354,15 @@ static func randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float:
 #   mode_value: float - The most likely value (peak of triangle), must satisfy min_value ≤ mode_value ≤ max_value.
 # Returns: float - A triangular-distributed random value between min_value and max_value.
 static func randf_triangular(min_value: float, max_value: float, mode_value: float) -> float:
-	assert(max_value >= min_value, "Maximum value must be greater than or equal to minimum value for Triangular distribution.")
-	assert(min_value <= mode_value, "Mode value must be greater than or equal to minimum value for Triangular distribution.")
-	assert(mode_value <= max_value, "Mode value must be less than or equal to maximum value for Triangular distribution.")
+	if not (max_value >= min_value):
+		push_error("Maximum value must be greater than or equal to minimum value for Triangular distribution. Received min=%s, max=%s" % [min_value, max_value])
+		return NAN
+	if not (min_value <= mode_value):
+		push_error("Mode value must be greater than or equal to minimum value for Triangular distribution. Received min=%s, mode=%s" % [min_value, mode_value])
+		return NAN
+	if not (mode_value <= max_value):
+		push_error("Mode value must be less than or equal to maximum value for Triangular distribution. Received mode=%s, max=%s" % [mode_value, max_value])
+		return NAN
 	
 	# Handle degenerate case where all values are the same
 	if is_equal_approx(min_value, max_value):
@@ -360,8 +402,12 @@ static func randf_triangular(min_value: float, max_value: float, mode_value: flo
 # Returns: float - A Pareto-distributed random value ≥ scale_param.
 # Note: Mean exists only if shape_param > 1, variance exists only if shape_param > 2.
 static func randf_pareto(scale_param: float, shape_param: float) -> float:
-	assert(scale_param > 0.0, "Scale parameter must be positive for Pareto distribution.")
-	assert(shape_param > 0.0, "Shape parameter must be positive for Pareto distribution.")
+	if not (scale_param > 0.0):
+		push_error("Scale parameter must be positive for Pareto distribution. Received: %s" % scale_param)
+		return NAN
+	if not (shape_param > 0.0):
+		push_error("Shape parameter must be positive for Pareto distribution. Received: %s" % shape_param)
+		return NAN
 	
 	# Efficient method using exponential transformation:
 	# If Y ~ Exponential(shape), then X = scale * exp(Y) ~ Pareto(scale, shape)
@@ -386,8 +432,12 @@ static func randf_pareto(scale_param: float, shape_param: float) -> float:
 # Returns: float - A Weibull-distributed random value ≥ 0.
 # Note: Mean = scale * Γ(1 + 1/shape), where Γ is the gamma function.
 static func randf_weibull(scale_param: float, shape_param: float) -> float:
-	assert(scale_param > 0.0, "Scale parameter must be positive for Weibull distribution.")
-	assert(shape_param > 0.0, "Shape parameter must be positive for Weibull distribution.")
+	if not (scale_param > 0.0):
+		push_error("Scale parameter must be positive for Weibull distribution. Received: %s" % scale_param)
+		return NAN
+	if not (shape_param > 0.0):
+		push_error("Shape parameter must be positive for Weibull distribution. Received: %s" % shape_param)
+		return NAN
 	
 	# Inverse transform sampling: F⁻¹(u) = λ * (-ln(1-u))^(1/k)
 	# where u is uniform random variable in (0,1)
@@ -412,9 +462,15 @@ static func randf_weibull(scale_param: float, shape_param: float) -> float:
 #   probabilities: Array - Array of probabilities for each value.
 # Returns: Variant - A random value from the distribution.
 static func randv_histogram(values: Array, probabilities: Array) -> Variant:
-	assert(!values.is_empty(), "Values array cannot be empty.")
-	assert(values.size() == probabilities.size(), "Values and probabilities arrays must have the same size.")
-	assert(!probabilities.is_empty(), "Probabilities array cannot be empty.")
+	if values.is_empty():
+		push_error("Values array cannot be empty.")
+		return null
+	if values.size() != probabilities.size():
+		push_error("Values and probabilities arrays must have the same size. Received values size=%s, probabilities size=%s" % [values.size(), probabilities.size()])
+		return null
+	if probabilities.is_empty():
+		push_error("Probabilities array cannot be empty.")
+		return null
 
 	var normalized_probs: Array[float] = []
 	var sum_prob: float = 0.0
@@ -424,13 +480,18 @@ static func randv_histogram(values: Array, probabilities: Array) -> Variant:
 		if item is int or item is float:
 			prob_val = float(item)
 		else:
-			assert(false, "Probabilities must be numbers (int or float).")
+			push_error("Probabilities must be numbers (int or float). Received: %s" % str(item))
+			return null
 		
-		assert(prob_val >= 0.0, "Probabilities must be non-negative.")
+		if not (prob_val >= 0.0):
+			push_error("Probabilities must be non-negative. Received: %s" % prob_val)
+			return null
 		normalized_probs.append(prob_val)
 		sum_prob += prob_val
 	
-	assert(sum_prob > 0.0, "Sum of probabilities must be positive for normalization.")
+	if not (sum_prob > 0.0):
+		push_error("Sum of probabilities must be positive for normalization. Received sum: %s" % sum_prob)
+		return null
 
 	# Normalize probabilities
 	for i in range(normalized_probs.size()):
@@ -451,5 +512,5 @@ static func randv_histogram(values: Array, probabilities: Array) -> Variant:
 		return values[values.size() - 1]
 	
 	# This state should ideally be unreachable if input validation is correct.
-	assert(false, "randv_histogram: Failed to return a value. Check input arrays and logic.")
+	push_error("randv_histogram: Failed to return a value. Check input arrays and logic.")
 	return null
