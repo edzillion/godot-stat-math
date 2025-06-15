@@ -10,8 +10,12 @@ extends RefCounted
 # Bernoulli trials, each with a success probability p_prob.
 # Uses logarithms for numerical stability with potentially large combinations or small probabilities.
 static func binomial_pmf(k_successes: int, n_trials: int, p_prob: float) -> float:
-	assert(n_trials >= 0, "Number of trials (n_trials) must be non-negative.")
-	assert(p_prob >= 0.0 and p_prob <= 1.0, "Success probability (p_prob) must be between 0.0 and 1.0.")
+	if not (n_trials >= 0):
+		push_error("Number of trials (n_trials) must be non-negative. Received: %s" % n_trials)
+		return NAN
+	if not (p_prob >= 0.0 and p_prob <= 1.0):
+		push_error("Success probability (p_prob) must be between 0.0 and 1.0. Received: %s" % p_prob)
+		return NAN
 	
 	if k_successes < 0 or k_successes > n_trials:
 		return 0.0 # Not possible to have k < 0 or k > n successes.
@@ -37,7 +41,9 @@ static func binomial_pmf(k_successes: int, n_trials: int, p_prob: float) -> floa
 # given an average rate lambda_param of events.
 # Uses logarithms for numerical stability.
 static func poisson_pmf(k_events: int, lambda_param: float) -> float:
-	assert(lambda_param >= 0.0, "Rate parameter (lambda_param) must be non-negative.")
+	if not (lambda_param >= 0.0):
+		push_error("Rate parameter (lambda_param) must be non-negative. Received: %s" % lambda_param)
+		return NAN
 	
 	if k_events < 0:
 		return 0.0 # Not possible to have a negative number of events.
@@ -60,8 +66,12 @@ static func poisson_pmf(k_events: int, lambda_param: float) -> float:
 # in a series of independent Bernoulli trials with success probability p_prob.
 # Uses logarithms for numerical stability.
 static func negative_binomial_pmf(k_trials: int, r_successes: int, p_prob: float) -> float:
-	assert(r_successes > 0, "Number of required successes (r_successes) must be positive.")
-	assert(p_prob > 0.0 and p_prob <= 1.0, "Success probability (p_prob) must be in (0,1].")
+	if not (r_successes > 0):
+		push_error("Number of required successes (r_successes) must be positive. Received: %s" % r_successes)
+		return NAN
+	if not (p_prob > 0.0 and p_prob <= 1.0):
+		push_error("Success probability (p_prob) must be in (0,1]. Received: %s" % p_prob)
+		return NAN
 
 	if k_trials < r_successes: # Need at least r_successes trials.
 		return 0.0

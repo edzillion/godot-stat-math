@@ -15,8 +15,12 @@ extends RefCounted
 # Calculates the number of ways to choose r items from a set of n items
 # without regard to the order of selection.
 static func binomial_coefficient(n: int, r: int) -> float:
-	assert(n >= 0, "Parameter n must be non-negative for binomial coefficient.")
-	assert(r >= 0, "Parameter r must be non-negative for binomial coefficient.")
+	if not (n >= 0):
+		push_error("Parameter n must be non-negative for binomial coefficient. Received: %s" % n)
+		return NAN
+	if not (r >= 0):
+		push_error("Parameter r must be non-negative for binomial coefficient. Received: %s" % r)
+		return NAN
 
 	if r < 0 or r > n:
 		return 0.0 # By definition, C(n,r) is 0 if r is out of range [0, n]
@@ -43,7 +47,9 @@ static func binomial_coefficient(n: int, r: int) -> float:
 # Calculates the natural logarithm of n factorial.
 # Useful for avoiding overflow with large factorials.
 static func log_factorial(n: int) -> float:
-	assert(n >= 0, "Factorial (and its log) is undefined for negative numbers.")
+	if not (n >= 0):
+		push_error("Factorial (and its log) is undefined for negative numbers. Received: %s" % n)
+		return NAN
 	if n <= 1: # log(0!) = log(1) = 0; log(1!) = log(1) = 0
 		return 0.0
 	
@@ -56,8 +62,12 @@ static func log_factorial(n: int) -> float:
 # Logarithm of Binomial Coefficient: log(nCk) or log(n choose k)
 # Calculates the natural logarithm of the binomial coefficient C(n, k).
 static func log_binomial_coef(n: int, k: int) -> float:
-	assert(n >= 0, "Parameter n must be non-negative for binomial coefficient.")
-	assert(k >= 0, "Parameter k must be non-negative for binomial coefficient.")
+	if not (n >= 0):
+		push_error("Parameter n must be non-negative for binomial coefficient. Received: %s" % n)
+		return NAN
+	if not (k >= 0):
+		push_error("Parameter k must be non-negative for binomial coefficient. Received: %s" % k)
+		return NAN
 
 	if k < 0 or k > n: # C(n,k) is 0 if k < 0 or k > n
 		return -INF   # log(0) tends to -infinity
@@ -113,7 +123,9 @@ static func gamma_function(z: float) -> float:
 # Computes the natural logarithm of the Gamma function using Lanczos approximation directly for log.
 # More numerically stable than log(gamma_function(z)) for large z.
 static func log_gamma(z: float) -> float:
-	assert(z > 0.0, "Log Gamma function is typically defined for z > 0.")
+	if not (z > 0.0):
+		push_error("Log Gamma function is typically defined for z > 0. Received: %s" % z)
+		return NAN
 	# Reflection formula for log_gamma can be complex due to sign changes of Gamma(z).
 	# This implementation focuses on z > 0 where Gamma(z) is positive.
 
@@ -132,7 +144,9 @@ static func log_gamma(z: float) -> float:
 # Beta Function: B(a, b)
 # Defined as Γ(a)Γ(b) / Γ(a+b).
 static func beta_function(a: float, b: float) -> float:
-	assert(a > 0.0 and b > 0.0, "Parameters a and b must be positive for Beta function.")
+	if not (a > 0.0 and b > 0.0):
+		push_error("Parameters a and b must be positive for Beta function. Received a=%s, b=%s" % [a, b])
+		return NAN
 	# Use logarithms for stability if intermediate Gamma values are very large/small.
 	# log(B(a,b)) = logΓ(a) + logΓ(b) - logΓ(a+b)
 	# B(a,b) = exp(logΓ(a) + logΓ(b) - logΓ(a+b))
@@ -148,8 +162,12 @@ static func beta_function(a: float, b: float) -> float:
 # IMPLEMENTATION NOTE: Uses simplified numerical integration method for basic functionality.
 # For high-precision applications, consider implementing continued fractions method.
 static func incomplete_beta(x_val: float, a: float, b: float) -> float:
-	assert(a > 0.0 and b > 0.0, "Shape parameters a and b must be positive.")
-	assert(x_val >= 0.0 and x_val <= 1.0, "Parameter x_val must be between 0.0 and 1.0.")
+	if not (a > 0.0 and b > 0.0):
+		push_error("Shape parameters a and b must be positive. Received a=%s, b=%s" % [a, b])
+		return NAN
+	if not (x_val >= 0.0 and x_val <= 1.0):
+		push_error("Parameter x_val must be between 0.0 and 1.0. Received: %s" % x_val)
+		return NAN
 
 	if x_val == 0.0:
 		return 0.0
@@ -199,7 +217,9 @@ static func incomplete_beta(x_val: float, a: float, b: float) -> float:
 # Direct Beta Function (avoid recomputing logs if gamma_function is directly available and stable)
 # For use in incomplete_beta if the exp(log_gamma sum) is problematic or for direct calls.
 static func log_beta_function_direct(a: float, b: float) -> float:
-	assert(a > 0.0 and b > 0.0, "Parameters a and b must be positive for Beta function.")
+	if not (a > 0.0 and b > 0.0):
+		push_error("Parameters a and b must be positive for Beta function. Received a=%s, b=%s" % [a, b])
+		return NAN
 	return log_gamma(a) + log_gamma(b) - log_gamma(a+b)
 
 
@@ -207,8 +227,12 @@ static func log_beta_function_direct(a: float, b: float) -> float:
 # IMPLEMENTATION NOTE: Uses simplified series expansion method for basic functionality.
 # For high-precision applications, consider implementing continued fractions method.
 static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
-	assert(a > 0.0, "Shape parameter a must be positive for Incomplete Gamma function.")
-	assert(z >= 0.0, "Parameter z must be non-negative for Lower Incomplete Gamma.")
+	if not (a > 0.0):
+		push_error("Shape parameter a must be positive for Incomplete Gamma function. Received: %s" % a)
+		return NAN
+	if not (z >= 0.0):
+		push_error("Parameter z must be non-negative for Lower Incomplete Gamma. Received: %s" % z)
+		return NAN
 
 	if z == 0.0:
 		return 0.0

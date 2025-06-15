@@ -77,13 +77,13 @@ jobs:
             exit 1
           fi
           
-          if [[ ! -f "addons/godot-stat-math/stat_math.gd" ]]; then
-            echo "❌ Missing main stat_math.gd file"
+          if [[ ! -f "addons/godot-stat-math/godot_stat_math.gd" ]]; then
+            echo "❌ Missing main godot_stat_math.gd file"
             exit 1
           fi
           
           # Validate plugin.cfg format
-          if ! grep -q "script=\"stat_math.gd\"" addons/godot-stat-math/plugin.cfg; then
+          if ! grep -q "script=\"godot_stat_math.gd\"" addons/godot-stat-math/plugin.cfg; then
             echo "❌ plugin.cfg missing or malformed script reference"
             exit 1
           fi

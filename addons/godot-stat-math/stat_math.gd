@@ -83,7 +83,7 @@ func _initialize_rng() -> void:
 	else:
 		# If the global var exists but is not an int, or doesn't exist (get_setting returns default)
 		if ProjectSettings.has_setting(GODOT_STAT_MATH_SEED_VARIABLE_NAME):
-			printerr("StatMath: Global variable 'godot_stat_math_seed' is set but not an integer. Using default seed: %d." % _default_seed)
+			push_error("Global variable 'godot_stat_math_seed' is set but not an integer. Received type: %s. Using default seed: %d." % [typeof(global_seed_value), _default_seed])
 		else:
 			print("StatMath: No global seed 'godot_stat_math_seed' found or it's not an integer. Using default seed (0 means random)." % str(_default_seed))
 		seed_to_use = _default_seed

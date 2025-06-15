@@ -77,8 +77,9 @@ func test_generate_samples_unified_interface_edge_cases() -> void:
 	assert_int((zero_nd as Array).size()).is_equal(0)
 	
 	# Test invalid dimensions
-	var invalid_dims: Variant = StatMath.SamplingGen.generate_samples(5, 0)
-	assert_bool(invalid_dims == null).is_true()
+	var test_invalid_dims: Callable = func():
+		StatMath.SamplingGen.generate_samples(5, 0)
+	await assert_error(test_invalid_dims).is_push_error("dimensions must be >= 1. Received: 0")
 
 
 # --- N-DIMENSIONAL GENERATION TESTS ---
@@ -585,18 +586,19 @@ func test_sample_indices_seeded_reproducibility() -> void:
 
 func test_sample_indices_parameter_validation() -> void:
 	# Test negative draw_count
-	var invalid_draw: Array[int] = StatMath.SamplingGen.sample_indices(10, -1)
-	assert_int(invalid_draw.size()).is_equal(0)
+	var test_negative_draw: Callable = func():
+		StatMath.SamplingGen.sample_indices(10, -1)
+	await assert_error(test_negative_draw).is_push_error("draw_count cannot be negative. Received: -1")
 	
 	# Test negative population_size
-	var invalid_pop: Array[int] = StatMath.SamplingGen.sample_indices(-10, 5)
-	assert_int(invalid_pop.size()).is_equal(0)
+	var test_negative_pop: Callable = func():
+		StatMath.SamplingGen.sample_indices(-10, 5)
+	await assert_error(test_negative_pop).is_push_error("population_size cannot be negative. Received: -10")
 	
 	# Test draw_count > population_size for without replacement
-	var invalid_without_replacement: Array[int] = StatMath.SamplingGen.sample_indices(
-		5, 10, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
-	)
-	assert_int(invalid_without_replacement.size()).is_equal(0)
+	var test_invalid_without_replacement: Callable = func():
+		StatMath.SamplingGen.sample_indices(5, 10, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES)
+	await assert_error(test_invalid_without_replacement).is_push_error("Without replacement, draw_count cannot exceed population_size. Received draw_count=10, population_size=5")
 	
 	# Test draw_count > population_size for with replacement (should work)
 	var valid_with_replacement: Array[int] = StatMath.SamplingGen.sample_indices(

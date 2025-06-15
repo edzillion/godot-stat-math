@@ -9,7 +9,9 @@ extends RefCounted
 # Calculates the probability that a random variable from a uniform distribution
 # on the interval [a, b] is less than or equal to x.
 static func uniform_cdf(x: float, a: float, b: float) -> float:
-	assert(a <= b, "Parameter a must be less than or equal to b for Uniform CDF.")
+	if not (a <= b):
+		push_error("Parameter a must be less than or equal to b for Uniform CDF. Received a=%s, b=%s" % [a, b])
+		return NAN
 	if x < a:
 		return 0.0
 	if x >= b: # If x is b or greater, CDF is 1.0
@@ -22,7 +24,9 @@ static func uniform_cdf(x: float, a: float, b: float) -> float:
 # distribution with mean μ and standard deviation σ is less than or equal to x.
 # Utilizes the error function (erf) for computation.
 static func normal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
-	assert(sigma > 0.0, "Standard deviation (sigma) must be positive for Normal CDF.")
+	if not (sigma > 0.0):
+		push_error("Standard deviation (sigma) must be positive for Normal CDF. Received: %s" % sigma)
+		return NAN
 	var z: float = (x - mu) / sigma
 	return 0.5 * (1.0 + StatMath.ErrorFunctions.error_function(z / sqrt(2.0)))
 
@@ -32,7 +36,9 @@ static func normal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 # distribution with rate parameter λ is less than or equal to x.
 # Defined for x >= 0.
 static func exponential_cdf(x: float, lambda_param: float) -> float:
-	assert(lambda_param > 0.0, "Rate parameter (lambda_param) must be positive for Exponential CDF.")
+	if not (lambda_param > 0.0):
+		push_error("Rate parameter (lambda_param) must be positive for Exponential CDF. Received: %s" % lambda_param)
+		return NAN
 	if x <= 0.0:
 		return 0.0
 	return 1.0 - exp(-lambda_param * x)
@@ -43,7 +49,9 @@ static func exponential_cdf(x: float, lambda_param: float) -> float:
 # with shape parameters α and β is less than or equal to x.
 # Relies on the regularized incomplete beta function.
 static func beta_cdf(x: float, alpha: float, beta_param: float) -> float:
-	assert(alpha > 0.0 and beta_param > 0.0, "Shape parameters (alpha, beta_param) must be positive for Beta CDF.")
+	if not (alpha > 0.0 and beta_param > 0.0):
+		push_error("Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=%s, beta_param=%s" % [alpha, beta_param])
+		return NAN
 	if x <= 0.0:
 		return 0.0
 	if x >= 1.0:
@@ -56,7 +64,9 @@ static func beta_cdf(x: float, alpha: float, beta_param: float) -> float:
 # with shape parameter k and scale parameter θ is less than or equal to x.
 # Relies on the regularized lower incomplete gamma function.
 static func gamma_cdf(x: float, k_shape: float, theta_scale: float) -> float: # Renamed k, theta
-	assert(k_shape > 0.0 and theta_scale > 0.0, "Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF.")
+	if not (k_shape > 0.0 and theta_scale > 0.0):
+		push_error("Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=%s, theta_scale=%s" % [k_shape, theta_scale])
+		return NAN
 	if x <= 0.0:
 		return 0.0
 	
@@ -77,7 +87,9 @@ static func gamma_cdf(x: float, k_shape: float, theta_scale: float) -> float: # 
 # with k degrees of freedom is less than or equal to x.
 # This is a special case of the gamma distribution.
 static func chi_square_cdf(x: float, k_df: float) -> float:
-	assert(k_df > 0.0, "Degrees of freedom (k_df) must be positive for Chi-Square CDF.")
+	if not (k_df > 0.0):
+		push_error("Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: %s" % k_df)
+		return NAN
 	if x <= 0.0: # Chi-square variable must be non-negative
 		return 0.0
 	# Chi-square with k_df degrees of freedom is Gamma(shape=k_df/2, scale=2)
@@ -89,7 +101,9 @@ static func chi_square_cdf(x: float, k_df: float) -> float:
 # with d1 and d2 degrees of freedom is less than or equal to x.
 # Relies on the regularized incomplete beta function.
 static func f_cdf(x: float, d1_df: float, d2_df: float) -> float: # Renamed d1, d2
-	assert(d1_df > 0.0 and d2_df > 0.0, "Degrees of freedom (d1_df, d2_df) must be positive for F-Distribution CDF.")
+	if not (d1_df > 0.0 and d2_df > 0.0):
+		push_error("Degrees of freedom (d1_df, d2_df) must be positive for F-Distribution CDF. Received d1_df=%s, d2_df=%s" % [d1_df, d2_df])
+		return NAN
 	if x <= 0.0:
 		return 0.0
 	
@@ -102,7 +116,9 @@ static func f_cdf(x: float, d1_df: float, d2_df: float) -> float: # Renamed d1, 
 # with ν (nu) degrees of freedom is less than or equal to x.
 # Relies on the regularized incomplete beta function.
 static func t_cdf(x_val: float, df_nu: float) -> float: # Renamed x, df
-	assert(df_nu > 0.0, "Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF.")
+	if not (df_nu > 0.0):
+		push_error("Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: %s" % df_nu)
+		return NAN
 	
 	var t_squared: float = x_val * x_val
 	var z_val: float = df_nu / (df_nu + t_squared)
@@ -118,8 +134,12 @@ static func t_cdf(x_val: float, df_nu: float) -> float: # Renamed x, df
 # Bernoulli trials, each with a success probability of p.
 # This is a sum of PMF values.
 static func binomial_cdf(k_successes: int, n_trials: int, p_prob: float) -> float:
-	assert(n_trials >= 0, "Number of trials (n_trials) must be non-negative.")
-	assert(p_prob >= 0.0 and p_prob <= 1.0, "Probability (p_prob) must be between 0.0 and 1.0.")
+	if not (n_trials >= 0):
+		push_error("Number of trials (n_trials) must be non-negative. Received: %s" % n_trials)
+		return NAN
+	if not (p_prob >= 0.0 and p_prob <= 1.0):
+		push_error("Probability (p_prob) must be between 0.0 and 1.0. Received: %s" % p_prob)
+		return NAN
 	
 	if k_successes < 0:
 		return 0.0
@@ -137,7 +157,9 @@ static func binomial_cdf(k_successes: int, n_trials: int, p_prob: float) -> floa
 # of time or space, given an average rate λ of events.
 # This is a sum of PMF values.
 static func poisson_cdf(k_events: int, lambda_param: float) -> float:
-	assert(lambda_param >= 0.0, "Rate parameter (lambda_param) must be non-negative for Poisson CDF.")
+	if not (lambda_param >= 0.0):
+		push_error("Rate parameter (lambda_param) must be non-negative for Poisson CDF. Received: %s" % lambda_param)
+		return NAN
 	
 	if k_events < 0:
 		return 0.0
@@ -153,7 +175,9 @@ static func poisson_cdf(k_events: int, lambda_param: float) -> float:
 # Bernoulli trials occurs on or before the k-th trial.
 # Assumes k is the number of trials (k >= 1).
 static func geometric_cdf(k_trials: int, p_prob: float) -> float:
-	assert(p_prob > 0.0 and p_prob <= 1.0, "Success probability (p_prob) must be in (0,1].")
+	if not (p_prob > 0.0 and p_prob <= 1.0):
+		push_error("Success probability (p_prob) must be in (0,1]. Received: %s" % p_prob)
+		return NAN
 	
 	if k_trials < 1: # First success cannot occur before the 1st trial.
 		return 0.0
@@ -165,8 +189,12 @@ static func geometric_cdf(k_trials: int, p_prob: float) -> float:
 # in a series of independent Bernoulli trials.
 # This is a sum of PMF values.
 static func negative_binomial_cdf(k_trials: int, r_successes: int, p_prob: float) -> float:
-	assert(r_successes > 0, "Number of successes (r_successes) must be positive.")
-	assert(p_prob > 0.0 and p_prob <= 1.0, "Success probability (p_prob) must be in (0,1].")
+	if not (r_successes > 0):
+		push_error("Number of successes (r_successes) must be positive. Received: %s" % r_successes)
+		return NAN
+	if not (p_prob > 0.0 and p_prob <= 1.0):
+		push_error("Success probability (p_prob) must be in (0,1]. Received: %s" % p_prob)
+		return NAN
 	
 	if k_trials < r_successes: # Cannot have r successes in fewer than r trials.
 		return 0.0
@@ -187,8 +215,12 @@ static func negative_binomial_cdf(k_trials: int, r_successes: int, p_prob: float
 #   shape_param: float - The shape parameter (controls tail heaviness, must be > 0.0).
 # Returns: float - The cumulative probability P(X <= x).
 static func pareto_cdf(x: float, scale_param: float, shape_param: float) -> float:
-	assert(scale_param > 0.0, "Scale parameter must be positive for Pareto CDF.")
-	assert(shape_param > 0.0, "Shape parameter must be positive for Pareto CDF.")
+	if not (scale_param > 0.0):
+		push_error("Scale parameter must be positive for Pareto CDF. Received: %s" % scale_param)
+		return NAN
+	if not (shape_param > 0.0):
+		push_error("Shape parameter must be positive for Pareto CDF. Received: %s" % shape_param)
+		return NAN
 	
 	if x < scale_param:
 		return 0.0  # Pareto distribution has support [scale, +∞)
@@ -211,8 +243,12 @@ static func pareto_cdf(x: float, scale_param: float, shape_param: float) -> floa
 #   shape_param: float - The shape parameter k (controls distribution shape, must be > 0.0).
 # Returns: float - The cumulative probability P(X <= x).
 static func weibull_cdf(x: float, scale_param: float, shape_param: float) -> float:
-	assert(scale_param > 0.0, "Scale parameter must be positive for Weibull CDF.")
-	assert(shape_param > 0.0, "Shape parameter must be positive for Weibull CDF.")
+	if not (scale_param > 0.0):
+		push_error("Scale parameter must be positive for Weibull CDF. Received: %s" % scale_param)
+		return NAN
+	if not (shape_param > 0.0):
+		push_error("Shape parameter must be positive for Weibull CDF. Received: %s" % shape_param)
+		return NAN
 	
 	if x <= 0.0:
 		return 0.0  # Weibull distribution has support [0, +∞)
