@@ -1,0 +1,59 @@
+name: "Verify Develop"
+
+on:
+  pull_request:
+    branches: ["develop"]
+    types: [opened, reopened, synchronize]
+
+env:
+  VERSION_FILE: project.godot
+  VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
+  GODOT_VERSION: 4.4
+
+jobs:
+  run-gdunit-tests:
+    runs-on: ubuntu-22.04
+    permissions:
+      checks: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "${{ env.GODOT_VERSION }}"
+          paths: "res://addons/godot-stat-math/tests"
+
+  validate-addon-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate addon structure
+        run: |
+          echo "Validating addon structure..."
+          
+          # Check required files exist
+          if [[ ! -f "addons/godot-stat-math/plugin.cfg" ]]; then
+            echo "❌ Missing plugin.cfg"
+            exit 1
+          fi
+          
+          if [[ ! -f "addons/godot-stat-math/godot_stat_math.gd" ]]; then
+            echo "❌ Missing main godot_stat_math.gd file"
+            exit 1
+          fi
+          
+          # Validate plugin.cfg format
+          if ! grep -q "script=\"godot_stat_math.gd\"" addons/godot-stat-math/plugin.cfg; then
+            echo "❌ plugin.cfg missing or malformed script reference"
+            exit 1
+          fi
+          
+          echo "✅ Addon structure validation passed"

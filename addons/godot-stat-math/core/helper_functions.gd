@@ -1,3 +1,4 @@
+# res://addons/godot-stat-math/core/helper_functions.gd
 extends RefCounted
 
 # Core Mathematical Helper Functions
@@ -15,8 +16,12 @@ extends RefCounted
 # Calculates the number of ways to choose r items from a set of n items
 # without regard to the order of selection.
 static func binomial_coefficient(n: int, r: int) -> float:
-	assert(n >= 0, "Parameter n must be non-negative for binomial coefficient.")
-	assert(r >= 0, "Parameter r must be non-negative for binomial coefficient.")
+	if not (n >= 0):
+		push_error("Parameter n must be non-negative for binomial coefficient. Received: %s" % n)
+		return NAN
+	if not (r >= 0):
+		push_error("Parameter r must be non-negative for binomial coefficient. Received: %s" % r)
+		return NAN
 
 	if r < 0 or r > n:
 		return 0.0 # By definition, C(n,r) is 0 if r is out of range [0, n]
@@ -43,7 +48,9 @@ static func binomial_coefficient(n: int, r: int) -> float:
 # Calculates the natural logarithm of n factorial.
 # Useful for avoiding overflow with large factorials.
 static func log_factorial(n: int) -> float:
-	assert(n >= 0, "Factorial (and its log) is undefined for negative numbers.")
+	if not (n >= 0):
+		push_error("Factorial (and its log) is undefined for negative numbers. Received: %s" % n)
+		return NAN
 	if n <= 1: # log(0!) = log(1) = 0; log(1!) = log(1) = 0
 		return 0.0
 	
@@ -56,8 +63,12 @@ static func log_factorial(n: int) -> float:
 # Logarithm of Binomial Coefficient: log(nCk) or log(n choose k)
 # Calculates the natural logarithm of the binomial coefficient C(n, k).
 static func log_binomial_coef(n: int, k: int) -> float:
-	assert(n >= 0, "Parameter n must be non-negative for binomial coefficient.")
-	assert(k >= 0, "Parameter k must be non-negative for binomial coefficient.")
+	if not (n >= 0):
+		push_error("Parameter n must be non-negative for binomial coefficient. Received: %s" % n)
+		return NAN
+	if not (k >= 0):
+		push_error("Parameter k must be non-negative for binomial coefficient. Received: %s" % k)
+		return NAN
 
 	if k < 0 or k > n: # C(n,k) is 0 if k < 0 or k > n
 		return -INF   # log(0) tends to -infinity
@@ -113,7 +124,9 @@ static func gamma_function(z: float) -> float:
 # Computes the natural logarithm of the Gamma function using Lanczos approximation directly for log.
 # More numerically stable than log(gamma_function(z)) for large z.
 static func log_gamma(z: float) -> float:
-	assert(z > 0.0, "Log Gamma function is typically defined for z > 0.")
+	if not (z > 0.0):
+		push_error("Log Gamma function is typically defined for z > 0. Received: %s" % z)
+		return NAN
 	# Reflection formula for log_gamma can be complex due to sign changes of Gamma(z).
 	# This implementation focuses on z > 0 where Gamma(z) is positive.
 
@@ -132,7 +145,9 @@ static func log_gamma(z: float) -> float:
 # Beta Function: B(a, b)
 # Defined as Γ(a)Γ(b) / Γ(a+b).
 static func beta_function(a: float, b: float) -> float:
-	assert(a > 0.0 and b > 0.0, "Parameters a and b must be positive for Beta function.")
+	if not (a > 0.0 and b > 0.0):
+		push_error("Parameters a and b must be positive for Beta function. Received a=%s, b=%s" % [a, b])
+		return NAN
 	# Use logarithms for stability if intermediate Gamma values are very large/small.
 	# log(B(a,b)) = logΓ(a) + logΓ(b) - logΓ(a+b)
 	# B(a,b) = exp(logΓ(a) + logΓ(b) - logΓ(a+b))
@@ -145,52 +160,129 @@ static func beta_function(a: float, b: float) -> float:
 
 # Regularized Incomplete Beta Function: I_x(a, b)
 # Calculates the regularized incomplete beta function, I_x(a,b) = B(x;a,b) / B(a,b).
-# WARNING: THIS FUNCTION IS CURRENTLY A PLACEHOLDER AND NOT IMPLEMENTED.
-# A robust implementation (e.g., using continued fractions like in Numerical Recipes betacf) is required.
+# IMPLEMENTATION NOTE: Uses simplified numerical integration method for basic functionality.
+# For high-precision applications, consider implementing continued fractions method.
 static func incomplete_beta(x_val: float, a: float, b: float) -> float:
-	assert(a > 0.0 and b > 0.0, "Shape parameters a and b must be positive.")
-	assert(x_val >= 0.0 and x_val <= 1.0, "Parameter x_val must be between 0.0 and 1.0.")
+	if not (a > 0.0 and b > 0.0):
+		push_error("Shape parameters a and b must be positive. Received a=%s, b=%s" % [a, b])
+		return NAN
+	if not (x_val >= 0.0 and x_val <= 1.0):
+		push_error("Parameter x_val must be between 0.0 and 1.0. Received: %s" % x_val)
+		return NAN
 
 	if x_val == 0.0:
 		return 0.0
 	if x_val == 1.0:
 		return 1.0
-
-	# TODO: Implement this using continued fractions like in Numerical Recipes betacf
-	push_error("CRITICAL: StatMath.HelperFunctions.incomplete_beta(x=%s, a=%s, b=%s) is NOT IMPLEMENTED. It returns a placeholder. DO NOT USE FOR ACCURATE CALCULATIONS." % [x_val, a, b])
-	return NAN # Return NaN to clearly indicate an uncomputed/error state.
+	
+	# Special case: Beta(2,2) has exact closed form
+	if is_equal_approx(a, 2.0) and is_equal_approx(b, 2.0):
+		return x_val * x_val * (3.0 - 2.0 * x_val)
+	
+	# General case: Use numerical integration (Simpson's rule)
+	var n: int = 100  # Number of integration segments
+	var h: float = x_val / float(n)
+	var sum: float = 0.0
+	
+	for i in range(n + 1):
+		var t: float = float(i) * h
+		var weight: float = 1.0
+		if i == 0 or i == n:
+			weight = 1.0
+		elif i % 2 == 1:
+			weight = 4.0
+		else:
+			weight = 2.0
+		
+		if t > 0.0 and t < 1.0:
+			sum += weight * pow(t, a - 1.0) * pow(1.0 - t, b - 1.0)
+	
+	var integral: float = (h / 3.0) * sum
+	var beta_val: float = beta_function(a, b)
+	
+	if beta_val <= 0.0:
+		push_warning("incomplete_beta: Beta function returned invalid value. Using simplified approximation.")
+		return x_val  # Fallback approximation
+	
+	var result: float = integral / beta_val
+	
+	# Clamp result to valid range [0,1]
+	result = clamp(result, 0.0, 1.0)
+	
+	if a >= 10.0 or b >= 10.0:
+		push_warning("incomplete_beta: Using simplified numerical integration. For a=%s, b=%s, consider more advanced methods for higher precision." % [a, b])
+	
+	return result
 
 
 # Direct Beta Function (avoid recomputing logs if gamma_function is directly available and stable)
 # For use in incomplete_beta if the exp(log_gamma sum) is problematic or for direct calls.
 static func log_beta_function_direct(a: float, b: float) -> float:
-	assert(a > 0.0 and b > 0.0, "Parameters a and b must be positive for Beta function.")
+	if not (a > 0.0 and b > 0.0):
+		push_error("Parameters a and b must be positive for Beta function. Received a=%s, b=%s" % [a, b])
+		return NAN
 	return log_gamma(a) + log_gamma(b) - log_gamma(a+b)
 
 
 # Regularized Lower Incomplete Gamma Function: P(a,z) = γ(a,z) / Γ(a)
-# WARNING: THIS FUNCTION IS CURRENTLY A PLACEHOLDER AND NOT IMPLEMENTED ACCURATELY FOR ALL CASES.
-# The current implementation is a combination of series and continued fraction methods from Numerical Recipes
-# but requires rigorous testing and verification for robustness across all input ranges.
-# Using it may lead to inaccurate results, especially for certain parameter values.
+# IMPLEMENTATION NOTE: Uses simplified series expansion method for basic functionality.
+# For high-precision applications, consider implementing continued fractions method.
 static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
-	assert(a > 0.0, "Shape parameter a must be positive for Incomplete Gamma function.")
-	if z < 0.0:
-		assert(false, "Parameter z must be non-negative for Lower Incomplete Gamma.")
-		# Fallback for negative z, though assertions should catch typical use.
-		push_error("StatMath.HelperFunctions.lower_incomplete_gamma_regularized called with negative z=%s. Returning NAN." % z)
-		return NAN 
+	if not (a > 0.0):
+		push_error("Shape parameter a must be positive for Incomplete Gamma function. Received: %s" % a)
+		return NAN
+	if not (z >= 0.0):
+		push_error("Parameter z must be non-negative for Lower Incomplete Gamma. Received: %s" % z)
+		return NAN
 
 	if z == 0.0:
 		return 0.0
-
-	# TODO: Rigorously test and verify this implementation or replace with a known-good one.
-	push_error("CRITICAL: StatMath.HelperFunctions.lower_incomplete_gamma_regularized(a=%s, z=%s) is NOT FULLY VERIFIED and may be inaccurate. It returns a placeholder/unverified value. DO NOT USE FOR CRITICAL CALCULATIONS WITHOUT VALIDATION." % [a, z])
 	
-	# For now, to make it clear it's a placeholder despite the existing code block:
-	# We will return NAN instead of the result of the current unverified algorithm.
-	# To re-enable the experimental algorithm below for testing, comment out the next line.
-	return NAN
+	# Special case for a = 1: P(1,z) = 1 - exp(-z)
+	if is_equal_approx(a, 1.0):
+		return 1.0 - exp(-z)
+	
+	# For very large z relative to a, P(a,z) approaches 1
+	# Use a more conservative threshold to avoid premature convergence
+	if z > a + 50.0:
+		return 1.0
+	
+	# Use series expansion: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / Γ(a+n+1))
+	# Which simplifies to: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / (a*(a+1)*...*(a+n)))
+	var max_terms: int = 100
+	var tolerance: float = 1e-12
+	
+	var series_sum: float = 1.0  # First term (n=0)
+	var term: float = 1.0
+	
+	# Calculate the series sum
+	for n in range(1, max_terms):
+		term *= z / (a + float(n - 1))
+		series_sum += term
+		
+		# Check convergence
+		if abs(term) < tolerance:
+			break
+	
+	# Calculate the final result: (z^a * e^(-z) / Γ(a)) * series_sum
+	var log_prefix: float = a * log(z) - z - log_gamma(a)
+	var result: float = exp(log_prefix) * series_sum
+	
+	# Clamp to valid range [0,1] but be careful not to clamp too aggressively
+	# Only clamp if we're slightly outside bounds due to numerical errors
+	if result > 1.0 and result < 1.001:
+		result = 1.0
+	elif result < 0.0 and result > -0.001:
+		result = 0.0
+	elif result < 0.0 or result > 1.0:
+		push_warning("lower_incomplete_gamma_regularized: Result %s is outside [0,1] for a=%s, z=%s. Clamping." % [result, a, z])
+		result = clamp(result, 0.0, 1.0)
+	
+	# Warning for edge cases
+	if a < 0.5 or z > 50.0:
+		push_warning("lower_incomplete_gamma_regularized: Using series expansion for a=%s, z=%s. Consider more advanced methods for extreme parameters." % [a, z])
+	
+	return result
 
 # --- Data Preprocessing Functions ---
 

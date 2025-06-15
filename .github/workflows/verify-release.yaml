@@ -1,0 +1,101 @@
+name: "Verify Release"
+
+on:
+  pull_request:
+    branches: ["release"]
+    types: [opened, reopened, synchronize]
+
+env:
+  VERSION_FILE: project.godot
+  VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
+
+jobs:
+  check-version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Extract old version string
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version-old
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+
+      - name: Extract new version string
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version-new
+
+      - name: Check semantic version bump
+        uses: CapsCollective/version-actions/check-version-bump@v1.0
+        with:
+          new-version: ${{ steps.extract-version-new.outputs.version-string }}
+          old-version: ${{ steps.extract-version-old.outputs.version-string }}
+
+  validate-addon-structure:
+    needs: check-version-bump
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate addon structure
+        run: |
+          echo "Validating addon structure..."
+          
+          # Check required files exist
+          if [[ ! -f "addons/godot-stat-math/plugin.cfg" ]]; then
+            echo "❌ Missing plugin.cfg"
+            exit 1
+          fi
+          
+          if [[ ! -f "addons/godot-stat-math/stat_math.gd" ]]; then
+            echo "❌ Missing main stat_math.gd file"
+            exit 1
+          fi
+          
+          # Validate plugin.cfg format
+          if ! grep -q "script=\"godot_stat_math.gd\"" addons/godot-stat-math/plugin.cfg; then
+            echo "❌ plugin.cfg missing or malformed script reference"
+            exit 1
+          fi
+          
+          echo "✅ Addon structure validation passed"
+
+  run-tests:
+    needs: [check-version-bump, validate-addon-structure]
+    runs-on: ubuntu-22.04
+    permissions:
+      checks: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests"
+
+      - name: Generate verification summary
+        run: |
+          echo "## ✅ Release Verification Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
+          echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests**: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 Ready to merge and release!" >> $GITHUB_STEP_SUMMARY

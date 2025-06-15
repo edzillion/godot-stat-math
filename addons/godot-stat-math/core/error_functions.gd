@@ -1,3 +1,4 @@
+# res://addons/godot-stat-math/core/error_functions.gd
 extends RefCounted
 
 # Error Functions and their Inverses
@@ -31,7 +32,9 @@ static func complementary_error_function(x_param: float) -> float:
 # The input y must be in the range [-1, 1].
 # For y = -1 or y = 1, it returns -INF or INF respectively.
 static func error_function_inverse(y: float) -> float:
-	assert(y >= -1.0 and y <= 1.0, "Input y for erfinv must be in the range [-1, 1].")
+	if not (y >= -1.0 and y <= 1.0):
+		push_error("Input y for erfinv must be in the range [-1, 1]. Received: %s" % y)
+		return NAN
 	if y == -1.0:
 		return -INF
 	if y == 1.0:
@@ -44,7 +47,9 @@ static func error_function_inverse(y: float) -> float:
 # The input y must be in the range [0, 2].
 # For y = 0 or y = 2, it returns INF or -INF respectively.
 static func complementary_error_function_inverse(y: float) -> float:
-	assert(y >= 0.0 and y <= 2.0, "Input y for erfcinv must be in the range [0, 2].")
+	if not (y >= 0.0 and y <= 2.0):
+		push_error("Input y for erfcinv must be in the range [0, 2]. Received: %s" % y)
+		return NAN
 	if y == 0.0:
 		return INF
 	if y == 2.0:

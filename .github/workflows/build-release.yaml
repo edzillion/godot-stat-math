@@ -1,0 +1,103 @@
+name: "Build Release"
+
+on:
+  push:
+    branches: ["release"]
+
+env:
+  VERSION_FILE: project.godot
+  VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      actions: read
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version
+
+      - name: Extract release notes from CHANGELOG
+        run: |
+          # Extract release notes for current version from CHANGELOG.md
+          VERSION="v${{ steps.extract-version.outputs.version-string }}"
+          
+          # Find the section for this version and extract until next version or end
+          awk "/^## \[.*${{ steps.extract-version.outputs.version-string }}\]/{flag=1; next} /^## \[.*\]/{flag=0} flag" CHANGELOG.md > release_notes.md
+          
+          # If no specific version found, create basic notes
+          if [ ! -s release_notes.md ]; then
+            echo "🎲 **Godot Stat Math Alpha Release**" > release_notes.md
+            echo "" >> release_notes.md
+            echo "A comprehensive statistical functions addon for Godot 4.0+" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "⚠️ **Alpha Software**: API may change without notice." >> release_notes.md
+            echo "" >> release_notes.md
+            echo "## Installation" >> release_notes.md
+            echo "1. Download the addon ZIP file below" >> release_notes.md
+            echo "2. Extract to your project's \`addons/\` folder" >> release_notes.md
+            echo "3. Enable 'Godot Stat Math' in Project Settings → Plugins" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "## Quick Start" >> release_notes.md
+            echo "\`\`\`gdscript" >> release_notes.md
+            echo "# Access statistical functions via StatMath singleton" >> release_notes.md
+            echo "var random_val: float = StatMath.Distributions.randf_normal(0.0, 1.0)" >> release_notes.md
+            echo "var mean_val: float = StatMath.BasicStats.mean([1.0, 2.0, 3.0, 4.0, 5.0])" >> release_notes.md
+            echo "var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples(100, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)" >> release_notes.md
+            echo "\`\`\`" >> release_notes.md
+          fi
+          
+          echo "Release notes extracted:"
+          cat release_notes.md
+
+      - name: Run GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests"
+
+      - name: Create addon release zip
+        run: |
+          echo "Creating release zip for Godot Stat Math v${{ steps.extract-version.outputs.version-string }}"
+          cd addons
+          zip -r ../godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip godot-stat-math/
+          
+          # Verify zip contents
+          echo "Release zip contents:"
+          zipinfo ../godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip
+          
+          # Get file size for summary
+          FILE_SIZE=$(stat -c%s ../godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip)
+          echo "Zip file size: ${FILE_SIZE} bytes"
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ steps.extract-version.outputs.version-string }}
+          name: Godot Stat Math v${{ steps.extract-version.outputs.version-string }}
+          bodyFile: release_notes.md
+          artifacts: "godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip"
+          draft: false
+          prerelease: true
+          generateReleaseNotes: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate build summary
+        run: |
+          echo "## 🚀 Release Created Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: v${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag**: v${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact**: godot-stat-math-v${{ steps.extract-version.outputs.version-string }}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 Release is now available on the [Releases page](https://github.com/${{ github.repository }}/releases)" >> $GITHUB_STEP_SUMMARY

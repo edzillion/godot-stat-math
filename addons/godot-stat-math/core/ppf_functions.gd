@@ -1,3 +1,4 @@
+# res://addons/godot-stat-math/core/ppf_functions.gd
 extends RefCounted
 
 # Inverse Cumulative Distribution Functions (ICDF), also known as Percentile Point Functions (PPF)
@@ -19,8 +20,8 @@ static func uniform_ppf(p: float, a: float, b: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
 		return NAN
-	if b < a:
-		push_error("Parameter b must be greater than or equal to a. Received a=%s, b=%s" % [a,b])
+	if not (b >= a):
+		push_error("Parameter b must be greater than or equal to a. Received a=%s, b=%s" % [a, b])
 		return NAN
 	
 	return a + p * (b - a)
@@ -39,7 +40,7 @@ static func normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
 		return NAN
-	if sigma <= 0.0:
+	if not (sigma > 0.0):
 		push_error("Standard deviation sigma must be positive. Received: %s" % sigma)
 		return NAN
 	
@@ -119,7 +120,7 @@ static func exponential_ppf(p: float, lambda_param: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
 		return NAN
-	if lambda_param <= 0.0:
+	if not (lambda_param > 0.0):
 		push_error("Rate lambda_param must be positive. Received: %s" % lambda_param)
 		return NAN
 	
@@ -143,10 +144,10 @@ static func beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
 		return NAN
-	if alpha_shape <= 0.0:
+	if not (alpha_shape > 0.0):
 		push_error("Shape parameter alpha_shape must be positive. Received: %s" % alpha_shape)
 		return NAN
-	if beta_shape <= 0.0:
+	if not (beta_shape > 0.0):
 		push_error("Shape parameter beta_shape must be positive. Received: %s" % beta_shape)
 		return NAN
 	
@@ -155,6 +156,17 @@ static func beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float:
 		return 0.0
 	if p == 1.0:
 		return 1.0
+	
+	# Special case: Beta(1,1) is Uniform(0,1), so PPF(p) = p
+	if is_equal_approx(alpha_shape, 1.0) and is_equal_approx(beta_shape, 1.0):
+		return p
+	
+	# Special case: Beta(2,2) has exact PPF formula
+	# CDF: F(x) = x²(3-2x), so PPF requires solving p = x²(3-2x) for x
+	# This is a cubic equation: 2x³ - 3x² + p = 0
+	# Using Newton's method with analytical derivative for fast convergence
+	if is_equal_approx(alpha_shape, 2.0) and is_equal_approx(beta_shape, 2.0):
+		return _beta_2_2_ppf_fast(p)
 	
 	# Use binary search
 	var lower_bound := 0.0
@@ -193,6 +205,49 @@ static func beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float:
 
 	return x
 
+
+## Fast analytical PPF for Beta(2,2) distribution
+## Solves the cubic equation p = x²(3-2x) using Newton's method
+## This is MUCH faster than binary search for the common Beta(2,2) case
+static func _beta_2_2_ppf_fast(p: float) -> float:
+	# For Beta(2,2), CDF is F(x) = x²(3-2x) = 3x² - 2x³
+	# We need to solve: p = 3x² - 2x³ for x
+	# Rearranged: 2x³ - 3x² + p = 0
+	
+	# Newton's method: f(x) = 2x³ - 3x² + p, f'(x) = 6x² - 6x = 6x(x-1)
+	var x: float = 0.5  # Good initial guess for Beta(2,2) - symmetric around 0.5
+	
+	# Special cases for speed
+	if p <= 0.001:
+		return p / 3.0  # Linear approximation near 0
+	elif p >= 0.999:
+		return 1.0 - (1.0 - p) / 3.0  # Linear approximation near 1
+	
+	# Newton's method iterations
+	for i in range(6):  # Usually converges in 3-4 iterations
+		var f_x: float = 2.0 * x * x * x - 3.0 * x * x + p
+		var df_x: float = 6.0 * x * (x - 1.0)
+		
+		# Check for convergence
+		if abs(f_x) < 1e-12:
+			break
+		
+		# Avoid division by zero (shouldn't happen for valid Beta(2,2))
+		if abs(df_x) < 1e-15:
+			break
+			
+		var x_new: float = x - f_x / df_x
+		
+		# Clamp to valid range and check convergence
+		x_new = clamp(x_new, 0.0, 1.0)
+		if abs(x_new - x) < 1e-12:
+			break
+			
+		x = x_new
+	
+	return clamp(x, 0.0, 1.0)
+
+
 # Gamma Distribution PPF: gamma_ppf(p, k_shape, theta_scale)
 # Calculates the PPF for the Gamma distribution.
 # Returns the value x such that P(X <= x) = p.
@@ -207,10 +262,10 @@ static func gamma_ppf(p: float, k_shape: float, theta_scale: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
 		return NAN
-	if k_shape <= 0.0:
+	if not (k_shape > 0.0):
 		push_error("Shape parameter k_shape must be positive. Received: %s" % k_shape)
 		return NAN
-	if theta_scale <= 0.0:
+	if not (theta_scale > 0.0):
 		push_error("Scale parameter theta_scale must be positive. Received: %s" % theta_scale)
 		return NAN
 		
@@ -298,7 +353,7 @@ static func chi_square_ppf(p: float, k_df: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
 		return NAN
-	if k_df <= 0.0:
+	if not (k_df > 0.0):
 		push_error("Degrees of freedom k_df must be positive. Received: %s" % k_df)
 		return NAN
 		
@@ -318,10 +373,10 @@ static func f_ppf(p: float, d1: float, d2: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
 		return NAN
-	if d1 <= 0.0:
+	if not (d1 > 0.0):
 		push_error("Degrees of freedom d1 must be positive. Received: %s" % d1)
 		return NAN
-	if d2 <= 0.0:
+	if not (d2 > 0.0):
 		push_error("Degrees of freedom d2 must be positive. Received: %s" % d2)
 		return NAN
 		
@@ -393,7 +448,7 @@ static func t_ppf(p: float, df: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
 		return NAN
-	if df <= 0.0:
+	if not (df > 0.0):
 		push_error("Degrees of freedom df must be positive. Received: %s" % df)
 		return NAN
 		
@@ -461,8 +516,8 @@ static func t_ppf(p: float, df: float) -> float:
 static func binomial_ppf(p: float, n: int, prob_success: float) -> int:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return -1 # Error code for int function
-	if n < 0:
+		return -1
+	if not (n >= 0):
 		push_error("Number of trials n must be non-negative. Received: %s" % n)
 		return -1
 	if not (prob_success >= 0.0 and prob_success <= 1.0):
@@ -506,8 +561,8 @@ static func binomial_ppf(p: float, n: int, prob_success: float) -> int:
 static func poisson_ppf(p: float, lambda_param: float) -> int:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
-		return -1 # Error code for int function
-	if lambda_param < 0.0: # lambda = 0 is a valid degenerate case (always 0 events)
+		return -1
+	if not (lambda_param >= 0.0):
 		push_error("Rate lambda_param must be non-negative. Received: %s" % lambda_param)
 		return -1
 
@@ -607,7 +662,7 @@ static func negative_binomial_ppf(p: float, r_successes: int, prob_success: floa
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
 		return -1
-	if r_successes <= 0:
+	if not (r_successes > 0):
 		push_error("Number of successes r_successes must be a positive integer. Received: %s" % r_successes)
 		return -1
 	if not (prob_success > 0.0 and prob_success <= 1.0):
@@ -700,7 +755,7 @@ static func discrete_histogram_ppf(p: float, values: Array, probabilities: Array
 
 	var sum_probs: float = 0.0
 	for prob_val in probabilities:
-		if prob_val < 0.0:
+		if not (prob_val >= 0.0):
 			push_error("All probabilities must be non-negative. Found: %s" % prob_val)
 			return null
 		sum_probs += prob_val
@@ -714,7 +769,7 @@ static func discrete_histogram_ppf(p: float, values: Array, probabilities: Array
 		var current_value: Variant = values[i]
 		var current_prob: float = probabilities[i]
 		
-		if current_prob < 0.0: # Should have been caught above, but as a safeguard during summation.
+		if not (current_prob >= 0.0):
 			push_error("Encountered negative probability during PPF calculation: %s" % current_prob)
 			return null
 
@@ -732,3 +787,74 @@ static func discrete_histogram_ppf(p: float, values: Array, probabilities: Array
 	# Should not be reached if initial checks pass and arrays are not empty.
 	push_error("discrete_histogram_ppf: Failed to find a value. This state should be unreachable.")
 	return null
+
+# Pareto Distribution PPF: pareto_ppf(p, scale_param, shape_param)
+# Calculates the PPF for the Pareto distribution.
+# Returns the value x such that P(X <= x) = p.
+# Uses the closed-form solution: x = scale / (1-p)^(1/shape) for 0 ≤ p < 1.
+# Parameters:
+#   p: float - The probability value (must be between 0.0 and 1.0).
+#   scale_param: float - The scale parameter (minimum possible value, must be > 0.0).
+#   shape_param: float - The shape parameter (controls tail heaviness, must be > 0.0).
+# Returns: float - The value x. Returns scale_param if p=0, INF if p=1, or NAN for invalid parameters.
+static func pareto_ppf(p: float, scale_param: float, shape_param: float) -> float:
+	if not (p >= 0.0 and p <= 1.0):
+		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+		return NAN
+	if not (scale_param > 0.0):
+		push_error("Scale parameter must be positive. Received: %s" % scale_param)
+		return NAN
+	if not (shape_param > 0.0):
+		push_error("Shape parameter must be positive. Received: %s" % shape_param)
+		return NAN
+	
+	# Handle edge cases
+	if p == 0.0:
+		return scale_param  # Minimum value of Pareto distribution
+	if p == 1.0:
+		return INF  # Pareto has infinite support on the upper end
+	
+	# Closed-form solution: PPF(p) = scale / (1-p)^(1/shape)
+	# Optimized using logarithms to avoid expensive fractional power:
+	# (1-p)^(1/shape) = exp(ln(1-p) / shape)
+	# This is exactly the inverse transform sampling formula!
+	var one_minus_p: float = 1.0 - p
+	var log_term: float = log(one_minus_p) / shape_param
+	var exp_term: float = exp(log_term)
+	
+	return scale_param / exp_term
+
+# Weibull Distribution PPF: weibull_ppf(p, scale_param, shape_param)
+# Calculates the PPF for the Weibull distribution.
+# Returns the value x such that P(X <= x) = p.
+# Uses the closed-form solution: x = λ * (-ln(1-p))^(1/k) for 0 ≤ p < 1.
+# Widely used for reliability analysis, survival modeling, and failure rate calculations.
+# Parameters:
+#   p: float - The probability value (must be between 0.0 and 1.0).
+#   scale_param: float - The scale parameter λ (characteristic life, must be > 0.0).
+#   shape_param: float - The shape parameter k (controls distribution shape, must be > 0.0).
+# Returns: float - The value x. Returns 0.0 if p=0, INF if p=1, or NAN for invalid parameters.
+static func weibull_ppf(p: float, scale_param: float, shape_param: float) -> float:
+	if not (p >= 0.0 and p <= 1.0):
+		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+		return NAN
+	if not (scale_param > 0.0):
+		push_error("Scale parameter must be positive. Received: %s" % scale_param)
+		return NAN
+	if not (shape_param > 0.0):
+		push_error("Shape parameter must be positive. Received: %s" % shape_param)
+		return NAN
+	
+	# Handle edge cases
+	if p == 0.0:
+		return 0.0  # Minimum value of Weibull distribution
+	if p == 1.0:
+		return INF  # Weibull has infinite support on the upper end
+	
+	# Closed-form solution: PPF(p) = λ * (-ln(1-p))^(1/k)
+	# This is exactly the inverse transform sampling formula!
+	var one_minus_p: float = 1.0 - p
+	var log_term: float = -log(one_minus_p)
+	var power_term: float = pow(log_term, 1.0 / shape_param)
+	
+	return scale_param * power_term

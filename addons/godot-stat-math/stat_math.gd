@@ -1,3 +1,4 @@
+# res://addons/godot-stat-math/stat_math.gd
 extends Node
 
 # --- Configuration for Random Number Generation ---
@@ -83,7 +84,7 @@ func _initialize_rng() -> void:
 	else:
 		# If the global var exists but is not an int, or doesn't exist (get_setting returns default)
 		if ProjectSettings.has_setting(GODOT_STAT_MATH_SEED_VARIABLE_NAME):
-			printerr("StatMath: Global variable 'godot_stat_math_seed' is set but not an integer. Using default seed: %d." % _default_seed)
+			push_error("Global variable 'godot_stat_math_seed' is set but not an integer. Received type: %s. Using default seed: %d." % [typeof(global_seed_value), _default_seed])
 		else:
 			print("StatMath: No global seed 'godot_stat_math_seed' found or it's not an integer. Using default seed (0 means random)." % str(_default_seed))
 		seed_to_use = _default_seed
@@ -105,8 +106,8 @@ func get_rng() -> RandomNumberGenerator:
 		_initialize_rng()
 	return _rng
 
-# Allows changing the seed of the addon's RandomNumberGenerator instance.
+# Allows changing the global seed of the addon's RandomNumberGenerator instance.
 # This will create a new RNG instance.
-func set_seed(new_seed: int) -> void:
+func set_global_seed(new_seed: int) -> void:
 	_create_and_seed_rng(new_seed)
 	print("StatMath: RNG (re)created and seed explicitly set. Effective seed: %d" % _rng.seed)

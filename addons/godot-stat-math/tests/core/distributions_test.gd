@@ -21,13 +21,13 @@ func test_randi_bernoulli_p_half() -> void:
 func test_randi_bernoulli_invalid_p_too_low() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_bernoulli(-0.1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Success probability (p) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0. Received: -0.1")
 
 
 func test_randi_bernoulli_invalid_p_too_high() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_bernoulli(1.1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Success probability (p) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0. Received: 1.1")
 
 
 # Tests for randi_binomial
@@ -56,19 +56,19 @@ func test_randi_binomial_typical_case() -> void:
 func test_randi_binomial_invalid_p_too_low() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_binomial(-0.1, 5)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Success probability (p) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0. Received: -0.1")
 
 
 func test_randi_binomial_invalid_p_too_high() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_binomial(1.1, 5)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Success probability (p) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0. Received: 1.1")
 
 
 func test_randi_binomial_invalid_n_negative() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_binomial(0.5, -1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Number of trials (n) must be non-negative.")
+	await assert_error(test_invalid_input).is_push_error("Number of trials (n) must be non-negative. Received: -1")
 
 
 # Tests for randi_geometric
@@ -96,19 +96,19 @@ func test_randi_geometric_p_very_small_expect_large_or_inf() -> void:
 func test_randi_geometric_invalid_p_zero() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_geometric(0.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Success probability (p) must be in (0,1].")
+	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be in (0,1]. Received: 0.0")
 
 
 func test_randi_geometric_invalid_p_too_low() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_geometric(-0.1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Success probability (p) must be in (0,1].")
+	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be in (0,1]. Received: -0.1")
 
 
 func test_randi_geometric_invalid_p_too_high() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_geometric(1.1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Success probability (p) must be in (0,1].")
+	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be in (0,1]. Received: 1.1")
 
 
 # Tests for randi_poisson
@@ -128,13 +128,13 @@ func test_randi_poisson_small_lambda() -> void:
 func test_randi_poisson_invalid_lambda_zero() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_poisson(0.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Rate parameter (lambda_param) must be positive.")
+	await assert_error(test_invalid_input).is_push_error("Rate parameter (lambda_param) must be positive. Received: 0.0")
 
 
 func test_randi_poisson_invalid_lambda_negative() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_poisson(-1.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Rate parameter (lambda_param) must be positive.")
+	await assert_error(test_invalid_input).is_push_error("Rate parameter (lambda_param) must be positive. Received: -1.0")
 
 
 # Tests for randi_pseudo
@@ -163,19 +163,19 @@ func test_randi_pseudo_c_param_half() -> void:
 func test_randi_pseudo_invalid_c_param_zero() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_pseudo(0.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Probability increment (c_param) must be in (0.0, 1.0].")
+	await assert_error(test_invalid_input).is_push_error("Probability increment (c_param) must be in (0.0, 1.0]. Received: 0.0")
 
 
 func test_randi_pseudo_invalid_c_param_negative() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_pseudo(-0.1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Probability increment (c_param) must be in (0.0, 1.0].")
+	await assert_error(test_invalid_input).is_push_error("Probability increment (c_param) must be in (0.0, 1.0]. Received: -0.1")
 
 
 func test_randi_pseudo_invalid_c_param_too_high() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_pseudo(1.1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Probability increment (c_param) must be in (0.0, 1.0].")
+	await assert_error(test_invalid_input).is_push_error("Probability increment (c_param) must be in (0.0, 1.0]. Received: 1.1")
 
 
 # Tests for randi_seige
@@ -208,26 +208,77 @@ func test_randi_seige_no_change_eventually_captures() -> void:
 func test_randi_seige_invalid_w_too_low() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_seige(-0.1, 0.5, 0.1, -0.1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Parameter w (win probability) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Parameter w (win probability) must be between 0.0 and 1.0. Received: -0.1")
 
 
 func test_randi_seige_invalid_w_too_high() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_seige(1.1, 0.5, 0.1, -0.1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Parameter w (win probability) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Parameter w (win probability) must be between 0.0 and 1.0. Received: 1.1")
 
 
 func test_randi_seige_invalid_c0_too_low() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_seige(0.5, -0.1, 0.1, -0.1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Parameter c_0 (initial capture probability) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Parameter c_0 (initial capture probability) must be between 0.0 and 1.0. Received: -0.1")
 
 
 func test_randi_seige_invalid_c0_too_high() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_seige(0.5, 1.1, 0.1, -0.1)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Parameter c_0 (initial capture probability) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Parameter c_0 (initial capture probability) must be between 0.0 and 1.0. Received: 1.1")
 
+
+# Tests for randi_uniform
+func test_randi_uniform_equal_bounds() -> void:
+	var val: int = 5
+	var result: int = StatMath.Distributions.randi_uniform(val, val)
+	assert_int(result).is_equal(val)
+
+func test_randi_uniform_typical_range() -> void:
+	var min_val: int = 1
+	var max_val: int = 10
+	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
+	assert_bool(result >= min_val and result <= max_val).is_true()
+
+func test_randi_uniform_negative_range() -> void:
+	var min_val: int = -10
+	var max_val: int = -1
+	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
+	assert_bool(result >= min_val and result <= max_val).is_true()
+
+func test_randi_uniform_mixed_sign_range() -> void:
+	var min_val: int = -5
+	var max_val: int = 5
+	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
+	assert_bool(result >= min_val and result <= max_val).is_true()
+
+func test_randi_uniform_single_value_range() -> void:
+	var min_val: int = 42
+	var max_val: int = 42
+	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
+	assert_int(result).is_equal(42)
+
+func test_randi_uniform_deterministic_with_seed() -> void:
+	# Test that same seed produces same results
+	StatMath.set_global_seed(123)
+	var result1: int = StatMath.Distributions.randi_uniform(1, 100)
+	
+	StatMath.set_global_seed(123)
+	var result2: int = StatMath.Distributions.randi_uniform(1, 100)
+	
+	assert_int(result1).is_equal(result2)
+
+func test_randi_uniform_invalid_min_greater_than_max() -> void:
+	var test_call: Callable = func():
+		StatMath.Distributions.randi_uniform(10, 5)
+	
+	# Test that error is logged
+	await assert_error(test_call).is_push_error("Minimum value must be less than or equal to maximum value for integer uniform distribution. Received min=10, max=5")
+	
+	# Test that sentinel value is returned
+	var result: int = StatMath.Distributions.randi_uniform(10, 5)
+	assert_int(result).is_equal(-1)
 
 # Tests for randf_uniform
 func test_randf_uniform_a_equals_b() -> void:
@@ -263,7 +314,7 @@ func test_randf_uniform_mixed_sign_range() -> void:
 func test_randf_uniform_invalid_a_greater_than_b() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_uniform(5.0, 2.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Lower bound (a) must be less than or equal to upper bound (b) for Uniform distribution.")
+	await assert_error(test_invalid_input).is_push_error("Lower bound (a) must be less than or equal to upper bound (b) for Uniform distribution. Received a=5.0, b=2.0")
 
 
 # Tests for randf_exponential
@@ -288,13 +339,13 @@ func test_randf_exponential_large_lambda() -> void:
 func test_randf_exponential_invalid_lambda_zero() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_exponential(0.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Rate parameter (lambda_param) must be positive for Exponential distribution.")
+	await assert_error(test_invalid_input).is_push_error("Rate parameter (lambda_param) must be positive for Exponential distribution. Received: 0.0")
 
 
 func test_randf_exponential_invalid_lambda_negative() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_exponential(-1.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Rate parameter (lambda_param) must be positive for Exponential distribution.")
+	await assert_error(test_invalid_input).is_push_error("Rate parameter (lambda_param) must be positive for Exponential distribution. Received: -1.0")
 
 
 # Tests for randf_erlang
@@ -313,25 +364,25 @@ func test_randf_erlang_k_one() -> void:
 func test_randf_erlang_invalid_k_zero() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_erlang(0, 2.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Shape parameter (k) must be a positive integer for Erlang distribution.")
+	await assert_error(test_invalid_input).is_push_error("Shape parameter (k) must be a positive integer for Erlang distribution. Received: 0")
 
 
 func test_randf_erlang_invalid_k_negative() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_erlang(-1, 2.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Shape parameter (k) must be a positive integer for Erlang distribution.")
+	await assert_error(test_invalid_input).is_push_error("Shape parameter (k) must be a positive integer for Erlang distribution. Received: -1")
 
 
 func test_randf_erlang_invalid_lambda_zero() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_erlang(3, 0.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Rate parameter (lambda_param) must be positive for Erlang distribution.")
+	await assert_error(test_invalid_input).is_push_error("Rate parameter (lambda_param) must be positive for Erlang distribution. Received: 0.0")
 
 
 func test_randf_erlang_invalid_lambda_negative() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_erlang(3, -1.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Rate parameter (lambda_param) must be positive for Erlang distribution.")
+	await assert_error(test_invalid_input).is_push_error("Rate parameter (lambda_param) must be positive for Erlang distribution. Received: -1.0")
 
 
 # Tests for randf_gaussian (Standard Normal N(0,1))
@@ -376,7 +427,220 @@ func test_randf_normal_negative_mu() -> void:
 func test_randf_normal_invalid_sigma_negative() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_normal(0.0, -1.0)
-	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Standard deviation (sigma) must be non-negative.")
+	await assert_error(test_invalid_input).is_push_error("Standard deviation (sigma) must be non-negative. Received: -1.0")
+
+
+# Tests for randf_cauchy
+func test_randf_cauchy_basic() -> void:
+	var result: float = StatMath.Distributions.randf_cauchy()
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_with_location() -> void:
+	var location: float = 5.0
+	var result: float = StatMath.Distributions.randf_cauchy(location, 1.0)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_with_scale() -> void:
+	var scale: float = 2.0
+	var result: float = StatMath.Distributions.randf_cauchy(0.0, scale)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_with_location_and_scale() -> void:
+	var location: float = -3.0
+	var scale: float = 0.5
+	var result: float = StatMath.Distributions.randf_cauchy(location, scale)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_negative_location() -> void:
+	var result: float = StatMath.Distributions.randf_cauchy(-10.0, 1.0)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_very_small_scale() -> void:
+	var scale: float = 1e-6
+	var result: float = StatMath.Distributions.randf_cauchy(0.0, scale)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_large_scale() -> void:
+	var scale: float = 100.0
+	var result: float = StatMath.Distributions.randf_cauchy(0.0, scale)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_cauchy_deterministic_with_seed() -> void:
+	var location: float = 2.0
+	var scale: float = 1.5
+	var seed: int = 42
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_cauchy(location, scale)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_cauchy(location, scale)
+	
+	assert_float(result1).is_equal_approx(result2, 0.0000001)
+
+
+func test_randf_cauchy_multiple_calls_different_values() -> void:
+	# Test that multiple calls produce different values (with high probability)
+	var results: Array[float] = []
+	for i in range(10):
+		results.append(StatMath.Distributions.randf_cauchy())
+	
+	# Check that we don't have all identical values (extremely unlikely)
+	var all_same: bool = true
+	var first_val: float = results[0]
+	for val in results:
+		if not is_equal_approx(val, first_val):
+			all_same = false
+			break
+	
+	assert_bool(all_same).is_false() # Multiple Cauchy samples should not all be identical
+
+
+func test_randf_cauchy_invalid_scale_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_cauchy(0.0, 0.0)
+	await assert_error(test_invalid_input).is_push_error("Scale parameter must be positive for Cauchy distribution. Received: 0.0")
+
+
+func test_randf_cauchy_invalid_scale_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_cauchy(0.0, -1.0)
+	await assert_error(test_invalid_input).is_push_error("Scale parameter must be positive for Cauchy distribution. Received: -1.0")
+
+
+func test_randf_cauchy_statistical_properties() -> void:
+	# Test multiple samples to verify basic properties
+	var samples: Array[float] = []
+	var seed: int = 1337
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_cauchy())
+	
+	# All samples should be finite numbers
+	for sample in samples:
+		assert_bool(is_nan(sample)).is_false()
+		assert_bool(is_inf(sample)).is_false()
+	
+	# Should have significant variability due to heavy tails
+	var min_val: float = samples[0]
+	var max_val: float = samples[0]
+	for sample in samples:
+		min_val = min(min_val, sample)
+		max_val = max(max_val, sample)
+	
+	# Cauchy should produce a reasonable spread (not all clustered)
+	assert_float(max_val - min_val).is_greater(1.0)
+
+
+func test_randf_cauchy_heavy_tails_property() -> void:
+	# Test that Cauchy produces some extreme values (demonstrating heavy tails)
+	var extreme_count: int = 0
+	var samples: Array[float] = []
+	var seed: int = 2023
+	
+	StatMath.set_global_seed(seed)
+	for i in range(1000):  # Larger sample for extreme value detection
+		var sample: float = StatMath.Distributions.randf_cauchy(0.0, 1.0)
+		samples.append(sample)
+		# Count values beyond ±3 (would be very rare for normal distribution)
+		if abs(sample) > 3.0:
+			extreme_count += 1
+	
+	# Cauchy should produce more extreme values than normal distribution
+	# Even with conservative threshold, should see some extreme values
+	assert_int(extreme_count).is_greater(0) # Should have at least some extreme values
+
+
+# --- Game Development Use Cases for Cauchy ---
+
+func test_randf_cauchy_damage_variation() -> void:
+	# Example: critical hit damage with occasional massive spikes
+	var base_damage: float = 100.0
+	var damage_multiplier: float = StatMath.Distributions.randf_cauchy(1.0, 0.1)
+	
+	# Clamp to reasonable game bounds while preserving the concept
+	damage_multiplier = clamp(damage_multiplier, 0.1, 5.0)
+	var final_damage: float = base_damage * damage_multiplier
+	
+	assert_float(damage_multiplier).is_between(0.1, 5.0)
+	assert_float(final_damage).is_greater_equal(10.0)
+	assert_float(final_damage).is_less_equal(500.0)
+
+
+func test_randf_cauchy_market_price_fluctuation() -> void:
+	# Example: economic simulation with market crashes/booms
+	var current_price: float = 50.0
+	var price_change_factor: float = StatMath.Distributions.randf_cauchy(1.0, 0.02)
+	
+	# Cap extreme price changes for game balance
+	price_change_factor = clamp(price_change_factor, 0.5, 2.0)
+	var new_price: float = current_price * price_change_factor
+	
+	assert_float(price_change_factor).is_between(0.5, 2.0)
+	assert_float(new_price).is_greater_equal(25.0)
+	assert_float(new_price).is_less_equal(100.0)
+
+
+func test_randf_cauchy_procedural_terrain_height() -> void:
+	# Example: terrain generation with dramatic peaks/valleys
+	var base_height: float = 10.0
+	var height_variation: float = StatMath.Distributions.randf_cauchy(0.0, 2.0)
+	
+	# Clamp for reasonable terrain bounds
+	height_variation = clamp(height_variation, -20.0, 20.0)
+	var final_height: float = base_height + height_variation
+	
+	assert_float(height_variation).is_between(-20.0, 20.0)
+	assert_float(final_height).is_between(-10.0, 30.0)
+
+
+func test_randf_cauchy_npc_reaction_time() -> void:
+	# Example: NPC reaction times with occasional extreme delays/speed
+	var base_reaction_time: float = 1.0  # seconds
+	var time_multiplier: float = StatMath.Distributions.randf_cauchy(1.0, 0.05)
+	
+	# Reasonable bounds for gameplay
+	time_multiplier = clamp(time_multiplier, 0.1, 3.0)
+	var final_reaction_time: float = base_reaction_time * time_multiplier
+	
+	assert_float(time_multiplier).is_between(0.1, 3.0)
+	assert_float(final_reaction_time).is_greater_equal(0.1)
+	assert_float(final_reaction_time).is_less_equal(3.0)
+
+
+func test_randf_cauchy_particle_velocity_distribution() -> void:
+	# Example: explosion particles with heavy-tailed velocity distribution
+	var base_speed: float = 100.0
+	var speed_multiplier: float = StatMath.Distributions.randf_cauchy(1.0, 0.1)
+	
+	# Practical bounds for particle system
+	speed_multiplier = clamp(speed_multiplier, 0.1, 5.0)
+	var particle_speed: float = base_speed * speed_multiplier
+	
+	assert_float(speed_multiplier).is_between(0.1, 5.0)
+	assert_float(particle_speed).is_between(10.0, 500.0)
 
 
 # Tests for randv_histogram
@@ -413,37 +677,37 @@ func test_randv_histogram_single_value_non_one_prob() -> void:
 func test_randv_histogram_empty_values() -> void:
 	var test_call: Callable = func():
 		StatMath.Distributions.randv_histogram([], [1.0])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Values array cannot be empty.")
+	await assert_error(test_call).is_push_error("Values array cannot be empty.")
 
 
 func test_randv_histogram_empty_probabilities() -> void:
 	var test_call: Callable = func():
 		StatMath.Distributions.randv_histogram(["a"], [])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Values and probabilities arrays must have the same size.") # Also triggers size mismatch, but this one is fine.
+	await assert_error(test_call).is_push_error("Values and probabilities arrays must have the same size. Received values size=1, probabilities size=0") # Also triggers size mismatch, but this one is fine.
 
 
 func test_randv_histogram_mismatched_sizes() -> void:
 	var test_call: Callable = func():
 		StatMath.Distributions.randv_histogram(["a", "b"], [1.0])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Values and probabilities arrays must have the same size.")
+	await assert_error(test_call).is_push_error("Values and probabilities arrays must have the same size. Received values size=2, probabilities size=1")
 
 
 func test_randv_histogram_non_numeric_probability() -> void:
 	var test_call: Callable = func():
 		StatMath.Distributions.randv_histogram(["a"], ["not_a_number"])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probabilities must be numbers (int or float).")
+	await assert_error(test_call).is_push_error("Probabilities must be numbers (int or float). Received: not_a_number")
 
 
 func test_randv_histogram_negative_probability() -> void:
 	var test_call: Callable = func():
 		StatMath.Distributions.randv_histogram(["a"], [-0.5])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probabilities must be non-negative.")
+	await assert_error(test_call).is_push_error("Probabilities must be non-negative. Received: -0.5")
 
 
 func test_randv_histogram_zero_sum_probabilities() -> void:
 	var test_call: Callable = func():
 		StatMath.Distributions.randv_histogram(["a", "b"], [0.0, 0.0])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Sum of probabilities must be positive for normalization.") 
+	await assert_error(test_call).is_push_error("Sum of probabilities must be positive for normalization. Received sum: 0.0") 
 
 
 # --- Test for RNG Determinism ---
@@ -454,13 +718,13 @@ func test_rng_determinism_with_set_seed() -> void:
 	var results_run2: Array = []
 
 	# First Run
-	StatMath.set_seed(TEST_SEED)
+	StatMath.set_global_seed(TEST_SEED)
 	results_run1.append(StatMath.Distributions.randi_bernoulli(0.6))      # Expected int
 	results_run1.append(StatMath.Distributions.randf_normal(15.0, 3.5))  # Expected float
 	results_run1.append(StatMath.Distributions.randi_poisson(4.2))       # Expected int
 
 	# Second Run
-	StatMath.set_seed(TEST_SEED) # Reset to the same seed
+	StatMath.set_global_seed(TEST_SEED) # Reset to the same seed
 	results_run2.append(StatMath.Distributions.randi_bernoulli(0.6))
 	results_run2.append(StatMath.Distributions.randf_normal(15.0, 3.5))
 	results_run2.append(StatMath.Distributions.randi_poisson(4.2))
@@ -484,3 +748,1250 @@ func test_rng_determinism_with_set_seed() -> void:
 	assert_bool(results_run1[2] is int).is_true() # Result 2 (Run 1) should be an int.
 	assert_bool(results_run2[2] is int).is_true() # Result 2 (Run 2) should be an int.
 	assert_int(results_run1[2]).is_equal(results_run2[2]) # Result 2 (randi_poisson) should be deterministic.") 
+
+
+# --- Tests for randf_gamma ---
+
+func test_randf_gamma_basic() -> void:
+	var result: float = StatMath.Distributions.randf_gamma(2.0, 2.0)
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+
+
+func test_randf_gamma_shape_one() -> void:
+	# Gamma(1, θ) is equivalent to Exponential(1/θ)
+	var shape: float = 1.0
+	var scale: float = 2.0
+	var result: float = StatMath.Distributions.randf_gamma(shape, scale)
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_gamma_shape_less_than_one() -> void:
+	# Tests the Johnk's generator path for shape < 1
+	var shape: float = 0.5
+	var scale: float = 1.0
+	var result: float = StatMath.Distributions.randf_gamma(shape, scale)
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_gamma_shape_greater_than_one() -> void:
+	# Tests the Marsaglia-Tsang method for shape >= 1
+	var shape: float = 3.0
+	var scale: float = 0.5
+	var result: float = StatMath.Distributions.randf_gamma(shape, scale)
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_gamma_large_parameters() -> void:
+	var shape: float = 100.0
+	var scale: float = 0.1
+	var result: float = StatMath.Distributions.randf_gamma(shape, scale)
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_gamma_deterministic_with_seed() -> void:
+	var shape: float = 2.0
+	var scale: float = 1.5
+	var seed: int = 12345
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_gamma(shape, scale)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_gamma(shape, scale)
+	
+	assert_float(result1).is_equal_approx(result2, 0.0000001)
+
+
+func test_randf_gamma_invalid_shape_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_gamma(0.0, 1.0)
+	await assert_error(test_invalid_input).is_push_error("Shape parameter must be positive for Gamma distribution. Received: 0.0")
+
+
+func test_randf_gamma_invalid_shape_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_gamma(-1.0, 1.0)
+	await assert_error(test_invalid_input).is_push_error("Shape parameter must be positive for Gamma distribution. Received: -1.0")
+
+
+func test_randf_gamma_invalid_scale_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_gamma(2.0, 0.0)
+	await assert_error(test_invalid_input).is_push_error("Scale parameter must be positive for Gamma distribution. Received: 0.0")
+
+
+func test_randf_gamma_invalid_scale_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_gamma(2.0, -1.0)
+	await assert_error(test_invalid_input).is_push_error("Scale parameter must be positive for Gamma distribution. Received: -1.0")
+
+
+# --- Tests for randf_beta ---
+
+func test_randf_beta_basic() -> void:
+	var result: float = StatMath.Distributions.randf_beta(2.0, 3.0)
+	assert_float(result).is_between(0.0, 1.0)
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+
+
+func test_randf_beta_symmetric() -> void:
+	# Beta(2, 2) is symmetric around 0.5
+	var alpha: float = 2.0
+	var beta: float = 2.0
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+
+
+func test_randf_beta_skewed_left() -> void:
+	# Beta(1, 3) is skewed toward 0
+	var alpha: float = 1.0
+	var beta: float = 3.0
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+
+
+func test_randf_beta_skewed_right() -> void:
+	# Beta(3, 1) is skewed toward 1
+	var alpha: float = 3.0
+	var beta: float = 1.0
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+
+
+func test_randf_beta_uniform() -> void:
+	# Beta(1, 1) is equivalent to Uniform(0, 1)
+	var alpha: float = 1.0
+	var beta: float = 1.0
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+
+
+func test_randf_beta_large_parameters() -> void:
+	var alpha: float = 100.0
+	var beta: float = 50.0
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+	assert_bool(is_nan(result)).is_false()
+
+
+func test_randf_beta_small_parameters() -> void:
+	var alpha: float = 0.1
+	var beta: float = 0.1
+	var result: float = StatMath.Distributions.randf_beta(alpha, beta)
+	assert_float(result).is_between(0.0, 1.0)
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_beta_deterministic_with_seed() -> void:
+	var alpha: float = 2.5
+	var beta: float = 3.5
+	var seed: int = 67890
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_beta(alpha, beta)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_beta(alpha, beta)
+	
+	assert_float(result1).is_equal_approx(result2, 0.0000001)
+
+
+func test_randf_beta_invalid_alpha_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_beta(0.0, 2.0)
+	await assert_error(test_invalid_input).is_push_error("Alpha parameter must be positive for Beta distribution. Received: 0.0")
+
+
+func test_randf_beta_invalid_alpha_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_beta(-1.0, 2.0)
+	await assert_error(test_invalid_input).is_push_error("Alpha parameter must be positive for Beta distribution. Received: -1.0")
+
+
+func test_randf_beta_invalid_beta_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_beta(2.0, 0.0)
+	await assert_error(test_invalid_input).is_push_error("Beta parameter must be positive for Beta distribution. Received: 0.0")
+
+
+func test_randf_beta_invalid_beta_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_beta(2.0, -1.0)
+	await assert_error(test_invalid_input).is_push_error("Beta parameter must be positive for Beta distribution. Received: -1.0")
+
+
+# --- Statistical Properties Tests (Gamma and Beta) ---
+
+func test_randf_gamma_statistical_properties() -> void:
+	# Test multiple samples to verify statistical properties
+	var shape: float = 2.0
+	var scale: float = 1.0
+	var samples: Array[float] = []
+	var seed: int = 999
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_gamma(shape, scale))
+	
+	# All samples should be non-negative
+	for sample in samples:
+		assert_float(sample).is_greater_equal(0.0)
+	
+	# Should have reasonable variance (not all the same value)
+	var min_val: float = samples[0]
+	var max_val: float = samples[0]
+	for sample in samples:
+		min_val = min(min_val, sample)
+		max_val = max(max_val, sample)
+	
+	assert_float(max_val - min_val).is_greater(0.1) # Should have some spread
+
+
+func test_randf_beta_statistical_properties() -> void:
+	# Test multiple samples to verify statistical properties
+	var alpha: float = 2.0
+	var beta: float = 3.0
+	var samples: Array[float] = []
+	var seed: int = 777
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_beta(alpha, beta))
+	
+	# All samples should be in [0, 1]
+	for sample in samples:
+		assert_float(sample).is_between(0.0, 1.0)
+	
+	# Should have reasonable variance (not all the same value)
+	var min_val: float = samples[0]
+	var max_val: float = samples[0]
+	for sample in samples:
+		min_val = min(min_val, sample)
+		max_val = max(max_val, sample)
+	
+	assert_float(max_val - min_val).is_greater(0.05) # Should have some spread
+
+
+# --- Game Development Use Cases ---
+
+func test_randf_gamma_damage_variation() -> void:
+	# Example: damage variation where base damage is modified by Gamma distribution
+	var base_damage: float = 100.0
+	var shape: float = 2.0 # Controls variability shape
+	var scale: float = 0.5 # Controls scaling
+	
+	var damage_multiplier: float = StatMath.Distributions.randf_gamma(shape, scale)
+	var final_damage: float = base_damage * damage_multiplier
+	
+	assert_float(damage_multiplier).is_greater_equal(0.0)
+	assert_float(final_damage).is_greater_equal(0.0)
+
+
+func test_randf_beta_quality_scores() -> void:
+	# Example: item quality as a score between 0 and 1
+	var common_quality: float = StatMath.Distributions.randf_beta(2.0, 5.0) # Skewed toward lower quality
+	var rare_quality: float = StatMath.Distributions.randf_beta(5.0, 2.0) # Skewed toward higher quality
+	
+	assert_float(common_quality).is_between(0.0, 1.0)
+	assert_float(rare_quality).is_between(0.0, 1.0)
+
+
+func test_combined_gamma_beta_procedural_generation() -> void:
+	# Example: procedural terrain generation combining both distributions
+	var terrain_roughness: float = StatMath.Distributions.randf_gamma(1.5, 0.8) # Gamma for continuous scaling
+	var biome_blend: float = StatMath.Distributions.randf_beta(3.0, 3.0) # Beta for normalized blending
+	
+	assert_float(terrain_roughness).is_greater_equal(0.0)
+	assert_float(biome_blend).is_between(0.0, 1.0)
+	
+	# Combined effect should be reasonable
+	var combined_effect: float = terrain_roughness * biome_blend
+	assert_float(combined_effect).is_greater_equal(0.0)
+
+
+# --- Tests for randf_triangular ---
+
+func test_randf_triangular_basic() -> void:
+	var min_val: float = 0.0
+	var max_val: float = 10.0
+	var mode_val: float = 3.0
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_float(result).is_greater_equal(min_val)
+	assert_float(result).is_less_equal(max_val)
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_triangular_symmetric() -> void:
+	# Mode in the center creates symmetric triangular distribution
+	var min_val: float = -5.0
+	var max_val: float = 5.0
+	var mode_val: float = 0.0  # Centered mode
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_left_skewed() -> void:
+	# Mode closer to minimum creates left-skewed distribution
+	var min_val: float = 0.0
+	var max_val: float = 100.0
+	var mode_val: float = 10.0  # Mode near minimum
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_right_skewed() -> void:
+	# Mode closer to maximum creates right-skewed distribution
+	var min_val: float = 0.0
+	var max_val: float = 100.0
+	var mode_val: float = 90.0  # Mode near maximum
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_mode_at_minimum() -> void:
+	# Mode at minimum creates right-skewed triangle
+	var min_val: float = 5.0
+	var max_val: float = 15.0
+	var mode_val: float = 5.0  # Mode equals minimum
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_mode_at_maximum() -> void:
+	# Mode at maximum creates left-skewed triangle
+	var min_val: float = 2.0
+	var max_val: float = 8.0
+	var mode_val: float = 8.0  # Mode equals maximum
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_negative_range() -> void:
+	var min_val: float = -20.0
+	var max_val: float = -5.0
+	var mode_val: float = -10.0
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_mixed_sign_range() -> void:
+	var min_val: float = -10.0
+	var max_val: float = 10.0
+	var mode_val: float = 2.0
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_small_range() -> void:
+	var min_val: float = 0.9
+	var max_val: float = 1.1
+	var mode_val: float = 1.0
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_large_range() -> void:
+	var min_val: float = -1000.0
+	var max_val: float = 1000.0
+	var mode_val: float = 100.0
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_deterministic_with_seed() -> void:
+	var min_val: float = 1.0
+	var max_val: float = 5.0
+	var mode_val: float = 3.0
+	var seed: int = 54321
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result1).is_equal_approx(result2, 0.0000001)
+
+
+func test_randf_triangular_multiple_calls_different_values() -> void:
+	# Test that multiple calls produce different values (with high probability)
+	var min_val: float = 0.0
+	var max_val: float = 1.0
+	var mode_val: float = 0.3
+	var results: Array[float] = []
+	
+	for i in range(10):
+		results.append(StatMath.Distributions.randf_triangular(min_val, max_val, mode_val))
+	
+	# Check that we don't have all identical values (extremely unlikely)
+	var all_same: bool = true
+	var first_val: float = results[0]
+	for val in results:
+		if not is_equal_approx(val, first_val):
+			all_same = false
+			break
+	
+	assert_bool(all_same).is_false()
+
+
+func test_randf_triangular_degenerate_case_equal_bounds() -> void:
+	# When min equals max, should return that value
+	var value: float = 42.0
+	var result: float = StatMath.Distributions.randf_triangular(value, value, value)
+	assert_float(result).is_equal_approx(value, 0.0000001)
+
+
+func test_randf_triangular_nearly_equal_bounds() -> void:
+	# Test with very close but not equal bounds
+	var min_val: float = 1.0
+	var max_val: float = 1.0000001
+	var mode_val: float = 1.00000005
+	var result: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+	
+	assert_float(result).is_between(min_val, max_val)
+
+
+func test_randf_triangular_invalid_mode_too_low() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_triangular(5.0, 10.0, 3.0)  # mode < min
+	await assert_error(test_invalid_input).is_push_error("Mode value must be greater than or equal to minimum value for Triangular distribution. Received min=5.0, mode=3.0")
+
+
+func test_randf_triangular_invalid_mode_too_high() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_triangular(5.0, 10.0, 12.0)  # mode > max
+	await assert_error(test_invalid_input).is_push_error("Mode value must be less than or equal to maximum value for Triangular distribution. Received mode=12.0, max=10.0")
+
+
+func test_randf_triangular_invalid_max_less_than_min() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_triangular(10.0, 5.0, 7.0)  # max < min
+	await assert_error(test_invalid_input).is_push_error("Maximum value must be greater than or equal to minimum value for Triangular distribution. Received min=10.0, max=5.0")
+
+
+func test_randf_triangular_invalid_max_equal_min_with_different_mode() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_triangular(5.0, 5.0, 7.0)  # max = min but mode ≠ min
+	await assert_error(test_invalid_input).is_push_error("Mode value must be less than or equal to maximum value for Triangular distribution. Received mode=7.0, max=5.0")
+
+
+# --- Statistical Properties Tests ---
+
+func test_randf_triangular_statistical_properties() -> void:
+	# Test multiple samples to verify statistical properties
+	var min_val: float = 0.0
+	var max_val: float = 10.0
+	var mode_val: float = 3.0
+	var samples: Array[float] = []
+	var seed: int = 11111
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_triangular(min_val, max_val, mode_val))
+	
+	# All samples should be within bounds
+	for sample in samples:
+		assert_float(sample).is_greater_equal(min_val)
+		assert_float(sample).is_less_equal(max_val)
+	
+	# Should have reasonable variance (not all the same value)
+	var sample_min: float = samples[0]
+	var sample_max: float = samples[0]
+	for sample in samples:
+		sample_min = min(sample_min, sample)
+		sample_max = max(sample_max, sample)
+	
+	assert_float(sample_max - sample_min).is_greater(1.0)
+
+
+func test_randf_triangular_mode_bias_verification() -> void:
+	# Test that values cluster around the mode more than uniform distribution would
+	var min_val: float = 0.0
+	var max_val: float = 100.0
+	var mode_val: float = 25.0  # Mode closer to minimum
+	var near_mode_count: int = 0
+	var seed: int = 22222
+	
+	StatMath.set_global_seed(seed)
+	for i in range(1000):  # Larger sample for statistical significance
+		var sample: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
+		# Count samples within 10 units of the mode
+		if abs(sample - mode_val) <= 10.0:
+			near_mode_count += 1
+	
+	# Should have more samples near mode than uniform distribution would
+	# Uniform would have ~20% in this range, triangular should have more
+	var near_mode_proportion: float = float(near_mode_count) / 1000.0
+	assert_float(near_mode_proportion).is_greater(0.25)  # Conservative threshold
+
+
+# --- Game Development Use Cases ---
+
+func test_randf_triangular_weapon_damage() -> void:
+	# Example: weapon damage with min/typical/max values
+	var min_damage: float = 50.0
+	var max_damage: float = 150.0
+	var typical_damage: float = 80.0  # Most common damage value
+	
+	var damage: float = StatMath.Distributions.randf_triangular(min_damage, max_damage, typical_damage)
+	
+	assert_float(damage).is_between(min_damage, max_damage)
+
+
+func test_randf_triangular_npc_stat_generation() -> void:
+	# Example: NPC attribute generation
+	var min_strength: float = 8.0
+	var max_strength: float = 18.0
+	var average_strength: float = 12.0
+	
+	var npc_strength: float = StatMath.Distributions.randf_triangular(min_strength, max_strength, average_strength)
+	
+	assert_float(npc_strength).is_between(min_strength, max_strength)
+
+
+func test_randf_triangular_loot_quality() -> void:
+	# Example: loot quality distribution
+	var min_quality: float = 0.1  # Poor quality
+	var max_quality: float = 1.0  # Perfect quality
+	var common_quality: float = 0.3  # Most items are low-medium quality
+	
+	var item_quality: float = StatMath.Distributions.randf_triangular(min_quality, max_quality, common_quality)
+	
+	assert_float(item_quality).is_between(min_quality, max_quality)
+
+
+func test_randf_triangular_skill_check_difficulty() -> void:
+	# Example: skill check difficulty scaling
+	var easy_threshold: float = 5.0
+	var hard_threshold: float = 20.0
+	var typical_threshold: float = 12.0
+	
+	var check_difficulty: float = StatMath.Distributions.randf_triangular(easy_threshold, hard_threshold, typical_threshold)
+	
+	assert_float(check_difficulty).is_between(easy_threshold, hard_threshold)
+
+
+func test_randf_triangular_resource_spawn_rate() -> void:
+	# Example: resource spawn timing
+	var min_spawn_time: float = 5.0   # seconds
+	var max_spawn_time: float = 30.0  # seconds  
+	var typical_spawn_time: float = 15.0  # Most common spawn interval
+	
+	var next_spawn_time: float = StatMath.Distributions.randf_triangular(min_spawn_time, max_spawn_time, typical_spawn_time)
+	
+	assert_float(next_spawn_time).is_between(min_spawn_time, max_spawn_time)
+
+
+func test_randf_triangular_procedural_terrain_height() -> void:
+	# Example: terrain height generation with preferred elevations
+	var sea_level: float = 0.0
+	var mountain_peak: float = 1000.0
+	var common_elevation: float = 200.0  # Hills and plains
+	
+	var terrain_height: float = StatMath.Distributions.randf_triangular(sea_level, mountain_peak, common_elevation)
+	
+	assert_float(terrain_height).is_between(sea_level, mountain_peak)
+
+
+func test_randf_triangular_ai_decision_confidence() -> void:
+	# Example: AI confidence in decisions
+	var min_confidence: float = 0.0
+	var max_confidence: float = 1.0
+	var typical_confidence: float = 0.7  # AI is usually fairly confident
+	
+	var decision_confidence: float = StatMath.Distributions.randf_triangular(min_confidence, max_confidence, typical_confidence)
+	
+	assert_float(decision_confidence).is_between(min_confidence, max_confidence)
+
+
+func test_randf_triangular_pricing_variation() -> void:
+	# Example: market price fluctuation in economic simulation
+	var min_price: float = 80.0   # 20% below base price
+	var max_price: float = 120.0  # 20% above base price
+	var fair_price: float = 95.0  # Slightly below base (buyer's market)
+	
+	var market_price: float = StatMath.Distributions.randf_triangular(min_price, max_price, fair_price)
+	
+	assert_float(market_price).is_between(min_price, max_price)
+
+
+func test_randf_triangular_multiple_parameters() -> void:
+	# Example: complex entity with multiple triangular attributes
+	var health: float = StatMath.Distributions.randf_triangular(80.0, 120.0, 100.0)
+	var speed: float = StatMath.Distributions.randf_triangular(3.0, 8.0, 5.0)
+	var accuracy: float = StatMath.Distributions.randf_triangular(0.6, 0.95, 0.8)
+	
+	assert_float(health).is_between(80.0, 120.0)
+	assert_float(speed).is_between(3.0, 8.0)
+	assert_float(accuracy).is_between(0.6, 0.95)
+	
+	# All attributes should be reasonable for a game entity
+	assert_float(health).is_greater(0.0)
+	assert_float(speed).is_greater(0.0)
+	assert_float(accuracy).is_greater(0.0)
+
+
+# --- Tests for randf_pareto ---
+
+func test_randf_pareto_basic() -> void:
+	var scale: float = 1.0
+	var shape: float = 1.0
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_bool(typeof(result) == TYPE_FLOAT).is_true()
+	assert_float(result).is_greater_equal(scale)
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_pareto_scale_parameter() -> void:
+	var scale: float = 5.0
+	var shape: float = 2.0
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	# Result should always be >= scale parameter
+	assert_float(result).is_greater_equal(scale)
+
+
+func test_randf_pareto_different_shapes() -> void:
+	var scale: float = 1.0
+	
+	# Test different shape parameters
+	var heavy_tail_result: float = StatMath.Distributions.randf_pareto(scale, 0.5)  # Heavy tail
+	var medium_tail_result: float = StatMath.Distributions.randf_pareto(scale, 1.0)  # Medium tail
+	var light_tail_result: float = StatMath.Distributions.randf_pareto(scale, 3.0)   # Light tail
+	
+	assert_float(heavy_tail_result).is_greater_equal(scale)
+	assert_float(medium_tail_result).is_greater_equal(scale)
+	assert_float(light_tail_result).is_greater_equal(scale)
+
+
+func test_randf_pareto_large_scale() -> void:
+	var scale: float = 100.0
+	var shape: float = 1.5
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_float(result).is_greater_equal(scale)
+
+
+func test_randf_pareto_small_scale() -> void:
+	var scale: float = 0.001
+	var shape: float = 2.0
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_float(result).is_greater_equal(scale)
+
+
+func test_randf_pareto_very_small_shape() -> void:
+	# Very small shape = very heavy tail
+	var scale: float = 1.0
+	var shape: float = 0.1
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_float(result).is_greater_equal(scale)
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_pareto_large_shape() -> void:
+	# Large shape = light tail, concentrated near minimum
+	var scale: float = 1.0
+	var shape: float = 10.0
+	var result: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_float(result).is_greater_equal(scale)
+
+
+func test_randf_pareto_deterministic_with_seed() -> void:
+	var scale: float = 2.0
+	var shape: float = 1.5
+	var seed: int = 98765
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_pareto(scale, shape)
+	
+	assert_float(result1).is_equal_approx(result2, 0.0000001)
+
+
+func test_randf_pareto_multiple_calls_different_values() -> void:
+	# Test that multiple calls produce different values (with high probability)
+	var scale: float = 1.0
+	var shape: float = 2.0
+	var results: Array[float] = []
+	
+	for i in range(10):
+		results.append(StatMath.Distributions.randf_pareto(scale, shape))
+	
+	# Check that we don't have all identical values (extremely unlikely)
+	var all_same: bool = true
+	var first_val: float = results[0]
+	for val in results:
+		if not is_equal_approx(val, first_val):
+			all_same = false
+			break
+	
+	assert_bool(all_same).is_false()
+
+
+func test_randf_pareto_invalid_scale_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_pareto(0.0, 1.0)
+	await assert_error(test_invalid_input).is_push_error("Scale parameter must be positive for Pareto distribution. Received: 0.0")
+
+
+func test_randf_pareto_invalid_scale_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_pareto(-1.0, 1.0)
+	await assert_error(test_invalid_input).is_push_error("Scale parameter must be positive for Pareto distribution. Received: -1.0")
+
+
+func test_randf_pareto_invalid_shape_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_pareto(1.0, 0.0)
+	await assert_error(test_invalid_input).is_push_error("Shape parameter must be positive for Pareto distribution. Received: 0.0")
+
+
+func test_randf_pareto_invalid_shape_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_pareto(1.0, -1.0)
+	await assert_error(test_invalid_input).is_push_error("Shape parameter must be positive for Pareto distribution. Received: -1.0")
+
+
+# --- Statistical Properties Tests ---
+
+func test_randf_pareto_statistical_properties() -> void:
+	# Test multiple samples to verify statistical properties
+	var scale: float = 1.0
+	var shape: float = 2.0
+	var samples: Array[float] = []
+	var seed: int = 33333
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_pareto(scale, shape))
+	
+	# All samples should be >= scale
+	for sample in samples:
+		assert_float(sample).is_greater_equal(scale)
+	
+	# Should have reasonable variance (not all the same value)
+	var sample_min: float = samples[0]
+	var sample_max: float = samples[0]
+	for sample in samples:
+		sample_min = min(sample_min, sample)
+		sample_max = max(sample_max, sample)
+	
+	assert_float(sample_max - sample_min).is_greater(0.1)
+
+
+func test_randf_pareto_heavy_tail_property() -> void:
+	# Test that Pareto produces some extreme values (demonstrating heavy tails)
+	var scale: float = 1.0
+	var shape: float = 0.8  # Heavy tail
+	var extreme_count: int = 0
+	var seed: int = 44444
+	
+	StatMath.set_global_seed(seed)
+	for i in range(1000):  # Larger sample for extreme value detection
+		var sample: float = StatMath.Distributions.randf_pareto(scale, shape)
+		# Count values beyond 10x the scale (would be rare for lighter distributions)
+		if sample > scale * 10.0:
+			extreme_count += 1
+	
+	# Pareto should produce some extreme values due to heavy tail
+	assert_int(extreme_count).is_greater(0)
+
+
+func test_randf_pareto_concentration_near_minimum() -> void:
+	# Test that higher shape values concentrate more values near the minimum
+	var scale: float = 1.0
+	var shape: float = 5.0  # High shape = concentration near minimum
+	var near_minimum_count: int = 0
+	var seed: int = 55555
+	
+	StatMath.set_global_seed(seed)
+	for i in range(1000):
+		var sample: float = StatMath.Distributions.randf_pareto(scale, shape)
+		# Count samples within 50% of scale
+		if sample <= scale * 1.5:
+			near_minimum_count += 1
+	
+	# High shape should concentrate most values near the minimum
+	var near_minimum_proportion: float = float(near_minimum_count) / 1000.0
+	assert_float(near_minimum_proportion).is_greater(0.6)  # Should be majority
+
+
+# --- Game Development Use Cases ---
+
+func test_randf_pareto_wealth_distribution() -> void:
+	# Example: 80/20 wealth distribution in economic simulation
+	var minimum_wealth: float = 100.0
+	var wealth_inequality: float = 1.16  # Shape ~1.16 gives 80/20 distribution
+	
+	var player_wealth: float = StatMath.Distributions.randf_pareto(minimum_wealth, wealth_inequality)
+	
+	assert_float(player_wealth).is_greater_equal(minimum_wealth)
+
+
+func test_randf_pareto_loot_rarity() -> void:
+	# Example: loot drop rarity using Pareto for "common items common, rare items rare"
+	var base_value: float = 1.0
+	var rarity_factor: float = 0.8  # Lower = more extreme rare items
+	
+	var loot_value_multiplier: float = StatMath.Distributions.randf_pareto(base_value, rarity_factor)
+	
+	assert_float(loot_value_multiplier).is_greater_equal(base_value)
+
+
+func test_randf_pareto_city_population() -> void:
+	# Example: city size distribution (few large cities, many small towns)
+	var minimum_population: float = 1000.0
+	var urbanization_factor: float = 1.2
+	
+	var city_population: float = StatMath.Distributions.randf_pareto(minimum_population, urbanization_factor)
+	
+	assert_float(city_population).is_greater_equal(minimum_population)
+
+
+func test_randf_pareto_resource_deposits() -> void:
+	# Example: natural resource deposit sizes
+	var minimum_deposit_size: float = 10.0
+	var deposit_distribution: float = 1.5
+	
+	var resource_amount: float = StatMath.Distributions.randf_pareto(minimum_deposit_size, deposit_distribution)
+	
+	assert_float(resource_amount).is_greater_equal(minimum_deposit_size)
+
+
+func test_randf_pareto_market_price_spikes() -> void:
+	# Example: market price volatility with occasional massive spikes
+	var base_price_multiplier: float = 1.0
+	var volatility_factor: float = 0.9  # Heavy tail for price spikes
+	
+	var price_spike_multiplier: float = StatMath.Distributions.randf_pareto(base_price_multiplier, volatility_factor)
+	
+	assert_float(price_spike_multiplier).is_greater_equal(base_price_multiplier)
+
+
+func test_randf_pareto_player_skill_gaps() -> void:
+	# Example: modeling skill gaps in competitive games
+	var minimum_skill_rating: float = 1000.0
+	var skill_distribution: float = 1.3
+	
+	var player_skill: float = StatMath.Distributions.randf_pareto(minimum_skill_rating, skill_distribution)
+	
+	assert_float(player_skill).is_greater_equal(minimum_skill_rating)
+
+
+func test_randf_pareto_quest_reward_scaling() -> void:
+	# Example: quest reward distribution where most rewards are modest, few are huge
+	var base_reward: float = 50.0
+	var reward_scaling: float = 1.1  # Slight heavy tail
+	
+	var quest_reward: float = StatMath.Distributions.randf_pareto(base_reward, reward_scaling)
+	
+	assert_float(quest_reward).is_greater_equal(base_reward)
+
+
+func test_randf_pareto_network_effect_scaling() -> void:
+	# Example: network effects where popular content becomes extremely popular
+	var minimum_views: float = 100.0
+	var virality_factor: float = 0.7  # Heavy tail for viral content
+	
+	var content_popularity: float = StatMath.Distributions.randf_pareto(minimum_views, virality_factor)
+	
+	assert_float(content_popularity).is_greater_equal(minimum_views)
+
+
+func test_randf_pareto_power_law_scaling() -> void:
+	# Example: general power law scaling for various game mechanics
+	var base_value: float = 1.0
+	var power_law_exponent: float = 2.0
+	
+	var scaled_value: float = StatMath.Distributions.randf_pareto(base_value, power_law_exponent)
+	
+	assert_float(scaled_value).is_greater_equal(base_value)
+
+
+func test_randf_pareto_multiple_applications() -> void:
+	# Example: multiple Pareto applications in a complex system
+	var guild_size: float = StatMath.Distributions.randf_pareto(5.0, 1.5)
+	var territory_value: float = StatMath.Distributions.randf_pareto(1000.0, 1.2)
+	var influence_points: float = StatMath.Distributions.randf_pareto(100.0, 0.9)
+	
+	assert_float(guild_size).is_greater_equal(5.0)
+	assert_float(territory_value).is_greater_equal(1000.0)
+	assert_float(influence_points).is_greater_equal(100.0)
+	
+	# All values should be reasonable for a game system
+	assert_float(guild_size).is_greater(0.0)
+	assert_float(territory_value).is_greater(0.0)
+	assert_float(influence_points).is_greater(0.0) 
+
+
+# --- Tests for randf_weibull ---
+
+func test_randf_weibull_basic() -> void:
+	# Basic test with typical parameters
+	var scale: float = 2.0
+	var shape: float = 1.5
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_weibull_scale_parameter() -> void:
+	# Test that scale parameter affects the characteristic life
+	var scale: float = 5.0
+	var shape: float = 2.0
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	# Result should be non-negative and finite
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+
+
+func test_randf_weibull_exponential_case() -> void:
+	# When shape = 1, Weibull becomes exponential distribution
+	var scale: float = 2.0
+	var shape: float = 1.0  # Exponential case
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+
+
+func test_randf_weibull_rayleigh_case() -> void:
+	# When shape = 2, Weibull becomes Rayleigh distribution (wind speeds)
+	var scale: float = 3.0
+	var shape: float = 2.0  # Rayleigh case
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+
+
+func test_randf_weibull_different_shapes() -> void:
+	# Test different shape parameters
+	var scale: float = 2.0
+	
+	var infant_mortality_result: float = StatMath.Distributions.randf_weibull(scale, 0.5)  # k < 1: decreasing failure rate
+	var constant_failure_result: float = StatMath.Distributions.randf_weibull(scale, 1.0)  # k = 1: constant failure rate
+	var wear_out_result: float = StatMath.Distributions.randf_weibull(scale, 3.0)         # k > 1: increasing failure rate
+	
+	# All should be valid
+	assert_float(infant_mortality_result).is_greater_equal(0.0)
+	assert_float(constant_failure_result).is_greater_equal(0.0)
+	assert_float(wear_out_result).is_greater_equal(0.0)
+
+
+func test_randf_weibull_large_scale() -> void:
+	# Test with large scale parameter
+	var scale: float = 100.0
+	var shape: float = 2.0
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_weibull_small_scale() -> void:
+	# Test with small scale parameter
+	var scale: float = 0.1
+	var shape: float = 2.0
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_weibull_very_small_shape() -> void:
+	# Test with very small shape parameter (heavy infant mortality)
+	var scale: float = 2.0
+	var shape: float = 0.1
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+
+
+func test_randf_weibull_large_shape() -> void:
+	# Test with large shape parameter (sharp wear-out)
+	var scale: float = 2.0
+	var shape: float = 10.0
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_weibull_deterministic_with_seed() -> void:
+	# Test deterministic behavior with same seed
+	var scale: float = 2.0
+	var shape: float = 1.5
+	var seed: int = 12345
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result1).is_equal_approx(result2, 1e-10)
+
+
+func test_randf_weibull_multiple_calls_different_values() -> void:
+	# Test that multiple calls produce different values
+	var scale: float = 2.0
+	var shape: float = 1.5
+	var results: Array[float] = []
+	var seed: int = 67890
+	
+	StatMath.set_global_seed(seed)
+	for i in range(10):
+		results.append(StatMath.Distributions.randf_weibull(scale, shape))
+	
+	# Check that not all values are the same
+	var all_same: bool = true
+	for i in range(1, results.size()):
+		if not is_equal_approx(results[i], results[0]):
+			all_same = false
+			break
+	
+	assert_bool(all_same).is_false()
+
+
+func test_randf_weibull_invalid_scale_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_weibull(0.0, 1.0)
+	await assert_error(test_invalid_input).is_push_error("Scale parameter must be positive for Weibull distribution. Received: 0.0")
+
+
+func test_randf_weibull_invalid_scale_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_weibull(-1.0, 1.0)
+	await assert_error(test_invalid_input).is_push_error("Scale parameter must be positive for Weibull distribution. Received: -1.0")
+
+
+func test_randf_weibull_invalid_shape_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_weibull(1.0, 0.0)
+	await assert_error(test_invalid_input).is_push_error("Shape parameter must be positive for Weibull distribution. Received: 0.0")
+
+
+func test_randf_weibull_invalid_shape_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_weibull(1.0, -1.0)
+	await assert_error(test_invalid_input).is_push_error("Shape parameter must be positive for Weibull distribution. Received: -1.0")
+
+
+# --- Statistical Properties Tests ---
+
+func test_randf_weibull_statistical_properties() -> void:
+	# Test multiple samples to verify statistical properties
+	var scale: float = 2.0
+	var shape: float = 2.0  # Rayleigh case for predictable properties
+	var samples: Array[float] = []
+	var seed: int = 11111
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_weibull(scale, shape))
+	
+	# All samples should be >= 0
+	for sample in samples:
+		assert_float(sample).is_greater_equal(0.0)
+	
+	# Should have reasonable variance (not all the same value)
+	var sample_min: float = samples[0]
+	var sample_max: float = samples[0]
+	for sample in samples:
+		sample_min = min(sample_min, sample)
+		sample_max = max(sample_max, sample)
+	
+	assert_float(sample_max - sample_min).is_greater(0.1)
+
+
+func test_randf_weibull_shape_effect_on_distribution() -> void:
+	# Test that different shapes produce different distribution characteristics
+	var scale: float = 2.0
+	var samples_low_shape: Array[float] = []
+	var samples_high_shape: Array[float] = []
+	var seed: int = 22222
+	
+	# Low shape (k < 1): decreasing failure rate
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples_low_shape.append(StatMath.Distributions.randf_weibull(scale, 0.5))
+	
+	# High shape (k > 1): increasing failure rate
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples_high_shape.append(StatMath.Distributions.randf_weibull(scale, 3.0))
+	
+	# Both should produce valid samples
+	for sample in samples_low_shape:
+		assert_float(sample).is_greater_equal(0.0)
+	for sample in samples_high_shape:
+		assert_float(sample).is_greater_equal(0.0)
+
+
+func test_randf_weibull_exponential_equivalence() -> void:
+	# Test that Weibull(λ, 1) behaves like Exponential(1/λ)
+	var scale: float = 2.0
+	var shape: float = 1.0
+	var weibull_samples: Array[float] = []
+	var exponential_samples: Array[float] = []
+	var seed: int = 33333
+	
+	# Generate Weibull samples with shape=1
+	StatMath.set_global_seed(seed)
+	for i in range(50):
+		weibull_samples.append(StatMath.Distributions.randf_weibull(scale, shape))
+	
+	# Generate exponential samples with rate=1/scale
+	StatMath.set_global_seed(seed)
+	for i in range(50):
+		exponential_samples.append(StatMath.Distributions.randf_exponential(1.0 / scale))
+	
+	# Both should be valid and have similar statistical properties
+	for sample in weibull_samples:
+		assert_float(sample).is_greater_equal(0.0)
+	for sample in exponential_samples:
+		assert_float(sample).is_greater_equal(0.0)
+
+
+# --- Game Development Use Cases ---
+
+func test_randf_weibull_equipment_durability() -> void:
+	# Example: equipment failure modeling with wear-out pattern
+	var characteristic_life: float = 1000.0  # Hours of use
+	var wear_pattern: float = 2.5  # k > 1: increasing failure rate (wear-out)
+	
+	var equipment_lifetime: float = StatMath.Distributions.randf_weibull(characteristic_life, wear_pattern)
+	
+	assert_float(equipment_lifetime).is_greater_equal(0.0)
+	# Equipment should have reasonable lifetime
+	assert_float(equipment_lifetime).is_greater(0.0)
+
+
+func test_randf_weibull_wind_speed_simulation() -> void:
+	# Example: wind speed modeling using Rayleigh distribution (Weibull with k=2)
+	var average_wind_speed: float = 15.0  # km/h
+	var rayleigh_shape: float = 2.0  # Rayleigh case
+	
+	var wind_speed: float = StatMath.Distributions.randf_weibull(average_wind_speed, rayleigh_shape)
+	
+	assert_float(wind_speed).is_greater_equal(0.0)
+	# Wind speed should be reasonable
+	assert_float(wind_speed).is_greater_equal(0.0)
+
+
+func test_randf_weibull_survival_time_modeling() -> void:
+	# Example: character survival time in hostile environment
+	var base_survival_time: float = 300.0  # Seconds
+	var hazard_pattern: float = 1.8  # Slightly increasing hazard
+	
+	var survival_time: float = StatMath.Distributions.randf_weibull(base_survival_time, hazard_pattern)
+	
+	assert_float(survival_time).is_greater_equal(0.0)
+
+
+func test_randf_weibull_component_reliability() -> void:
+	# Example: electronic component failure in sci-fi game
+	var mean_time_to_failure: float = 5000.0  # Game hours
+	var reliability_factor: float = 3.0  # Sharp wear-out after design life
+	
+	var component_lifetime: float = StatMath.Distributions.randf_weibull(mean_time_to_failure, reliability_factor)
+	
+	assert_float(component_lifetime).is_greater_equal(0.0)
+
+
+func test_randf_weibull_weather_event_duration() -> void:
+	# Example: storm duration modeling
+	var typical_storm_duration: float = 120.0  # Minutes
+	var storm_pattern: float = 1.5  # Moderate wear-out pattern
+	
+	var storm_duration: float = StatMath.Distributions.randf_weibull(typical_storm_duration, storm_pattern)
+	
+	assert_float(storm_duration).is_greater_equal(0.0)
+
+
+func test_randf_weibull_quest_completion_time() -> void:
+	# Example: time to complete quests with increasing difficulty
+	var base_completion_time: float = 60.0  # Minutes
+	var difficulty_curve: float = 2.2  # Increasing time pressure
+	
+	var completion_time: float = StatMath.Distributions.randf_weibull(base_completion_time, difficulty_curve)
+	
+	assert_float(completion_time).is_greater_equal(0.0)
+
+
+func test_randf_weibull_resource_depletion() -> void:
+	# Example: resource node depletion time
+	var resource_lifetime: float = 2000.0  # Resource units
+	var depletion_pattern: float = 1.2  # Slight acceleration in depletion
+	
+	var depletion_time: float = StatMath.Distributions.randf_weibull(resource_lifetime, depletion_pattern)
+	
+	assert_float(depletion_time).is_greater_equal(0.0)
+
+
+func test_randf_weibull_player_session_length() -> void:
+	# Example: modeling player session lengths
+	var typical_session: float = 45.0  # Minutes
+	var engagement_pattern: float = 0.8  # k < 1: decreasing "failure" rate (longer sessions more likely)
+	
+	var session_length: float = StatMath.Distributions.randf_weibull(typical_session, engagement_pattern)
+	
+	assert_float(session_length).is_greater_equal(0.0)
+
+
+func test_randf_weibull_network_latency_spikes() -> void:
+	# Example: network latency spike duration
+	var base_latency_duration: float = 50.0  # Milliseconds
+	var network_stability: float = 2.8  # Sharp recovery pattern
+	
+	var latency_spike_duration: float = StatMath.Distributions.randf_weibull(base_latency_duration, network_stability)
+	
+	assert_float(latency_spike_duration).is_greater_equal(0.0)
+
+
+func test_randf_weibull_multiple_reliability_applications() -> void:
+	# Example: multiple reliability applications in a complex system
+	var engine_lifetime: float = StatMath.Distributions.randf_weibull(10000.0, 2.5)  # Engine wear-out
+	var battery_life: float = StatMath.Distributions.randf_weibull(500.0, 1.8)      # Battery degradation
+	var sensor_duration: float = StatMath.Distributions.randf_weibull(8000.0, 3.2) # Sensor precision loss
+	
+	assert_float(engine_lifetime).is_greater_equal(0.0)
+	assert_float(battery_life).is_greater_equal(0.0)
+	assert_float(sensor_duration).is_greater_equal(0.0)
+	
+	# All lifetimes should be reasonable for a game system
+	assert_float(engine_lifetime).is_greater(0.0)
+	assert_float(battery_life).is_greater(0.0)
+	assert_float(sensor_duration).is_greater(0.0)
