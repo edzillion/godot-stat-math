@@ -229,6 +229,57 @@ func test_randi_seige_invalid_c0_too_high() -> void:
 	await assert_error(test_invalid_input).is_push_error("Parameter c_0 (initial capture probability) must be between 0.0 and 1.0. Received: 1.1")
 
 
+# Tests for randi_uniform
+func test_randi_uniform_equal_bounds() -> void:
+	var val: int = 5
+	var result: int = StatMath.Distributions.randi_uniform(val, val)
+	assert_int(result).is_equal(val)
+
+func test_randi_uniform_typical_range() -> void:
+	var min_val: int = 1
+	var max_val: int = 10
+	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
+	assert_bool(result >= min_val and result <= max_val).is_true()
+
+func test_randi_uniform_negative_range() -> void:
+	var min_val: int = -10
+	var max_val: int = -1
+	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
+	assert_bool(result >= min_val and result <= max_val).is_true()
+
+func test_randi_uniform_mixed_sign_range() -> void:
+	var min_val: int = -5
+	var max_val: int = 5
+	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
+	assert_bool(result >= min_val and result <= max_val).is_true()
+
+func test_randi_uniform_single_value_range() -> void:
+	var min_val: int = 42
+	var max_val: int = 42
+	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
+	assert_int(result).is_equal(42)
+
+func test_randi_uniform_deterministic_with_seed() -> void:
+	# Test that same seed produces same results
+	StatMath.set_global_seed(123)
+	var result1: int = StatMath.Distributions.randi_uniform(1, 100)
+	
+	StatMath.set_global_seed(123)
+	var result2: int = StatMath.Distributions.randi_uniform(1, 100)
+	
+	assert_int(result1).is_equal(result2)
+
+func test_randi_uniform_invalid_min_greater_than_max() -> void:
+	var test_call: Callable = func():
+		StatMath.Distributions.randi_uniform(10, 5)
+	
+	# Test that error is logged
+	await assert_error(test_call).is_push_error("Minimum value must be less than or equal to maximum value for integer uniform distribution. Received min=10, max=5")
+	
+	# Test that sentinel value is returned
+	var result: int = StatMath.Distributions.randi_uniform(10, 5)
+	assert_int(result).is_equal(-1)
+
 # Tests for randf_uniform
 func test_randf_uniform_a_equals_b() -> void:
 	var val: float = 5.0

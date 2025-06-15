@@ -166,6 +166,16 @@ static func randi_seige(w: float, c_0: float, c_win: float, c_lose: float) -> in
 	return -1 # Error/unexpected state
 
 
+# Uniform Distribution (Integer): randi_uniform(min_val, max_val)
+# Generates a random integer uniformly distributed in [min_val, max_val] (both inclusive).
+# This is a wrapper around Godot's randi_range for consistency with other distribution functions.
+static func randi_uniform(min_val: int, max_val: int) -> int:
+	if not (min_val <= max_val):
+		push_error("Minimum value must be less than or equal to maximum value for integer uniform distribution. Received min=%s, max=%s" % [min_val, max_val])
+		return -1
+	return StatMath.get_rng().randi_range(min_val, max_val)
+
+
 # Uniform Distribution (Float): randf_uniform(a, b)
 # Generates a random float uniformly distributed in the interval [a, b).
 # If a = b, returns a.
