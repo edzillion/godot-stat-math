@@ -90,7 +90,7 @@ func test_log_gamma_basic() -> void:
 func test_log_gamma_invalid_z_zero() -> void:
 	var test_call: Callable = func():
 		StatMath.HelperFunctions.log_gamma(0.0)
-	await assert_error(test_call).is_push_error("Log Gamma function is typically defined for z > 0. Received: 0")
+	await assert_error(test_call).is_push_error("Log Gamma function is typically defined for z > 0. Received: 0.0")
 
 # --- Beta Function ---
 func test_beta_function_basic() -> void:
@@ -100,7 +100,7 @@ func test_beta_function_basic() -> void:
 func test_beta_function_invalid_a_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.HelperFunctions.beta_function(-1.0, 2.0)
-	await assert_error(test_call).is_push_error("Parameters a and b must be positive for Beta function. Received a=-1, b=2")
+	await assert_error(test_call).is_push_error("Parameters a and b must be positive for Beta function. Received a=-1.0, b=2.0")
 
 # --- Incomplete Beta (placeholder) ---
 func test_incomplete_beta_x_zero() -> void:
@@ -114,7 +114,7 @@ func test_incomplete_beta_x_one() -> void:
 func test_incomplete_beta_invalid_a_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.HelperFunctions.incomplete_beta(0.5, -1.0, 2.0)
-	await assert_error(test_call).is_push_error("Shape parameters a and b must be positive. Received a=-1, b=2")
+	await assert_error(test_call).is_push_error("Shape parameters a and b must be positive. Received a=-1.0, b=2.0")
 
 func test_incomplete_beta_invalid_x_out_of_range() -> void:
 	var test_call: Callable = func():
@@ -208,7 +208,7 @@ func test_incomplete_beta_invalid_x_greater_than_one() -> void:
 func test_incomplete_beta_invalid_b_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.HelperFunctions.incomplete_beta(0.5, 2.0, -1.0)
-	await assert_error(test_call).is_push_error("Shape parameters a and b must be positive. Received a=2, b=-1")
+	await assert_error(test_call).is_push_error("Shape parameters a and b must be positive. Received a=2.0, b=-1.0")
 
 # --- Log Beta Function Direct ---
 func test_log_beta_function_direct_basic() -> void:
@@ -218,7 +218,7 @@ func test_log_beta_function_direct_basic() -> void:
 func test_log_beta_function_direct_invalid_a_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.HelperFunctions.log_beta_function_direct(-1.0, 2.0)
-	await assert_error(test_call).is_push_error("Parameters a and b must be positive for Beta function. Received a=-1, b=2")
+	await assert_error(test_call).is_push_error("Parameters a and b must be positive for Beta function. Received a=-1.0, b=2.0")
 
 # --- Lower Incomplete Gamma Regularized (comprehensive tests) ---
 func test_lower_incomplete_gamma_regularized_z_zero() -> void:
@@ -228,12 +228,12 @@ func test_lower_incomplete_gamma_regularized_z_zero() -> void:
 func test_lower_incomplete_gamma_regularized_invalid_a_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.HelperFunctions.lower_incomplete_gamma_regularized(-1.0, 2.0)
-	await assert_error(test_call).is_push_error("Shape parameter a must be positive for Incomplete Gamma function. Received: -1")
+	await assert_error(test_call).is_push_error("Shape parameter a must be positive for Incomplete Gamma function. Received: -1.0")
 
 func test_lower_incomplete_gamma_regularized_invalid_z_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.HelperFunctions.lower_incomplete_gamma_regularized(2.0, -1.0)
-	await assert_error(test_call).is_push_error("Parameter z must be non-negative for Lower Incomplete Gamma. Received: -1")
+	await assert_error(test_call).is_push_error("Parameter z must be non-negative for Lower Incomplete Gamma. Received: -1.0")
 
 # --- Additional Comprehensive Lower Incomplete Gamma Tests ---
 
