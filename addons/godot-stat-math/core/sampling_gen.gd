@@ -554,7 +554,7 @@ static func generate_samples(
 			_: return Array([], TYPE_ARRAY, "", null)
 	
 	if dimensions < 1:
-		printerr("generate_samples: dimensions must be >= 1")
+		push_error("dimensions must be >= 1. Received: " + str(dimensions))
 		return null
 	
 	# Use the unified N-dimensional generation for all cases
@@ -676,7 +676,7 @@ static func generate_samples_nd(
 					samples[i][d] = lhs_samples[i] if i < lhs_samples.size() else -1.0
 		
 		_:
-			printerr("Unsupported sampling method: ", SamplingMethod.keys()[method])
+			push_error("Unsupported sampling method: " + str(SamplingMethod.keys()[method]))
 			for i in range(n_draws):
 				for d in range(dimensions):
 					samples[i][d] = -1.0
@@ -721,7 +721,7 @@ static func coordinated_shuffle(
 	var nd_samples: Array = _generate_samples_nd(1, shuffle_dimensions, method, point_index, rng_to_use)
 	
 	if nd_samples.is_empty() or nd_samples[0].size() != shuffle_dimensions:
-		printerr("coordinated_shuffle: Failed to generate ND samples")
+		push_error("Failed to generate ND samples for coordinated shuffle")
 		return deck  # Return unshuffled deck on error
 	
 	var sobol_point = nd_samples[0]
@@ -803,13 +803,13 @@ static func sample_indices(
 	sample_seed: int = -1
 ) -> Array[int]:
 	if draw_count < 0:
-		printerr("sample_indices: draw_count cannot be negative.")
+		push_error("draw_count cannot be negative. Received: " + str(draw_count))
 		return []
 	if population_size < 0:
-		printerr("sample_indices: population_size cannot be negative.")
+		push_error("population_size cannot be negative. Received: " + str(population_size))
 		return []
 	if selection_strategy != SelectionStrategy.WITH_REPLACEMENT and draw_count > population_size:
-		printerr("sample_indices: Without replacement, draw_count cannot exceed population_size.")
+		push_error("Without replacement, draw_count cannot exceed population_size. Received draw_count=" + str(draw_count) + ", population_size=" + str(population_size))
 		return []
 
 	var rng_to_use: RandomNumberGenerator = StatMath.get_rng()
@@ -828,7 +828,7 @@ static func sample_indices(
 		SelectionStrategy.COORDINATED_FISHER_YATES:
 			return _coordinated_fisher_yates_draw(population_size, draw_count, sampling_method, rng_to_use)
 	
-	printerr("sample_indices: Unsupported selection strategy: ", SelectionStrategy.keys()[selection_strategy])
+	push_error("Unsupported selection strategy: " + str(SelectionStrategy.keys()[selection_strategy]))
 	return []
 
 
@@ -1008,7 +1008,7 @@ static func _selection_tracking_draw(population_size: int, draw_count: int, samp
 		attempts += 1
 	
 	if items_drawn < draw_count:
-		printerr("_selection_tracking_draw: Failed to draw enough unique items.")
+		push_error("Failed to draw enough unique items. Drew " + str(items_drawn) + " out of " + str(draw_count) + " requested.")
 		return result.slice(0, items_drawn)
 
 	return result
@@ -1131,7 +1131,7 @@ static func _generate_halton_1d(ndraws: int, base: int, starting_index: int = 0)
 
 	# Check for invalid base
 	if base < 2:
-		printerr("Halton: Base must be >= 2. Got: ", base)
+		push_error("Halton base must be >= 2. Received: " + str(base))
 		for i_idx in range(ndraws): sequence[i_idx] = -1.0 # Signal error
 		return sequence
 
