@@ -12,6 +12,8 @@ jobs:
   build-addon:
     runs-on: ubuntu-latest
     permissions:
+      checks: write
+      actions: read
       contents: read
     steps:
       - name: Checkout
