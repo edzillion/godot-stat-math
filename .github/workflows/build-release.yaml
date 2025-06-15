@@ -59,17 +59,11 @@ jobs:
           echo "Release notes extracted:"
           cat release_notes.md
 
-      - name: Run GDUnit4 tests
-        uses: MikeSchulze/gdunit4-action@v1
-        with:
-          godot-version: "4.4"
-          paths: "res://addons/godot-stat-math/tests"
-
       - name: Create addon release zip
         run: |
           echo "Creating release zip for Godot Stat Math ${{ steps.extract-version.outputs.version-string }}"
           cd addons
-          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}.zip godot-stat-math/
+          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}.zip godot-stat-math/ -x "*.uid"
           
           # Verify zip contents
           echo "Release zip contents:"

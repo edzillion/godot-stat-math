@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Godot Stat Math"
-config/version="0.0.3"
+config/version="0.0.4"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
