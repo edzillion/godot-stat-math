@@ -1,9 +1,9 @@
 # Godot Stat Math
 
-![Godot 4.x](https://img.shields.io/badge/Godot-4.x-blue?logo=godot-engine)
 ![Release](https://img.shields.io/github/v/release/edzillion/godot-stat-math?sort=semver)
-![Build](https://github.com/edzillion/godot-stat-math/actions/workflows/build-develop.yaml/badge.svg)
-![Tests](https://github.com/edzillion/godot-stat-math/actions/workflows/verify-develop.yaml/badge.svg)
+![Build](https://github.com/edzillion/godot-stat-math/actions/workflows/build-release.yaml/badge.svg)
+![Tests](https://github.com/edzillion/godot-stat-math/actions/workflows/verify-release.yaml/badge.svg)
+![Godot 4.x](https://img.shields.io/badge/Godot-4.x-blue?logo=godot-engine)
 
 **Godot Stat Math** is a Godot 4 addon providing common statistical functions for game developers, exposed via the global `StatMath` autoload singleton. It is designed for practical, game-oriented use—if you need scientific-grade accuracy, consider a dedicated scientific library.
 
