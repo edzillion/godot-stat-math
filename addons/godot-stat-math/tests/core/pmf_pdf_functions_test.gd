@@ -33,12 +33,12 @@ func test_binomial_pmf_p_one() -> void:
 func test_binomial_pmf_invalid_n_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PmfPdfFunctions.binomial_pmf(2, -1, 0.5)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Number of trials (n_trials) must be non-negative.")
+	await assert_error(test_call).is_push_error("Number of trials (n_trials) must be non-negative.")
 
 func test_binomial_pmf_invalid_p() -> void:
 	var test_call: Callable = func():
 		StatMath.PmfPdfFunctions.binomial_pmf(2, 5, -0.1)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Success probability (p_prob) must be between 0.0 and 1.0.")
+	await assert_error(test_call).is_push_error("Success probability (p_prob) must be between 0.0 and 1.0.")
 
 # --- Poisson PMF ---
 func test_poisson_pmf_basic() -> void:
@@ -62,7 +62,7 @@ func test_poisson_pmf_k_negative() -> void:
 func test_poisson_pmf_invalid_lambda_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PmfPdfFunctions.poisson_pmf(2, -1.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Rate parameter (lambda_param) must be non-negative.")
+	await assert_error(test_call).is_push_error("Rate parameter (lambda_param) must be non-negative.")
 
 # --- Negative Binomial PMF ---
 func test_negative_binomial_pmf_basic() -> void:
@@ -86,9 +86,9 @@ func test_negative_binomial_pmf_p_one() -> void:
 func test_negative_binomial_pmf_invalid_r_zero() -> void:
 	var test_call: Callable = func():
 		StatMath.PmfPdfFunctions.negative_binomial_pmf(2, 0, 0.5)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Number of required successes (r_successes) must be positive.")
+	await assert_error(test_call).is_push_error("Number of required successes (r_successes) must be positive.")
 
 func test_negative_binomial_pmf_invalid_p_zero() -> void:
 	var test_call: Callable = func():
 		StatMath.PmfPdfFunctions.negative_binomial_pmf(2, 2, 0.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Success probability (p_prob) must be in (0,1].") 
+	await assert_error(test_call).is_push_error("Success probability (p_prob) must be in (0,1].") 

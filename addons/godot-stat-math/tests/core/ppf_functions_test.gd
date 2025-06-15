@@ -17,12 +17,12 @@ func test_uniform_ppf_p_one() -> void:
 func test_uniform_ppf_invalid_p() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.uniform_ppf(-0.1, 2.0, 4.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
 
 func test_uniform_ppf_invalid_b_less_than_a() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.uniform_ppf(0.5, 4.0, 2.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Parameter b must be greater than or equal to a. Received a=4.0, b=2.0")
+	await assert_error(test_call).is_push_error("Parameter b must be greater than or equal to a. Received a=4.0, b=2.0")
 
 # --- Normal PPF ---
 func test_normal_ppf_standard_normal() -> void:
@@ -44,7 +44,7 @@ func test_normal_ppf_p_one() -> void:
 func test_normal_ppf_invalid_sigma() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.normal_ppf(0.5, 0.0, 0.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Standard deviation sigma must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Standard deviation sigma must be positive. Received: 0.0")
 
 # --- Exponential PPF ---
 func test_exponential_ppf_basic() -> void:
@@ -62,7 +62,7 @@ func test_exponential_ppf_p_one() -> void:
 func test_exponential_ppf_invalid_lambda() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.exponential_ppf(0.5, 0.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Rate lambda_param must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Rate lambda_param must be positive. Received: 0.0")
 
 # --- Beta PPF (edge/parameter tests only, as CDF is placeholder) ---
 func test_beta_ppf_p_zero() -> void:
@@ -76,12 +76,12 @@ func test_beta_ppf_p_one() -> void:
 func test_beta_ppf_invalid_alpha() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.beta_ppf(0.5, 0.0, 2.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter alpha_shape must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Shape parameter alpha_shape must be positive. Received: 0.0")
 
 func test_beta_ppf_invalid_beta() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.beta_ppf(0.5, 2.0, 0.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter beta_shape must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Shape parameter beta_shape must be positive. Received: 0.0")
 
 # --- Comprehensive Beta PPF Tests ---
 
@@ -218,22 +218,22 @@ func test_beta_ppf_edge_case_large_p() -> void:
 func test_beta_ppf_invalid_p_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.beta_ppf(-0.1, 2.0, 2.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
 
 func test_beta_ppf_invalid_p_greater_than_one() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.beta_ppf(1.1, 2.0, 2.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
 
 func test_beta_ppf_invalid_alpha_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.beta_ppf(0.5, -1.0, 2.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter alpha_shape must be positive. Received: -1.0")
+	await assert_error(test_call).is_push_error("Shape parameter alpha_shape must be positive. Received: -1.0")
 
 func test_beta_ppf_invalid_beta_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.beta_ppf(0.5, 2.0, -1.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter beta_shape must be positive. Received: -1.0")
+	await assert_error(test_call).is_push_error("Shape parameter beta_shape must be positive. Received: -1.0")
 
 func test_beta_ppf_consistency_with_cdf() -> void:
 	# Test that PPF and CDF are inverse functions (round-trip test)
@@ -303,12 +303,12 @@ func test_gamma_ppf_p_one() -> void:
 func test_gamma_ppf_invalid_shape() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.gamma_ppf(0.5, 0.0, 2.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter k_shape must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Shape parameter k_shape must be positive. Received: 0.0")
 
 func test_gamma_ppf_invalid_scale() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.gamma_ppf(0.5, 2.0, 0.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Scale parameter theta_scale must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Scale parameter theta_scale must be positive. Received: 0.0")
 
 # --- Chi-Square PPF ---
 func test_chi_square_ppf_p_zero() -> void:
@@ -318,7 +318,7 @@ func test_chi_square_ppf_p_zero() -> void:
 func test_chi_square_ppf_invalid_df() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.chi_square_ppf(0.5, 0.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Degrees of freedom k_df must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Degrees of freedom k_df must be positive. Received: 0.0")
 
 # --- F PPF (edge/parameter tests only, as CDF is placeholder) ---
 func test_f_ppf_p_zero() -> void:
@@ -328,7 +328,7 @@ func test_f_ppf_p_zero() -> void:
 func test_f_ppf_invalid_df() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.f_ppf(0.5, 0.0, 2.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Degrees of freedom d1 must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Degrees of freedom d1 must be positive. Received: 0.0")
 
 # --- t PPF (edge/parameter tests only, as CDF is placeholder) ---
 func test_t_ppf_p_zero() -> void:
@@ -342,7 +342,7 @@ func test_t_ppf_p_half() -> void:
 func test_t_ppf_invalid_df() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.t_ppf(0.5, 0.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Degrees of freedom df must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Degrees of freedom df must be positive. Received: 0.0")
 
 # --- Binomial PPF ---
 func test_binomial_ppf_p_zero() -> void:
@@ -356,7 +356,7 @@ func test_binomial_ppf_p_one() -> void:
 func test_binomial_ppf_invalid_n() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.binomial_ppf(0.5, -1, 0.5)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Number of trials n must be non-negative. Received: -1")
+	await assert_error(test_call).is_push_error("Number of trials n must be non-negative. Received: -1")
 
 # --- Poisson PPF ---
 func test_poisson_ppf_p_zero() -> void:
@@ -366,7 +366,7 @@ func test_poisson_ppf_p_zero() -> void:
 func test_poisson_ppf_invalid_lambda() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.poisson_ppf(0.5, -1.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Rate lambda_param must be non-negative. Received: -1.0")
+	await assert_error(test_call).is_push_error("Rate lambda_param must be non-negative. Received: -1.0")
 
 # --- Geometric PPF ---
 func test_geometric_ppf_p_zero() -> void:
@@ -380,7 +380,7 @@ func test_geometric_ppf_p_one() -> void:
 func test_geometric_ppf_invalid_p() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.geometric_ppf(-0.1, 0.5)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
 
 # --- Negative Binomial PPF ---
 func test_negative_binomial_ppf_p_zero() -> void:
@@ -394,7 +394,7 @@ func test_negative_binomial_ppf_p_one() -> void:
 func test_negative_binomial_ppf_invalid_r() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.negative_binomial_ppf(0.5, 0, 0.5)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Number of successes r_successes must be a positive integer. Received: 0")
+	await assert_error(test_call).is_push_error("Number of successes r_successes must be a positive integer. Received: 0")
 
 # --- Bernoulli PPF ---
 func test_bernoulli_ppf_p_less_than_one_minus_prob_success() -> void:
@@ -436,22 +436,22 @@ func test_bernoulli_ppf_prob_success_one() -> void:
 func test_bernoulli_ppf_invalid_p_too_low() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.bernoulli_ppf(-0.1, 0.5)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
 
 func test_bernoulli_ppf_invalid_p_too_high() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.bernoulli_ppf(1.1, 0.5)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
 
 func test_bernoulli_ppf_invalid_prob_success_too_low() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.bernoulli_ppf(0.5, -0.1)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Success probability prob_success must be between 0.0 and 1.0. Received: -0.1")
+	await assert_error(test_call).is_push_error("Success probability prob_success must be between 0.0 and 1.0. Received: -0.1")
 
 func test_bernoulli_ppf_invalid_prob_success_too_high() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.bernoulli_ppf(0.5, 1.1)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Success probability prob_success must be between 0.0 and 1.0. Received: 1.1")
+	await assert_error(test_call).is_push_error("Success probability prob_success must be between 0.0 and 1.0. Received: 1.1")
 
 
 # --- Discrete Histogram PPF ---
@@ -500,42 +500,42 @@ func test_discrete_histogram_ppf_invalid_p_too_low() -> void:
 	var probabilities: Array[float] = [1.0]
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.discrete_histogram_ppf(-0.1, values, probabilities)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
 
 func test_discrete_histogram_ppf_invalid_p_too_high() -> void:
 	var values: Array[String] = ["A"]
 	var probabilities: Array[float] = [1.0]
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.discrete_histogram_ppf(1.1, values, probabilities)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
 
 func test_discrete_histogram_ppf_empty_values() -> void:
 	var values: Array = []
 	var probabilities: Array[float] = [1.0]
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Values array cannot be empty for discrete_histogram_ppf.")
+	await assert_error(test_call).is_push_error("Values array cannot be empty for discrete_histogram_ppf.")
 
 func test_discrete_histogram_ppf_empty_probabilities() -> void:
 	var values: Array[String] = ["A"]
 	var probabilities: Array[float] = []
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probabilities array cannot be empty for discrete_histogram_ppf.")
+	await assert_error(test_call).is_push_error("Probabilities array cannot be empty for discrete_histogram_ppf.")
 
 func test_discrete_histogram_ppf_size_mismatch() -> void:
 	var values: Array[String] = ["A", "B"]
 	var probabilities: Array[float] = [1.0]
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Values and probabilities arrays must have the same size. Received sizes 2 and 1.")
+	await assert_error(test_call).is_push_error("Values and probabilities arrays must have the same size. Received sizes 2 and 1.")
 
 func test_discrete_histogram_ppf_negative_probability() -> void:
 	var values: Array[String] = ["A", "B"]
 	var probabilities: Array[float] = [-0.1, 1.1]
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.discrete_histogram_ppf(0.5, values, probabilities)
-	await assert_error(test_call).is_runtime_error("Assertion failed: All probabilities must be non-negative. Found: -0.1")
+	await assert_error(test_call).is_push_error("All probabilities must be non-negative. Found: -0.1")
 
 func test_discrete_histogram_ppf_probabilities_not_sum_to_one_warning() -> void:
 	# This test mainly checks if the function still works correctly based on cumulative logic.
@@ -671,32 +671,32 @@ func test_pareto_ppf_extreme_probabilities() -> void:
 func test_pareto_ppf_invalid_p_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.pareto_ppf(-0.1, 2.0, 3.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
 
 func test_pareto_ppf_invalid_p_greater_than_one() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.pareto_ppf(1.1, 2.0, 3.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
 
 func test_pareto_ppf_invalid_scale_zero() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.pareto_ppf(0.5, 0.0, 3.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Scale parameter must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Scale parameter must be positive. Received: 0.0")
 
 func test_pareto_ppf_invalid_scale_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.pareto_ppf(0.5, -1.0, 3.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Scale parameter must be positive. Received: -1.0")
+	await assert_error(test_call).is_push_error("Scale parameter must be positive. Received: -1.0")
 
 func test_pareto_ppf_invalid_shape_zero() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.pareto_ppf(0.5, 2.0, 0.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Shape parameter must be positive. Received: 0.0")
 
 func test_pareto_ppf_invalid_shape_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.pareto_ppf(0.5, 2.0, -1.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter must be positive. Received: -1.0")
+	await assert_error(test_call).is_push_error("Shape parameter must be positive. Received: -1.0")
 
 # --- Game Development Use Cases for Pareto PPF ---
 
@@ -955,32 +955,32 @@ func test_weibull_ppf_extreme_probabilities() -> void:
 func test_weibull_ppf_invalid_p_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.weibull_ppf(-0.1, 2.0, 3.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
 
 func test_weibull_ppf_invalid_p_greater_than_one() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.weibull_ppf(1.1, 2.0, 3.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
+	await assert_error(test_call).is_push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
 
 func test_weibull_ppf_invalid_scale_zero() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.weibull_ppf(0.5, 0.0, 2.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Scale parameter must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Scale parameter must be positive. Received: 0.0")
 
 func test_weibull_ppf_invalid_scale_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.weibull_ppf(0.5, -1.0, 2.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Scale parameter must be positive. Received: -1.0")
+	await assert_error(test_call).is_push_error("Scale parameter must be positive. Received: -1.0")
 
 func test_weibull_ppf_invalid_shape_zero() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.weibull_ppf(0.5, 2.0, 0.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter must be positive. Received: 0.0")
+	await assert_error(test_call).is_push_error("Shape parameter must be positive. Received: 0.0")
 
 func test_weibull_ppf_invalid_shape_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.PpfFunctions.weibull_ppf(0.5, 2.0, -1.0)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter must be positive. Received: -1.0")
+	await assert_error(test_call).is_push_error("Shape parameter must be positive. Received: -1.0")
 
 # --- Game Development Use Cases for Weibull PPF ---
 

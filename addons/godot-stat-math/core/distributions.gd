@@ -126,7 +126,7 @@ static func randi_pseudo(c_param: float) -> int:
 		current_c += c_param
 		# Safety break for very small c_param to prevent potential very long loops.
 		if trial > 1000000:
-			printerr("randi_pseudo: Exceeded 1,000,000 trials. Check c_param value (%f)." % c_param)
+			push_error("randi_pseudo: Exceeded 1,000,000 trials. Check c_param value: %s. This indicates c_param is too small and may cause infinite loops." % c_param)
 			return trial 
 		
 	return trial
@@ -158,7 +158,7 @@ static func randi_seige(w: float, c_0: float, c_win: float, c_lose: float) -> in
 		
 		# Safety break for parameters that might lead to extremely long or infinite loops.
 		if trials > 1000000: 
-			printerr("StatMath.Distributions.randi_seige: Exceeded 1,000,000 trials. Review parameters (w=%f, c_0=%f, c_win=%f, c_lose=%f) as they might prevent c_val from reaching a state where capture is likely." % [w, c_0, c_win, c_lose])
+			push_error("randi_seige: Exceeded 1,000,000 trials. Review parameters w=%s, c_0=%s, c_win=%s, c_lose=%s as they might prevent c_val from reaching a state where capture is likely." % [w, c_0, c_win, c_lose])
 			return trials
 
 	# This line should be unreachable given the loop structure and safety break.

@@ -24,7 +24,7 @@ func test_mean_single_value() -> void:
 func test_mean_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.mean([])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot calculate mean of empty array.")
+	await assert_error(test_call).is_push_error("Cannot calculate mean of empty array.")
 
 # --- Median Tests ---
 func test_median_odd_count() -> void:
@@ -43,7 +43,7 @@ func test_median_single_value() -> void:
 func test_median_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.median([])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot calculate median of empty array.")
+	await assert_error(test_call).is_push_error("Cannot calculate median of empty array.")
 
 # --- Variance Tests ---
 func test_variance_simple_data() -> void:
@@ -58,7 +58,7 @@ func test_variance_single_value() -> void:
 func test_variance_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.variance([])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot calculate variance of empty array.")
+	await assert_error(test_call).is_push_error("Cannot calculate variance of empty array.")
 
 # --- Standard Deviation Tests ---
 func test_standard_deviation_simple_data() -> void:
@@ -72,7 +72,7 @@ func test_standard_deviation_single_value() -> void:
 func test_standard_deviation_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.standard_deviation([])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot calculate standard deviation of empty array.")
+	await assert_error(test_call).is_push_error("Cannot calculate standard deviation of empty array.")
 
 # --- Sample Variance Tests ---
 func test_sample_variance_simple_data() -> void:
@@ -88,7 +88,7 @@ func test_sample_variance_two_values() -> void:
 func test_sample_variance_single_value() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.sample_variance(single_value)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot calculate sample variance with fewer than 2 data points.")
+	await assert_error(test_call).is_push_error("Cannot calculate sample variance with fewer than 2 data points.")
 
 # --- Sample Standard Deviation Tests ---
 func test_sample_standard_deviation_simple_data() -> void:
@@ -98,7 +98,7 @@ func test_sample_standard_deviation_simple_data() -> void:
 func test_sample_standard_deviation_single_value() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.sample_standard_deviation(single_value)
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot calculate sample standard deviation with fewer than 2 data points.")
+	await assert_error(test_call).is_push_error("Cannot calculate sample standard deviation with fewer than 2 data points.")
 
 # --- Median Absolute Deviation Tests ---
 func test_median_absolute_deviation_simple_data() -> void:
@@ -113,7 +113,7 @@ func test_median_absolute_deviation_single_value() -> void:
 func test_median_absolute_deviation_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.median_absolute_deviation([])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot calculate MAD of empty array.")
+	await assert_error(test_call).is_push_error("Cannot calculate MAD of empty array.")
 
 # --- Range Tests ---
 func test_range_spread_simple_data() -> void:
@@ -127,7 +127,7 @@ func test_range_spread_single_value() -> void:
 func test_range_spread_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.range_spread([])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot calculate range of empty array.")
+	await assert_error(test_call).is_push_error("Cannot calculate range of empty array.")
 
 # --- Minimum Tests ---
 func test_minimum_simple_data() -> void:
@@ -137,7 +137,7 @@ func test_minimum_simple_data() -> void:
 func test_minimum_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.minimum([])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot find minimum of empty array.")
+	await assert_error(test_call).is_push_error("Cannot find minimum of empty array.")
 
 # --- Maximum Tests ---
 func test_maximum_simple_data() -> void:
@@ -147,7 +147,7 @@ func test_maximum_simple_data() -> void:
 func test_maximum_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.maximum([])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot find maximum of empty array.")
+	await assert_error(test_call).is_push_error("Cannot find maximum of empty array.")
 
 # --- Summary Statistics Tests ---
 func test_summary_statistics_simple_data() -> void:
@@ -183,4 +183,4 @@ func test_summary_statistics_single_value() -> void:
 func test_summary_statistics_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.summary_statistics([])
-	await assert_error(test_call).is_runtime_error("Assertion failed: Cannot calculate summary statistics of empty array.") 
+	await assert_error(test_call).is_push_error("Cannot calculate summary statistics of empty array.") 
