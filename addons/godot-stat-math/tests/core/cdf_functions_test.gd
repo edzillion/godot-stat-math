@@ -324,4 +324,242 @@ func test_pareto_cdf_market_price_analysis() -> void:
 	assert_float(prob_below_market).is_between(0.0, 1.0)
 	
 	# With low shape parameter, most items should be near base value
-	assert_float(prob_below_market).is_greater(0.3) 
+	assert_float(prob_below_market).is_greater(0.3)
+
+# --- Weibull CDF ---
+func test_weibull_cdf_x_zero() -> void:
+	var result: float = StatMath.CdfFunctions.weibull_cdf(0.0, 2.0, 3.0)
+	assert_float(result).is_equal_approx(0.0, 1e-7)
+
+func test_weibull_cdf_basic_calculation() -> void:
+	# For x = 2, scale = 2, shape = 2: F(2) = 1 - exp(-(2/2)^2) = 1 - exp(-1) ≈ 0.632
+	var result: float = StatMath.CdfFunctions.weibull_cdf(2.0, 2.0, 2.0)
+	var expected: float = 1.0 - exp(-1.0)  # ≈ 0.632
+	assert_float(result).is_equal_approx(expected, 1e-6)
+
+func test_weibull_cdf_x_below_zero() -> void:
+	var result: float = StatMath.CdfFunctions.weibull_cdf(-1.0, 2.0, 3.0)
+	assert_float(result).is_equal_approx(0.0, 1e-7)
+
+func test_weibull_cdf_large_x() -> void:
+	# For very large x, CDF should approach 1
+	var result: float = StatMath.CdfFunctions.weibull_cdf(1000.0, 2.0, 3.0)
+	assert_float(result).is_greater(0.99)
+	assert_float(result).is_less_equal(1.0)
+
+func test_weibull_cdf_exponential_case() -> void:
+	# When shape = 1, Weibull becomes exponential: F(x) = 1 - exp(-x/λ)
+	var x: float = 3.0
+	var scale: float = 2.0
+	var shape: float = 1.0
+	
+	var weibull_result: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
+	var exponential_result: float = StatMath.CdfFunctions.exponential_cdf(x, 1.0 / scale)
+	
+	assert_float(weibull_result).is_equal_approx(exponential_result, 1e-6)
+
+func test_weibull_cdf_rayleigh_case() -> void:
+	# When shape = 2, Weibull becomes Rayleigh distribution
+	var x: float = 2.0
+	var scale: float = 3.0
+	var shape: float = 2.0
+	
+	var result: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
+	
+	# Should be valid probability
+	assert_float(result).is_between(0.0, 1.0)
+	assert_bool(is_nan(result)).is_false()
+
+func test_weibull_cdf_different_shapes() -> void:
+	var x: float = 3.0
+	var scale: float = 2.0
+	
+	# Different shape parameters should give different CDF values
+	var cdf_shape_05: float = StatMath.CdfFunctions.weibull_cdf(x, scale, 0.5)  # Decreasing failure rate
+	var cdf_shape_1: float = StatMath.CdfFunctions.weibull_cdf(x, scale, 1.0)   # Constant failure rate
+	var cdf_shape_3: float = StatMath.CdfFunctions.weibull_cdf(x, scale, 3.0)   # Increasing failure rate
+	
+	# All should be valid probabilities
+	assert_float(cdf_shape_05).is_between(0.0, 1.0)
+	assert_float(cdf_shape_1).is_between(0.0, 1.0)
+	assert_float(cdf_shape_3).is_between(0.0, 1.0)
+
+func test_weibull_cdf_monotonicity() -> void:
+	# CDF should be monotonically increasing
+	var scale: float = 2.0
+	var shape: float = 2.0
+	
+	var x1: float = 0.5
+	var x2: float = 1.0
+	var x3: float = 2.0
+	var x4: float = 4.0
+	
+	var cdf1: float = StatMath.CdfFunctions.weibull_cdf(x1, scale, shape)
+	var cdf2: float = StatMath.CdfFunctions.weibull_cdf(x2, scale, shape)
+	var cdf3: float = StatMath.CdfFunctions.weibull_cdf(x3, scale, shape)
+	var cdf4: float = StatMath.CdfFunctions.weibull_cdf(x4, scale, shape)
+	
+	assert_float(cdf1).is_less_equal(cdf2)
+	assert_float(cdf2).is_less_equal(cdf3)
+	assert_float(cdf3).is_less_equal(cdf4)
+
+func test_weibull_cdf_bounds() -> void:
+	# CDF should always be between 0 and 1
+	var test_cases: Array[Array] = [
+		[1.0, 1.0, 0.5], [2.0, 3.0, 2.0], [5.0, 2.0, 4.0],
+		[10.0, 10.0, 1.5], [0.5, 1.0, 10.0]
+	]
+	
+	for case in test_cases:
+		var x: float = case[0]
+		var scale: float = case[1]
+		var shape: float = case[2]
+		
+		var result: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
+		
+		assert_float(result).is_greater_equal(0.0)
+		assert_float(result).is_less_equal(1.0)
+		assert_bool(is_nan(result)).is_false()
+
+func test_weibull_cdf_deterministic() -> void:
+	# Same parameters should give same results
+	var x: float = 3.0
+	var scale: float = 2.0
+	var shape: float = 2.5
+	
+	var result1: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
+	var result2: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
+	
+	assert_float(result1).is_equal_approx(result2, 1e-15)
+
+func test_weibull_cdf_invalid_scale_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(3.0, 0.0, 2.0)
+	await assert_error(test_call).is_runtime_error("Assertion failed: Scale parameter must be positive for Weibull CDF.")
+
+func test_weibull_cdf_invalid_scale_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(3.0, -1.0, 2.0)
+	await assert_error(test_call).is_runtime_error("Assertion failed: Scale parameter must be positive for Weibull CDF.")
+
+func test_weibull_cdf_invalid_shape_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(3.0, 2.0, 0.0)
+	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter must be positive for Weibull CDF.")
+
+func test_weibull_cdf_invalid_shape_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(3.0, 2.0, -1.0)
+	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter must be positive for Weibull CDF.")
+
+# --- Game Development Use Cases for Weibull CDF ---
+
+func test_weibull_cdf_equipment_failure_probability() -> void:
+	# Example: probability that equipment fails before a certain time
+	var time_threshold: float = 800.0  # Hours
+	var characteristic_life: float = 1000.0  # Hours
+	var wear_pattern: float = 2.5  # Increasing failure rate
+	
+	var failure_probability: float = StatMath.CdfFunctions.weibull_cdf(time_threshold, characteristic_life, wear_pattern)
+	
+	# Should be a valid probability
+	assert_float(failure_probability).is_between(0.0, 1.0)
+	
+	# Should be reasonable for this scenario (some probability of early failure)
+	assert_float(failure_probability).is_greater(0.1)
+	assert_float(failure_probability).is_less(0.9)
+
+func test_weibull_cdf_survival_analysis() -> void:
+	# Example: probability of surviving less than a certain time
+	var survival_times: Array[float] = [100.0, 300.0, 600.0, 1000.0]
+	var base_survival: float = 500.0  # Base survival time
+	var hazard_pattern: float = 1.8  # Increasing hazard
+	
+	var probabilities: Array[float] = []
+	for time in survival_times:
+		var prob: float = StatMath.CdfFunctions.weibull_cdf(time, base_survival, hazard_pattern)
+		probabilities.append(prob)
+	
+	# Probabilities should increase with time
+	for i in range(probabilities.size() - 1):
+		assert_float(probabilities[i]).is_less_equal(probabilities[i + 1])
+	
+	# All should be valid probabilities
+	for prob in probabilities:
+		assert_float(prob).is_between(0.0, 1.0)
+
+func test_weibull_cdf_wind_speed_distribution() -> void:
+	# Example: probability of wind speed being below threshold (Rayleigh case)
+	var wind_threshold: float = 20.0  # km/h
+	var characteristic_wind: float = 15.0  # km/h
+	var rayleigh_shape: float = 2.0  # Rayleigh distribution
+	
+	var prob_below_threshold: float = StatMath.CdfFunctions.weibull_cdf(wind_threshold, characteristic_wind, rayleigh_shape)
+	
+	# Should be valid probability
+	assert_float(prob_below_threshold).is_between(0.0, 1.0)
+	
+	# Should be reasonable for wind speed analysis
+	assert_float(prob_below_threshold).is_greater(0.3)
+
+func test_weibull_cdf_component_reliability() -> void:
+	# Example: reliability analysis for electronic components
+	var operating_time: float = 4000.0  # Hours
+	var design_life: float = 5000.0  # Hours
+	var reliability_shape: float = 3.0  # Sharp wear-out
+	
+	var failure_probability: float = StatMath.CdfFunctions.weibull_cdf(operating_time, design_life, reliability_shape)
+	
+	# Should be valid probability
+	assert_float(failure_probability).is_between(0.0, 1.0)
+	
+	# Before design life, failure probability should be relatively low
+	assert_float(failure_probability).is_less(0.7)
+
+func test_weibull_cdf_quest_completion_analysis() -> void:
+	# Example: analyzing quest completion time distributions
+	var completion_times: Array[float] = [30.0, 60.0, 120.0, 180.0]
+	var typical_time: float = 90.0  # Minutes
+	var difficulty_curve: float = 2.2  # Increasing difficulty
+	
+	var completion_probabilities: Array[float] = []
+	for time in completion_times:
+		var prob: float = StatMath.CdfFunctions.weibull_cdf(time, typical_time, difficulty_curve)
+		completion_probabilities.append(prob)
+	
+	# Should maintain monotonicity
+	for i in range(completion_probabilities.size() - 1):
+		assert_float(completion_probabilities[i]).is_less_equal(completion_probabilities[i + 1])
+	
+	# All should be valid
+	for prob in completion_probabilities:
+		assert_float(prob).is_between(0.0, 1.0)
+
+func test_weibull_cdf_resource_depletion_modeling() -> void:
+	# Example: modeling resource node depletion probability
+	var extraction_time: float = 1500.0  # Time units
+	var resource_lifetime: float = 2000.0  # Expected lifetime
+	var depletion_pattern: float = 1.2  # Slight acceleration
+	
+	var depletion_probability: float = StatMath.CdfFunctions.weibull_cdf(extraction_time, resource_lifetime, depletion_pattern)
+	
+	# Should be valid probability
+	assert_float(depletion_probability).is_between(0.0, 1.0)
+	
+	# Should be reasonable for resource management
+	assert_float(depletion_probability).is_greater(0.2)
+	assert_float(depletion_probability).is_less(0.9)
+
+func test_weibull_cdf_network_latency_analysis() -> void:
+	# Example: network latency spike duration analysis
+	var latency_threshold: float = 100.0  # Milliseconds
+	var typical_spike_duration: float = 75.0  # Milliseconds
+	var recovery_pattern: float = 2.8  # Sharp recovery
+	
+	var prob_short_spike: float = StatMath.CdfFunctions.weibull_cdf(latency_threshold, typical_spike_duration, recovery_pattern)
+	
+	# Should be valid probability
+	assert_float(prob_short_spike).is_between(0.0, 1.0)
+	
+	# Most spikes should be relatively short
+	assert_float(prob_short_spike).is_greater(0.4) 

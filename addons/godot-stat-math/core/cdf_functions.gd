@@ -198,3 +198,28 @@ static func pareto_cdf(x: float, scale_param: float, shape_param: float) -> floa
 	var power_term: float = pow(ratio, shape_param)
 	
 	return 1.0 - power_term
+
+
+# Weibull Distribution CDF: F(x; λ, k)
+# Calculates the probability that a random variable from a Weibull distribution
+# with scale parameter λ and shape parameter k is less than or equal to x.
+# Uses the closed-form solution: F(x) = 1 - exp(-(x/λ)^k) for x ≥ 0.
+# Widely used for reliability analysis, survival modeling, and failure rate calculations.
+# Parameters:
+#   x: float - The value at which to evaluate the CDF.
+#   scale_param: float - The scale parameter λ (characteristic life, must be > 0.0).
+#   shape_param: float - The shape parameter k (controls distribution shape, must be > 0.0).
+# Returns: float - The cumulative probability P(X <= x).
+static func weibull_cdf(x: float, scale_param: float, shape_param: float) -> float:
+	assert(scale_param > 0.0, "Scale parameter must be positive for Weibull CDF.")
+	assert(shape_param > 0.0, "Shape parameter must be positive for Weibull CDF.")
+	
+	if x <= 0.0:
+		return 0.0  # Weibull distribution has support [0, +∞)
+	
+	# Closed-form solution: F(x) = 1 - exp(-(x/λ)^k)
+	var ratio: float = x / scale_param
+	var power_term: float = pow(ratio, shape_param)
+	var exp_term: float = exp(-power_term)
+	
+	return 1.0 - exp_term

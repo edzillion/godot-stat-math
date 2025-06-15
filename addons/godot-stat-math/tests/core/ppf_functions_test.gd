@@ -784,3 +784,321 @@ func test_pareto_ppf_procedural_generation_scaling() -> void:
 	
 	# Lower seeds should give values closer to base scale (more reasonable ratio)
 	assert_float(scaled_values[0]).is_less(scaled_values[-1] * 0.8) 
+
+# --- Weibull PPF ---
+func test_weibull_ppf_p_zero() -> void:
+	var result: float = StatMath.PpfFunctions.weibull_ppf(0.0, 2.0, 3.0)
+	assert_float(result).is_equal_approx(0.0, 1e-7)
+
+func test_weibull_ppf_p_one() -> void:
+	var result: float = StatMath.PpfFunctions.weibull_ppf(1.0, 2.0, 3.0)
+	assert_bool(is_inf(result)).is_true()
+
+func test_weibull_ppf_basic_calculation() -> void:
+	# For p = 1 - exp(-1) ≈ 0.632, scale = 2, shape = 2: PPF should be 2
+	var p: float = 1.0 - exp(-1.0)  # ≈ 0.632
+	var result: float = StatMath.PpfFunctions.weibull_ppf(p, 2.0, 2.0)
+	assert_float(result).is_equal_approx(2.0, 1e-6)
+
+func test_weibull_ppf_exponential_case() -> void:
+	# When shape = 1, Weibull becomes exponential
+	var p: float = 0.5
+	var scale: float = 2.0
+	var shape: float = 1.0
+	
+	var weibull_result: float = StatMath.PpfFunctions.weibull_ppf(p, scale, shape)
+	var exponential_result: float = StatMath.PpfFunctions.exponential_ppf(p, 1.0 / scale)
+	
+	assert_float(weibull_result).is_equal_approx(exponential_result, 1e-6)
+
+func test_weibull_ppf_rayleigh_case() -> void:
+	# When shape = 2, Weibull becomes Rayleigh distribution
+	var p: float = 0.7
+	var scale: float = 3.0
+	var shape: float = 2.0
+	
+	var result: float = StatMath.PpfFunctions.weibull_ppf(p, scale, shape)
+	
+	# Should be valid and positive
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+func test_weibull_ppf_different_shapes() -> void:
+	var p: float = 0.5
+	var scale: float = 2.0
+	
+	# Different shape parameters should give different PPF values
+	var ppf_shape_05: float = StatMath.PpfFunctions.weibull_ppf(p, scale, 0.5)  # Decreasing failure rate
+	var ppf_shape_1: float = StatMath.PpfFunctions.weibull_ppf(p, scale, 1.0)   # Constant failure rate
+	var ppf_shape_3: float = StatMath.PpfFunctions.weibull_ppf(p, scale, 3.0)   # Increasing failure rate
+	
+	# All should be valid and positive
+	assert_float(ppf_shape_05).is_greater_equal(0.0)
+	assert_float(ppf_shape_1).is_greater_equal(0.0)
+	assert_float(ppf_shape_3).is_greater_equal(0.0)
+	
+	# They should be different values
+	assert_bool(is_equal_approx(ppf_shape_05, ppf_shape_1)).is_false()
+	assert_bool(is_equal_approx(ppf_shape_1, ppf_shape_3)).is_false()
+
+func test_weibull_ppf_monotonicity() -> void:
+	# PPF should be monotonically increasing
+	var scale: float = 2.0
+	var shape: float = 2.0
+	
+	var p1: float = 0.1
+	var p2: float = 0.3
+	var p3: float = 0.6
+	var p4: float = 0.9
+	
+	var ppf1: float = StatMath.PpfFunctions.weibull_ppf(p1, scale, shape)
+	var ppf2: float = StatMath.PpfFunctions.weibull_ppf(p2, scale, shape)
+	var ppf3: float = StatMath.PpfFunctions.weibull_ppf(p3, scale, shape)
+	var ppf4: float = StatMath.PpfFunctions.weibull_ppf(p4, scale, shape)
+	
+	assert_float(ppf1).is_less_equal(ppf2)
+	assert_float(ppf2).is_less_equal(ppf3)
+	assert_float(ppf3).is_less_equal(ppf4)
+
+func test_weibull_ppf_consistency_with_cdf() -> void:
+	# PPF(CDF(x)) should equal x
+	var x_values: Array[float] = [0.5, 1.0, 2.0, 5.0]
+	var scale: float = 2.0
+	var shape: float = 2.5
+	
+	for x in x_values:
+		var cdf_val: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
+		var ppf_val: float = StatMath.PpfFunctions.weibull_ppf(cdf_val, scale, shape)
+		
+		assert_float(ppf_val).is_equal_approx(x, 1e-6)
+
+func test_weibull_ppf_bounds() -> void:
+	# PPF should always be non-negative for valid inputs
+	var p_values: Array[float] = [0.01, 0.1, 0.25, 0.5, 0.75, 0.9, 0.99]
+	var scale: float = 3.0
+	var shape: float = 1.8
+	
+	for p in p_values:
+		var result: float = StatMath.PpfFunctions.weibull_ppf(p, scale, shape)
+		
+		assert_float(result).is_greater_equal(0.0)
+		assert_bool(is_nan(result)).is_false()
+
+func test_weibull_ppf_deterministic() -> void:
+	# Same parameters should give same results
+	var p: float = 0.6
+	var scale: float = 2.0
+	var shape: float = 2.5
+	
+	var result1: float = StatMath.PpfFunctions.weibull_ppf(p, scale, shape)
+	var result2: float = StatMath.PpfFunctions.weibull_ppf(p, scale, shape)
+	
+	assert_float(result1).is_equal_approx(result2, 1e-15)
+
+func test_weibull_ppf_extreme_probabilities() -> void:
+	var scale: float = 2.0
+	var shape: float = 3.0
+	
+	# Very small p
+	var small_p: float = 0.001
+	var result_small: float = StatMath.PpfFunctions.weibull_ppf(small_p, scale, shape)
+	assert_float(result_small).is_greater_equal(0.0)
+	assert_float(result_small).is_less(scale * 0.5)  # Should be small for small p
+	
+	# Very large p
+	var large_p: float = 0.999
+	var result_large: float = StatMath.PpfFunctions.weibull_ppf(large_p, scale, shape)
+	assert_float(result_large).is_greater(scale * 1.5)  # Should be reasonably large for large p
+
+func test_weibull_ppf_invalid_p_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.PpfFunctions.weibull_ppf(-0.1, 2.0, 3.0)
+	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1")
+
+func test_weibull_ppf_invalid_p_greater_than_one() -> void:
+	var test_call: Callable = func():
+		StatMath.PpfFunctions.weibull_ppf(1.1, 2.0, 3.0)
+	await assert_error(test_call).is_runtime_error("Assertion failed: Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.1")
+
+func test_weibull_ppf_invalid_scale_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.PpfFunctions.weibull_ppf(0.5, 0.0, 2.0)
+	await assert_error(test_call).is_runtime_error("Assertion failed: Scale parameter must be positive. Received: 0.0")
+
+func test_weibull_ppf_invalid_scale_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.PpfFunctions.weibull_ppf(0.5, -1.0, 2.0)
+	await assert_error(test_call).is_runtime_error("Assertion failed: Scale parameter must be positive. Received: -1.0")
+
+func test_weibull_ppf_invalid_shape_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.PpfFunctions.weibull_ppf(0.5, 2.0, 0.0)
+	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter must be positive. Received: 0.0")
+
+func test_weibull_ppf_invalid_shape_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.PpfFunctions.weibull_ppf(0.5, 2.0, -1.0)
+	await assert_error(test_call).is_runtime_error("Assertion failed: Shape parameter must be positive. Received: -1.0")
+
+# --- Game Development Use Cases for Weibull PPF ---
+
+func test_weibull_ppf_equipment_lifetime_planning() -> void:
+	# Example: determining equipment replacement schedules
+	var reliability_targets: Array[float] = [0.5, 0.8, 0.95]  # Survival probabilities
+	var characteristic_life: float = 1000.0  # Hours
+	var wear_pattern: float = 2.5  # Increasing failure rate
+	
+	var replacement_times: Array[float] = []
+	for target in reliability_targets:
+		# PPF gives time when failure probability = (1 - target)
+		var failure_time: float = StatMath.PpfFunctions.weibull_ppf(1.0 - target, characteristic_life, wear_pattern)
+		replacement_times.append(failure_time)
+	
+	# Times should increase with higher reliability targets
+	for i in range(replacement_times.size() - 1):
+		assert_float(replacement_times[i]).is_greater_equal(replacement_times[i + 1])
+	
+	# All should be valid
+	for time in replacement_times:
+		assert_float(time).is_greater_equal(0.0)
+
+func test_weibull_ppf_survival_time_quantiles() -> void:
+	# Example: calculating survival time quantiles for game balancing
+	var survival_quantiles: Array[float] = [0.25, 0.5, 0.75, 0.9]  # 25th, 50th, 75th, 90th percentiles
+	var base_survival: float = 300.0  # Seconds
+	var hazard_pattern: float = 1.8  # Increasing hazard
+	
+	var quantile_times: Array[float] = []
+	for quantile in survival_quantiles:
+		var survival_time: float = StatMath.PpfFunctions.weibull_ppf(quantile, base_survival, hazard_pattern)
+		quantile_times.append(survival_time)
+	
+	# Should be monotonically increasing
+	for i in range(quantile_times.size() - 1):
+		assert_float(quantile_times[i]).is_less_equal(quantile_times[i + 1])
+	
+	# All should be valid
+	for time in quantile_times:
+		assert_float(time).is_greater_equal(0.0)
+
+func test_weibull_ppf_wind_speed_thresholds() -> void:
+	# Example: determining wind speed thresholds for weather effects (Rayleigh case)
+	var wind_probabilities: Array[float] = [0.1, 0.5, 0.9]  # Low, medium, high wind events
+	var characteristic_wind: float = 15.0  # km/h
+	var rayleigh_shape: float = 2.0  # Rayleigh distribution
+	
+	var wind_thresholds: Array[float] = []
+	for prob in wind_probabilities:
+		var wind_speed: float = StatMath.PpfFunctions.weibull_ppf(prob, characteristic_wind, rayleigh_shape)
+		wind_thresholds.append(wind_speed)
+	
+	# Should be increasing
+	for i in range(wind_thresholds.size() - 1):
+		assert_float(wind_thresholds[i]).is_less_equal(wind_thresholds[i + 1])
+	
+	# All should be reasonable wind speeds
+	for speed in wind_thresholds:
+		assert_float(speed).is_greater_equal(0.0)
+
+func test_weibull_ppf_component_design_life() -> void:
+	# Example: determining component design life for reliability targets
+	var reliability_levels: Array[float] = [0.9, 0.95, 0.99]  # 90%, 95%, 99% reliability
+	var design_life: float = 5000.0  # Hours
+	var reliability_shape: float = 3.0  # Sharp wear-out
+	
+	var design_times: Array[float] = []
+	for reliability in reliability_levels:
+		# Time when failure probability = (1 - reliability)
+		var design_time: float = StatMath.PpfFunctions.weibull_ppf(1.0 - reliability, design_life, reliability_shape)
+		design_times.append(design_time)
+	
+	# Higher reliability should require shorter design times (more conservative)
+	for i in range(design_times.size() - 1):
+		assert_float(design_times[i]).is_greater_equal(design_times[i + 1])
+	
+	# All should be valid
+	for time in design_times:
+		assert_float(time).is_greater_equal(0.0)
+
+func test_weibull_ppf_quest_difficulty_scaling() -> void:
+	# Example: scaling quest completion times based on difficulty percentiles
+	var difficulty_percentiles: Array[float] = [0.2, 0.5, 0.8]  # Easy, medium, hard
+	var base_completion_time: float = 60.0  # Minutes
+	var difficulty_curve: float = 2.2  # Increasing difficulty
+	
+	var completion_targets: Array[float] = []
+	for percentile in difficulty_percentiles:
+		var target_time: float = StatMath.PpfFunctions.weibull_ppf(percentile, base_completion_time, difficulty_curve)
+		completion_targets.append(target_time)
+	
+	# Should be increasing with difficulty
+	for i in range(completion_targets.size() - 1):
+		assert_float(completion_targets[i]).is_less_equal(completion_targets[i + 1])
+	
+	# All should be reasonable times
+	for time in completion_targets:
+		assert_float(time).is_greater_equal(0.0)
+
+func test_weibull_ppf_resource_management_planning() -> void:
+	# Example: planning resource extraction based on depletion quantiles
+	var depletion_quantiles: Array[float] = [0.1, 0.5, 0.9]  # Conservative, expected, optimistic
+	var resource_lifetime: float = 2000.0  # Time units
+	var depletion_pattern: float = 1.2  # Slight acceleration
+	
+	var extraction_plans: Array[float] = []
+	for quantile in depletion_quantiles:
+		var extraction_time: float = StatMath.PpfFunctions.weibull_ppf(quantile, resource_lifetime, depletion_pattern)
+		extraction_plans.append(extraction_time)
+	
+	# Should be increasing
+	for i in range(extraction_plans.size() - 1):
+		assert_float(extraction_plans[i]).is_less_equal(extraction_plans[i + 1])
+	
+	# All should be valid
+	for time in extraction_plans:
+		assert_float(time).is_greater_equal(0.0)
+
+func test_weibull_ppf_network_performance_sla() -> void:
+	# Example: setting network performance SLA based on latency spike durations
+	var sla_levels: Array[float] = [0.95, 0.99, 0.999]  # 95%, 99%, 99.9% of spikes
+	var typical_spike_duration: float = 50.0  # Milliseconds
+	var recovery_pattern: float = 2.8  # Sharp recovery
+	
+	var sla_thresholds: Array[float] = []
+	for sla in sla_levels:
+		var threshold: float = StatMath.PpfFunctions.weibull_ppf(sla, typical_spike_duration, recovery_pattern)
+		sla_thresholds.append(threshold)
+	
+	# Higher SLA should have higher thresholds
+	for i in range(sla_thresholds.size() - 1):
+		assert_float(sla_thresholds[i]).is_less_equal(sla_thresholds[i + 1])
+	
+	# All should be reasonable latency values
+	for threshold in sla_thresholds:
+		assert_float(threshold).is_greater_equal(0.0)
+
+func test_weibull_ppf_procedural_generation_scaling() -> void:
+	# Example: using Weibull PPF for procedural generation with realistic scaling
+	var generation_seeds: Array[float] = [0.1, 0.3, 0.7, 0.9]
+	var base_scale: float = 10.0
+	var scaling_factor: float = 2.0
+	
+	var scaled_values: Array[float] = []
+	for seed in generation_seeds:
+		var scaled_value: float = StatMath.PpfFunctions.weibull_ppf(seed, base_scale, scaling_factor)
+		scaled_values.append(scaled_value)
+	
+	# All scaled values should be valid
+	for value in scaled_values:
+		assert_float(value).is_greater_equal(0.0)
+		assert_bool(is_nan(value)).is_false()
+		assert_bool(is_inf(value)).is_false()
+	
+	# Should maintain ordering
+	for i in range(scaled_values.size() - 1):
+		assert_float(scaled_values[i]).is_less_equal(scaled_values[i + 1])
+	
+	# Values should be reasonable for procedural generation
+	assert_float(scaled_values[0]).is_greater(0.0)
+	assert_float(scaled_values[-1]).is_less(base_scale * 5.0)  # Reasonable upper bound

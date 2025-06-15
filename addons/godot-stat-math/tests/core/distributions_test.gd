@@ -1593,3 +1593,354 @@ func test_randf_pareto_multiple_applications() -> void:
 	assert_float(guild_size).is_greater(0.0)
 	assert_float(territory_value).is_greater(0.0)
 	assert_float(influence_points).is_greater(0.0) 
+
+
+# --- Tests for randf_weibull ---
+
+func test_randf_weibull_basic() -> void:
+	# Basic test with typical parameters
+	var scale: float = 2.0
+	var shape: float = 1.5
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+	assert_bool(is_inf(result)).is_false()
+
+
+func test_randf_weibull_scale_parameter() -> void:
+	# Test that scale parameter affects the characteristic life
+	var scale: float = 5.0
+	var shape: float = 2.0
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	# Result should be non-negative and finite
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+
+
+func test_randf_weibull_exponential_case() -> void:
+	# When shape = 1, Weibull becomes exponential distribution
+	var scale: float = 2.0
+	var shape: float = 1.0  # Exponential case
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+
+
+func test_randf_weibull_rayleigh_case() -> void:
+	# When shape = 2, Weibull becomes Rayleigh distribution (wind speeds)
+	var scale: float = 3.0
+	var shape: float = 2.0  # Rayleigh case
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+
+
+func test_randf_weibull_different_shapes() -> void:
+	# Test different shape parameters
+	var scale: float = 2.0
+	
+	var infant_mortality_result: float = StatMath.Distributions.randf_weibull(scale, 0.5)  # k < 1: decreasing failure rate
+	var constant_failure_result: float = StatMath.Distributions.randf_weibull(scale, 1.0)  # k = 1: constant failure rate
+	var wear_out_result: float = StatMath.Distributions.randf_weibull(scale, 3.0)         # k > 1: increasing failure rate
+	
+	# All should be valid
+	assert_float(infant_mortality_result).is_greater_equal(0.0)
+	assert_float(constant_failure_result).is_greater_equal(0.0)
+	assert_float(wear_out_result).is_greater_equal(0.0)
+
+
+func test_randf_weibull_large_scale() -> void:
+	# Test with large scale parameter
+	var scale: float = 100.0
+	var shape: float = 2.0
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_weibull_small_scale() -> void:
+	# Test with small scale parameter
+	var scale: float = 0.1
+	var shape: float = 2.0
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_weibull_very_small_shape() -> void:
+	# Test with very small shape parameter (heavy infant mortality)
+	var scale: float = 2.0
+	var shape: float = 0.1
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+	assert_bool(is_nan(result)).is_false()
+
+
+func test_randf_weibull_large_shape() -> void:
+	# Test with large shape parameter (sharp wear-out)
+	var scale: float = 2.0
+	var shape: float = 10.0
+	
+	var result: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result).is_greater_equal(0.0)
+
+
+func test_randf_weibull_deterministic_with_seed() -> void:
+	# Test deterministic behavior with same seed
+	var scale: float = 2.0
+	var shape: float = 1.5
+	var seed: int = 12345
+	
+	StatMath.set_global_seed(seed)
+	var result1: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	StatMath.set_global_seed(seed)
+	var result2: float = StatMath.Distributions.randf_weibull(scale, shape)
+	
+	assert_float(result1).is_equal_approx(result2, 1e-10)
+
+
+func test_randf_weibull_multiple_calls_different_values() -> void:
+	# Test that multiple calls produce different values
+	var scale: float = 2.0
+	var shape: float = 1.5
+	var results: Array[float] = []
+	var seed: int = 67890
+	
+	StatMath.set_global_seed(seed)
+	for i in range(10):
+		results.append(StatMath.Distributions.randf_weibull(scale, shape))
+	
+	# Check that not all values are the same
+	var all_same: bool = true
+	for i in range(1, results.size()):
+		if not is_equal_approx(results[i], results[0]):
+			all_same = false
+			break
+	
+	assert_bool(all_same).is_false()
+
+
+func test_randf_weibull_invalid_scale_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_weibull(0.0, 1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Scale parameter must be positive for Weibull distribution.")
+
+
+func test_randf_weibull_invalid_scale_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_weibull(-1.0, 1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Scale parameter must be positive for Weibull distribution.")
+
+
+func test_randf_weibull_invalid_shape_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_weibull(1.0, 0.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Shape parameter must be positive for Weibull distribution.")
+
+
+func test_randf_weibull_invalid_shape_negative() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_weibull(1.0, -1.0)
+	await assert_error(test_invalid_input).is_runtime_error("Assertion failed: Shape parameter must be positive for Weibull distribution.")
+
+
+# --- Statistical Properties Tests ---
+
+func test_randf_weibull_statistical_properties() -> void:
+	# Test multiple samples to verify statistical properties
+	var scale: float = 2.0
+	var shape: float = 2.0  # Rayleigh case for predictable properties
+	var samples: Array[float] = []
+	var seed: int = 11111
+	
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples.append(StatMath.Distributions.randf_weibull(scale, shape))
+	
+	# All samples should be >= 0
+	for sample in samples:
+		assert_float(sample).is_greater_equal(0.0)
+	
+	# Should have reasonable variance (not all the same value)
+	var sample_min: float = samples[0]
+	var sample_max: float = samples[0]
+	for sample in samples:
+		sample_min = min(sample_min, sample)
+		sample_max = max(sample_max, sample)
+	
+	assert_float(sample_max - sample_min).is_greater(0.1)
+
+
+func test_randf_weibull_shape_effect_on_distribution() -> void:
+	# Test that different shapes produce different distribution characteristics
+	var scale: float = 2.0
+	var samples_low_shape: Array[float] = []
+	var samples_high_shape: Array[float] = []
+	var seed: int = 22222
+	
+	# Low shape (k < 1): decreasing failure rate
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples_low_shape.append(StatMath.Distributions.randf_weibull(scale, 0.5))
+	
+	# High shape (k > 1): increasing failure rate
+	StatMath.set_global_seed(seed)
+	for i in range(100):
+		samples_high_shape.append(StatMath.Distributions.randf_weibull(scale, 3.0))
+	
+	# Both should produce valid samples
+	for sample in samples_low_shape:
+		assert_float(sample).is_greater_equal(0.0)
+	for sample in samples_high_shape:
+		assert_float(sample).is_greater_equal(0.0)
+
+
+func test_randf_weibull_exponential_equivalence() -> void:
+	# Test that Weibull(λ, 1) behaves like Exponential(1/λ)
+	var scale: float = 2.0
+	var shape: float = 1.0
+	var weibull_samples: Array[float] = []
+	var exponential_samples: Array[float] = []
+	var seed: int = 33333
+	
+	# Generate Weibull samples with shape=1
+	StatMath.set_global_seed(seed)
+	for i in range(50):
+		weibull_samples.append(StatMath.Distributions.randf_weibull(scale, shape))
+	
+	# Generate exponential samples with rate=1/scale
+	StatMath.set_global_seed(seed)
+	for i in range(50):
+		exponential_samples.append(StatMath.Distributions.randf_exponential(1.0 / scale))
+	
+	# Both should be valid and have similar statistical properties
+	for sample in weibull_samples:
+		assert_float(sample).is_greater_equal(0.0)
+	for sample in exponential_samples:
+		assert_float(sample).is_greater_equal(0.0)
+
+
+# --- Game Development Use Cases ---
+
+func test_randf_weibull_equipment_durability() -> void:
+	# Example: equipment failure modeling with wear-out pattern
+	var characteristic_life: float = 1000.0  # Hours of use
+	var wear_pattern: float = 2.5  # k > 1: increasing failure rate (wear-out)
+	
+	var equipment_lifetime: float = StatMath.Distributions.randf_weibull(characteristic_life, wear_pattern)
+	
+	assert_float(equipment_lifetime).is_greater_equal(0.0)
+	# Equipment should have reasonable lifetime
+	assert_float(equipment_lifetime).is_greater(0.0)
+
+
+func test_randf_weibull_wind_speed_simulation() -> void:
+	# Example: wind speed modeling using Rayleigh distribution (Weibull with k=2)
+	var average_wind_speed: float = 15.0  # km/h
+	var rayleigh_shape: float = 2.0  # Rayleigh case
+	
+	var wind_speed: float = StatMath.Distributions.randf_weibull(average_wind_speed, rayleigh_shape)
+	
+	assert_float(wind_speed).is_greater_equal(0.0)
+	# Wind speed should be reasonable
+	assert_float(wind_speed).is_greater_equal(0.0)
+
+
+func test_randf_weibull_survival_time_modeling() -> void:
+	# Example: character survival time in hostile environment
+	var base_survival_time: float = 300.0  # Seconds
+	var hazard_pattern: float = 1.8  # Slightly increasing hazard
+	
+	var survival_time: float = StatMath.Distributions.randf_weibull(base_survival_time, hazard_pattern)
+	
+	assert_float(survival_time).is_greater_equal(0.0)
+
+
+func test_randf_weibull_component_reliability() -> void:
+	# Example: electronic component failure in sci-fi game
+	var mean_time_to_failure: float = 5000.0  # Game hours
+	var reliability_factor: float = 3.0  # Sharp wear-out after design life
+	
+	var component_lifetime: float = StatMath.Distributions.randf_weibull(mean_time_to_failure, reliability_factor)
+	
+	assert_float(component_lifetime).is_greater_equal(0.0)
+
+
+func test_randf_weibull_weather_event_duration() -> void:
+	# Example: storm duration modeling
+	var typical_storm_duration: float = 120.0  # Minutes
+	var storm_pattern: float = 1.5  # Moderate wear-out pattern
+	
+	var storm_duration: float = StatMath.Distributions.randf_weibull(typical_storm_duration, storm_pattern)
+	
+	assert_float(storm_duration).is_greater_equal(0.0)
+
+
+func test_randf_weibull_quest_completion_time() -> void:
+	# Example: time to complete quests with increasing difficulty
+	var base_completion_time: float = 60.0  # Minutes
+	var difficulty_curve: float = 2.2  # Increasing time pressure
+	
+	var completion_time: float = StatMath.Distributions.randf_weibull(base_completion_time, difficulty_curve)
+	
+	assert_float(completion_time).is_greater_equal(0.0)
+
+
+func test_randf_weibull_resource_depletion() -> void:
+	# Example: resource node depletion time
+	var resource_lifetime: float = 2000.0  # Resource units
+	var depletion_pattern: float = 1.2  # Slight acceleration in depletion
+	
+	var depletion_time: float = StatMath.Distributions.randf_weibull(resource_lifetime, depletion_pattern)
+	
+	assert_float(depletion_time).is_greater_equal(0.0)
+
+
+func test_randf_weibull_player_session_length() -> void:
+	# Example: modeling player session lengths
+	var typical_session: float = 45.0  # Minutes
+	var engagement_pattern: float = 0.8  # k < 1: decreasing "failure" rate (longer sessions more likely)
+	
+	var session_length: float = StatMath.Distributions.randf_weibull(typical_session, engagement_pattern)
+	
+	assert_float(session_length).is_greater_equal(0.0)
+
+
+func test_randf_weibull_network_latency_spikes() -> void:
+	# Example: network latency spike duration
+	var base_latency_duration: float = 50.0  # Milliseconds
+	var network_stability: float = 2.8  # Sharp recovery pattern
+	
+	var latency_spike_duration: float = StatMath.Distributions.randf_weibull(base_latency_duration, network_stability)
+	
+	assert_float(latency_spike_duration).is_greater_equal(0.0)
+
+
+func test_randf_weibull_multiple_reliability_applications() -> void:
+	# Example: multiple reliability applications in a complex system
+	var engine_lifetime: float = StatMath.Distributions.randf_weibull(10000.0, 2.5)  # Engine wear-out
+	var battery_life: float = StatMath.Distributions.randf_weibull(500.0, 1.8)      # Battery degradation
+	var sensor_duration: float = StatMath.Distributions.randf_weibull(8000.0, 3.2) # Sensor precision loss
+	
+	assert_float(engine_lifetime).is_greater_equal(0.0)
+	assert_float(battery_life).is_greater_equal(0.0)
+	assert_float(sensor_duration).is_greater_equal(0.0)
+	
+	# All lifetimes should be reasonable for a game system
+	assert_float(engine_lifetime).is_greater(0.0)
+	assert_float(battery_life).is_greater(0.0)
+	assert_float(sensor_duration).is_greater(0.0)

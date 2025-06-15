@@ -822,3 +822,32 @@ static func pareto_ppf(p: float, scale_param: float, shape_param: float) -> floa
 	var exp_term: float = exp(log_term)
 	
 	return scale_param / exp_term
+
+# Weibull Distribution PPF: weibull_ppf(p, scale_param, shape_param)
+# Calculates the PPF for the Weibull distribution.
+# Returns the value x such that P(X <= x) = p.
+# Uses the closed-form solution: x = λ * (-ln(1-p))^(1/k) for 0 ≤ p < 1.
+# Widely used for reliability analysis, survival modeling, and failure rate calculations.
+# Parameters:
+#   p: float - The probability value (must be between 0.0 and 1.0).
+#   scale_param: float - The scale parameter λ (characteristic life, must be > 0.0).
+#   shape_param: float - The shape parameter k (controls distribution shape, must be > 0.0).
+# Returns: float - The value x. Returns 0.0 if p=0, INF if p=1, or NAN for invalid parameters.
+static func weibull_ppf(p: float, scale_param: float, shape_param: float) -> float:
+	assert(p >= 0.0 and p <= 1.0, "Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
+	assert(scale_param > 0.0, "Scale parameter must be positive. Received: %s" % scale_param)
+	assert(shape_param > 0.0, "Shape parameter must be positive. Received: %s" % shape_param)
+	
+	# Handle edge cases
+	if p == 0.0:
+		return 0.0  # Minimum value of Weibull distribution
+	if p == 1.0:
+		return INF  # Weibull has infinite support on the upper end
+	
+	# Closed-form solution: PPF(p) = λ * (-ln(1-p))^(1/k)
+	# This is exactly the inverse transform sampling formula!
+	var one_minus_p: float = 1.0 - p
+	var log_term: float = -log(one_minus_p)
+	var power_term: float = pow(log_term, 1.0 / shape_param)
+	
+	return scale_param * power_term

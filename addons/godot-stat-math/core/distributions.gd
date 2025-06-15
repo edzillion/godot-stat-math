@@ -371,6 +371,39 @@ static func randf_pareto(scale_param: float, shape_param: float) -> float:
 	return scale_param * exp(exponential_variate)
 
 
+# Weibull Distribution (Float): randf_weibull(scale_param, shape_param)
+# Generates a random float from a Weibull distribution with scale and shape parameters.
+# Widely used for modeling reliability, survival analysis, wind speeds, and failure rates.
+# Uses inverse transform sampling with the closed-form solution: scale * (-ln(1-U))^(1/shape).
+# Commonly used in game development for equipment durability, weather simulation, and time-to-event modeling.
+# Parameters:
+#   scale_param: float - The scale parameter λ (characteristic life, must be > 0.0).
+#   shape_param: float - The shape parameter k (controls distribution shape, must be > 0.0).
+#                       k < 1: decreasing failure rate (infant mortality)
+#                       k = 1: constant failure rate (exponential distribution)
+#                       k > 1: increasing failure rate (wear-out failures)
+#                       k = 2: Rayleigh distribution (wind speeds)
+# Returns: float - A Weibull-distributed random value ≥ 0.
+# Note: Mean = scale * Γ(1 + 1/shape), where Γ is the gamma function.
+static func randf_weibull(scale_param: float, shape_param: float) -> float:
+	assert(scale_param > 0.0, "Scale parameter must be positive for Weibull distribution.")
+	assert(shape_param > 0.0, "Shape parameter must be positive for Weibull distribution.")
+	
+	# Inverse transform sampling: F⁻¹(u) = λ * (-ln(1-u))^(1/k)
+	# where u is uniform random variable in (0,1)
+	var u: float = StatMath.get_rng().randf()
+	
+	# Ensure u is not exactly 0 or 1 to avoid log(0) or log(1-1)
+	while u == 0.0 or u == 1.0:
+		u = StatMath.get_rng().randf()
+	
+	# Apply inverse transform: scale * (-ln(1-u))^(1/shape)
+	var log_term: float = -log(1.0 - u)
+	var power_term: float = pow(log_term, 1.0 / shape_param)
+	
+	return scale_param * power_term
+
+
 # Histogram Distribution (Variant): randv_histogram(values, probabilities)
 # Generates a random value from a discrete distribution based on provided values and probabilities.
 # Uses cumulative distribution function (CDF) to determine which value to return.
