@@ -1,3 +1,4 @@
+# res://addons/godot-stat-math/core/pmf_pdf_functions.gd
 extends RefCounted
 
 # Probability Mass Functions (PMF) and Probability Density Functions (PDF)

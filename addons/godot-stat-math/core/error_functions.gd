@@ -1,3 +1,4 @@
+# res://addons/godot-stat-math/core/error_functions.gd
 extends RefCounted
 
 # Error Functions and their Inverses

@@ -1,3 +1,4 @@
+# res://addons/godot-stat-math/core/ppf_functions.gd
 extends RefCounted
 
 # Inverse Cumulative Distribution Functions (ICDF), also known as Percentile Point Functions (PPF)

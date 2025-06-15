@@ -1,3 +1,4 @@
+# res://addons/godot-stat-math/core/helper_functions.gd
 extends RefCounted
 
 # Core Mathematical Helper Functions
