@@ -24,6 +24,13 @@ jobs:
           version-regex: ${{ env.VERSION_REGEX }}
         id: extract-version
 
+      - name: Run GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests"
+          arguments: "--no-debug --quiet"
+
       - name: Create addon zip
         run: |
           echo "Creating addon zip for version ${{ steps.extract-version.outputs.version-string }}"
