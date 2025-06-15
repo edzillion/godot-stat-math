@@ -98,7 +98,7 @@ func test_sample_standard_deviation_simple_data() -> void:
 func test_sample_standard_deviation_single_value() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.sample_standard_deviation(single_value)
-	await assert_error(test_call).is_push_error("Cannot calculate sample standard deviation with fewer than 2 data points.")
+	await assert_error(test_call).is_push_error("Cannot calculate sample standard deviation with fewer than 2 data points. Received size: 1")
 
 # --- Median Absolute Deviation Tests ---
 func test_median_absolute_deviation_simple_data() -> void:

@@ -21,13 +21,13 @@ func test_randi_bernoulli_p_half() -> void:
 func test_randi_bernoulli_invalid_p_too_low() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_bernoulli(-0.1)
-	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0. Received: -0.1")
 
 
 func test_randi_bernoulli_invalid_p_too_high() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_bernoulli(1.1)
-	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0. Received: 1.1")
 
 
 # Tests for randi_binomial
@@ -56,7 +56,7 @@ func test_randi_binomial_typical_case() -> void:
 func test_randi_binomial_invalid_p_too_low() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randi_binomial(-0.1, 5)
-	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0.")
+	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0. Received: -0.1")
 
 
 func test_randi_binomial_invalid_p_too_high() -> void:

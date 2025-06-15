@@ -51,12 +51,12 @@ func test_error_function_inverse_minus_one() -> void:
 func test_error_function_inverse_invalid_gt_one() -> void:
 	var test_call: Callable = func():
 		StatMath.ErrorFunctions.error_function_inverse(1.1)
-	await assert_error(test_call).is_push_error("Input y for erfinv must be in the range [-1, 1].")
+	await assert_error(test_call).is_push_error("Input y for erfinv must be in the range [-1, 1]. Received: 1.1")
 
 func test_error_function_inverse_invalid_lt_minus_one() -> void:
 	var test_call: Callable = func():
 		StatMath.ErrorFunctions.error_function_inverse(-1.1)
-	await assert_error(test_call).is_push_error("Input y for erfinv must be in the range [-1, 1].")
+	await assert_error(test_call).is_push_error("Input y for erfinv must be in the range [-1, 1]. Received: -1.1")
 
 # --- Inverse Complementary Error Function (erfcinv) ---
 func test_complementary_error_function_inverse_one() -> void:
@@ -74,9 +74,9 @@ func test_complementary_error_function_inverse_two() -> void:
 func test_complementary_error_function_inverse_invalid_gt_two() -> void:
 	var test_call: Callable = func():
 		StatMath.ErrorFunctions.complementary_error_function_inverse(2.1)
-	await assert_error(test_call).is_push_error("Input y for erfcinv must be in the range [0, 2].")
+	await assert_error(test_call).is_push_error("Input y for erfcinv must be in the range [0, 2]. Received: 2.1")
 
 func test_complementary_error_function_inverse_invalid_lt_zero() -> void:
 	var test_call: Callable = func():
 		StatMath.ErrorFunctions.complementary_error_function_inverse(-0.1)
-	await assert_error(test_call).is_push_error("Input y for erfcinv must be in the range [0, 2].") 
+	await assert_error(test_call).is_push_error("Input y for erfcinv must be in the range [0, 2]. Received: -0.1") 
