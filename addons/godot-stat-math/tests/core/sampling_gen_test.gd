@@ -285,17 +285,20 @@ func test_coordinated_batch_shuffles_starting_index() -> void:
 			assert_int(shuffle1[j]).is_equal(shuffle2[j])
 
 
-# --- COORDINATED_FISHER_YATES SELECTION STRATEGY TESTS ---
+# --- COORDINATED SAMPLING ALTERNATIVE APPROACH ---
+# Note: Instead of COORDINATED_FISHER_YATES, use coordinated_shuffle + slice for better clarity
 
-func test_coordinated_fisher_yates_selection_strategy() -> void:
+func test_coordinated_sampling_alternative() -> void:
+	# This demonstrates the CORRECT way to do coordinated sampling
+	# Instead of using the removed COORDINATED_FISHER_YATES selection strategy
 	var population_size: int = 20
 	var draw_count: int = 5
 	
-	var indices: Array[int] = StatMath.SamplingGen.sample_indices(
-		population_size, draw_count,
-		StatMath.SamplingGen.SelectionStrategy.COORDINATED_FISHER_YATES,
-		StatMath.SamplingGen.SamplingMethod.SOBOL
+	# Use coordinated_shuffle and take first N elements
+	var full_shuffle: Array[int] = StatMath.SamplingGen.coordinated_shuffle(
+		population_size, StatMath.SamplingGen.SamplingMethod.SOBOL, 0
 	)
+	var indices: Array[int] = full_shuffle.slice(0, draw_count)
 	
 	assert_int(indices.size()).is_equal(draw_count)
 	
@@ -309,42 +312,51 @@ func test_coordinated_fisher_yates_selection_strategy() -> void:
 	assert_int(seen.size()).is_equal(draw_count)
 
 
-func test_coordinated_fisher_yates_deterministic() -> void:
+func test_coordinated_sampling_deterministic() -> void:
+	# Demonstrates deterministic coordinated sampling using existing API
 	var population_size: int = 15
 	var draw_count: int = 4
-	var seed: int = 123
 	
-	var indices1: Array[int] = StatMath.SamplingGen.sample_indices(
-		population_size, draw_count,
-		StatMath.SamplingGen.SelectionStrategy.COORDINATED_FISHER_YATES,
-		StatMath.SamplingGen.SamplingMethod.SOBOL, seed
+	# Same point_index should produce same results
+	var shuffle1: Array[int] = StatMath.SamplingGen.coordinated_shuffle(
+		population_size, StatMath.SamplingGen.SamplingMethod.SOBOL, 42
 	)
-	var indices2: Array[int] = StatMath.SamplingGen.sample_indices(
-		population_size, draw_count,
-		StatMath.SamplingGen.SelectionStrategy.COORDINATED_FISHER_YATES,
-		StatMath.SamplingGen.SamplingMethod.SOBOL, seed
+	var shuffle2: Array[int] = StatMath.SamplingGen.coordinated_shuffle(
+		population_size, StatMath.SamplingGen.SamplingMethod.SOBOL, 42
 	)
+	
+	var indices1: Array[int] = shuffle1.slice(0, draw_count)
+	var indices2: Array[int] = shuffle2.slice(0, draw_count)
 	
 	# Should be deterministic
 	for i in range(draw_count):
 		assert_int(indices1[i]).is_equal(indices2[i])
 
 
-func test_coordinated_fisher_yates_small_deck_performance() -> void:
-	# Test with smaller deck sizes to avoid potential performance issues
-	var small_deck_sizes: Array[int] = [5, 10, 15]
+func test_coordinated_sampling_performance_comparison() -> void:
+	# Shows that coordinated_shuffle + slice is simple and effective
+	var population_size: int = 100
+	var draw_count: int = 10
 	
-	for deck_size in small_deck_sizes:
-		var draw_count: int = min(3, deck_size)
-		
-		var indices: Array[int] = StatMath.SamplingGen.sample_indices(
-			deck_size, draw_count,
-			StatMath.SamplingGen.SelectionStrategy.COORDINATED_FISHER_YATES,
-			StatMath.SamplingGen.SamplingMethod.SOBOL
-		)
-		
-		assert_int(indices.size()).is_equal(draw_count)
-		_assert_unique_indices(indices, deck_size)
+	# Coordinated approach - generates systematic sample
+	var coordinated_shuffle: Array[int] = StatMath.SamplingGen.coordinated_shuffle(
+		population_size, StatMath.SamplingGen.SamplingMethod.SOBOL, 0
+	)
+	var coordinated_sample: Array[int] = coordinated_shuffle.slice(0, draw_count)
+	
+	# Regular Fisher-Yates approach - generates independent random sample  
+	var fisher_yates_sample: Array[int] = StatMath.SamplingGen.sample_indices(
+		population_size, draw_count,
+		StatMath.SamplingGen.SelectionStrategy.FISHER_YATES,
+		StatMath.SamplingGen.SamplingMethod.SOBOL
+	)
+	
+	# Both should be valid
+	assert_int(coordinated_sample.size()).is_equal(draw_count)
+	assert_int(fisher_yates_sample.size()).is_equal(draw_count)
+	
+	_assert_unique_indices(coordinated_sample, population_size)
+	_assert_unique_indices(fisher_yates_sample, population_size)
 
 
 # --- UPDATED EXISTING TESTS (following GDUnit4 rules) ---
@@ -499,8 +511,7 @@ func test_sample_indices_without_replacement_basic() -> void:
 	var strategies: Array[StatMath.SamplingGen.SelectionStrategy] = [
 		StatMath.SamplingGen.SelectionStrategy.FISHER_YATES,
 		StatMath.SamplingGen.SelectionStrategy.RESERVOIR,
-		StatMath.SamplingGen.SelectionStrategy.SELECTION_TRACKING,
-		StatMath.SamplingGen.SelectionStrategy.COORDINATED_FISHER_YATES
+		StatMath.SamplingGen.SelectionStrategy.SELECTION_TRACKING
 	]
 	
 	for strategy in strategies:
@@ -567,7 +578,7 @@ func test_sample_indices_seeded_reproducibility() -> void:
 		[StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT, StatMath.SamplingGen.SamplingMethod.SOBOL],
 		[StatMath.SamplingGen.SelectionStrategy.FISHER_YATES, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE],
 		[StatMath.SamplingGen.SelectionStrategy.RESERVOIR, StatMath.SamplingGen.SamplingMethod.HALTON_RANDOM],
-		[StatMath.SamplingGen.SelectionStrategy.COORDINATED_FISHER_YATES, StatMath.SamplingGen.SamplingMethod.SOBOL]
+		[StatMath.SamplingGen.SelectionStrategy.SELECTION_TRACKING, StatMath.SamplingGen.SamplingMethod.SOBOL]
 	]
 	
 	for combo in combinations:
@@ -633,7 +644,7 @@ func test_card_game_dealing() -> void:
 	var deck_size: int = 52
 	var hand_size: int = 5
 	
-	# Test different dealing strategies for card games including new COORDINATED_FISHER_YATES
+	# Test different dealing strategies for card games
 	var fisher_yates: Array[int] = StatMath.SamplingGen.sample_indices(
 		deck_size, hand_size, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
 	)
@@ -643,9 +654,12 @@ func test_card_game_dealing() -> void:
 	var selection_tracking: Array[int] = StatMath.SamplingGen.sample_indices(
 		deck_size, hand_size, StatMath.SamplingGen.SelectionStrategy.SELECTION_TRACKING
 	)
-	var coordinated: Array[int] = StatMath.SamplingGen.sample_indices(
-		deck_size, hand_size, StatMath.SamplingGen.SelectionStrategy.COORDINATED_FISHER_YATES
+	
+	# For coordinated sampling, use coordinated_shuffle + slice
+	var coordinated_shuffle: Array[int] = StatMath.SamplingGen.coordinated_shuffle(
+		deck_size, StatMath.SamplingGen.SamplingMethod.SOBOL, 0
 	)
+	var coordinated: Array[int] = coordinated_shuffle.slice(0, hand_size)
 	
 	# All strategies should deal valid hands
 	var all_hands: Array = [fisher_yates, reservoir, selection_tracking, coordinated]
