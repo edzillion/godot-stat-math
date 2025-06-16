@@ -1,21 +1,105 @@
-# SamplingGen Performance Testing
+# StatMath Performance Testing System
 
-Simple baseline-driven performance regression detection for SamplingGen using GDUnit4.
+This directory contains the performance testing and baseline generation system for the StatMath addon.
 
-## How It Works
+## Architecture
 
-1. **Generate Baseline**: Run `generate_baseline.gd` tool script in Godot editor
-2. **Run Tests**: Use GDUnit4 to run `sampling_gen_perf_test.gd`
-3. **Develop**: Make performance improvements
-4. **Generate New Baseline**: Run tool script again when ready to update expectations
+### Individual Performance Test Suites
+Each core StatMath module has its own performance test suite:
 
-## Files
+- `sampling_gen_perf_test.gd` - SamplingGen module tests
+- `distributions_perf_test.gd` - Distributions module tests  
+- `helper_functions_perf_test.gd` - HelperFunctions module tests
+- `ppf_functions_perf_test.gd` - PpfFunctions module tests
+- `basic_stats_perf_test.gd` - BasicStats module tests
+- `cdf_functions_perf_test.gd` - CdfFunctions module tests
+- `pmf_pdf_functions_perf_test.gd` - PmfPdfFunctions module tests
+- `error_functions_perf_test.gd` - ErrorFunctions module tests
 
-- `sampling_gen_perf_test.gd` - GDUnit4 performance test suite
-- `generate_baseline.gd` - Tool script to generate baselines
-- `baseline.json` - Current performance baseline (created by tool script)
-- `archive/` - Previous baselines with timestamps
-- `README.md` - This documentation
+### Baseline Generation
+**`generate_baseline.gd`** - Universal generator for all modules. All results are saved to a single `baseline.json` file with module prefixes (e.g., `samplinggen_generate_samples_RANDOM_1d_256`, `distributions_randf_normal`).
+
+### Interface Pattern
+Each performance test class implements:
+
+```gdscript
+## Public method for baseline generation - returns performance measurements
+func collect_performance_measurements() -> Dictionary:
+    var results: Dictionary = {}
+    
+    # Run performance tests and collect timing data
+    var measurement: Dictionary = _measure_test("test_name", func():
+        # Your test logic here
+    )
+    results["test_name"] = measurement.execution_time_ms
+    
+    return results
+```
+
+This allows the universal baseline generator to use the exact same test logic as the performance regression tests.
+
+## Usage
+
+### Generating Baselines
+
+**Generate baselines for all modules:**
+```
+Run generate_baseline.gd (F6 in Godot)
+```
+
+This will run all configured modules and save results to a single `baseline.json` file.
+
+### Running Performance Tests
+
+Use GDUnit4 to run the individual performance test suites:
+```
+Run specific suite: sampling_gen_perf_test.gd
+Run all suites: Select all *_perf_test.gd files
+```
+
+### Adding New Modules
+
+1. Create a new performance test class with the interface pattern:
+   ```gdscript
+   class_name NewModulePerfTest extends GdUnitTestSuite
+   
+   func collect_performance_measurements() -> Dictionary:
+       # Implement performance measurements
+   ```
+
+2. Add the module to `generate_baseline.gd`:
+   ```gdscript
+   {
+       "name": "NewModule",
+       "test_class": NewModulePerfTest
+   }
+   ```
+
+## Archive Management
+
+The system automatically:
+- Saves timestamped results to `archive/modulename/` directories
+- Keeps only the 3 most recent archive files per module
+- Averages the 3 most recent results to create stable baselines
+- Handles backward compatibility with old baseline formats
+
+## Performance Monitoring
+
+- **Measurement**: Median of 5 runs after 3 warmup iterations
+- **Regression Threshold**: 20% slower than baseline triggers test failure
+- **Batch Sizes**: Adjusted per module based on function complexity
+- **Time-only**: Memory tracking was removed due to Godot GC limitations
+
+## File Structure
+```
+performance/
+├── README.md                           # This file
+├── generate_baseline.gd               # Universal baseline generator
+├── *_perf_test.gd                     # Individual test suites
+├── baseline.json                      # Single baseline file (all modules)
+└── archive/                           # Timestamped baseline history
+    └── baseline_YYYY-MM-DD_HH-MM-SS.json
+```
 
 ## Quick Start
 

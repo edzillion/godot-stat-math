@@ -1,66 +1,120 @@
 # res://addons/godot-stat-math/tests/performance/generate_baseline.gd
 extends Node
 
-## Scene based script to generate performance baselines for SamplingGen
+## Universal Baseline Generator for All StatMath Performance Tests
 ## 
 ## Run this script in the editor (Run Current Scene / F6) to:
-## 1. Run performance tests and save results to archive with timestamp
+## 1. Run performance tests for ALL modules and save results to archive with timestamp
 ## 2. Keep only the 3 most recent archive files (delete older ones)
 ## 3. Average the results from the 3 most recent files
-## 4. Save the averaged results as the new baseline.json
+## 4. Save the averaged results as the single baseline.json
 
 # Paths
 const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/baseline.json"
 const ARCHIVE_DIR: String = "res://addons/godot-stat-math/tests/performance/archive/"
 
-# Test configuration - must match the performance test suite
-const BATCH_SIZES: Array[int] = [256, 1024, 4096]
-const DIMENSIONS: Array[int] = [1, 2, 3]
-const GENERATORS: Array[SamplingGen.Generator] = [
-	SamplingGen.Generator.RANDOM,
-	SamplingGen.Generator.SOBOL,
-	SamplingGen.Generator.SOBOL_RANDOM,
-	SamplingGen.Generator.HALTON
+# Module configuration - all results go into one baseline file
+var MODULES: Array[Dictionary] = [
+	{
+		"name": "SamplingGen",
+		"test_class": SamplingGenPerfTest
+	},
+	{
+		"name": "Distributions", 
+		"test_class": DistributionsPerfTest
+	},
+	{
+		"name": "HelperFunctions",
+		"test_class": HelperFunctionsPerfTest
+	},
+	{
+		"name": "BasicStats",
+		"test_class": BasicStatsPerfTest
+	},
+	{
+		"name": "CdfFunctions",
+		"test_class": CdfFunctionsPerfTest
+	},
+	{
+		"name": "PmfPdfFunctions",
+		"test_class": PmfPdfFunctionsPerfTest
+	},
+	{
+		"name": "PpfFunctions",
+		"test_class": PpfFunctionsPerfTest
+	},
+	{
+		"name": "ErrorFunctions",
+		"test_class": ErrorFunctionsPerfTest
+	}
 ]
-
-# Performance measurement
-const WARMUP_ITERATIONS: int = 3
-const MEASUREMENT_ITERATIONS: int = 5
 
 func _ready() -> void:
 	print("======================================")
-	print("SamplingGen Baseline Generator")
+	print("StatMath Universal Baseline Generator")
 	print("======================================")
 	print("Time: ", Time.get_datetime_string_from_system())
+	print("Generating baselines for %d modules..." % MODULES.size())
+	print("======================================")
 	
 	# Quick SobolData verification
-	print("SobolData max dimension: ", SamplingGen.SobolData.get_max_dimension())
-	print("DIRECTION_NUMBERS.size(): ", SamplingGen.SobolData.DIRECTION_NUMBERS.size())
-	print("SobolData.has_dimension(2): ", SamplingGen.SobolData.has_dimension(2))
-	print("SobolData.get_direction_numbers(2): ", SamplingGen.SobolData.get_direction_numbers(2))
-	print("SobolData.has_dimension(3): ", SamplingGen.SobolData.has_dimension(3))
-	print("SobolData.get_direction_numbers(3): ", SamplingGen.SobolData.get_direction_numbers(3))
-	print("SobolData.has_dimension(11): ", SamplingGen.SobolData.has_dimension(11))
-	print("SobolData.get_direction_numbers(11): ", SamplingGen.SobolData.get_direction_numbers(11))
-	print("SobolData.has_dimension(13): ", SamplingGen.SobolData.has_dimension(13))
-	print("SobolData.get_direction_numbers(13): ", SamplingGen.SobolData.get_direction_numbers(13))
+	print("SobolData max dimension: ", SobolData.get_max_dimension())
+	print("SobolData.has_dimension(2): ", SobolData.has_dimension(2))
+	print("SobolData.has_dimension(3): ", SobolData.has_dimension(3))
 	
-	# Clear cache to ensure fresh measurements
-	SamplingGen._sobol_cache.clear()
+	# Clear Sobol direction vectors cache to ensure fresh measurements
+	SamplingGen._sobol_direction_vectors_cache.clear()
+	SamplingGen._max_cached_dimension = -1
 	print("Cleared Sobol cache, forcing re-initialization...")
 	print("======================================")
 	
 	# Run the baseline generation process
-	await _generate_baseline()
+	await _generate_all_baselines()
 	
-	print("✅ Baseline generation complete!")
+	print("======================================")
+	print("✅ All baselines generated successfully!")
+	print("======================================")
 	get_tree().quit()
 
-func _generate_baseline() -> void:
-	print("🚀 Running performance tests...")
+func _generate_all_baselines() -> void:
+	print("🚀 Running performance tests for all modules...")
 	
-	# Run performance tests
-	var current_results: Dictionary = await _run_performance_tests()
+	# Collect results from all modules into one big result set
+	var all_results: Dictionary = {}
+	
+	for module_info in MODULES:
+		var module_name: String = module_info.name
+		var test_class = module_info.test_class
+		
+		print("\n🎯 Running %s performance tests..." % module_name)
+		
+		# Create an instance of the test class
+		var test_instance = test_class.new()
+		
+		# Check if the test class has the collect_performance_measurements method
+		if not test_instance.has_method("collect_performance_measurements"):
+			print("  ❌ %s does not have collect_performance_measurements() method" % module_name)
+			continue
+		
+		# Run the test class's own measurement logic
+		var module_results: Dictionary = test_instance.collect_performance_measurements()
+		
+		if module_results.is_empty():
+			print("  ❌ No results collected for %s" % module_name)
+			continue
+		
+		# Merge module results into the main results with module prefix
+		for test_name in module_results:
+			var prefixed_name: String = "%s_%s" % [module_name.to_lower(), test_name]
+			all_results[prefixed_name] = module_results[test_name]
+		
+		print("  ✅ Collected %d tests from %s" % [module_results.size(), module_name])
+	
+	if all_results.is_empty():
+		print("❌ No performance data collected from any module!")
+		return
+	
+	print("\n📊 Total collected: %d performance measurements" % all_results.size())
 	
 	# Save to archive with timestamp
 	var timestamp: String = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
@@ -71,7 +125,7 @@ func _generate_baseline() -> void:
 	if not DirAccess.dir_exists_absolute(ARCHIVE_DIR):
 		DirAccess.open("res://").make_dir_recursive(ARCHIVE_DIR)
 	
-	_save_results_to_file(archive_path, current_results)
+	_save_results_to_file(archive_path, {"tests": all_results})
 	print("📁 Saved to archive: %s" % archive_path)
 	
 	# Clean up old archive files (keep only 3 most recent)
@@ -81,46 +135,6 @@ func _generate_baseline() -> void:
 	var averaged_results: Dictionary = _average_recent_files()
 	_save_results_to_file(BASELINE_FILE, averaged_results)
 	print("💾 Updated baseline: %s" % BASELINE_FILE)
-
-func _run_performance_tests() -> Dictionary:
-	var results: Dictionary = {}
-	
-	print("\nMeasuring generate_samples...")
-	for generator in GENERATORS:
-		for dimension in DIMENSIONS:
-			for batch_size in BATCH_SIZES:
-				var test_name: String = "generate_samples_%s_%dd_%d" % [
-					SamplingGen.Generator.keys()[generator], dimension, batch_size
-				]
-				
-				var execution_time: float = _measure_test(test_name, func(): 
-					return SamplingGen.generate_samples(generator, batch_size, dimension)
-				)
-				
-				results[test_name] = execution_time
-				print("  %s: %.2f ms" % [test_name, execution_time])
-	
-	return {"tests": results}
-
-func _measure_test(test_name: String, test_func: Callable) -> float:
-	# Warmup runs
-	for i in range(WARMUP_ITERATIONS):
-		test_func.call()
-	
-	# Actual measurements
-	var times: Array[float] = []
-	for i in range(MEASUREMENT_ITERATIONS):
-		var start_time: int = Time.get_ticks_usec()
-		test_func.call()
-		var end_time: int = Time.get_ticks_usec()
-		
-		var execution_time_ms: float = (end_time - start_time) / 1000.0
-		times.append(execution_time_ms)
-	
-	# Return median time to reduce noise from outliers
-	times.sort()
-	var median_index: int = times.size() / 2
-	return times[median_index]
 
 func _save_results_to_file(file_path: String, results: Dictionary) -> void:
 	var file: FileAccess = FileAccess.open(file_path, FileAccess.WRITE)
@@ -163,12 +177,12 @@ func _average_recent_files() -> Dictionary:
 	# Get all archive files
 	var files: Array[String] = []
 	dir.list_dir_begin()
-	var file_name: String = dir.get_next()
+	var current_file: String = dir.get_next()
 	
-	while file_name != "":
-		if file_name.begins_with("baseline_") and file_name.ends_with(".json"):
-			files.append(file_name)
-		file_name = dir.get_next()
+	while current_file != "":
+		if current_file.begins_with("baseline_") and current_file.ends_with(".json"):
+			files.append(current_file)
+		current_file = dir.get_next()
 	
 	if files.is_empty():
 		push_error("No archive files found to average")
@@ -184,8 +198,8 @@ func _average_recent_files() -> Dictionary:
 	var test_sums: Dictionary = {}
 	var test_counts: Dictionary = {}
 	
-	for file_name in recent_files:
-		var file_path: String = ARCHIVE_DIR + file_name
+	for archive_file in recent_files:
+		var file_path: String = ARCHIVE_DIR + archive_file
 		var file: FileAccess = FileAccess.open(file_path, FileAccess.READ)
 		if file == null:
 			push_warning("Could not read archive file: " + file_path)
