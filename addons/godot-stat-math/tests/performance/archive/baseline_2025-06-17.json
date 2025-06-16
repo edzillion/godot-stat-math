@@ -1,311 +1,305 @@
 {
-  "average_count": 3,
-  "generated_at": "2025-06-17T00:19:50",
-  "source_files": [
-    "baseline_2025-06-14.json",
-    "baseline_2025-06-16.json",
-    "baseline_2025-06-17.json"
-  ],
+  "generated_at": "2025-06-17T00:19:22",
   "tests": {
     "batch_shuffles_HALTON_256_5": {
-      "execution_time_ms": 366.186333333333,
+      "execution_time_ms": 370.385,
       "memory_delta_bytes": 0.0
     },
     "batch_shuffles_HALTON_52_10": {
-      "execution_time_ms": 105.141,
+      "execution_time_ms": 104.752,
       "memory_delta_bytes": 0.0
     },
     "batch_shuffles_LATIN_HYPERCUBE_256_5": {
-      "execution_time_ms": 378.084666666667,
+      "execution_time_ms": 379.902,
       "memory_delta_bytes": 0.0
     },
     "batch_shuffles_LATIN_HYPERCUBE_52_10": {
-      "execution_time_ms": 103.896333333333,
+      "execution_time_ms": 104.87,
       "memory_delta_bytes": 0.0
     },
     "batch_shuffles_RANDOM_256_5": {
-      "execution_time_ms": 42.9043333333333,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 42.292,
+      "memory_delta_bytes": -836.0
     },
     "batch_shuffles_RANDOM_52_10": {
-      "execution_time_ms": 18.686,
-      "memory_delta_bytes": -364.0
+      "execution_time_ms": 18.421,
+      "memory_delta_bytes": -1092.0
     },
     "batch_shuffles_SOBOL_256_5": {
-      "execution_time_ms": 415.808,
+      "execution_time_ms": 411.272,
       "memory_delta_bytes": 0.0
     },
     "batch_shuffles_SOBOL_52_10": {
-      "execution_time_ms": 114.167666666667,
+      "execution_time_ms": 113.342,
       "memory_delta_bytes": 0.0
     },
     "batch_shuffles_SOBOL_RANDOM_256_5": {
-      "execution_time_ms": 378.092,
+      "execution_time_ms": 381.874,
       "memory_delta_bytes": 0.0
     },
     "batch_shuffles_SOBOL_RANDOM_52_10": {
-      "execution_time_ms": 107.839333333333,
+      "execution_time_ms": 108.352,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_HALTON_256": {
-      "execution_time_ms": 260.045666666667,
+      "execution_time_ms": 263.361,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_HALTON_512": {
-      "execution_time_ms": 515.498333333333,
+      "execution_time_ms": 521.41,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_HALTON_52": {
-      "execution_time_ms": 53.846,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 55.357,
+      "memory_delta_bytes": -836.0
     },
     "coordinated_shuffle_LATIN_HYPERCUBE_256": {
-      "execution_time_ms": 270.561333333333,
+      "execution_time_ms": 274.897,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_LATIN_HYPERCUBE_512": {
-      "execution_time_ms": 543.135666666667,
+      "execution_time_ms": 545.973,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_LATIN_HYPERCUBE_52": {
-      "execution_time_ms": 57.951,
+      "execution_time_ms": 58.529,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_RANDOM_256": {
-      "execution_time_ms": 241.608,
+      "execution_time_ms": 242.692,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_RANDOM_512": {
-      "execution_time_ms": 475.794,
+      "execution_time_ms": 480.7,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_RANDOM_52": {
-      "execution_time_ms": 51.6956666666667,
+      "execution_time_ms": 52.062,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_SOBOL_256": {
-      "execution_time_ms": 288.355333333333,
+      "execution_time_ms": 288.226,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_SOBOL_512": {
-      "execution_time_ms": 572.039666666667,
+      "execution_time_ms": 577.386,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_SOBOL_52": {
-      "execution_time_ms": 62.8996666666667,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 63.033,
+      "memory_delta_bytes": -836.0
     },
     "coordinated_shuffle_SOBOL_RANDOM_256": {
-      "execution_time_ms": 261.501666666667,
+      "execution_time_ms": 266.294,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_SOBOL_RANDOM_512": {
-      "execution_time_ms": 519.887,
+      "execution_time_ms": 519.715,
       "memory_delta_bytes": 0.0
     },
     "coordinated_shuffle_SOBOL_RANDOM_52": {
-      "execution_time_ms": 56.4913333333333,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 58.086,
+      "memory_delta_bytes": -836.0
     },
     "generate_samples_HALTON_1d_1024": {
-      "execution_time_ms": 279.240666666667,
+      "execution_time_ms": 279.202,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_HALTON_1d_256": {
-      "execution_time_ms": 62.6506666666667,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 62.239,
+      "memory_delta_bytes": -836.0
     },
     "generate_samples_HALTON_1d_4096": {
-      "execution_time_ms": 1256.68733333333,
+      "execution_time_ms": 1252.72,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_HALTON_2d_1024": {
-      "execution_time_ms": 439.437666666667,
+      "execution_time_ms": 438.041,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_HALTON_2d_256": {
-      "execution_time_ms": 96.5146666666667,
+      "execution_time_ms": 97.191,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_HALTON_2d_4096": {
-      "execution_time_ms": 1978.19566666667,
+      "execution_time_ms": 1992.846,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_HALTON_3d_1024": {
-      "execution_time_ms": 487.372,
+      "execution_time_ms": 488.777,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_HALTON_3d_256": {
-      "execution_time_ms": 111.566666666667,
+      "execution_time_ms": 112.256,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_HALTON_3d_4096": {
-      "execution_time_ms": 2125.53833333333,
+      "execution_time_ms": 2138.066,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_LATIN_HYPERCUBE_1d_1024": {
-      "execution_time_ms": 135.315333333333,
+      "execution_time_ms": 136.498,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_LATIN_HYPERCUBE_1d_256": {
-      "execution_time_ms": 35.1706666666667,
+      "execution_time_ms": 36.346,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_LATIN_HYPERCUBE_1d_4096": {
-      "execution_time_ms": 540.200666666667,
+      "execution_time_ms": 540.326,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_LATIN_HYPERCUBE_2d_1024": {
-      "execution_time_ms": 210.108,
+      "execution_time_ms": 216.43,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_LATIN_HYPERCUBE_2d_256": {
-      "execution_time_ms": 53.719,
+      "execution_time_ms": 56.986,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_LATIN_HYPERCUBE_2d_4096": {
-      "execution_time_ms": 828.209666666667,
+      "execution_time_ms": 834.663,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_LATIN_HYPERCUBE_3d_1024": {
-      "execution_time_ms": 218.086666666667,
+      "execution_time_ms": 220.326,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_LATIN_HYPERCUBE_3d_256": {
-      "execution_time_ms": 59.9706666666667,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 61.887,
+      "memory_delta_bytes": -836.0
     },
     "generate_samples_LATIN_HYPERCUBE_3d_4096": {
-      "execution_time_ms": 889.133,
+      "execution_time_ms": 885.925,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_RANDOM_1d_1024": {
-      "execution_time_ms": 108.049333333333,
+      "execution_time_ms": 107.508,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_RANDOM_1d_256": {
-      "execution_time_ms": 26.8943333333333,
-      "memory_delta_bytes": -2924.0
+      "execution_time_ms": 27.087,
+      "memory_delta_bytes": -8772.0
     },
     "generate_samples_RANDOM_1d_4096": {
-      "execution_time_ms": 432.370333333333,
+      "execution_time_ms": 434.208,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_RANDOM_2d_1024": {
-      "execution_time_ms": 130.263666666667,
+      "execution_time_ms": 131.355,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_RANDOM_2d_256": {
-      "execution_time_ms": 33.1643333333333,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 33.167,
+      "memory_delta_bytes": -836.0
     },
     "generate_samples_RANDOM_2d_4096": {
-      "execution_time_ms": 529.480666666667,
+      "execution_time_ms": 536.768,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_RANDOM_3d_1024": {
-      "execution_time_ms": 170.571333333333,
+      "execution_time_ms": 177.554,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_RANDOM_3d_256": {
-      "execution_time_ms": 48.213,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 50.138,
+      "memory_delta_bytes": -836.0
     },
     "generate_samples_RANDOM_3d_4096": {
-      "execution_time_ms": 682.134333333333,
+      "execution_time_ms": 710.848,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_1d_1024": {
-      "execution_time_ms": 185.158666666667,
+      "execution_time_ms": 186.4,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_1d_256": {
-      "execution_time_ms": 49.5353333333333,
+      "execution_time_ms": 53.846,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_1d_4096": {
-      "execution_time_ms": 742.702333333333,
+      "execution_time_ms": 748.219,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_2d_1024": {
-      "execution_time_ms": 309.457666666667,
+      "execution_time_ms": 308.894,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_2d_256": {
-      "execution_time_ms": 78.2073333333333,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 78.484,
+      "memory_delta_bytes": -836.0
     },
     "generate_samples_SOBOL_2d_4096": {
-      "execution_time_ms": 1229.87033333333,
+      "execution_time_ms": 1239.711,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_3d_1024": {
-      "execution_time_ms": 291.474,
+      "execution_time_ms": 294.54,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_3d_256": {
-      "execution_time_ms": 75.416,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 77.097,
+      "memory_delta_bytes": -836.0
     },
     "generate_samples_SOBOL_3d_4096": {
-      "execution_time_ms": 1185.26633333333,
+      "execution_time_ms": 1187.258,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_RANDOM_1d_1024": {
-      "execution_time_ms": 177.129,
+      "execution_time_ms": 177.333,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_RANDOM_1d_256": {
-      "execution_time_ms": 45.048,
-      "memory_delta_bytes": -278.666666666667
+      "execution_time_ms": 45.071,
+      "memory_delta_bytes": -836.0
     },
     "generate_samples_SOBOL_RANDOM_1d_4096": {
-      "execution_time_ms": 708.870333333333,
+      "execution_time_ms": 715.905,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_RANDOM_2d_1024": {
-      "execution_time_ms": 292.724,
+      "execution_time_ms": 294.248,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_RANDOM_2d_256": {
-      "execution_time_ms": 73.784,
+      "execution_time_ms": 74.536,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_RANDOM_2d_4096": {
-      "execution_time_ms": 1162.12733333333,
+      "execution_time_ms": 1168.037,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_RANDOM_3d_1024": {
-      "execution_time_ms": 278.511666666667,
+      "execution_time_ms": 283.654,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_RANDOM_3d_256": {
-      "execution_time_ms": 73.7536666666667,
+      "execution_time_ms": 77.69,
       "memory_delta_bytes": 0.0
     },
     "generate_samples_SOBOL_RANDOM_3d_4096": {
-      "execution_time_ms": 1135.94866666667,
+      "execution_time_ms": 1144.862,
       "memory_delta_bytes": 0.0
     },
     "sample_indices_FISHER_YATES_LATIN_HYPERCUBE_1000_100": {
-      "execution_time_ms": 29.097,
-      "memory_delta_bytes": -364.0
+      "execution_time_ms": 29.594,
+      "memory_delta_bytes": -1092.0
     },
     "sample_indices_FISHER_YATES_RANDOM_1000_100": {
-      "execution_time_ms": 15.4366666666667,
-      "memory_delta_bytes": -364.0
+      "execution_time_ms": 14.928,
+      "memory_delta_bytes": -1092.0
     },
     "sample_indices_FISHER_YATES_SOBOL_1000_100": {
-      "execution_time_ms": 34.7986666666667,
-      "memory_delta_bytes": -364.0
+      "execution_time_ms": 34.658,
+      "memory_delta_bytes": -1092.0
     },
     "sample_indices_RESERVOIR_RANDOM_10000_1000": {
-      "execution_time_ms": 236.590666666667,
+      "execution_time_ms": 238.157,
       "memory_delta_bytes": 0.0
     },
     "sample_indices_WITH_REPLACEMENT_RANDOM_1000_100": {
-      "execution_time_ms": 3.16366666666667,
-      "memory_delta_bytes": -364.0
+      "execution_time_ms": 3.117,
+      "memory_delta_bytes": -1092.0
     }
   }
 }
