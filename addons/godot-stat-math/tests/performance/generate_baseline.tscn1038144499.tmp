@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://blhaefrnrt6t4"]
+
+[ext_resource type="Script" uid="uid://ciie6f768wv3e" path="res://addons/godot-stat-math/tests/performance/generate_all_baselines.gd" id="1_ruign"]
+
+[node name="GenerateBaseline" type="Node"]
+script = ExtResource("1_ruign")
