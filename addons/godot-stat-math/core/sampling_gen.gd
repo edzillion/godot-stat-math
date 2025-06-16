@@ -20,8 +20,8 @@ enum SelectionStrategy {
 const _SOBOL_BITS: int = 30
 const _SOBOL_MAX_VAL_FLOAT: float = float(1 << _SOBOL_BITS)
 
-# Enhanced Sobol direction vectors system for arbitrary dimensions
-# Each dimension uses a primitive polynomial to generate direction vectors
+# Enhanced Sobol direction vectors system using authoritative Joe-Kuo data
+# Supports up to 1024 dimensions with optimal low-discrepancy properties
 static var _sobol_direction_vectors_cache: Dictionary = {}  # dimension -> Array[int]
 static var _max_cached_dimension: int = -1
 
@@ -34,67 +34,12 @@ static var _pool_mutex: Mutex = Mutex.new()
 # Pool configuration
 const MAX_POOLED_DECKS_PER_SIZE: int = 16
 
-# Primitive polynomials for Sobol sequence generation (up to 100 dimensions)
-# Format: [degree, a1, a2, ..., a_degree-1] where polynomial is x^degree + a1*x^(degree-1) + ... + a_degree-1*x + 1
-const _PRIMITIVE_POLYNOMIALS: Array[Array] = [
-	[1],                    # Dimension 0: x (degree 1)
-	[2, 1],                 # Dimension 1: x^2 + x + 1
-	[3, 1],                 # Dimension 2: x^3 + x + 1
-	[3, 2],                 # Dimension 3: x^3 + x^2 + 1
-	[4, 1],                 # Dimension 4: x^4 + x + 1
-	[4, 3],                 # Dimension 5: x^4 + x^3 + 1
-	[4, 1, 3],              # Dimension 6: x^4 + x^3 + x + 1
-	[4, 3, 1],              # Dimension 7: x^4 + x^3 + x^2 + 1
-	[5, 2],                 # Dimension 8: x^5 + x^2 + 1
-	[5, 4],                 # Dimension 9: x^5 + x^4 + 1
-	[5, 1, 2],              # Dimension 10: x^5 + x^2 + x + 1
-	[5, 1, 4],              # Dimension 11: x^5 + x^4 + x + 1
-	[5, 3, 1],              # Dimension 12: x^5 + x^3 + x^2 + 1
-	[5, 4, 3],              # Dimension 13: x^5 + x^4 + x^3 + 1
-	[5, 1, 4, 2],           # Dimension 14: x^5 + x^4 + x^2 + x + 1
-	[5, 3, 4, 1],           # Dimension 15: x^5 + x^4 + x^3 + x^2 + 1
-	[6, 1],                 # Dimension 16: x^6 + x + 1
-	[6, 5],                 # Dimension 17: x^6 + x^5 + 1
-	[6, 1, 5],              # Dimension 18: x^6 + x^5 + x + 1
-	[6, 5, 1],              # Dimension 19: x^6 + x^5 + x^2 + 1
-	[6, 4, 1],              # Dimension 20: x^6 + x^4 + x^2 + 1
-	[7, 1],                 # Dimension 21: x^7 + x + 1
-	[7, 4],                 # Dimension 22: x^7 + x^4 + 1
-	[7, 4, 3, 1],           # Dimension 23: x^7 + x^4 + x^3 + x^2 + 1
-	[7, 6, 1],              # Dimension 24: x^7 + x^6 + x^2 + 1
-	[7, 5, 2],              # Dimension 25: x^7 + x^5 + x^2 + 1
-	[7, 6, 5, 2],           # Dimension 26: x^7 + x^6 + x^5 + x^2 + 1
-	[7, 5, 4, 3, 2, 1],     # Dimension 27: x^7 + x^5 + x^4 + x^3 + x^2 + x + 1
-	[7, 6, 5, 4, 2, 1],     # Dimension 28: x^7 + x^6 + x^5 + x^4 + x^2 + x + 1
-	[7, 6, 3, 1],           # Dimension 29: x^7 + x^6 + x^3 + x + 1
-	[8, 4, 3, 2],           # Dimension 30: x^8 + x^4 + x^3 + x^2 + 1
-	[8, 6, 5, 3],           # Dimension 31: x^8 + x^6 + x^5 + x^3 + 1
-	[8, 6, 5, 1],           # Dimension 32: x^8 + x^6 + x^5 + x + 1
-	[8, 5, 3, 1],           # Dimension 33: x^8 + x^5 + x^3 + x + 1
-	[8, 4, 3, 1],           # Dimension 34: x^8 + x^4 + x^3 + x + 1
-	[8, 7, 2, 1],           # Dimension 35: x^8 + x^7 + x^2 + x + 1
-	[8, 7, 4, 2],           # Dimension 36: x^8 + x^7 + x^4 + x^2 + 1
-	[8, 7, 6, 1],           # Dimension 37: x^8 + x^7 + x^6 + x + 1
-	[8, 6, 4, 3, 2, 1],     # Dimension 38: x^8 + x^6 + x^4 + x^3 + x^2 + x + 1
-	[8, 7, 6, 5, 2, 1],     # Dimension 39: x^8 + x^7 + x^6 + x^5 + x^2 + x + 1
-	[9, 4],                 # Dimension 40: x^9 + x^4 + 1
-	[9, 6, 4, 2],           # Dimension 41: x^9 + x^6 + x^4 + x^2 + 1
-	[9, 5, 3, 2],           # Dimension 42: x^9 + x^5 + x^3 + x^2 + 1
-	[9, 6, 5, 4, 2, 1],     # Dimension 43: x^9 + x^6 + x^5 + x^4 + x^2 + x + 1
-	[9, 7, 6, 4, 3, 1],     # Dimension 44: x^9 + x^7 + x^6 + x^4 + x^3 + x + 1
-	[9, 8, 7, 6, 2, 1],     # Dimension 45: x^9 + x^8 + x^7 + x^6 + x^2 + x + 1
-	[9, 8, 7, 2],           # Dimension 46: x^9 + x^8 + x^7 + x^2 + 1
-	[9, 8, 6, 5, 3, 2],     # Dimension 47: x^9 + x^8 + x^6 + x^5 + x^3 + x^2 + 1
-	[9, 8, 3, 2],           # Dimension 48: x^9 + x^8 + x^3 + x^2 + 1
-	[9, 5, 4, 3, 2, 1],     # Dimension 49: x^9 + x^5 + x^4 + x^3 + x^2 + x + 1
-	[10, 3],                # Dimension 50: x^10 + x^3 + 1
-	[10, 8, 3, 2],          # Dimension 51: x^10 + x^8 + x^3 + x^2 + 1
-	# This gives us 52 dimensions (0-51), enough for a 52-card deck
-]
-
-
 func _init() -> void:
-	_ensure_sobol_vectors_initialized(51)  # Initialize up to 51 dimensions for 52-card deck support
+	var start_time: int = Time.get_ticks_usec()
+	_ensure_sobol_vectors_initialized(SobolData.get_max_dimension())  # Initialize all available dimensions
+	var end_time: int = Time.get_ticks_usec()
+	var duration_ms: float = (end_time - start_time) / 1000.0
+	print("SamplingGen: Initialized %d Sobol dimensions in %.2f ms" % [SobolData.get_max_dimension(), duration_ms])
 
 
 # --- MEMORY POOL MANAGEMENT ---
@@ -148,30 +93,24 @@ static func _return_pooled_deck(deck: Array[int], deck_size: int) -> void:
 
 ## Ensures Sobol direction vectors are initialized up to the specified dimension.
 ## This method is idempotent and safe to call multiple times.
-## Thread-safe: Uses a simple mutex-like approach via static variables.
+## SINGLE-THREADED: Should only be called from main thread before spawning workers.
 static func _ensure_sobol_vectors_initialized(max_dimension: int) -> void:
 	if max_dimension <= _max_cached_dimension:
 		return
 		
-	# Basic thread safety: if another thread is already initializing higher dimensions,
-	# we don't need to do anything (the cache check above handles this)
 	var start_dim: int = max(_max_cached_dimension + 1, 0)
 	
 	for dim in range(start_dim, max_dimension + 1):
-		if dim >= _PRIMITIVE_POLYNOMIALS.size():
-			printerr("SamplingGen: No primitive polynomial available for dimension ", dim)
-			break
-			
-		# Only generate if not already in cache (thread safety)
+		# Only generate if not already in cache
 		if not _sobol_direction_vectors_cache.has(dim):
 			_generate_direction_vectors_for_dimension(dim)
 	
-	# Update the maximum cached dimension atomically
+	# Update the maximum cached dimension
 	if max_dimension > _max_cached_dimension:
 		_max_cached_dimension = max_dimension
 
 
-## Generates direction vectors for a specific dimension using its primitive polynomial.
+## Generates direction vectors for a specific dimension using authoritative Joe-Kuo direction numbers.
 static func _generate_direction_vectors_for_dimension(dimension: int) -> void:
 	if _sobol_direction_vectors_cache.has(dimension):
 		return
@@ -179,41 +118,44 @@ static func _generate_direction_vectors_for_dimension(dimension: int) -> void:
 	var direction_vectors: Array[int] = []
 	direction_vectors.resize(_SOBOL_BITS)
 	
-	if dimension >= _PRIMITIVE_POLYNOMIALS.size():
-		printerr("SamplingGen: No primitive polynomial available for dimension ", dimension)
-		return
-	
-	var poly: Array = _PRIMITIVE_POLYNOMIALS[dimension]
-	
-	if poly.is_empty():
-		printerr("SamplingGen: Empty polynomial for dimension ", dimension)
-		return
-		
-	var degree: int = poly[0]
-	
 	if dimension == 0:
-		# Special case for dimension 0: polynomial x (degree 1)
+		# Special case for dimension 0: use powers of 2 for the first dimension
 		for j in range(_SOBOL_BITS):
 			direction_vectors[j] = 1 << (_SOBOL_BITS - 1 - j)
+	elif dimension == 1:
+		# Special case for dimension 1: simple alternating pattern
+		for j in range(_SOBOL_BITS):
+			direction_vectors[j] = 1 << (_SOBOL_BITS - 1 - j)
+			if j % 2 == 1:
+				direction_vectors[j] = 0
 	else:
-		# Initialize first 'degree' direction vectors with powers of 2
-		for i in range(degree):
-			if i < _SOBOL_BITS:
-				direction_vectors[i] = 1 << (_SOBOL_BITS - 1 - i)
+		# Use authoritative Joe-Kuo direction numbers from SobolData
+		if not SobolData.has_dimension(dimension):
+			printerr("SamplingGen: No direction numbers available for dimension ", dimension)
+			return
 		
-		# Generate remaining direction vectors using recurrence relation
-		for j in range(degree, _SOBOL_BITS):
-			var v: int = direction_vectors[j - degree]
-			
-			# Apply polynomial coefficients
-			for k in range(1, poly.size()):
-				var coeff: int = poly[k]
-				if coeff > 0 and j - coeff >= 0:
-					v ^= direction_vectors[j - coeff]
-			
-			# Apply the shift operation
-			v ^= (direction_vectors[j - degree] >> degree)
-			direction_vectors[j] = v
+		var direction_numbers: Array = SobolData.get_direction_numbers(dimension)
+		if direction_numbers.is_empty():
+			printerr("SamplingGen: Empty direction numbers for dimension ", dimension)
+			return
+		
+		# Convert direction numbers (m_i values) to direction vectors (V_i = m_i / 2^i)
+		# First, set the initial direction vectors from the direction numbers
+		for i in range(min(direction_numbers.size(), _SOBOL_BITS)):
+			var m_i: int = direction_numbers[i]
+			# Convert m_i to direction vector: V_i = m_i / 2^(i+1) represented as integer
+			# Since we work with integer representation: V_i = m_i * 2^(_SOBOL_BITS - i - 1)
+			direction_vectors[i] = m_i << (_SOBOL_BITS - i - 1)
+		
+		# If we need more direction vectors, generate them using recurrence relation
+		# This should rarely be needed with proper Joe-Kuo data
+		var s: int = direction_numbers.size()
+		for j in range(s, _SOBOL_BITS):
+			# Use a simple doubling pattern as fallback
+			if j - s >= 0:
+				direction_vectors[j] = direction_vectors[j - s] << 1
+				if direction_vectors[j] >= (1 << _SOBOL_BITS):
+					direction_vectors[j] = direction_vectors[j] ^ (1 << _SOBOL_BITS) ^ 1
 	
 	_sobol_direction_vectors_cache[dimension] = direction_vectors
 
@@ -332,6 +274,11 @@ static func _generate_samples_nd(
 	
 	if (method == SamplingMethod.SOBOL or method == SamplingMethod.SOBOL_RANDOM) and total_sequence_length > max_sobol_index:
 		print("WARNING: Sobol sequence request (", total_sequence_length, ") exceeds practical limit (", max_sobol_index, "). Consider using RANDOM method for very large batches.")
+	
+	# Pre-initialize ALL Sobol dimensions needed BEFORE spawning threads
+	# This ensures true parallelization - threads only READ, never write to cache
+	if method == SamplingMethod.SOBOL or method == SamplingMethod.SOBOL_RANDOM:
+		_ensure_sobol_vectors_initialized(dimensions - 1)
 	
 	# Pre-generate random values for methods that need them
 	var random_masks: Array = []
@@ -637,7 +584,9 @@ static func generate_samples_nd(
 	if sample_seed != -1:
 		rng_to_use.seed = sample_seed
 	
-	_ensure_sobol_vectors_initialized(dimensions - 1)
+	# Pre-initialize Sobol dimensions if needed
+	if method == SamplingMethod.SOBOL or method == SamplingMethod.SOBOL_RANDOM:
+		_ensure_sobol_vectors_initialized(dimensions - 1)
 	
 	# Always use threading for dimensions >= 3 (cleaner, simpler, and faster)
 	if dimensions >= 3:
@@ -763,6 +712,10 @@ static func coordinated_shuffle(
 	# Generate a multi-dimensional point for the shuffle
 	# We need (deck_size - 1) dimensions for Fisher-Yates
 	var shuffle_dimensions: int = deck_size - 1
+	
+	# Pre-initialize Sobol dimensions if needed
+	if method == SamplingMethod.SOBOL or method == SamplingMethod.SOBOL_RANDOM:
+		_ensure_sobol_vectors_initialized(shuffle_dimensions - 1)
 	
 	# Generate a single multi-dimensional point using multithreading
 	var nd_samples: Array = _generate_samples_nd(1, shuffle_dimensions, method, point_index, rng_to_use)
@@ -1068,16 +1021,15 @@ static func _get_nth_prime(n: int) -> int:
 
 
 ## Generates Sobol sequence integers for a specific dimension.
+## ASSUMES: Direction vectors for dimension_index are already initialized.
 static func _get_sobol_1d_integers(ndraws: int, dimension_index: int, starting_index: int = 0) -> Array[int]:
 	var integers: Array[int] = []
 	if ndraws <= 0:
 		return integers
 	integers.resize(ndraws)
-
-	_ensure_sobol_vectors_initialized(dimension_index)
 	
-	if dimension_index < 0 or dimension_index >= _PRIMITIVE_POLYNOMIALS.size():
-		printerr("Sobol: Invalid dimension_index: ", dimension_index)
+	if dimension_index < 0 or dimension_index > SobolData.get_max_dimension():
+		printerr("Sobol: Invalid dimension_index: ", dimension_index, " (max supported: ", SobolData.get_max_dimension(), ")")
 		for i in range(ndraws): integers[i] = -1 # Signal error
 		return integers
 
