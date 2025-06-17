@@ -7,7 +7,7 @@ class_name DistributionsPerfTest extends GdUnitTestSuite
 ## to catch performance regressions during development.
 
 # Configuration
-const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/baseline.json"
+const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/results/baseline.json"
 const WARMUP_ITERATIONS: int = 3
 const MEASUREMENT_ITERATIONS: int = 5
 const PERFORMANCE_THRESHOLD: float = 1.2  # 20% slower than baseline
@@ -19,32 +19,25 @@ const TEST_ITERATIONS: int = 100  # Number of function calls per performance tes
 var _baseline_cache: Dictionary = {}
 
 
+# GDUnit4 lifecycle methods for test run collection
+func before() -> void:
+	TestRunCollector.start_test_run()
+
+
+func after() -> void:
+	await TestRunCollector.finish_test_run()
+
+
 func test_normal_distribution_performance() -> void:
-	var baseline: Dictionary = _load_baseline()
-	if baseline.is_empty():
-		assert_that(false).is_true()
-		# Baseline file not found. Run generate_all_baselines.gd first.
-		return
+	var test_name: String = "randf_normal"
+	var baseline_data: Dictionary = _load_baseline()
 	
-	# Run performance measurements
-	var current_results: Dictionary = collect_performance_measurements()
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_normal(0.0, 1.0)
+	)
 	
-	# Check for regressions
-	for test_name in current_results:
-		var current_time: float = current_results[test_name]
-		
-		# Look for test with module prefix (since all modules are in one baseline file)
-		var prefixed_test_name: String = "distributions_%s" % test_name
-		if not baseline.has(prefixed_test_name):
-			assert_that(false).is_true()
-			# Baseline missing test: %s % prefixed_test_name
-			continue
-		
-		var baseline_time: float = baseline[prefixed_test_name]
-		var regression_ratio: float = current_time / baseline_time
-		
-		assert_float(regression_ratio).is_less_equal(PERFORMANCE_THRESHOLD)
-		# Performance regression in %s: %.2fms vs baseline %.2fms (%.1fx slower) % [test_name, current_time, baseline_time, regression_ratio]
+	_check_performance_regression(test_name, current_results, baseline_data)
 
 
 func test_gamma_distribution_performance() -> void:
@@ -240,16 +233,20 @@ func _check_performance_regression(test_name: String, current_results: Dictionar
 		print("⚠️  No baseline found for %s - skipping regression check" % prefixed_test_name)
 		return
 	
-	var baseline_time: float = baseline_data[prefixed_test_name]
+	var baseline_time: float = baseline_data[prefixed_test_name].result_ms
 	var current_time: float = current_results.execution_time_ms
 	var time_change: float = (current_time - baseline_time) / baseline_time
+	var is_failure: bool = time_change > (PERFORMANCE_THRESHOLD - 1.0)
 	
 	print("📊 %s: %.2f ms vs baseline %.2f ms (%.1f%% change)" % [
 		test_name, current_time, baseline_time, time_change * 100.0
 	])
 	
+	# Always collect the result (pass or fail)
+	TestRunCollector.add_test_result("Distributions", test_name, current_time, baseline_time, is_failure)
+	
 	# Check for performance regression
-	if time_change > (PERFORMANCE_THRESHOLD - 1.0):
+	if is_failure:
 		assert_float(time_change).is_less_equal(PERFORMANCE_THRESHOLD - 1.0)
 
 
