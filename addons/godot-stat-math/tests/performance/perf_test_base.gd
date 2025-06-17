@@ -26,7 +26,11 @@ func before() -> void:
 
 ## Clean up this test suite independently
 func after() -> void:
-	print("✅ Completed performance testing for: %s" % get_module_name())
+	var module_name: String = get_module_name()
+	print("✅ Completed performance testing for: %s" % module_name)
+	
+	# Register completion with the global completion tracker
+	await PerfTestManager.register_module_completion(module_name)
 
 ## Measure a test function's performance - delegates to manager
 func _measure_test(test_name: String, test_func: Callable) -> Dictionary:
