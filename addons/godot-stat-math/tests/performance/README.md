@@ -1,6 +1,135 @@
 # StatMath Performance Testing System
 
-This directory contains the performance testing and baseline generation system for the StatMath addon.
+## Overview
+
+The StatMath performance testing system provides automated baseline generation and regression detection for all StatMath modules. The system automatically manages baselines using successful test runs, eliminating the need for manual baseline generation.
+
+## 🚀 **Automatic Baseline Generation**
+
+The system automatically:
+- ✅ Saves successful test runs as `pass_YYYY-MM-DD_HH-MM-SS.json`
+- ✅ Updates `baseline.json` using the last 50 successful runs
+- ✅ Uses robust median statistics for stable baselines
+- ✅ Cleans up old snapshots automatically
+- ✅ Applies hardware normalization for cross-machine consistency
+
+## How It Works
+
+### 1. **Test Execution**
+- Run GDUnit4 performance tests normally: `addons/gdUnit4/runtest.cmd -a addons/godot-stat-math/tests/performance/`
+- Each test measures performance and compares against current baseline
+- Hardware normalization ensures consistent results across different machines
+
+### 2. **Result Storage**
+- **Successful runs**: Saved as `pass_YYYY-MM-DD_HH-MM-SS.json` + `latest.json`
+- **Failed runs**: Saved as `fail_YYYY-MM-DD_HH-MM-SS.json` + `latest.json`
+- Failed runs are saved for debugging but don't affect baseline calculations
+
+### 3. **Automatic Baseline Updates**
+- After each test run, the system automatically:
+  - Loads up to 50 most recent successful runs (`pass_` files)
+  - Calculates robust median statistics for each test
+  - Updates `baseline.json` with new baseline values
+  - Reports statistical confidence based on sample size
+
+### 4. **File Management**
+- Keeps 50 most recent `pass_` files for statistical robustness
+- Optionally keeps `fail_` files (controlled by `KEEP_PREVIOUS_FAILURES` flag)
+- Automatically cleans up old files to maintain storage efficiency
+
+## File Structure
+
+```
+results/
+├── baseline.json           # Current baseline (auto-generated from pass_ files)
+├── latest.json             # Most recent test run results
+├── pass_2025-01-15_10-30-45.json  # Successful test runs
+├── pass_2025-01-15_11-15-20.json
+├── fail_2025-01-15_09-45-10.json  # Failed test runs (optional)
+└── ...
+```
+
+## Configuration
+
+Key settings in `PerfTestManager`:
+
+```gdscript
+const REGRESSION_THRESHOLD: float = 0.20  # 20% slower = regression
+const MAX_SNAPSHOTS: int = 50              # Keep 50 recent snapshots
+const KEEP_PREVIOUS_FAILURES: bool = false # Save failure snapshots
+```
+
+## Performance Test Architecture
+
+### Base Classes
+- **`PerfTestBase`**: Base class for all performance test suites
+- **`PerfTestManager`**: Centralized performance testing infrastructure
+
+### Test Structure
+```gdscript
+func test_example_performance() -> void:
+    var test_name: String = "example_operation"
+    var baseline_data: Dictionary = _load_baseline()
+    
+    var current_results: Dictionary = _measure_test(test_name, func():
+        # Your performance-critical code here
+        for i in range(TEST_ITERATIONS):
+            StatMath.SomeModule.some_function(test_data)
+    )
+    
+    _check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+```
+
+## Hardware Normalization
+
+The system automatically calibrates for hardware differences:
+- **CPU Factor**: Based on floating-point operations benchmark
+- **Memory Factor**: Based on array manipulation benchmark
+- Tests are categorized as CPU-bound, memory-bound, or mixed workload
+- Normalization ensures baselines are portable across development machines
+
+## Statistical Robustness
+
+- **Median-based baselines**: Robust against outliers
+- **Confidence reporting**: Based on sample size (high ≥10, medium ≥5, low <5)
+- **Variance detection**: Flags tests with high coefficient of variation (>15%)
+- **Sample size tracking**: Reports statistical summary for each baseline update
+
+## Migrating from Manual System
+
+The old `generate_baseline.gd` script is **deprecated**. The new system:
+- ❌ No more manual baseline generation
+- ❌ No more `collect_performance_measurements()` methods
+- ✅ Just run GDUnit4 tests normally
+- ✅ Baselines update automatically
+
+## Best Practices
+
+1. **Run tests regularly** to build up statistical history
+2. **Monitor variance** - investigate tests with high CV (>15%)
+3. **Check confidence levels** - aim for ≥10 successful runs for reliable baselines
+4. **Review failures** - failed tests indicate potential performance regressions
+5. **Hardware consistency** - normalization helps, but consistent test environments are better
+
+## Troubleshooting
+
+### No Baseline Available
+```
+⚠️  No baseline data available for test_name - skipping regression check
+```
+**Solution**: Run tests successfully a few times to build initial baseline
+
+### Low Statistical Confidence
+```
+🚨 Very limited data - results may be unstable (n=3)
+```
+**Solution**: Run more successful test cycles to increase sample size
+
+### High Variance Warning
+```
+⚠️  High variance tests (CV > 15%): [test_name1, test_name2]
+```
+**Solution**: Investigate these tests for inconsistent performance patterns
 
 ## Architecture
 

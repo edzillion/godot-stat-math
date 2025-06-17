@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://blhaefrnrt6t4"]
+[gd_scene load_steps=2 format=3 uid="uid://diqarw5prcjfe"]
 
 [ext_resource type="Script" uid="uid://nuyb72nsdj2d" path="res://addons/godot-stat-math/tests/performance/generate_baseline.gd" id="1_ruign"]
 
