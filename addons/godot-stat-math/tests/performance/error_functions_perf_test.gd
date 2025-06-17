@@ -7,7 +7,7 @@ class_name ErrorFunctionsPerfTest extends GdUnitTestSuite
 ## (Abramowitz-Stegun) to catch performance regressions during development.
 
 # Configuration
-const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/error_functions_baseline.json"
+const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/baseline.json"
 const REGRESSION_THRESHOLD: float = 0.20  # 20% slower = regression
 const WARMUP_ITERATIONS: int = 3
 const MEASUREMENT_ITERATIONS: int = 5
@@ -85,27 +85,26 @@ func _load_baseline() -> Dictionary:
 		push_error("Failed to parse baseline JSON: %s" % BASELINE_FILE)
 		return {}
 	
-	return json.data
+	var data: Dictionary = json.data
+	if not data.has("tests"):
+		push_error("Baseline file missing 'tests' key: " + BASELINE_FILE)
+		return {}
+	
+	return data["tests"]
 
 
 func _check_performance_regression(test_name: String, current_results: Dictionary, baseline_data: Dictionary) -> void:
-	if baseline_data.is_empty() or not baseline_data.has("tests"):
+	if baseline_data.is_empty():
 		print("⚠️  No baseline data available for %s - skipping regression check" % test_name)
 		return
 	
-	if not baseline_data.tests.has(test_name):
-		print("⚠️  No baseline found for %s - skipping regression check" % test_name)
+	# Look for test with module prefix since all modules are in one baseline file
+	var prefixed_test_name: String = "errorfunctions_%s" % test_name
+	if not baseline_data.has(prefixed_test_name):
+		print("⚠️  No baseline found for %s - skipping regression check" % prefixed_test_name)
 		return
 	
-	var baseline_time: float
-	var baseline_result = baseline_data.tests[test_name]
-	
-	# Handle both old (float) and new (dict) baseline formats
-	if baseline_result is float:
-		baseline_time = baseline_result
-	else:
-		baseline_time = baseline_result.execution_time_ms
-	
+	var baseline_time: float = baseline_data[prefixed_test_name]
 	var current_time: float = current_results.execution_time_ms
 	var time_change: float = (current_time - baseline_time) / baseline_time
 	
