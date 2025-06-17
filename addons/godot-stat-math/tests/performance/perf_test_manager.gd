@@ -3,9 +3,8 @@ class_name PerfTestManager extends RefCounted
 
 ## Centralized Performance Testing Infrastructure
 ##
-## Each test suite saves its own results independently to eliminate shared state conflicts.
-## A collation process merges module results into consolidated files for baseline generation.
-## The completion tracking system monitors all test suites and triggers final phase actions.
+## Each test suite saves its own results independently to an intermediate file.
+## A final phase consolidates these files into a single `latest.json` and a timestamped snapshot.
 
 # Common performance testing configuration
 const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/results/baseline.json"
@@ -40,6 +39,10 @@ static var _discovered_modules: Array[String] = []
 static var _completed_modules: Array[String] = []
 static var _completion_tracker_initialized: bool = false
 static var _final_phase_triggered: bool = false
+static var _run_timestamp: String = ""
+static var _cpu_factor: float = 1.0
+static var _memory_factor: float = 1.0
+static var _hardware_calibrated: bool = false
 
 ## Discover all test suite modules from the core directory
 static func _discover_test_modules() -> Array[String]:
@@ -96,12 +99,16 @@ static func _initialize_completion_tracker() -> void:
 	if _completion_tracker_initialized:
 		return
 	
+	_run_timestamp = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 	_discovered_modules = _discover_test_modules()
 	_completed_modules.clear()
 	_final_phase_triggered = false
 	_completion_tracker_initialized = true
 	
+	_calibrate_hardware()
+	
 	print("🎯 Performance test run initialized:")
+	print("   Run timestamp: %s" % _run_timestamp)
 	print("   Expected modules: %s" % str(_discovered_modules))
 	print("   Total modules: %d" % _discovered_modules.size())
 
@@ -132,42 +139,124 @@ static func _trigger_final_phase() -> void:
 	_final_phase_triggered = true
 	print("🏁 All performance test suites completed! Triggering final phase...")
 	
-	# Wait a moment for any pending operations to complete
+	# Wait a moment for any pending file I/O to complete
 	await Engine.get_main_loop().process_frame
-	await Engine.get_main_loop().process_frame
+	await Engine.get_main_loop().create_timer(0.2).timeout
 	
-	# Force final collation of any remaining results
-	await _collate_all_pending_results()
+	# Consolidate results from the completed run
+	await _consolidate_run_results()
 	
-	# Generate final completion report
-	_generate_completion_report()
-	
-	# Additional wait to ensure all file operations complete
-	await Engine.get_main_loop().process_frame
-	await Engine.get_main_loop().create_timer(0.1).timeout
-	
+	if _completed_modules.size() == _discovered_modules.size():
+		print("✅ All %d modules completed successfully" % _completed_modules.size())
+	else:
+		print("❌ Only %d of %d modules completed" % [_completed_modules.size(), _discovered_modules.size()])
+		
 	print("🎉 Performance test run completed successfully!")
 	print("   📊 Results saved in: %s" % RESULTS_DIR)
 	print("   📈 Latest results: %slatest.json" % RESULTS_DIR)
 	print("   📋 Baseline: %s" % BASELINE_FILE)
 
-## Force collation of any pending module results
-static func _collate_all_pending_results() -> void:
-	print("📦 Final collation of pending results...")
-	_collate_module_results_final()
-	
-	# Wait for collation to complete
-	await Engine.get_main_loop().create_timer(0.5).timeout
+	# Add a final delay to ensure all file I/O operations complete before exit
+	await Engine.get_main_loop().process_frame
+	await Engine.get_main_loop().create_timer(0.1).timeout
 
-## Generate final completion report
-static func _generate_completion_report() -> void:
-	var is_success: bool = _completed_modules.size() == _discovered_modules.size()
+## Consolidate all intermediate module results from the current run
+static func _consolidate_run_results() -> void:
+	print("📦 Consolidating results for run: %s" % _run_timestamp)
 	
-	# Just log completion status - no need to save completion reports
-	if is_success:
-		print("✅ All %d modules completed successfully" % _completed_modules.size())
+	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
+	if dir == null:
+		push_error("Cannot access results directory for consolidation: " + RESULTS_DIR)
+		return
+
+	# Allow a moment for file systems to catch up before reading
+	await Engine.get_main_loop().process_frame
+
+	# Find all intermediate files for the current run
+	var intermediate_files: Array[String] = []
+	dir.list_dir_begin()
+	var file_name: String = dir.get_next()
+	while file_name != "":
+		if file_name.ends_with("_%s.json" % _run_timestamp):
+			intermediate_files.append(file_name)
+		file_name = dir.get_next()
+	
+	if intermediate_files.is_empty():
+		print("⚠️ No intermediate result files found for run: %s" % _run_timestamp)
+		return
+
+	var consolidated_tests: Dictionary = {}
+	var total_tests: int = 0
+	var failed_tests: int = 0
+
+	# Load and merge all intermediate files
+	for file in intermediate_files:
+		var file_path: String = RESULTS_DIR.path_join(file)
+		var module_data: Dictionary = _load_json_file(file_path)
+		
+		if module_data.is_empty() or not module_data.has("tests"):
+			push_warning("Skipping invalid or empty result file: " + file)
+			continue
+		
+		var module_name: String = module_data.get("module", "Unknown")
+
+		# Merge tests
+		for test_name in module_data.tests:
+			consolidated_tests[test_name] = module_data.tests[test_name]
+			total_tests += 1
+			if module_data.tests[test_name].status == "fail":
+				failed_tests += 1
+		
+	if consolidated_tests.is_empty():
+		print("❌ No valid tests found in intermediate files for run: %s" % _run_timestamp)
+		return
+	
+	# Create consolidated result object
+	var consolidated_data: Dictionary = {
+		"tests": consolidated_tests,
+		"meta": {
+			"type": "test_run",
+			"generated_at": Time.get_datetime_string_from_system(),
+			"original_timestamp": _run_timestamp,
+			"total_tests": total_tests,
+			"failed_tests": failed_tests,
+			"passed_tests": total_tests - failed_tests,
+			"modules_included": intermediate_files.size(),
+			"hardware_normalization": {
+				"cpu_factor": _cpu_factor,
+				"memory_factor": _memory_factor
+			}
+		}
+	}
+	
+	# Save as latest.json
+	_save_json_file(RESULTS_DIR.path_join("latest.json"), consolidated_data)
+	
+	# Save timestamped snapshot (pass_ or fail_)
+	var has_failures: bool = failed_tests > 0
+	var snapshot_prefix: String = "fail" if has_failures else "pass"
+	var snapshot_filepath: String = RESULTS_DIR.path_join("%s_%s.json" % [snapshot_prefix, _run_timestamp])
+	
+	if has_failures and not KEEP_PREVIOUS_FAILURES:
+		print("🗑️ Discarding failure snapshot as per configuration.")
 	else:
-		print("❌ Only %d of %d modules completed" % [_completed_modules.size(), _discovered_modules.size()])
+		_save_json_file(snapshot_filepath, consolidated_data)
+		print("💾 Consolidated results: %s (%d tests, %d failures)" % [snapshot_filepath.get_file(), total_tests, failed_tests])
+
+	# Clean up intermediate files
+	for file in intermediate_files:
+		var err: Error = dir.remove(file)
+		if err == OK:
+			print("🗑️  Cleaned up intermediate file: %s" % file)
+		else:
+			push_error("Failed to clean up intermediate file: %s" % file)
+			
+	# Trigger baseline update if this was a successful run
+	if not has_failures:
+		_update_baseline_from_snapshots()
+		_cleanup_old_snapshots()
+
+
 
 ## Reset completion tracker (for testing purposes)
 static func reset_completion_tracker() -> void:
@@ -177,27 +266,24 @@ static func reset_completion_tracker() -> void:
 	_final_phase_triggered = false
 
 # Instance-specific data (no more shared static state!)
-var cpu_factor: float = 1.0
-var memory_factor: float = 1.0
 var _module_results: Dictionary = {}  # This instance's results
 var _module_name: String = ""
-var _timestamp: String = ""
 
 ## Initialize hardware normalization for this instance
 func _init() -> void:
 	# Initialize completion tracker on first instance creation
 	if not _completion_tracker_initialized:
 		_initialize_completion_tracker()
-	
-	_calibrate_hardware()
-	_timestamp = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 
 ## Set the module name for this test suite instance
 func set_module_name(module_name: String) -> void:
 	_module_name = module_name
 
 ## Hardware calibration for this instance
-func _calibrate_hardware() -> void:
+static func _calibrate_hardware() -> void:
+	if _hardware_calibrated:
+		return
+		
 	print("🔧 Calibrating hardware performance...")
 	
 	# Run CPU benchmark (drop first 10 results)
@@ -219,12 +305,14 @@ func _calibrate_hardware() -> void:
 	var avg_memory_score: float = StatMath.BasicStats.mean(memory_scores)
 	
 	# Calculate normalization factors (baseline / current)
-	cpu_factor = BASELINE_CPU_SCORE / avg_cpu_score
-	memory_factor = BASELINE_MEMORY_SCORE / avg_memory_score
+	_cpu_factor = BASELINE_CPU_SCORE / avg_cpu_score
+	_memory_factor = BASELINE_MEMORY_SCORE / avg_memory_score
+	
+	_hardware_calibrated = true
 	
 	print("🔧 Hardware calibration complete:")
-	print("   CPU: %.1f score (factor: %.3f)" % [avg_cpu_score, cpu_factor])
-	print("   Memory: %.1f MB/s (factor: %.3f)" % [avg_memory_score, memory_factor])
+	print("   CPU: %.1f score (factor: %.3f)" % [avg_cpu_score, _cpu_factor])
+	print("   Memory: %.1f MB/s (factor: %.3f)" % [avg_memory_score, _memory_factor])
 
 ## CPU benchmark - floating point operations
 static func _benchmark_cpu() -> float:
@@ -268,15 +356,15 @@ func _get_test_normalization_factor(test_name: String) -> float:
 	# Check if test is CPU-bound
 	for cpu_pattern in CPU_BOUND_TESTS:
 		if test_name.begins_with(cpu_pattern):
-			return cpu_factor
+			return PerfTestManager._cpu_factor
 	
 	# Check if test is memory-bound  
 	for memory_pattern in MEMORY_BOUND_TESTS:
 		if test_name.begins_with(memory_pattern):
-			return memory_factor
+			return PerfTestManager._memory_factor
 	
 	# Default: mixed workload (70% CPU, 30% memory)
-	return (cpu_factor * 0.7 + memory_factor * 0.3)
+	return (PerfTestManager._cpu_factor * 0.7 + PerfTestManager._memory_factor * 0.3)
 
 ## ========== INDEPENDENT TEST SUITE INTERFACE ==========
 
@@ -373,9 +461,6 @@ func check_performance_regression(module_name: String, test_name: String, curren
 	
 	# Save immediately after each test
 	_save_module_results()
-	
-	# Trigger collation check (will collate if multiple modules are ready)
-	_trigger_collation_check()
 
 ## Generate reproducible test data for performance tests
 func generate_test_data(size: int, seed: int = 12345) -> Array[float]:
@@ -399,218 +484,45 @@ func _save_module_results() -> void:
 		return
 	
 	# Ensure results directory exists
-	if not DirAccess.dir_exists_absolute(RESULTS_DIR):
-		DirAccess.open("res://").make_dir_recursive(RESULTS_DIR)
+	var dir: DirAccess = DirAccess.open("res://")
+	if not dir.dir_exists(RESULTS_DIR):
+		dir.make_dir_recursive(RESULTS_DIR)
 	
-	# Save to module-specific file
-	var module_filepath: String = RESULTS_DIR + "%s_%s.json" % [_module_name, _timestamp]
+	# Save to module-specific intermediate file using the shared run timestamp
+	var module_filepath: String = RESULTS_DIR + "%s_%s.json" % [_module_name, PerfTestManager._run_timestamp]
 	
 	var module_data: Dictionary = {
 		"module": _module_name,
-		"timestamp": _timestamp,
+		"timestamp": PerfTestManager._run_timestamp,
 		"tests": _module_results,
 		"meta": {
 			"generated_at": Time.get_datetime_string_from_system(),
-			"total_tests": _module_results.size(),
-			"hardware_normalization": {
-				"cpu_factor": cpu_factor,
-				"memory_factor": memory_factor
-			}
+			"total_tests": _module_results.size()
 		}
 	}
 	
 	_save_json_file(module_filepath, module_data)
-	print("💾 Saved %s results: %s (%d tests)" % [_module_name, module_filepath, _module_results.size()])
+	print("💾 Saved intermediate results for %s: %s" % [_module_name, module_filepath.get_file()])
 
-## Trigger collation check - will collate if conditions are met
-func _trigger_collation_check() -> void:
-	# Use a simple timer-based approach to collate results after a delay
-	# This allows multiple modules to finish before collation
-	var timer: Timer = Timer.new()
-	Engine.get_main_loop().current_scene.add_child(timer)
-	timer.wait_time = 1.0  # 1 second delay
-	timer.one_shot = true
-	timer.timeout.connect(func():
-		_collate_module_results()
-		timer.queue_free()
-	)
-	timer.start()
+## Helper to load a JSON file and return its data
+static func _load_json_file(filepath: String) -> Dictionary:
+	if not FileAccess.file_exists(filepath):
+		push_warning("File not found: " + filepath)
+		return {}
 
-## Collate module results from the same timestamp into consolidated files
-static func _collate_module_results() -> void:
-	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
-	if dir == null:
-		return
-	
-	# Find all module files by timestamp
-	var module_files_by_timestamp: Dictionary = {}
-	dir.list_dir_begin()
-	var file_name: String = dir.get_next()
-	
-	while file_name != "":
-		# Look for pattern: ModuleName_YYYY-MM-DD_HH-MM-SS.json
-		# But EXCLUDE pass_, fail_, and other result files
-		if (file_name.ends_with(".json") and 
-			file_name.count("_") >= 2 and
-			not file_name.begins_with("pass_") and
-			not file_name.begins_with("fail_") and
-			not file_name.begins_with("latest") and
-			not file_name.begins_with("baseline")):
-			
-			var parts: Array = file_name.replace(".json", "").split("_")
-			if parts.size() >= 3:  # ModuleName_YYYY-MM-DD_HH-MM-SS
-				var module_name: String = parts[0]
-				var timestamp: String = "_".join(parts.slice(1))  # Everything after first underscore
-				
-				if not module_files_by_timestamp.has(timestamp):
-					module_files_by_timestamp[timestamp] = []
-				
-				module_files_by_timestamp[timestamp].append({
-					"file": file_name,
-					"module": module_name,
-					"timestamp": timestamp
-				})
-		
-		file_name = dir.get_next()
-	
-	# Collate each timestamp group that has multiple modules or is old enough
-	for timestamp in module_files_by_timestamp:
-		var module_files: Array = module_files_by_timestamp[timestamp]
-		
-		# Only collate if we have multiple modules - wait for all modules to complete
-		var should_collate: bool = module_files.size() > 1
-		
-		if should_collate:
-			_collate_timestamp_group(timestamp, module_files)
+	var file: FileAccess = FileAccess.open(filepath, FileAccess.READ)
+	if file == null:
+		push_error("Failed to read file: " + filepath)
+		return {}
 
-## Force collation of ALL pending module files (used in final phase)
-static func _collate_module_results_final() -> void:
-	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
-	if dir == null:
-		return
+	var json_string: String = file.get_as_text()
+	var json: JSON = JSON.new()
+	var err: Error = json.parse(json_string)
+	if err != OK:
+		push_error("Failed to parse JSON in %s: %s" % [filepath, json.get_error_message()])
+		return {}
 	
-	# Find all module files by timestamp
-	var module_files_by_timestamp: Dictionary = {}
-	dir.list_dir_begin()
-	var file_name: String = dir.get_next()
-	
-	while file_name != "":
-		# Look for pattern: ModuleName_YYYY-MM-DD_HH-MM-SS.json
-		# But EXCLUDE pass_, fail_, and other result files
-		if (file_name.ends_with(".json") and 
-			file_name.count("_") >= 2 and
-			not file_name.begins_with("pass_") and
-			not file_name.begins_with("fail_") and
-			not file_name.begins_with("latest") and
-			not file_name.begins_with("baseline")):
-			
-			var parts: Array = file_name.replace(".json", "").split("_")
-			if parts.size() >= 3:  # ModuleName_YYYY-MM-DD_HH-MM-SS
-				var module_name: String = parts[0]
-				var timestamp: String = "_".join(parts.slice(1))  # Everything after first underscore
-				
-				if not module_files_by_timestamp.has(timestamp):
-					module_files_by_timestamp[timestamp] = []
-				
-				module_files_by_timestamp[timestamp].append({
-					"file": file_name,
-					"module": module_name,
-					"timestamp": timestamp
-				})
-		
-		file_name = dir.get_next()
-	
-	# Force collate ALL timestamp groups (even single modules)
-	for timestamp in module_files_by_timestamp:
-		var module_files: Array = module_files_by_timestamp[timestamp]
-		_collate_timestamp_group(timestamp, module_files)
-
-## Collate all module files from the same timestamp into one consolidated file
-static func _collate_timestamp_group(timestamp: String, module_files: Array) -> void:
-	print("📦 Collating %d module files for timestamp: %s" % [module_files.size(), timestamp])
-	
-	var consolidated_tests: Dictionary = {}
-	var total_tests: int = 0
-	var failed_tests: int = 0
-	var all_hardware_factors: Dictionary = {}
-	
-	# Load and merge all module files
-	for module_info in module_files:
-		var file_path: String = RESULTS_DIR + module_info.file
-		var file: FileAccess = FileAccess.open(file_path, FileAccess.READ)
-		if file == null:
-			push_warning("Could not read module file: " + file_path)
-			continue
-		
-		var json_string: String = file.get_as_text()
-		file.close()
-		
-		var json: JSON = JSON.new()
-		var parse_result: Error = json.parse(json_string)
-		if parse_result != OK:
-			push_warning("Failed to parse JSON in: " + file_path)
-			continue
-		
-		var module_data: Dictionary = json.data
-		if not module_data.has("tests"):
-			push_warning("Module file missing 'tests' key: " + file_path)
-			continue
-		
-		# Merge tests
-		for test_name in module_data.tests:
-			consolidated_tests[test_name] = module_data.tests[test_name]
-			total_tests += 1
-			if module_data.tests[test_name].status == "fail":
-				failed_tests += 1
-		
-		# Track hardware factors
-		if module_data.has("meta") and module_data.meta.has("hardware_normalization"):
-			var module_name: String = module_info.module
-			all_hardware_factors[module_name] = module_data.meta.hardware_normalization
-	
-	if consolidated_tests.is_empty():
-		print("❌ No valid tests found in module files for timestamp: %s" % timestamp)
-		return
-	
-	# Create consolidated result
-	var consolidated_data: Dictionary = {
-		"tests": consolidated_tests,
-		"meta": {
-			"type": "test_run",
-			"generated_at": Time.get_datetime_string_from_system(),
-			"original_timestamp": timestamp,
-			"total_tests": total_tests,
-			"failed_tests": failed_tests,
-			"passed_tests": total_tests - failed_tests,
-			"modules_included": module_files.size(),
-			"hardware_normalization": all_hardware_factors
-		}
-	}
-	
-	# Save as latest.json
-	var latest_filepath: String = RESULTS_DIR + "latest.json"
-	_save_json_file(latest_filepath, consolidated_data)
-	
-	# Save as pass/fail snapshot
-	var has_failures: bool = failed_tests > 0
-	var snapshot_prefix: String = "fail" if has_failures else "pass"
-	var snapshot_filepath: String = RESULTS_DIR + "%s_%s.json" % [snapshot_prefix, timestamp]
-	_save_json_file(snapshot_filepath, consolidated_data)
-	
-	print("💾 Consolidated results: %s_%s.json (%d tests, %d failures)" % [
-		snapshot_prefix, timestamp, total_tests, failed_tests
-	])
-	
-	# Clean up module files after successful collation
-	for module_info in module_files:
-		var file_path: String = RESULTS_DIR + module_info.file
-		DirAccess.open(RESULTS_DIR).remove(module_info.file)
-		print("🗑️  Cleaned up: %s" % module_info.file)
-	
-	# Trigger baseline update if this was a successful run
-	if not has_failures:
-		_update_baseline_from_snapshots()
-		_cleanup_old_snapshots()
+	return json.data
 
 ## Helper function to save JSON files
 static func _save_json_file(filepath: String, data: Dictionary) -> void:
