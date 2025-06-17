@@ -46,7 +46,18 @@ func test_poisson_pmf_performance() -> void:
 	_check_performance_regression(test_name, current_results, baseline_data)
 
 
-
+func test_negative_binomial_pmf_performance() -> void:
+	var test_name: String = "negative_binomial_pmf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.PmfPdfFunctions.negative_binomial_pmf(10, 3, 0.4)
+			StatMath.PmfPdfFunctions.negative_binomial_pmf(15, 5, 0.3)
+			StatMath.PmfPdfFunctions.negative_binomial_pmf(8, 2, 0.6)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
 
 
 # --- Performance Testing Infrastructure ---
@@ -150,7 +161,15 @@ func collect_performance_measurements() -> Dictionary:
 	)
 	results["poisson_pmf"] = measurement.execution_time_ms
 	print("  poisson_pmf: %.2f ms" % measurement.execution_time_ms)
-	
 
+	# NEW TEST: Negative binomial PMF tests
+	measurement = _measure_test("negative_binomial_pmf", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.PmfPdfFunctions.negative_binomial_pmf(10, 3, 0.4)
+			StatMath.PmfPdfFunctions.negative_binomial_pmf(15, 5, 0.3)
+			StatMath.PmfPdfFunctions.negative_binomial_pmf(8, 2, 0.6)
+	)
+	results["negative_binomial_pmf"] = measurement.execution_time_ms
+	print("  negative_binomial_pmf: %.2f ms" % measurement.execution_time_ms)
 	
 	return results 

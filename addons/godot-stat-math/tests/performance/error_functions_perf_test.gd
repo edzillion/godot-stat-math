@@ -14,7 +14,9 @@ const MEASUREMENT_ITERATIONS: int = 5
 
 # Test parameters
 const TEST_ITERATIONS: int = 100  # Number of function calls per performance test
-const TEST_VALUES: Array[float] = [-2.0, -1.0, 0.0, 1.0, 2.0]
+const ERROR_FUNCTION_VALUES: Array[float] = [-2.0, -1.0, 0.0, 1.0, 2.0]
+const INVERSE_ERROR_FUNCTION_VALUES: Array[float] = [-0.8, -0.5, 0.0, 0.5, 0.8]
+const INVERSE_COMP_ERROR_FUNCTION_VALUES: Array[float] = [0.2, 0.5, 1.0, 1.5, 1.8]
 
 
 func test_error_function_performance() -> void:
@@ -23,7 +25,7 @@ func test_error_function_performance() -> void:
 	
 	var current_results: Dictionary = _measure_test(test_name, func():
 		for i in range(TEST_ITERATIONS):
-			for x_val in TEST_VALUES:
+			for x_val in ERROR_FUNCTION_VALUES:
 				StatMath.ErrorFunctions.error_function(x_val)
 	)
 	
@@ -36,8 +38,34 @@ func test_complementary_error_function_performance() -> void:
 	
 	var current_results: Dictionary = _measure_test(test_name, func():
 		for i in range(TEST_ITERATIONS):
-			for x_val in TEST_VALUES:
+			for x_val in ERROR_FUNCTION_VALUES:
 				StatMath.ErrorFunctions.complementary_error_function(x_val)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_error_function_inverse_performance() -> void:
+	var test_name: String = "error_function_inverse"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for y_val in INVERSE_ERROR_FUNCTION_VALUES:
+				StatMath.ErrorFunctions.error_function_inverse(y_val)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_complementary_error_function_inverse_performance() -> void:
+	var test_name: String = "complementary_error_function_inverse"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for y_val in INVERSE_COMP_ERROR_FUNCTION_VALUES:
+				StatMath.ErrorFunctions.complementary_error_function_inverse(y_val)
 	)
 	
 	_check_performance_regression(test_name, current_results, baseline_data)
@@ -126,7 +154,7 @@ func collect_performance_measurements() -> Dictionary:
 	# Error function tests
 	var measurement: Dictionary = _measure_test("error_function", func():
 		for i in range(TEST_ITERATIONS):
-			for x_val in TEST_VALUES:
+			for x_val in ERROR_FUNCTION_VALUES:
 				StatMath.ErrorFunctions.error_function(x_val)
 	)
 	results["error_function"] = measurement.execution_time_ms
@@ -135,10 +163,30 @@ func collect_performance_measurements() -> Dictionary:
 	# Complementary error function tests
 	measurement = _measure_test("complementary_error_function", func():
 		for i in range(TEST_ITERATIONS):
-			for x_val in TEST_VALUES:
+			for x_val in ERROR_FUNCTION_VALUES:
 				StatMath.ErrorFunctions.complementary_error_function(x_val)
 	)
 	results["complementary_error_function"] = measurement.execution_time_ms
 	print("  complementary_error_function: %.2f ms" % measurement.execution_time_ms)
+
+	# NEW TESTS: Error function inverses
+	
+	# Error function inverse tests
+	measurement = _measure_test("error_function_inverse", func():
+		for i in range(TEST_ITERATIONS):
+			for y_val in INVERSE_ERROR_FUNCTION_VALUES:
+				StatMath.ErrorFunctions.error_function_inverse(y_val)
+	)
+	results["error_function_inverse"] = measurement.execution_time_ms
+	print("  error_function_inverse: %.2f ms" % measurement.execution_time_ms)
+	
+	# Complementary error function inverse tests
+	measurement = _measure_test("complementary_error_function_inverse", func():
+		for i in range(TEST_ITERATIONS):
+			for y_val in INVERSE_COMP_ERROR_FUNCTION_VALUES:
+				StatMath.ErrorFunctions.complementary_error_function_inverse(y_val)
+	)
+	results["complementary_error_function_inverse"] = measurement.execution_time_ms
+	print("  complementary_error_function_inverse: %.2f ms" % measurement.execution_time_ms)
 	
 	return results 

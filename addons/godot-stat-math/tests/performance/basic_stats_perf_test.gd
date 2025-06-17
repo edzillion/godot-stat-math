@@ -101,6 +101,23 @@ func test_sample_statistics_performance() -> void:
 	_check_performance_regression(test_name, current_results, baseline_data)
 
 
+func test_min_max_range_performance() -> void:
+	var test_name: String = "min_max_range_calculation"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for dataset_size in DATASET_SIZES:
+			var test_data: Array[float] = _generate_test_data(dataset_size)
+			
+			# Test min, max, and range calculations
+			StatMath.BasicStats.minimum(test_data)
+			StatMath.BasicStats.maximum(test_data)
+			StatMath.BasicStats.range_spread(test_data)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
 # --- Test Data Generation ---
 
 func _generate_test_data(size: int) -> Array[float]:
@@ -257,5 +274,18 @@ func collect_performance_measurements() -> Dictionary:
 	)
 	results["sample_statistics"] = measurement.execution_time_ms
 	print("  sample_statistics: %.2f ms" % measurement.execution_time_ms)
+
+	# NEW TEST: Min, max, and range calculations
+	measurement = _measure_test("min_max_range_calculation", func():
+		for dataset_size in DATASET_SIZES:
+			var test_data: Array[float] = _generate_test_data(dataset_size)
+			
+			# Test min, max, and range calculations
+			StatMath.BasicStats.minimum(test_data)
+			StatMath.BasicStats.maximum(test_data)
+			StatMath.BasicStats.range_spread(test_data)
+	)
+	results["min_max_range_calculation"] = measurement.execution_time_ms
+	print("  min_max_range_calculation: %.2f ms" % measurement.execution_time_ms)
 	
 	return results 

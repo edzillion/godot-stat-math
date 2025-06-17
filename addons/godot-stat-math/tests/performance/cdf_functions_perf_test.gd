@@ -91,6 +91,117 @@ func test_exponential_cdf_performance() -> void:
 	_check_performance_regression(test_name, current_results, baseline_data)
 
 
+func test_chi_square_cdf_performance() -> void:
+	var test_name: String = "chi_square_cdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				if x_val >= 0:  # Chi-square CDF only defined for x >= 0
+					StatMath.CdfFunctions.chi_square_cdf(x_val, 2.0)
+					StatMath.CdfFunctions.chi_square_cdf(x_val, 5.0)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_f_cdf_performance() -> void:
+	var test_name: String = "f_cdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				if x_val >= 0:  # F CDF only defined for x >= 0
+					StatMath.CdfFunctions.f_cdf(x_val, 3.0, 5.0)
+					StatMath.CdfFunctions.f_cdf(x_val, 2.0, 10.0)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_t_cdf_performance() -> void:
+	var test_name: String = "t_cdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				StatMath.CdfFunctions.t_cdf(x_val, 3.0)
+				StatMath.CdfFunctions.t_cdf(x_val, 10.0)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_binomial_cdf_performance() -> void:
+	var test_name: String = "binomial_cdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.CdfFunctions.binomial_cdf(5, 20, 0.3)
+			StatMath.CdfFunctions.binomial_cdf(10, 30, 0.4)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_poisson_cdf_performance() -> void:
+	var test_name: String = "poisson_cdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.CdfFunctions.poisson_cdf(3, 2.5)
+			StatMath.CdfFunctions.poisson_cdf(8, 5.0)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_geometric_cdf_performance() -> void:
+	var test_name: String = "geometric_cdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.CdfFunctions.geometric_cdf(5, 0.2)
+			StatMath.CdfFunctions.geometric_cdf(10, 0.1)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_negative_binomial_cdf_performance() -> void:
+	var test_name: String = "negative_binomial_cdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.CdfFunctions.negative_binomial_cdf(10, 3, 0.4)
+			StatMath.CdfFunctions.negative_binomial_cdf(15, 5, 0.3)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_pareto_cdf_performance() -> void:
+	var test_name: String = "pareto_cdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				if x_val >= 1.0:  # Testing with scale=1.0, so x must be >= scale
+					StatMath.CdfFunctions.pareto_cdf(x_val, 1.0, 2.0)
+					StatMath.CdfFunctions.pareto_cdf(x_val, 1.0, 3.0)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
 # --- Performance Testing Infrastructure ---
 
 func _measure_test(test_name: String, test_func: Callable) -> Dictionary:
@@ -224,5 +335,86 @@ func collect_performance_measurements() -> Dictionary:
 	)
 	results["exponential_cdf"] = measurement.execution_time_ms
 	print("  exponential_cdf: %.2f ms" % measurement.execution_time_ms)
+
+	# NEW TESTS: Additional CDF functions
+	
+	# Chi-square CDF tests
+	measurement = _measure_test("chi_square_cdf", func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				if x_val >= 0:  # Chi-square CDF only defined for x >= 0
+					StatMath.CdfFunctions.chi_square_cdf(x_val, 2.0)
+					StatMath.CdfFunctions.chi_square_cdf(x_val, 5.0)
+	)
+	results["chi_square_cdf"] = measurement.execution_time_ms
+	print("  chi_square_cdf: %.2f ms" % measurement.execution_time_ms)
+	
+	# F CDF tests
+	measurement = _measure_test("f_cdf", func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				if x_val >= 0:  # F CDF only defined for x >= 0
+					StatMath.CdfFunctions.f_cdf(x_val, 3.0, 5.0)
+					StatMath.CdfFunctions.f_cdf(x_val, 2.0, 10.0)
+	)
+	results["f_cdf"] = measurement.execution_time_ms
+	print("  f_cdf: %.2f ms" % measurement.execution_time_ms)
+	
+	# Student's t CDF tests
+	measurement = _measure_test("t_cdf", func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				StatMath.CdfFunctions.t_cdf(x_val, 3.0)
+				StatMath.CdfFunctions.t_cdf(x_val, 10.0)
+	)
+	results["t_cdf"] = measurement.execution_time_ms
+	print("  t_cdf: %.2f ms" % measurement.execution_time_ms)
+	
+	# Binomial CDF tests
+	measurement = _measure_test("binomial_cdf", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.CdfFunctions.binomial_cdf(5, 20, 0.3)
+			StatMath.CdfFunctions.binomial_cdf(10, 30, 0.4)
+	)
+	results["binomial_cdf"] = measurement.execution_time_ms
+	print("  binomial_cdf: %.2f ms" % measurement.execution_time_ms)
+	
+	# Poisson CDF tests
+	measurement = _measure_test("poisson_cdf", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.CdfFunctions.poisson_cdf(3, 2.5)
+			StatMath.CdfFunctions.poisson_cdf(8, 5.0)
+	)
+	results["poisson_cdf"] = measurement.execution_time_ms
+	print("  poisson_cdf: %.2f ms" % measurement.execution_time_ms)
+	
+	# Geometric CDF tests
+	measurement = _measure_test("geometric_cdf", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.CdfFunctions.geometric_cdf(5, 0.2)
+			StatMath.CdfFunctions.geometric_cdf(10, 0.1)
+	)
+	results["geometric_cdf"] = measurement.execution_time_ms
+	print("  geometric_cdf: %.2f ms" % measurement.execution_time_ms)
+	
+	# Negative binomial CDF tests
+	measurement = _measure_test("negative_binomial_cdf", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.CdfFunctions.negative_binomial_cdf(10, 3, 0.4)
+			StatMath.CdfFunctions.negative_binomial_cdf(15, 5, 0.3)
+	)
+	results["negative_binomial_cdf"] = measurement.execution_time_ms
+	print("  negative_binomial_cdf: %.2f ms" % measurement.execution_time_ms)
+	
+	# Pareto CDF tests
+	measurement = _measure_test("pareto_cdf", func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				if x_val >= 1.0:  # Testing with scale=1.0, so x must be >= scale
+					StatMath.CdfFunctions.pareto_cdf(x_val, 1.0, 2.0)
+					StatMath.CdfFunctions.pareto_cdf(x_val, 1.0, 3.0)
+	)
+	results["pareto_cdf"] = measurement.execution_time_ms
+	print("  pareto_cdf: %.2f ms" % measurement.execution_time_ms)
 	
 	return results 
