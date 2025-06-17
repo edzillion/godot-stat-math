@@ -7,8 +7,9 @@ class_name SamplingGenPerfTest extends PerfTestBase
 ## performance regressions in critical game random systems.
 
 # Test matrices - keep reasonable for test speed
-const BATCH_SIZES: Array[int] = [32, 256, 1024]
-const DIMENSIONS: Array[int] = [1, 3, 10]
+const BATCH_SIZES: Array[int] = [32, 256, 1024] # we only support degrees up to 1024
+const DIMENSIONS: Array[int] = [1, 3, 10] # better spread
+
 const GENERATORS: Array[SamplingGen.SamplingMethod] = [
 	SamplingGen.SamplingMethod.RANDOM,
 	SamplingGen.SamplingMethod.SOBOL,
@@ -21,9 +22,57 @@ func get_module_name() -> String:
 	return "SamplingGen"
 
 
-## Test generate_samples performance across different generators, dimensions, and batch sizes
-func test_generate_samples_performance() -> void:
-	var test_name: String = "generate_samples_performance"
+## Test generate_samples performance with parametrized combinations
+func test_generate_samples(
+	generator: SamplingGen.SamplingMethod, 
+	dimension: int, 
+	batch_size: int,
+	test_parameters := [
+		# RANDOM generator tests
+		[SamplingGen.SamplingMethod.RANDOM, 1, 32],
+		[SamplingGen.SamplingMethod.RANDOM, 1, 256],
+		[SamplingGen.SamplingMethod.RANDOM, 1, 1024],
+		[SamplingGen.SamplingMethod.RANDOM, 3, 32],
+		[SamplingGen.SamplingMethod.RANDOM, 3, 256],
+		[SamplingGen.SamplingMethod.RANDOM, 3, 1024],
+		[SamplingGen.SamplingMethod.RANDOM, 10, 32],
+		[SamplingGen.SamplingMethod.RANDOM, 10, 256],
+		[SamplingGen.SamplingMethod.RANDOM, 10, 1024],
+		# SOBOL generator tests
+		[SamplingGen.SamplingMethod.SOBOL, 1, 32],
+		[SamplingGen.SamplingMethod.SOBOL, 1, 256],
+		[SamplingGen.SamplingMethod.SOBOL, 1, 1024],
+		[SamplingGen.SamplingMethod.SOBOL, 3, 32],
+		[SamplingGen.SamplingMethod.SOBOL, 3, 256],
+		[SamplingGen.SamplingMethod.SOBOL, 3, 1024],
+		[SamplingGen.SamplingMethod.SOBOL, 10, 32],
+		[SamplingGen.SamplingMethod.SOBOL, 10, 256],
+		[SamplingGen.SamplingMethod.SOBOL, 10, 1024],
+		# SOBOL_RANDOM generator tests
+		[SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 32],
+		[SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 256],
+		[SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 1024],
+		[SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 32],
+		[SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 256],
+		[SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 1024],
+		[SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 32],
+		[SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 256],
+		[SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 1024],
+		# HALTON generator tests
+		[SamplingGen.SamplingMethod.HALTON, 1, 32],
+		[SamplingGen.SamplingMethod.HALTON, 1, 256],
+		[SamplingGen.SamplingMethod.HALTON, 1, 1024],
+		[SamplingGen.SamplingMethod.HALTON, 3, 32],
+		[SamplingGen.SamplingMethod.HALTON, 3, 256],
+		[SamplingGen.SamplingMethod.HALTON, 3, 1024],
+		[SamplingGen.SamplingMethod.HALTON, 10, 32],
+		[SamplingGen.SamplingMethod.HALTON, 10, 256],
+		[SamplingGen.SamplingMethod.HALTON, 10, 1024]
+	]
+) -> void:
+	# Generate test name that matches baseline format
+	var generator_name: String = SamplingGen.SamplingMethod.keys()[generator]
+	var test_name: String = "generate_samples_%s_%dd_%d" % [generator_name, dimension, batch_size]
 	var baseline_data: Dictionary = _load_baseline()
 	
 	# Clear Sobol direction vectors cache to ensure fresh measurements
@@ -31,10 +80,7 @@ func test_generate_samples_performance() -> void:
 	SamplingGen._max_cached_dimension = -1
 	
 	var current_results: Dictionary = _measure_test(test_name, func():
-		for generator in GENERATORS:
-			for dimension in DIMENSIONS:
-				for batch_size in BATCH_SIZES:
-					SamplingGen.generate_samples(batch_size, dimension, generator)
+		SamplingGen.generate_samples(batch_size, dimension, generator)
 	)
 	
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)

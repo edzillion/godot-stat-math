@@ -5,10 +5,12 @@ class_name PerfTestManager extends RefCounted
 ##
 ## Each test suite saves its own results independently to eliminate shared state conflicts.
 ## A collation process merges module results into consolidated files for baseline generation.
+## The completion tracking system monitors all test suites and triggers final phase actions.
 
 # Common performance testing configuration
 const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/results/baseline.json"
 const RESULTS_DIR: String = "res://addons/godot-stat-math/tests/performance/results/"
+const CORE_TEST_DIR: String = "res://addons/godot-stat-math/tests/performance/core/"
 const REGRESSION_THRESHOLD: float = 0.20  # 20% slower = regression
 const WARMUP_ITERATIONS: int = 10
 const MEASUREMENT_ITERATIONS: int = 5
@@ -31,6 +33,149 @@ const MEMORY_BOUND_TESTS: Array[String] = [
 	"basicstats_", "samplinggen_", "helperfunctions_sanitize"
 ]
 
+# ========== COMPLETION TRACKING SYSTEM ==========
+
+## Static completion tracker - shared across all test suite instances
+static var _discovered_modules: Array[String] = []
+static var _completed_modules: Array[String] = []
+static var _completion_tracker_initialized: bool = false
+static var _final_phase_triggered: bool = false
+
+## Discover all test suite modules from the core directory
+static func _discover_test_modules() -> Array[String]:
+	var modules: Array[String] = []
+	var dir: DirAccess = DirAccess.open(CORE_TEST_DIR)
+	if dir == null:
+		push_error("Cannot access core test directory: " + CORE_TEST_DIR)
+		return modules
+	
+	dir.list_dir_begin()
+	var file_name: String = dir.get_next()
+	
+	while file_name != "":
+		if file_name.ends_with("_perf_test.gd"):
+			# Extract module name from filename and convert to expected format
+			var base_name: String = file_name.replace("_perf_test.gd", "")
+			var module_name: String = _filename_to_module_name(base_name)
+			modules.append(module_name)
+		file_name = dir.get_next()
+	
+	modules.sort()
+	return modules
+
+## Convert filename to expected module name format
+static func _filename_to_module_name(filename: String) -> String:
+	match filename:
+		"basic_stats":
+			return "BasicStats"
+		"cdf_functions":
+			return "CdfFunctions"
+		"distributions":
+			return "Distributions"
+		"error_functions":
+			return "ErrorFunctions"
+		"helper_functions":
+			return "HelperFunctions"
+		"pmf_pdf_functions":
+			return "PmfPdfFunctions"
+		"ppf_functions":
+			return "PpfFunctions"
+		"sampling_gen":
+			return "SamplingGen"
+		_:
+			# Fallback: convert snake_case to PascalCase
+			var parts: Array = filename.split("_")
+			var result: String = ""
+			for part in parts:
+				if part.length() > 0:
+					result += part.capitalize()
+			return result
+
+## Initialize completion tracking system
+static func _initialize_completion_tracker() -> void:
+	if _completion_tracker_initialized:
+		return
+	
+	_discovered_modules = _discover_test_modules()
+	_completed_modules.clear()
+	_final_phase_triggered = false
+	_completion_tracker_initialized = true
+	
+	print("🎯 Performance test run initialized:")
+	print("   Expected modules: %s" % str(_discovered_modules))
+	print("   Total modules: %d" % _discovered_modules.size())
+
+## Register module completion and check for final phase trigger
+static func register_module_completion(module_name: String) -> void:
+	if not _completion_tracker_initialized:
+		_initialize_completion_tracker()
+	
+	if module_name in _completed_modules:
+		return  # Already registered
+	
+	if not module_name in _discovered_modules:
+		push_warning("Unknown module completed: %s (expected: %s)" % [module_name, str(_discovered_modules)])
+		return
+	
+	_completed_modules.append(module_name)
+	print("✅ Module completed: %s (%d/%d)" % [module_name, _completed_modules.size(), _discovered_modules.size()])
+	
+	# Check if all modules are complete
+	if _completed_modules.size() == _discovered_modules.size() and not _final_phase_triggered:
+		await _trigger_final_phase()
+
+## Trigger final phase actions when all test suites are complete
+static func _trigger_final_phase() -> void:
+	if _final_phase_triggered:
+		return
+	
+	_final_phase_triggered = true
+	print("🏁 All performance test suites completed! Triggering final phase...")
+	
+	# Wait a moment for any pending operations to complete
+	await Engine.get_main_loop().process_frame
+	await Engine.get_main_loop().process_frame
+	
+	# Force final collation of any remaining results
+	await _collate_all_pending_results()
+	
+	# Generate final completion report
+	_generate_completion_report()
+	
+	# Additional wait to ensure all file operations complete
+	await Engine.get_main_loop().process_frame
+	await Engine.get_main_loop().create_timer(0.1).timeout
+	
+	print("🎉 Performance test run completed successfully!")
+	print("   📊 Results saved in: %s" % RESULTS_DIR)
+	print("   📈 Latest results: %slatest.json" % RESULTS_DIR)
+	print("   📋 Baseline: %s" % BASELINE_FILE)
+
+## Force collation of any pending module results
+static func _collate_all_pending_results() -> void:
+	print("📦 Final collation of pending results...")
+	_collate_module_results_final()
+	
+	# Wait for collation to complete
+	await Engine.get_main_loop().create_timer(0.5).timeout
+
+## Generate final completion report
+static func _generate_completion_report() -> void:
+	var is_success: bool = _completed_modules.size() == _discovered_modules.size()
+	
+	# Just log completion status - no need to save completion reports
+	if is_success:
+		print("✅ All %d modules completed successfully" % _completed_modules.size())
+	else:
+		print("❌ Only %d of %d modules completed" % [_completed_modules.size(), _discovered_modules.size()])
+
+## Reset completion tracker (for testing purposes)
+static func reset_completion_tracker() -> void:
+	_completion_tracker_initialized = false
+	_discovered_modules.clear()
+	_completed_modules.clear()
+	_final_phase_triggered = false
+
 # Instance-specific data (no more shared static state!)
 var cpu_factor: float = 1.0
 var memory_factor: float = 1.0
@@ -40,6 +185,10 @@ var _timestamp: String = ""
 
 ## Initialize hardware normalization for this instance
 func _init() -> void:
+	# Initialize completion tracker on first instance creation
+	if not _completion_tracker_initialized:
+		_initialize_completion_tracker()
+	
 	_calibrate_hardware()
 	_timestamp = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 
@@ -299,10 +448,17 @@ static func _collate_module_results() -> void:
 	var file_name: String = dir.get_next()
 	
 	while file_name != "":
-		# Look for pattern: ModuleName_TIMESTAMP.json
-		if file_name.ends_with(".json") and file_name.count("_") >= 5:  # Timestamp has multiple underscores
+		# Look for pattern: ModuleName_YYYY-MM-DD_HH-MM-SS.json
+		# But EXCLUDE pass_, fail_, and other result files
+		if (file_name.ends_with(".json") and 
+			file_name.count("_") >= 2 and
+			not file_name.begins_with("pass_") and
+			not file_name.begins_with("fail_") and
+			not file_name.begins_with("latest") and
+			not file_name.begins_with("baseline")):
+			
 			var parts: Array = file_name.replace(".json", "").split("_")
-			if parts.size() >= 6:  # ModuleName_YYYY-MM-DD_HH-MM-SS
+			if parts.size() >= 3:  # ModuleName_YYYY-MM-DD_HH-MM-SS
 				var module_name: String = parts[0]
 				var timestamp: String = "_".join(parts.slice(1))  # Everything after first underscore
 				
@@ -321,18 +477,53 @@ static func _collate_module_results() -> void:
 	for timestamp in module_files_by_timestamp:
 		var module_files: Array = module_files_by_timestamp[timestamp]
 		
-		# Collate if we have multiple modules or if it's been long enough (2 seconds)
+		# Only collate if we have multiple modules - wait for all modules to complete
 		var should_collate: bool = module_files.size() > 1
-		if not should_collate:
-			# Check if timestamp is old enough (rough heuristic)
-			var time_parts: Array = timestamp.split("_")
-			if time_parts.size() >= 2:
-				var time_part: String = time_parts[1].replace("-", ":")
-				# Simple check: if it was more than 2 seconds ago, collate it
-				should_collate = true  # For now, always collate to keep things simple
 		
 		if should_collate:
 			_collate_timestamp_group(timestamp, module_files)
+
+## Force collation of ALL pending module files (used in final phase)
+static func _collate_module_results_final() -> void:
+	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
+	if dir == null:
+		return
+	
+	# Find all module files by timestamp
+	var module_files_by_timestamp: Dictionary = {}
+	dir.list_dir_begin()
+	var file_name: String = dir.get_next()
+	
+	while file_name != "":
+		# Look for pattern: ModuleName_YYYY-MM-DD_HH-MM-SS.json
+		# But EXCLUDE pass_, fail_, and other result files
+		if (file_name.ends_with(".json") and 
+			file_name.count("_") >= 2 and
+			not file_name.begins_with("pass_") and
+			not file_name.begins_with("fail_") and
+			not file_name.begins_with("latest") and
+			not file_name.begins_with("baseline")):
+			
+			var parts: Array = file_name.replace(".json", "").split("_")
+			if parts.size() >= 3:  # ModuleName_YYYY-MM-DD_HH-MM-SS
+				var module_name: String = parts[0]
+				var timestamp: String = "_".join(parts.slice(1))  # Everything after first underscore
+				
+				if not module_files_by_timestamp.has(timestamp):
+					module_files_by_timestamp[timestamp] = []
+				
+				module_files_by_timestamp[timestamp].append({
+					"file": file_name,
+					"module": module_name,
+					"timestamp": timestamp
+				})
+		
+		file_name = dir.get_next()
+	
+	# Force collate ALL timestamp groups (even single modules)
+	for timestamp in module_files_by_timestamp:
+		var module_files: Array = module_files_by_timestamp[timestamp]
+		_collate_timestamp_group(timestamp, module_files)
 
 ## Collate all module files from the same timestamp into one consolidated file
 static func _collate_timestamp_group(timestamp: String, module_files: Array) -> void:
@@ -432,13 +623,14 @@ static func _save_json_file(filepath: String, data: Dictionary) -> void:
 	file.close()
 
 ## Update baseline from successful snapshots automatically
+## NOTE: Only uses pass_ files for baseline calculations - fail_ files are ignored
 static func _update_baseline_from_snapshots() -> void:
 	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
 	if dir == null:
 		push_error("Cannot access results directory: " + RESULTS_DIR)
 		return
 	
-	# Get all pass_ files (successful test runs)
+	# Get all pass_ files (successful test runs) - fail_ files are intentionally ignored
 	var pass_files: Array[String] = []
 	dir.list_dir_begin()
 	var current_file: String = dir.get_next()
