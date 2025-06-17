@@ -128,10 +128,10 @@ func _generate_all_baselines() -> void:
 	_save_results_to_file(archive_path, {"tests": all_results})
 	print("📁 Saved to archive: %s" % archive_path)
 	
-	# Clean up old archive files (keep only 3 most recent)
+	# Clean up old archive files (keep only 5 most recent)
 	_cleanup_archive_files()
 	
-	# Average the 3 most recent files and save as baseline
+	# Average the 5 most recent files and save as baseline
 	var averaged_results: Dictionary = _average_recent_files()
 	_save_results_to_file(BASELINE_FILE, averaged_results)
 	print("💾 Updated baseline: %s" % BASELINE_FILE)
@@ -162,8 +162,8 @@ func _cleanup_archive_files() -> void:
 	# Sort by filename (which includes timestamp)
 	files.sort()
 	
-	# Remove oldest files, keep only 3 most recent
-	while files.size() > 3:
+	# Remove oldest files, keep only 5 most recent
+	while files.size() > 5:
 		var oldest_file: String = files.pop_front()
 		dir.remove(oldest_file)
 		print("🗑️  Removed old archive: %s" % oldest_file)
@@ -188,9 +188,9 @@ func _average_recent_files() -> Dictionary:
 		push_error("No archive files found to average")
 		return {}
 	
-	# Sort and take up to 3 most recent
+	# Sort and take up to 5 most recent
 	files.sort()
-	var recent_files: Array[String] = files.slice(-3)  # Last 3 files
+	var recent_files: Array[String] = files.slice(-5)  # Last 5 files
 	
 	print("📊 Averaging %d files: %s" % [recent_files.size(), recent_files])
 	

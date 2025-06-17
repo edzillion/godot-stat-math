@@ -124,7 +124,7 @@ func _measure_test(test_name: String, test_func: Callable) -> Dictionary:
 
 func _load_baseline() -> Dictionary:
 	if not _baseline_cache.is_empty():
-		return _baseline_cache["tests"]
+		return _baseline_cache
 	
 	var file: FileAccess = FileAccess.open(BASELINE_FILE, FileAccess.READ)
 	if file == null:
@@ -139,13 +139,14 @@ func _load_baseline() -> Dictionary:
 		push_error("Failed to parse baseline JSON: " + BASELINE_FILE)
 		return {}
 	
-	_baseline_cache = json.data
+	var data: Dictionary = json.data
 	
-	if not _baseline_cache.has("tests"):
+	if not data.has("tests"):
 		push_error("Baseline file missing 'tests' key: " + BASELINE_FILE)
 		return {}
 	
-	return _baseline_cache["tests"]
+	_baseline_cache = data["tests"]
+	return _baseline_cache
 
 
 # TODO: Add other performance tests for coordinated_shuffle, batch_shuffles, sample_indices

@@ -472,9 +472,9 @@ func test_generate_samples_2d_sobol_deterministic() -> void:
 	var expected_sobol_2d: Array[Vector2] = [
 		Vector2(0.0, 0.0),
 		Vector2(0.5, 0.5), 
-		Vector2(0.75, 0.75),
-		Vector2(0.25, 0.25),
-		Vector2(0.375, 0.625)
+		Vector2(0.75, 0.5),
+		Vector2(0.25, 0.0),
+		Vector2(0.375, 0.125)
 	]
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)

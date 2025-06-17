@@ -132,7 +132,7 @@ func _measure_test(test_name: String, test_func: Callable) -> Dictionary:
 
 func _load_baseline() -> Dictionary:
 	if not _baseline_cache.is_empty():
-		return _baseline_cache["tests"]
+		return _baseline_cache
 	
 	var file: FileAccess = FileAccess.open(BASELINE_FILE, FileAccess.READ)
 	if file == null:
@@ -147,33 +147,28 @@ func _load_baseline() -> Dictionary:
 		push_error("Failed to parse baseline JSON: " + BASELINE_FILE)
 		return {}
 	
-	_baseline_cache = json.data
+	var data: Dictionary = json.data
 	
-	if not _baseline_cache.has("tests"):
+	if not data.has("tests"):
 		push_error("Baseline file missing 'tests' key: " + BASELINE_FILE)
 		return {}
 	
-	return _baseline_cache["tests"]
+	_baseline_cache = data["tests"]
+	return _baseline_cache
 
 
 func _check_performance_regression(test_name: String, current_results: Dictionary, baseline_data: Dictionary) -> void:
-	if baseline_data.is_empty() or not baseline_data.has("tests"):
+	if baseline_data.is_empty():
 		print("⚠️  No baseline data available for %s - skipping regression check" % test_name)
 		return
 	
-	if not baseline_data.tests.has(test_name):
-		print("⚠️  No baseline found for %s - skipping regression check" % test_name)
+	# Look for test with module prefix since all modules are in one baseline file
+	var prefixed_test_name: String = "distributions_%s" % test_name
+	if not baseline_data.has(prefixed_test_name):
+		print("⚠️  No baseline found for %s - skipping regression check" % prefixed_test_name)
 		return
 	
-	var baseline_time: float
-	var baseline_result = baseline_data.tests[test_name]
-	
-	# Handle both old (float) and new (dict) baseline formats
-	if baseline_result is float:
-		baseline_time = baseline_result
-	else:
-		baseline_time = baseline_result.execution_time_ms
-	
+	var baseline_time: float = baseline_data[prefixed_test_name]
 	var current_time: float = current_results.execution_time_ms
 	var time_change: float = (current_time - baseline_time) / baseline_time
 	
