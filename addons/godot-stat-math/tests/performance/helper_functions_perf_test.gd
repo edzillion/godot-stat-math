@@ -85,6 +85,52 @@ func test_log_gamma_function_performance() -> void:
 	_check_performance_regression(test_name, current_results, baseline_data)
 
 
+func test_log_factorial_performance() -> void:
+	var test_name: String = "log_factorial"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.HelperFunctions.log_factorial(10)
+			StatMath.HelperFunctions.log_factorial(20)
+			StatMath.HelperFunctions.log_factorial(50)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_log_binomial_coefficient_performance() -> void:
+	var test_name: String = "log_binomial_coef"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.HelperFunctions.log_binomial_coef(20, 5)
+			StatMath.HelperFunctions.log_binomial_coef(50, 10)
+			StatMath.HelperFunctions.log_binomial_coef(100, 25)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_sanitize_numeric_array_performance() -> void:
+	var test_name: String = "sanitize_numeric_array"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			# Test with mixed arrays including invalid values
+			var mixed_array1: Array = [1.0, 2.5, "invalid", 3.2, null, 4.1, 5.8]
+			var mixed_array2: Array = [10, 20.5, "test", 30, false, 40.2]
+			var mixed_array3: Array = [1.1, 2.2, 3.3, 4.4, 5.5]  # Clean array
+			StatMath.HelperFunctions.sanitize_numeric_array(mixed_array1)
+			StatMath.HelperFunctions.sanitize_numeric_array(mixed_array2)
+			StatMath.HelperFunctions.sanitize_numeric_array(mixed_array3)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
 # --- Performance Testing Infrastructure ---
 
 func _measure_test(test_name: String, test_func: Callable) -> Dictionary:
@@ -213,5 +259,41 @@ func collect_performance_measurements() -> Dictionary:
 	)
 	results["log_gamma"] = measurement.execution_time_ms
 	print("  log_gamma: %.2f ms" % measurement.execution_time_ms)
+
+	# NEW TESTS: Additional helper functions
+	
+	# Log factorial tests
+	measurement = _measure_test("log_factorial", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.HelperFunctions.log_factorial(10)
+			StatMath.HelperFunctions.log_factorial(20)
+			StatMath.HelperFunctions.log_factorial(50)
+	)
+	results["log_factorial"] = measurement.execution_time_ms
+	print("  log_factorial: %.2f ms" % measurement.execution_time_ms)
+	
+	# Log binomial coefficient tests
+	measurement = _measure_test("log_binomial_coef", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.HelperFunctions.log_binomial_coef(20, 5)
+			StatMath.HelperFunctions.log_binomial_coef(50, 10)
+			StatMath.HelperFunctions.log_binomial_coef(100, 25)
+	)
+	results["log_binomial_coef"] = measurement.execution_time_ms
+	print("  log_binomial_coef: %.2f ms" % measurement.execution_time_ms)
+	
+	# Sanitize numeric array tests
+	measurement = _measure_test("sanitize_numeric_array", func():
+		for i in range(TEST_ITERATIONS):
+			# Test with mixed arrays including invalid values
+			var mixed_array1: Array = [1.0, 2.5, "invalid", 3.2, null, 4.1, 5.8]
+			var mixed_array2: Array = [10, 20.5, "test", 30, false, 40.2]
+			var mixed_array3: Array = [1.1, 2.2, 3.3, 4.4, 5.5]  # Clean array
+			StatMath.HelperFunctions.sanitize_numeric_array(mixed_array1)
+			StatMath.HelperFunctions.sanitize_numeric_array(mixed_array2)
+			StatMath.HelperFunctions.sanitize_numeric_array(mixed_array3)
+	)
+	results["sanitize_numeric_array"] = measurement.execution_time_ms
+	print("  sanitize_numeric_array: %.2f ms" % measurement.execution_time_ms)
 	
 	return results 

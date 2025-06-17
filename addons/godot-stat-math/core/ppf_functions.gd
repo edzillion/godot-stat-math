@@ -4,8 +4,6 @@ extends RefCounted
 # Inverse Cumulative Distribution Functions (ICDF), also known as Percentile Point Functions (PPF)
 # or Quantile Functions. These functions return the value x such that CDF(x) = p.
 
-# Constants MAX_ITERATIONS and EPSILON are now accessed via StatMath
-
 # Probability Density Functions (PDF)
 
 # Uniform Distribution PPF: uniform_ppf(p, a, b)

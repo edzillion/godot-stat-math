@@ -107,6 +107,78 @@ func test_weibull_distribution_performance() -> void:
 	_check_performance_regression(test_name, current_results, baseline_data)
 
 
+func test_uniform_int_distribution_performance() -> void:
+	var test_name: String = "randi_uniform"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randi_uniform(1, 100)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_uniform_float_distribution_performance() -> void:
+	var test_name: String = "randf_uniform"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_uniform(0.0, 10.0)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_exponential_distribution_performance() -> void:
+	var test_name: String = "randf_exponential"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_exponential(1.5)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_pareto_distribution_performance() -> void:
+	var test_name: String = "randf_pareto"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_pareto(1.0, 2.0)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_cauchy_distribution_performance() -> void:
+	var test_name: String = "randf_cauchy"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_cauchy(0.0, 1.0)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
+func test_triangular_distribution_performance() -> void:
+	var test_name: String = "randf_triangular"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_triangular(0.0, 10.0, 3.0)
+	)
+	
+	_check_performance_regression(test_name, current_results, baseline_data)
+
+
 # --- Performance Testing Infrastructure ---
 
 func _measure_test(test_name: String, test_func: Callable) -> Dictionary:
@@ -205,16 +277,24 @@ func collect_performance_measurements() -> Dictionary:
 	
 	# Beta distribution tests
 	measurement = _measure_test("randf_beta", func():
-		for i in range(TEST_ITERATIONS):  # Beta is slow
+		for i in range(TEST_ITERATIONS):  # Beta is slower (uses gamma ratio)
 			StatMath.Distributions.randf_beta(2.0, 3.0)
 	)
 	results["randf_beta"] = measurement.execution_time_ms
 	print("  randf_beta: %.2f ms" % measurement.execution_time_ms)
 	
+	# Weibull distribution tests
+	measurement = _measure_test("randf_weibull", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_weibull(2.0, 1.5)
+	)
+	results["randf_weibull"] = measurement.execution_time_ms
+	print("  randf_weibull: %.2f ms" % measurement.execution_time_ms)
+	
 	# Binomial distribution tests
 	measurement = _measure_test("randi_binomial", func():
-		for i in range(TEST_ITERATIONS):  # Binomial can be slower
-			StatMath.Distributions.randi_binomial(20, 0.3)
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randi_binomial(0.3, 20)
 	)
 	results["randi_binomial"] = measurement.execution_time_ms
 	print("  randi_binomial: %.2f ms" % measurement.execution_time_ms)
@@ -226,13 +306,55 @@ func collect_performance_measurements() -> Dictionary:
 	)
 	results["randi_poisson"] = measurement.execution_time_ms
 	print("  randi_poisson: %.2f ms" % measurement.execution_time_ms)
+
+	# NEW TESTS: Additional distribution functions
 	
-	# Weibull distribution tests
-	measurement = _measure_test("randf_weibull", func():
+	# Uniform integer distribution tests
+	measurement = _measure_test("randi_uniform", func():
 		for i in range(TEST_ITERATIONS):
-			StatMath.Distributions.randf_weibull(2.0, 1.0)
+			StatMath.Distributions.randi_uniform(1, 100)
 	)
-	results["randf_weibull"] = measurement.execution_time_ms
-	print("  randf_weibull: %.2f ms" % measurement.execution_time_ms)
+	results["randi_uniform"] = measurement.execution_time_ms
+	print("  randi_uniform: %.2f ms" % measurement.execution_time_ms)
+	
+	# Uniform float distribution tests
+	measurement = _measure_test("randf_uniform", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_uniform(0.0, 10.0)
+	)
+	results["randf_uniform"] = measurement.execution_time_ms
+	print("  randf_uniform: %.2f ms" % measurement.execution_time_ms)
+	
+	# Exponential distribution tests
+	measurement = _measure_test("randf_exponential", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_exponential(1.5)
+	)
+	results["randf_exponential"] = measurement.execution_time_ms
+	print("  randf_exponential: %.2f ms" % measurement.execution_time_ms)
+	
+	# Pareto distribution tests
+	measurement = _measure_test("randf_pareto", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_pareto(1.0, 2.0)
+	)
+	results["randf_pareto"] = measurement.execution_time_ms
+	print("  randf_pareto: %.2f ms" % measurement.execution_time_ms)
+	
+	# Cauchy distribution tests
+	measurement = _measure_test("randf_cauchy", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_cauchy(0.0, 1.0)
+	)
+	results["randf_cauchy"] = measurement.execution_time_ms
+	print("  randf_cauchy: %.2f ms" % measurement.execution_time_ms)
+	
+	# Triangular distribution tests
+	measurement = _measure_test("randf_triangular", func():
+		for i in range(TEST_ITERATIONS):
+			StatMath.Distributions.randf_triangular(0.0, 10.0, 3.0)
+	)
+	results["randf_triangular"] = measurement.execution_time_ms
+	print("  randf_triangular: %.2f ms" % measurement.execution_time_ms)
 	
 	return results 
