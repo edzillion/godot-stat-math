@@ -10,8 +10,8 @@ extends Node
 ## 4. Save the averaged results as the single baseline.json
 
 # Paths
-const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/baseline.json"
-const ARCHIVE_DIR: String = "res://addons/godot-stat-math/tests/performance/archive/"
+const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/results/baseline.json"
+const RESULTS_DIR: String = "res://addons/godot-stat-math/tests/performance/results/"
 
 # Module configuration - all results go into one baseline file
 var MODULES: Array[Dictionary] = [
@@ -79,6 +79,9 @@ func _ready() -> void:
 func _generate_all_baselines() -> void:
 	print("🚀 Running performance tests for all modules...")
 	
+	# Load existing baseline for comparison (if it exists)
+	var existing_baseline: Dictionary = _load_existing_baseline()
+	
 	# Collect results from all modules into one big result set
 	var all_results: Dictionary = {}
 	
@@ -116,25 +119,56 @@ func _generate_all_baselines() -> void:
 	
 	print("\n📊 Total collected: %d performance measurements" % all_results.size())
 	
-	# Save to archive with timestamp
+	# Save to results with timestamp - compare against existing baseline
 	var timestamp: String = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 	var archive_filename: String = "baseline_%s.json" % timestamp
-	var archive_path: String = ARCHIVE_DIR + archive_filename
+	var archive_path: String = RESULTS_DIR + archive_filename
 	
-	# Ensure archive directory exists
-	if not DirAccess.dir_exists_absolute(ARCHIVE_DIR):
-		DirAccess.open("res://").make_dir_recursive(ARCHIVE_DIR)
+	# Ensure results directory exists
+	if not DirAccess.dir_exists_absolute(RESULTS_DIR):
+		DirAccess.open("res://").make_dir_recursive(RESULTS_DIR)
 	
-	_save_results_to_file(archive_path, {"tests": all_results})
-	print("📁 Saved to archive: %s" % archive_path)
+	# Format comparison data - compare new results against existing baseline
+	var comparison_data: Dictionary = _format_comparison_data(all_results, existing_baseline, "baseline_generation")
+	_save_results_to_file(archive_path, comparison_data)
+	print("📁 Saved to results: %s" % archive_path)
 	
-	# Clean up old archive files (keep only 5 most recent)
-	_cleanup_archive_files()
+	# Also save as latest.json for CI
+	var latest_path: String = RESULTS_DIR + "latest.json"
+	_save_results_to_file(latest_path, comparison_data)
+	print("📁 Saved as latest.json for CI: %s" % latest_path)
+	
+	# Clean up old results files (keep only 5 most recent)
+	_cleanup_results_files()
 	
 	# Average the 5 most recent files and save as baseline
 	var averaged_results: Dictionary = _average_recent_files()
 	_save_results_to_file(BASELINE_FILE, averaged_results)
 	print("💾 Updated baseline: %s" % BASELINE_FILE)
+
+func _format_baseline_data(test_results: Dictionary, run_type: String) -> Dictionary:
+	var formatted_tests: Dictionary = {}
+	
+	# Convert simple timing results to full baseline format
+	for test_name in test_results:
+		var execution_time: float = test_results[test_name]
+		formatted_tests[test_name] = {
+			"baseline_ms": execution_time,
+			"result_ms": execution_time,
+			"diff_percent": 0.0,
+			"status": "pass"
+		}
+	
+	return {
+		"meta": {
+			"type": run_type,
+			"generated_at": Time.get_datetime_string_from_system(),
+			"total_tests": test_results.size(),
+			"passed_tests": test_results.size(),
+			"failed_tests": 0
+		},
+		"tests": formatted_tests
+	}
 
 func _save_results_to_file(file_path: String, results: Dictionary) -> void:
 	var file: FileAccess = FileAccess.open(file_path, FileAccess.WRITE)
@@ -145,8 +179,8 @@ func _save_results_to_file(file_path: String, results: Dictionary) -> void:
 	file.store_string(JSON.stringify(results, "\t"))
 	file.close()
 
-func _cleanup_archive_files() -> void:
-	var dir: DirAccess = DirAccess.open(ARCHIVE_DIR)
+func _cleanup_results_files() -> void:
+	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
 	if dir == null:
 		return
 	
@@ -166,15 +200,15 @@ func _cleanup_archive_files() -> void:
 	while files.size() > 5:
 		var oldest_file: String = files.pop_front()
 		dir.remove(oldest_file)
-		print("🗑️  Removed old archive: %s" % oldest_file)
+		print("🗑️  Removed old results file: %s" % oldest_file)
 
 func _average_recent_files() -> Dictionary:
-	var dir: DirAccess = DirAccess.open(ARCHIVE_DIR)
+	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
 	if dir == null:
-		push_error("Cannot access archive directory: " + ARCHIVE_DIR)
+		push_error("Cannot access results directory: " + RESULTS_DIR)
 		return {}
 	
-	# Get all archive files
+	# Get all results files
 	var files: Array[String] = []
 	dir.list_dir_begin()
 	var current_file: String = dir.get_next()
@@ -185,7 +219,7 @@ func _average_recent_files() -> Dictionary:
 		current_file = dir.get_next()
 	
 	if files.is_empty():
-		push_error("No archive files found to average")
+		push_error("No results files found to average")
 		return {}
 	
 	# Sort and take up to 5 most recent
@@ -198,11 +232,11 @@ func _average_recent_files() -> Dictionary:
 	var test_sums: Dictionary = {}
 	var test_counts: Dictionary = {}
 	
-	for archive_file in recent_files:
-		var file_path: String = ARCHIVE_DIR + archive_file
+	for results_file in recent_files:
+		var file_path: String = RESULTS_DIR + results_file
 		var file: FileAccess = FileAccess.open(file_path, FileAccess.READ)
 		if file == null:
-			push_warning("Could not read archive file: " + file_path)
+			push_warning("Could not read results file: " + file_path)
 			continue
 		
 		var json_string: String = file.get_as_text()
@@ -216,7 +250,7 @@ func _average_recent_files() -> Dictionary:
 		
 		var file_data: Dictionary = json.data
 		if not file_data.has("tests"):
-			push_warning("Archive file missing 'tests' key: " + file_path)
+			push_warning("Results file missing 'tests' key: " + file_path)
 			continue
 		
 		# Add each test result to the sum
@@ -229,9 +263,12 @@ func _average_recent_files() -> Dictionary:
 			if test_data is float:
 				# Old format: just execution time
 				execution_time = test_data
+			elif test_data is Dictionary and test_data.has("baseline_ms"):
+				# New format: extract baseline_ms (since we're creating baselines)
+				execution_time = test_data.baseline_ms
 			else:
-				# This shouldn't happen since we're going back to time-only, but handle it
-				execution_time = test_data
+				push_warning("Unknown test data format in: " + file_path)
+				continue
 			
 			if not test_sums.has(test_name):
 				test_sums[test_name] = 0.0
@@ -246,4 +283,78 @@ func _average_recent_files() -> Dictionary:
 		if test_counts[test_name] > 0:
 			averaged_tests[test_name] = test_sums[test_name] / test_counts[test_name]
 	
-	return {"tests": averaged_tests} 
+	# Format the averaged results in the new structure
+	return _format_baseline_data(averaged_tests, "averaged_baseline")
+
+func _format_comparison_data(new_results: Dictionary, existing_baseline: Dictionary, run_type: String) -> Dictionary:
+	var formatted_tests: Dictionary = {}
+	var failed_count: int = 0
+	
+	# Compare new results against existing baseline
+	for test_name in new_results:
+		var new_execution_time: float = new_results[test_name]
+		var existing_execution_time: float = existing_baseline.get(test_name, new_execution_time)
+		
+		var diff_percent: float = 0.0
+		if existing_execution_time > 0.0:
+			diff_percent = ((new_execution_time - existing_execution_time) / existing_execution_time) * 100.0
+		
+		var status: String = "pass"
+		if abs(diff_percent) > 10.0:  # Consider both positive and negative changes > 10% as failures
+			status = "fail"
+			failed_count += 1
+		
+		formatted_tests[test_name] = {
+			"baseline_ms": existing_execution_time,
+			"result_ms": new_execution_time,
+			"diff_percent": diff_percent,
+			"status": status
+		}
+	
+	return {
+		"meta": {
+			"type": run_type,
+			"generated_at": Time.get_datetime_string_from_system(),
+			"total_tests": new_results.size(),
+			"passed_tests": new_results.size() - failed_count,
+			"failed_tests": failed_count
+		},
+		"tests": formatted_tests
+	}
+
+func _load_existing_baseline() -> Dictionary:
+	var file: FileAccess = FileAccess.open(BASELINE_FILE, FileAccess.READ)
+	if file == null:
+		print("⚠️  No existing baseline file found, using current measurements as baseline")
+		return {}
+	
+	var json_string: String = file.get_as_text()
+	file.close()
+	
+	var json: JSON = JSON.new()
+	var parse_result: Error = json.parse(json_string)
+	if parse_result != OK:
+		push_error("Failed to parse baseline JSON")
+		return {}
+	
+	var baseline_data: Dictionary = json.data
+	if not baseline_data.has("tests"):
+		push_error("Baseline file missing 'tests' key")
+		return {}
+	
+	# Extract baseline values from the tests, handling both old and new formats
+	var extracted_baselines: Dictionary = {}
+	for test_name in baseline_data.tests:
+		var test_data = baseline_data.tests[test_name]
+		
+		if test_data is float:
+			# Old format: direct float value
+			extracted_baselines[test_name] = test_data
+		elif test_data is Dictionary and test_data.has("baseline_ms"):
+			# New format: extract baseline_ms value
+			extracted_baselines[test_name] = test_data.baseline_ms
+		else:
+			push_warning("Unknown baseline format for test: " + test_name)
+	
+	print("📖 Loaded %d baseline values for comparison" % extracted_baselines.size())
+	return extracted_baselines

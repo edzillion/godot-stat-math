@@ -5,5 +5,22 @@ reports/
 .cursor/
 monaco/
 .vscode/
+
+# Godot-generated files
 *.uid
+*.tmp
+*.import~
+*.remap~
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor backups
+*~
 

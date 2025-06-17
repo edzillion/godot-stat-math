@@ -7,7 +7,7 @@ class_name BasicStatsPerfTest extends GdUnitTestSuite
 ## to catch performance regressions during development.
 
 # Configuration
-const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/baseline.json"
+const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/results/baseline.json"
 const REGRESSION_THRESHOLD: float = 0.20  # 20% slower = regression
 const WARMUP_ITERATIONS: int = 3
 const MEASUREMENT_ITERATIONS: int = 5
@@ -18,6 +18,15 @@ const DATASET_SIZES: Array[int] = [100, 1000, 5000]  # Keep these - they're mean
 # Test parameters  
 const TEST_ITERATIONS: int = 100  # Number of function calls per performance test
 const SAMPLE_DATA: Array[float] = [1.0, 2.5, 3.2, 4.1, 5.8, 6.3, 7.9, 8.4, 9.1, 10.0]
+
+
+# GDUnit4 lifecycle methods for test run collection
+func before() -> void:
+	TestRunCollector.start_test_run()
+
+
+func after() -> void:
+	await TestRunCollector.finish_test_run()
 
 
 func test_mean_variance_performance() -> void:
@@ -195,16 +204,20 @@ func _check_performance_regression(test_name: String, current_results: Dictionar
 		print("⚠️  No baseline found for %s - skipping regression check" % prefixed_test_name)
 		return
 	
-	var baseline_time: float = baseline_data[prefixed_test_name]
+	var baseline_time: float = baseline_data[prefixed_test_name].result_ms
 	var current_time: float = current_results.execution_time_ms
 	var time_change: float = (current_time - baseline_time) / baseline_time
+	var is_failure: bool = time_change > REGRESSION_THRESHOLD
 	
 	print("📊 %s: %.2f ms vs baseline %.2f ms (%.1f%% change)" % [
 		test_name, current_time, baseline_time, time_change * 100.0
 	])
 	
+	# Always collect the result (pass or fail)
+	TestRunCollector.add_test_result("BasicStats", test_name, current_time, baseline_time, is_failure)
+	
 	# Check for performance regression
-	if time_change > REGRESSION_THRESHOLD:
+	if is_failure:
 		assert_float(time_change).is_less_equal(REGRESSION_THRESHOLD)
 
 
