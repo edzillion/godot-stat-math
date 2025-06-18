@@ -31,33 +31,10 @@ jobs:
             exit 1
           fi
           
-      - name: Wait for runner availability
+      - name: Wait for runner
         run: |
-          echo "Waiting for runner to come online..."
-          MAX_WAIT=120  # Maximum 2 minutes
-          INTERVAL=10   # Check every 10 seconds
-          elapsed=0
-          
-          while [ $elapsed -lt $MAX_WAIT ]; do
-            # Check if runner is available by looking at the GitHub API
-            runner_count=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runners" | \
-              jq '.runners | map(select(.status == "online" and (.labels | map(.name) | contains(["performance-test"])))) | length')
-            
-            if [ "$runner_count" -gt 0 ]; then
-              echo "✅ Runner is online! (took ${elapsed} seconds)"
-              break
-            fi
-            
-            echo "⏳ No runners online yet... waiting (${elapsed}s/${MAX_WAIT}s)"
-            sleep $INTERVAL
-            elapsed=$((elapsed + INTERVAL))
-          done
-          
-          if [ $elapsed -ge $MAX_WAIT ]; then
-            echo "❌ Timeout waiting for runner after ${MAX_WAIT} seconds"
-            exit 1
-          fi
+          echo "Waiting 30 seconds for runner to come online..."
+          sleep 30
 
   test-and-commit:
     needs: trigger-runner
