@@ -47,25 +47,6 @@ const MATURE_BASELINE_MULTIPLIER: float = 1.3  # 30% higher thresholds for matur
 # Percentile-based threshold parameters
 const PERCENTILE_THRESHOLD: float = 95.0  # Use 95th percentile (only 5% of runs slower)
 
-# Hardware normalization constants
-const BASELINE_CPU_SCORE: float = 5000000.0  # Reference CPU performance score (ops/sec)
-const BASELINE_MEMORY_SCORE: float = 25.0  # Reference memory performance score (MB/s)
-
-# Hardware normalization control
-const HARDWARE_NORMALIZATION_DISABLED: bool = true  # Disable hardware normalization - causes CI issues
-const CI_ENVIRONMENT_DETECTED: bool = OS.has_environment("CI") or OS.has_environment("GITHUB_ACTIONS")  # Auto-detect CI
-
-# Test categorization for targeted normalization
-const CPU_BOUND_TESTS: Array[String] = [
-	"distributions_", "cdf_functions_", "pmf_pdf_functions_", "ppf_functions_", 
-	"error_functions_", "helper_functions_gamma", "helper_functions_beta", 
-	"helper_functions_incomplete_beta", "helper_functions_binomial"
-]
-
-const MEMORY_BOUND_TESTS: Array[String] = [
-	"basic_stats_", "sampling_gen_", "helper_functions_sanitize"
-]
-
 # ========== COMPLETION TRACKING SYSTEM ==========
 
 ## Static completion tracker - shared across all test suite instances
@@ -74,9 +55,6 @@ static var _completed_modules: Array[String] = []
 static var _completion_tracker_initialized: bool = false
 static var _final_phase_triggered: bool = false
 static var _run_timestamp: String = ""
-static var _cpu_factor: float = 1.0
-static var _memory_factor: float = 1.0
-static var _hardware_calibrated: bool = false
 
 ## Discover all test suite modules from the core directory
 static func _discover_test_modules() -> Array[String]:
@@ -148,8 +126,6 @@ static func _initialize_completion_tracker() -> void:
 	_completed_modules.clear()
 	_final_phase_triggered = false
 	_completion_tracker_initialized = true
-	
-	_calibrate_hardware()
 	
 	print("🎯 Performance test run initialized:")
 	print("   Run timestamp: %s" % _run_timestamp)
@@ -265,11 +241,7 @@ static func _consolidate_run_results() -> void:
 			"total_tests": total_tests,
 			"failed_tests": failed_tests,
 			"passed_tests": total_tests - failed_tests,
-			"modules_included": intermediate_files.size(),
-			"hardware_normalization": {
-				"cpu_factor": _cpu_factor,
-				"memory_factor": _memory_factor
-			}
+			"modules_included": intermediate_files.size()
 		}
 	}
 	
@@ -306,8 +278,6 @@ static func _consolidate_run_results() -> void:
 	if not has_failures:
 		_update_baseline_from_snapshots()
 		_cleanup_old_snapshots()
-
-
 
 ## Report details of failed tests with their stats and thresholds
 static func _report_failed_tests(consolidated_tests: Dictionary) -> void:
@@ -362,106 +332,6 @@ func _init() -> void:
 ## Set the module name for this test suite instance
 func set_module_name(module_name: String) -> void:
 	_module_name = module_name
-
-## Hardware calibration for this instance
-static func _calibrate_hardware() -> void:
-	if _hardware_calibrated:
-		return
-	
-	if HARDWARE_NORMALIZATION_DISABLED:
-		print("🔧 Hardware normalization disabled - using raw performance measurements")
-		if CI_ENVIRONMENT_DETECTED:
-			print("   CI environment detected - normalization disabled to prevent CI/local baseline conflicts")
-		_cpu_factor = 1.0
-		_memory_factor = 1.0
-		_hardware_calibrated = true
-		return
-		
-	print("🔧 Calibrating hardware performance...")
-	
-	# Run CPU benchmark (drop first 10 results)
-	var cpu_scores: Array[float] = []
-	for i in range(15):  # 10 warmup + 5 measurement
-		var score: float = _benchmark_cpu()
-		if i >= 10:  # Only keep last 5
-			cpu_scores.append(score)
-	
-	# Run memory benchmark (drop first 10 results)
-	var memory_scores: Array[float] = []
-	for i in range(15):  # 10 warmup + 5 measurement
-		var score: float = _benchmark_memory()
-		if i >= 10:  # Only keep last 5
-			memory_scores.append(score)
-	
-	# Calculate average scores using StatMath library
-	var avg_cpu_score: float = StatMath.BasicStats.mean(cpu_scores)
-	var avg_memory_score: float = StatMath.BasicStats.mean(memory_scores)
-	
-	# Calculate normalization factors (baseline / current)
-	_cpu_factor = BASELINE_CPU_SCORE / avg_cpu_score
-	_memory_factor = BASELINE_MEMORY_SCORE / avg_memory_score
-	
-	_hardware_calibrated = true
-	
-	print("🔧 Hardware calibration complete:")
-	print("   CPU: %.1f score (factor: %.3f)" % [avg_cpu_score, _cpu_factor])
-	print("   Memory: %.1f MB/s (factor: %.3f)" % [avg_memory_score, _memory_factor])
-
-## CPU benchmark - floating point operations
-static func _benchmark_cpu() -> float:
-	var start_time: int = Time.get_ticks_usec()
-	var result: float = 0.0
-	
-	# Perform 100,000 floating point operations
-	for i in range(100000):
-		result += sin(i * 0.001) * cos(i * 0.001) * sqrt(i + 1)
-	
-	var end_time: int = Time.get_ticks_usec()
-	var duration_ms: float = (end_time - start_time) / 1000.0
-	
-	# Return operations per second as score
-	return 100000.0 / (duration_ms / 1000.0)
-
-## Memory benchmark - array operations
-static func _benchmark_memory() -> float:
-	var start_time: int = Time.get_ticks_usec()
-	
-	# Create and manipulate large arrays
-	var data: Array[float] = []
-	data.resize(50000)
-	
-	# Fill array
-	for i in range(50000):
-		data[i] = randf() * 1000.0
-	
-	# Sort array (memory intensive)
-	data.sort()
-	
-	var end_time: int = Time.get_ticks_usec()
-	var duration_ms: float = (end_time - start_time) / 1000.0
-	
-	# Return MB/s (approximate)
-	var data_size_mb: float = 50000 * 8 / 1024.0 / 1024.0  # 8 bytes per float
-	return data_size_mb / (duration_ms / 1000.0)
-
-## Determine normalization factor for a specific test
-func _get_test_normalization_factor(test_name: String) -> float:
-	# If hardware normalization is disabled, return 1.0 (no normalization)
-	if HARDWARE_NORMALIZATION_DISABLED:
-		return 1.0
-	
-	# Check if test is CPU-bound
-	for cpu_pattern in CPU_BOUND_TESTS:
-		if test_name.begins_with(cpu_pattern):
-			return PerfTestManager._cpu_factor
-	
-	# Check if test is memory-bound  
-	for memory_pattern in MEMORY_BOUND_TESTS:
-		if test_name.begins_with(memory_pattern):
-			return PerfTestManager._memory_factor
-	
-	# Default: mixed workload (70% CPU, 30% memory)
-	return (PerfTestManager._cpu_factor * 0.7 + PerfTestManager._memory_factor * 0.3)
 
 ## Calculate dynamic threshold for a test based on percentile analysis with refinements
 static func _calculate_dynamic_threshold(measurements: Array[float], baseline_median: float) -> float:
@@ -614,23 +484,19 @@ func check_performance_regression(module_name: String, test_name: String, curren
 	var baseline_tests: Dictionary = baseline_data.get("tests", {})
 	var expected_regressions: Array = baseline_meta.get("expected_regressions", [])
 	
-	var raw_time: float = current_results.execution_time_ms
+	var raw_time_ms: float = current_results.execution_time_ms
 	var prefixed_test_name: String = "%s_%s" % [_module_name_to_snake_case(module_name), test_name]
 	
-	var baseline_time: float = NAN
+	var baseline_time_ms: float = NAN
 	var is_failure: bool = false
 	var status: String = "pass"
-	
-	# Apply hardware normalization *before* comparison
-	var normalization_factor: float = _get_test_normalization_factor(prefixed_test_name)
-	var normalized_time_ms: float = raw_time * normalization_factor
 	
 	if not baseline_tests.is_empty():
 		# Look for test with module prefix since all modules are in one baseline file
 		if baseline_tests.has(prefixed_test_name):
 			var baseline_test_data: Dictionary = baseline_tests[prefixed_test_name]
-			baseline_time = baseline_test_data.result_ms
-			var time_change: float = (normalized_time_ms - baseline_time) / baseline_time
+			baseline_time_ms = baseline_test_data.result_ms
+			var time_change: float = (raw_time_ms - baseline_time_ms) / baseline_time_ms
 			
 			# Use dynamic threshold if available, fallback to fixed threshold
 			var effective_threshold: float = REGRESSION_THRESHOLD
@@ -666,31 +532,29 @@ func check_performance_regression(module_name: String, test_name: String, curren
 				if baseline_test_data.has("threshold_percent"):
 					threshold_info = " (thresh: %.1f%%)" % (effective_threshold * 100.0)
 				
-				print("📊 %s: %.2f ms (norm) vs baseline %.2f ms (%.1f%% change)%s" % [
-					test_name, normalized_time_ms, baseline_time, time_change * 100.0, threshold_info
+				print("📊 %s: %.2f ms vs baseline %.2f ms (%.1f%% change)%s" % [
+					test_name, raw_time_ms, baseline_time_ms, time_change * 100.0, threshold_info
 				])
 		else:
 			if DISABLE_REGRESSION_CHECKING:
 				print("☑️ Regression checking disabled. No baseline found for '%s' - treating as new test." % prefixed_test_name)
 			else:
 				print("⚠️  No baseline found for %s - treating as new test" % prefixed_test_name)
-			baseline_time = normalized_time_ms  # Use current as baseline for new tests
+			baseline_time_ms = raw_time_ms  # Use current as baseline for new tests
 	else:
 		if DISABLE_REGRESSION_CHECKING:
 			print("☑️ Regression checking disabled. No baseline data available for '%s'." % prefixed_test_name)
 			status = "pass (disabled)"
 		else: # This case handles when baseline_tests is empty
 			print("⚠️  No baseline data available - treating as new test: %s" % prefixed_test_name)
-		baseline_time = normalized_time_ms  # Use current as baseline
+		baseline_time_ms = raw_time_ms  # Use current as baseline
 	
 	# Store result for this module with threshold information
 	var result_data: Dictionary = {
-		"result_ms": normalized_time_ms,  # Normalized value
-		"baseline_ms": baseline_time, 
-		"raw_ms": raw_time,  # Raw value for debugging
-		"diff_percent": ((normalized_time_ms - baseline_time) / baseline_time) * 100.0 if not is_nan(baseline_time) and baseline_time > 0.0 else 0.0,
+		"result_ms": raw_time_ms,
+		"baseline_ms": baseline_time_ms,
+		"diff_percent": ((raw_time_ms - baseline_time_ms) / baseline_time_ms) * 100.0 if not is_nan(baseline_time_ms) and baseline_time_ms > 0.0 else 0.0,
 		"status": status,
-		"hardware_factor": normalization_factor
 	}
 	
 	# Include threshold information if available
@@ -861,11 +725,11 @@ static func _update_baseline_from_snapshots() -> void:
 	var statistics_summary: Dictionary = {}
 	
 	for test_name in test_data_arrays:
-		var measurements: Array[float]
+		var measurements: Array[float] = []
 		for measurement: float in test_data_arrays[test_name]:
 			measurements.append(measurement)
 		
-		if measurements.size() == 0:
+		if measurements.is_empty():
 			continue
 		
 		# Use median for robustness against outliers
