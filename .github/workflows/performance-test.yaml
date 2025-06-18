@@ -1,21 +1,13 @@
-name: Performance Tests
+name: Test Performance Integration
 
 on:
   workflow_dispatch:
     inputs:
-      test_suite:
-        description: 'Test suite to run'
-        required: true
-        default: 'full'
-        type: choice
-        options:
-        - full
-        - quick
-        - load
-      runner_timeout:
-        description: 'Runner timeout (hours)'
+      commit_results:
+        description: 'Commit performance results back to repo'
         required: false
-        default: '2'
+        default: true
+        type: boolean
 
 jobs:
   trigger-runner:
@@ -26,7 +18,7 @@ jobs:
       - name: Trigger AWS Runner
         id: trigger
         run: |
-          echo "Triggering AWS runner..."
+          echo "Triggering AWS runner for performance integration test..."
           response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
           echo "Response: $response"
           
@@ -44,51 +36,139 @@ jobs:
           echo "Waiting 90 seconds for runner to come online..."
           sleep 90
 
-  performance-test:
+  test-and-commit:
     needs: trigger-runner
-    runs-on: [self-hosted, performance-test]
+    runs-on: [self-hosted, performance-test, linux]
     if: needs.trigger-runner.outputs.runner-triggered == 'true'
-    timeout-minutes: 120
+    timeout-minutes: 60
+    permissions:
+      checks: write
+      actions: read
+      contents: write
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
         
       - name: System info
         run: |
-          echo "=== System Information ==="
+          echo "=== Performance Integration Test Environment ==="
           echo "Timestamp: $(date)"
+          echo "Commit: ${{ github.sha }}"
           echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
           echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
           echo "CPU Cores: $(nproc)"
           echo "Memory: $(free -h | awk '/^Mem:/ {print $2}')"
-          echo "CPU Model: $(cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d: -f2 | xargs)"
-          echo "Disk Space: $(df -h / | tail -1 | awk '{print $2}')"
-          echo "==========================="
+          echo "==============================================="
+
+      - name: Extract version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: project.godot
+          version-regex: config\/version=\"\K[0-9.\-A-z]*
+        id: extract-version
           
-      - name: Run performance tests
+      - name: Run GDUnit4 tests (including performance tests)
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests"
+
+      - name: Check performance results
         run: |
-          echo "🚀 Running performance test suite: ${{ github.event.inputs.test_suite }}"
-          echo "Test started at: $(date)"
+          echo "Checking for performance test results..."
+          RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
           
-          # Example performance test - replace with your actual tests
-          echo "Running CPU benchmark..."
-          time dd if=/dev/zero of=/tmp/test bs=1M count=1000
+          if [ -d "$RESULTS_DIR" ]; then
+            echo "✅ Performance results directory exists"
+            ls -la "$RESULTS_DIR"
+            
+            if [ -f "$RESULTS_DIR/latest.json" ]; then
+              echo "✅ latest.json found"
+              echo "File size: $(stat -c%s "$RESULTS_DIR/latest.json") bytes"
+            else
+              echo "❌ latest.json not found"
+            fi
+            
+            # Count result files
+            PASS_FILES=$(find "$RESULTS_DIR" -name "pass_*.json" | wc -l)
+            FAIL_FILES=$(find "$RESULTS_DIR" -name "fail_*.json" | wc -l)
+            echo "📊 Performance snapshots: $PASS_FILES pass, $FAIL_FILES fail"
+          else
+            echo "❌ Performance results directory not found"
+          fi
+
+      - name: Commit performance results
+        if: github.event.inputs.commit_results == 'true'
+        run: |
+          echo "Committing performance results back to repository..."
           
-          echo "Running memory test..."
-          free -h
+          # Configure git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          echo "Test completed at: $(date)"
+          # Add performance results
+          RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+          if [ -d "$RESULTS_DIR" ]; then
+            git add "$RESULTS_DIR/"
+            
+            # Check if there are changes to commit
+            if git diff --staged --quiet; then
+              echo "No performance result changes to commit"
+            else
+              TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
+              COMMIT_MSG="🔬 Performance test results - $TIMESTAMP
+
+              - Instance: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)
+              - Commit: ${{ github.sha }}
+              - Run: ${{ github.run_number }}"
+              
+              git commit -m "$COMMIT_MSG"
+              git push origin ${{ github.ref_name }}
+              echo "✅ Performance results committed and pushed"
+            fi
+          else
+            echo "❌ No performance results directory to commit"
+          fi
+
+      - name: Create addon zip
+        run: |
+          echo "Creating test addon zip for version ${{ steps.extract-version.outputs.version-string }}"
+          cd addons
+          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-test.zip godot-stat-math/ -x "*.uid"
           
-          # Create results directory
-          mkdir -p test-results
-          echo "Performance test completed successfully" > test-results/summary.txt
-          echo "Test suite: ${{ github.event.inputs.test_suite }}" >> test-results/summary.txt
-          echo "Timestamp: $(date)" >> test-results/summary.txt
-          
-      - name: Upload results
+          echo "Created: godot-stat-math-${{ steps.extract-version.outputs.version-string }}-test.zip"
+          zipinfo ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-test.zip
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: performance-results-${{ github.run_number }}
-          path: test-results/
+          name: performance-integration-test-${{ github.run_number }}
+          path: |
+            godot-stat-math-*-test.zip
+            addons/godot-stat-math/tests/performance/results/
+            reports/
         if: always()
+
+      - name: Generate test summary
+        run: |
+          echo "## 🧪 Performance Integration Test Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Results Committed**: ${{ github.event.inputs.commit_results }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+          if [ -d "$RESULTS_DIR" ]; then
+            PASS_FILES=$(find "$RESULTS_DIR" -name "pass_*.json" | wc -l)
+            FAIL_FILES=$(find "$RESULTS_DIR" -name "fail_*.json" | wc -l)
+            echo "- **Performance Snapshots**: $PASS_FILES pass, $FAIL_FILES fail" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎯 This test validates the complete workflow: AWS spot instances → GDUnit4 tests → performance results → commit back to repo" >> $GITHUB_STEP_SUMMARY
