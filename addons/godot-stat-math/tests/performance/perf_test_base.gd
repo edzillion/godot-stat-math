@@ -41,8 +41,11 @@ func _load_baseline() -> Dictionary:
 	return _perf_manager.load_baseline()
 
 ## Check performance regression and save immediately - delegates to manager
-func _check_performance_regression(module_name: String, test_name: String, current_results: Dictionary, baseline_data: Dictionary) -> void:
-	_perf_manager.check_performance_regression(module_name, test_name, current_results, baseline_data)
+func _check_performance_regression(module_name: String, test_name: String, current_results: Dictionary, baseline_data: Dictionary) -> void:	
+	var is_failure: bool = _perf_manager.check_performance_regression(module_name, test_name, current_results, baseline_data)
+	assert_bool(is_failure).override_failure_message("Performance regression detected for '%s'" % test_name).is_false()
+	
+	
 
 ## Generate reproducible test data - delegates to manager
 func _generate_test_data(size: int, seed: int = 12345) -> Array[float]:
