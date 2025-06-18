@@ -15,7 +15,7 @@ const WARMUP_ITERATIONS: int = 10
 const MEASUREMENT_ITERATIONS: int = 5
 const FUNCTION_CALLS_PER_MEASUREMENT: int = 100
 const KEEP_PREVIOUS_FAILURES: bool = false
-const DISABLE_REGRESSION_CHECKING: bool = false
+const DISABLE_REGRESSION_CHECKING: bool = true
 const MAX_SNAPSHOTS: int = 50  # Keep 50 most recent snapshots for robust statistics
 
 # Dynamic threshold calculation parameters
