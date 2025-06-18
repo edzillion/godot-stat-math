@@ -71,9 +71,40 @@ jobs:
           
           echo "✅ Addon structure validation passed"
 
-  run-tests:
+  trigger-runner:
     needs: [check-version-bump, validate-addon-structure]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    outputs:
+      runner-triggered: ${{ steps.trigger.outputs.triggered }}
+    steps:
+      - name: Trigger AWS Runner
+        id: trigger
+        run: |
+          echo "Triggering AWS runner for release verification..."
+          response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
+          echo "Response: $response"
+          
+          if echo "$response" | grep -q "launched successfully"; then
+            echo "triggered=true" >> $GITHUB_OUTPUT
+            echo "✅ Runner launched successfully"
+          else
+            echo "triggered=false" >> $GITHUB_OUTPUT
+            echo "❌ Failed to launch runner"
+            exit 1
+          fi
+          
+      - name: Wait for runner
+        run: |
+          echo "Waiting 30 seconds for runner to come online..."
+          echo "⏳ Spot instance starting up..."
+          sleep 30
+          echo "✅ Proceeding to job execution"
+
+  run-tests:
+    needs: [check-version-bump, validate-addon-structure, trigger-runner]
+    runs-on: [self-hosted, performance-test, linux]
+    if: needs.trigger-runner.outputs.runner-triggered == 'true'
+    timeout-minutes: 60
     permissions:
       checks: write
       actions: read
@@ -84,11 +115,28 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: System info
+        run: |
+          echo "=== Release Verification Environment ==="
+          echo "PR Number: ${{ github.event.number }}"
+          echo "Target Branch: ${{ github.base_ref }}"
+          echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
+          echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
+          echo "CPU Cores: $(nproc)"
+          echo "========================================"
+
       - name: Run GDUnit4 tests
         uses: MikeSchulze/gdunit4-action@v1
         with:
           godot-version: "4.4"
           paths: "res://addons/godot-stat-math/tests"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-test-results-pr-${{ github.event.number }}
+          path: reports/
+        if: always()
 
       - name: Generate verification summary
         run: |
@@ -96,6 +144,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
           echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
-          echo "- **Tests**: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests**: Passed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
+          echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🚀 Ready to merge and release!" >> $GITHUB_STEP_SUMMARY
