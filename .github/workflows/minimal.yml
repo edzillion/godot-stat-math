@@ -5,6 +5,6 @@ on:
 
 jobs:
   test:
-    runs-on: ec2-runner
+    runs-on: [self-hosted, linux, x64]
     steps:
       - run: echo "Hello from EC2 runner"
