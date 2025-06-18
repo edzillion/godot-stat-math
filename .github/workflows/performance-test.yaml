@@ -38,7 +38,7 @@ jobs:
 
   test-and-commit:
     needs: trigger-runner
-    runs-on: [self-hosted, performance-test, linux]
+    runs-on: ec2-runner
     if: needs.trigger-runner.outputs.runner-triggered == 'true'
     timeout-minutes: 60
     permissions:
