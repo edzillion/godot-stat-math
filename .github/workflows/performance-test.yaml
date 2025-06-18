@@ -40,11 +40,11 @@ jobs:
     needs: trigger-runner
     runs-on: [self-hosted, linux, x64]
     if: needs.trigger-runner.outputs.runner-triggered == 'true'
+    env:
+      LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu
     timeout-minutes: 60
     permissions:
       checks: write
-      actions: read
-      contents: write
     
     steps:
       - name: Checkout code
