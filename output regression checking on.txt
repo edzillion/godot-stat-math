@@ -1,0 +1,281 @@
+Godot Engine v4.4.1.stable.official.49a5bc7b6 - https://godotengine.org
+OpenGL API 3.3.0 Core Profile Context 25.6.1.250522 - Compatibility - Using Device: ATI Technologies Inc. - AMD Radeon RX 6800
+
+GdUnit4 TCP Server:	Client connected -9223174414168644192
+Embedded window only supports Windowed mode.
+StatMath: Found global seed 'godot_stat_math_seed' with value: 0. Using it.
+StatMath: Initial RNG created and seeded. Effective seed: 0.
+StatMath addon loaded and ready. RNG initialized. Access functions via StatMath.ModuleName.function_name() and constants via StatMath.CONSTANT_NAME.
+🔧 Calibrating hardware performance...
+🔧 Hardware calibration complete:
+   CPU: 7401188.7 score (factor: 0.676)
+   Memory: 29.8 MB/s (factor: 0.838)
+🎯 Performance test run initialized:
+   Run timestamp: 2025-06-18_12-35-53
+   Expected modules: ["BasicStats", "CdfFunctions", "Distributions", "ErrorFunctions", "HelperFunctions", "PmfPdfFunctions", "PpfFunctions", "SamplingGen"]
+   Total modules: 8
+🚀 Started independent performance testing for: BasicStats
+results here: { "execution_time_ms": 1.383 }
+📊 mean_variance_calculation: 1.16 ms (norm) vs baseline 1.11 ms (4.5% change) (thresh: 18.1%)
+💾 Saved intermediate results for BasicStats: BasicStats_2025-06-18_12-35-53.json
+📊 median_calculation: 1.10 ms (norm) vs baseline 1.06 ms (3.4% change) (thresh: 9.5%)
+💾 Saved intermediate results for BasicStats: BasicStats_2025-06-18_12-35-53.json
+📊 median_absolute_deviation: 2.46 ms (norm) vs baseline 2.46 ms (0.1% change) (thresh: 5.0%)
+💾 Saved intermediate results for BasicStats: BasicStats_2025-06-18_12-35-53.json
+📊 summary_statistics: 4.15 ms (norm) vs baseline 4.10 ms (1.1% change) (thresh: 6.0%)
+💾 Saved intermediate results for BasicStats: BasicStats_2025-06-18_12-35-53.json
+📈 Significant improvement for 'basic_stats_sample_statistics' (-18.0%) - consider updating baseline.
+📊 sample_statistics: 1.01 ms (norm) vs baseline 1.23 ms (-18.0% change) (thresh: 5.0%)
+💾 Saved intermediate results for BasicStats: BasicStats_2025-06-18_12-35-53.json
+📊 min_max_range_calculation: 0.49 ms (norm) vs baseline 0.48 ms (0.2% change) (thresh: 6.2%)
+💾 Saved intermediate results for BasicStats: BasicStats_2025-06-18_12-35-53.json
+✅ Completed performance testing for: BasicStats
+✅ Module completed: BasicStats (1/8)
+Embedded window only supports Windowed mode.
+🚀 Started independent performance testing for: CdfFunctions
+📈 Significant improvement for 'cdf_functions_normal_cdf' (-7.8%) - consider updating baseline.
+📊 normal_cdf: 0.50 ms (norm) vs baseline 0.54 ms (-7.8% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'cdf_functions_gamma_cdf' (-9.4%) - consider updating baseline.
+📊 gamma_cdf: 3.51 ms (norm) vs baseline 3.87 ms (-9.4% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'cdf_functions_beta_cdf' (-6.3%) - consider updating baseline.
+📊 beta_cdf: 21.76 ms (norm) vs baseline 23.23 ms (-6.3% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📊 weibull_cdf: 0.20 ms (norm) vs baseline 0.20 ms (-0.6% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'cdf_functions_exponential_cdf' (-5.6%) - consider updating baseline.
+📊 exponential_cdf: 0.16 ms (norm) vs baseline 0.17 ms (-5.6% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📊 chi_square_cdf: 0.85 ms (norm) vs baseline 0.86 ms (-2.2% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'cdf_functions_f_cdf' (-11.0%) - consider updating baseline.
+📊 f_cdf: 7.61 ms (norm) vs baseline 8.54 ms (-11.0% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'cdf_functions_t_cdf' (-21.4%) - consider updating baseline.
+📊 t_cdf: 13.11 ms (norm) vs baseline 16.68 ms (-21.4% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'cdf_functions_binomial_cdf' (-11.4%) - consider updating baseline.
+📊 binomial_cdf: 2.16 ms (norm) vs baseline 2.44 ms (-11.4% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'cdf_functions_poisson_cdf' (-7.4%) - consider updating baseline.
+📊 poisson_cdf: 1.07 ms (norm) vs baseline 1.16 ms (-7.4% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📊 geometric_cdf: 0.06 ms (norm) vs baseline 0.07 ms (-15.4% change) (thresh: 24.1%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'cdf_functions_negative_binomial_cdf' (-7.6%) - consider updating baseline.
+📊 negative_binomial_cdf: 2.09 ms (norm) vs baseline 2.26 ms (-7.6% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'cdf_functions_pareto_cdf' (-8.0%) - consider updating baseline.
+📊 pareto_cdf: 0.11 ms (norm) vs baseline 0.12 ms (-8.0% change) (thresh: 5.0%)
+💾 Saved intermediate results for CdfFunctions: CdfFunctions_2025-06-18_12-35-53.json
+✅ Completed performance testing for: CdfFunctions
+✅ Module completed: CdfFunctions (2/8)
+Embedded window only supports Windowed mode.
+🚀 Started independent performance testing for: Distributions
+📈 Significant improvement for 'distributions_randf_normal' (-34.3%) - consider updating baseline.
+📊 randf_normal: 0.10 ms (norm) vs baseline 0.15 ms (-34.3% change) (thresh: 5.0%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'distributions_randf_gamma' (-8.2%) - consider updating baseline.
+📊 randf_gamma: 0.14 ms (norm) vs baseline 0.15 ms (-8.2% change) (thresh: 5.0%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📊 randf_beta: 0.29 ms (norm) vs baseline 0.31 ms (-6.6% change) (thresh: 17.3%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'distributions_randi_binomial' (-42.7%) - consider updating baseline.
+📊 randi_binomial: 0.47 ms (norm) vs baseline 0.83 ms (-42.7% change) (thresh: 5.0%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'distributions_randi_poisson' (-17.3%) - consider updating baseline.
+📊 randi_poisson: 0.17 ms (norm) vs baseline 0.21 ms (-17.3% change) (thresh: 5.0%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📊 randf_weibull: 0.07 ms (norm) vs baseline 0.06 ms (15.4% change) (thresh: 25.0%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📊 randi_uniform: 0.05 ms (norm) vs baseline 0.05 ms (10.9% change) (thresh: 12.7%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📊 randf_uniform: 0.05 ms (norm) vs baseline 0.05 ms (-0.5% change) (thresh: 25.0%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'distributions_randf_exponential' (-23.3%) - consider updating baseline.
+📊 randf_exponential: 0.06 ms (norm) vs baseline 0.08 ms (-23.3% change) (thresh: 5.0%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'distributions_randf_pareto' (-29.3%) - consider updating baseline.
+📊 randf_pareto: 0.07 ms (norm) vs baseline 0.10 ms (-29.3% change) (thresh: 5.0%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'distributions_randf_cauchy' (-37.4%) - consider updating baseline.
+📊 randf_cauchy: 0.16 ms (norm) vs baseline 0.26 ms (-37.4% change) (thresh: 5.0%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'distributions_randf_triangular' (-30.2%) - consider updating baseline.
+📊 randf_triangular: 0.06 ms (norm) vs baseline 0.09 ms (-30.2% change) (thresh: 5.0%)
+💾 Saved intermediate results for Distributions: Distributions_2025-06-18_12-35-53.json
+✅ Completed performance testing for: Distributions
+✅ Module completed: Distributions (3/8)
+Embedded window only supports Windowed mode.
+🚀 Started independent performance testing for: ErrorFunctions
+📊 error_function: 0.27 ms (norm) vs baseline 0.29 ms (-4.7% change) (thresh: 5.0%)
+💾 Saved intermediate results for ErrorFunctions: ErrorFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'error_functions_complementary_error_function' (-6.6%) - consider updating baseline.
+📊 complementary_error_function: 0.26 ms (norm) vs baseline 0.28 ms (-6.6% change) (thresh: 5.4%)
+💾 Saved intermediate results for ErrorFunctions: ErrorFunctions_2025-06-18_12-35-53.json
+📊 error_function_inverse: 0.70 ms (norm) vs baseline 0.78 ms (-10.3% change) (thresh: 10.5%)
+💾 Saved intermediate results for ErrorFunctions: ErrorFunctions_2025-06-18_12-35-53.json
+📊 complementary_error_function_inverse: 0.82 ms (norm) vs baseline 0.90 ms (-9.8% change) (thresh: 25.0%)
+💾 Saved intermediate results for ErrorFunctions: ErrorFunctions_2025-06-18_12-35-53.json
+✅ Completed performance testing for: ErrorFunctions
+✅ Module completed: ErrorFunctions (4/8)
+Embedded window only supports Windowed mode.
+🚀 Started independent performance testing for: HelperFunctions
+📊 gamma_function: 0.20 ms (norm) vs baseline 0.23 ms (-12.8% change) (thresh: 15.2%)
+💾 Saved intermediate results for HelperFunctions: HelperFunctions_2025-06-18_12-35-53.json
+📊 beta_function: 0.66 ms (norm) vs baseline 0.71 ms (-7.1% change) (thresh: 19.9%)
+💾 Saved intermediate results for HelperFunctions: HelperFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'helper_functions_incomplete_beta_function' (-10.9%) - consider updating baseline.
+📊 incomplete_beta_function: 3.74 ms (norm) vs baseline 4.19 ms (-10.9% change) (thresh: 5.0%)
+💾 Saved intermediate results for HelperFunctions: HelperFunctions_2025-06-18_12-35-53.json
+📊 binomial_coefficient: 0.31 ms (norm) vs baseline 0.27 ms (14.3% change) (thresh: 5.0%)
+💾 Saved intermediate results for HelperFunctions: HelperFunctions_2025-06-18_12-35-53.json
+📊 log_gamma: 0.22 ms (norm) vs baseline 0.23 ms (-3.0% change) (thresh: 13.6%)
+💾 Saved intermediate results for HelperFunctions: HelperFunctions_2025-06-18_12-35-53.json
+📊 log_factorial: 0.50 ms (norm) vs baseline 0.53 ms (-4.3% change) (thresh: 11.4%)
+💾 Saved intermediate results for HelperFunctions: HelperFunctions_2025-06-18_12-35-53.json
+📊 log_binomial_coef: 0.52 ms (norm) vs baseline 0.54 ms (-3.8% change) (thresh: 5.0%)
+💾 Saved intermediate results for HelperFunctions: HelperFunctions_2025-06-18_12-35-53.json
+📊 sanitize_numeric_array: 0.34 ms (norm) vs baseline 0.38 ms (-9.6% change) (thresh: 25.0%)
+💾 Saved intermediate results for HelperFunctions: HelperFunctions_2025-06-18_12-35-53.json
+✅ Completed performance testing for: HelperFunctions
+✅ Module completed: HelperFunctions (5/8)
+Embedded window only supports Windowed mode.
+🚀 Started independent performance testing for: PmfPdfFunctions
+📈 Significant improvement for 'pmf_pdf_functions_binomial_pmf' (-19.6%) - consider updating baseline.
+📊 binomial_pmf: 0.31 ms (norm) vs baseline 0.38 ms (-19.6% change) (thresh: 5.0%)
+💾 Saved intermediate results for PmfPdfFunctions: PmfPdfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'pmf_pdf_functions_poisson_pmf' (-35.9%) - consider updating baseline.
+📊 poisson_pmf: 0.18 ms (norm) vs baseline 0.27 ms (-35.9% change) (thresh: 5.0%)
+💾 Saved intermediate results for PmfPdfFunctions: PmfPdfFunctions_2025-06-18_12-35-53.json
+✅ Completed performance testing for: PmfPdfFunctions
+✅ Module completed: PmfPdfFunctions (6/8)
+Embedded window only supports Windowed mode.
+🚀 Started independent performance testing for: PpfFunctions
+📈 Significant improvement for 'ppf_functions_normal_ppf' (-9.3%) - consider updating baseline.
+📊 normal_ppf: 0.65 ms (norm) vs baseline 0.71 ms (-9.3% change) (thresh: 6.6%)
+💾 Saved intermediate results for PpfFunctions: PpfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'ppf_functions_gamma_ppf' (-16.1%) - consider updating baseline.
+📊 gamma_ppf: 77.38 ms (norm) vs baseline 92.23 ms (-16.1% change) (thresh: 5.0%)
+💾 Saved intermediate results for PpfFunctions: PpfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'ppf_functions_beta_ppf' (-9.0%) - consider updating baseline.
+📊 beta_ppf: 364.79 ms (norm) vs baseline 400.68 ms (-9.0% change) (thresh: 5.0%)
+💾 Saved intermediate results for PpfFunctions: PpfFunctions_2025-06-18_12-35-53.json
+📈 Significant improvement for 'ppf_functions_weibull_ppf' (-6.1%) - consider updating baseline.
+📊 weibull_ppf: 0.23 ms (norm) vs baseline 0.24 ms (-6.1% change) (thresh: 5.0%)
+💾 Saved intermediate results for PpfFunctions: PpfFunctions_2025-06-18_12-35-53.json
+✅ Completed performance testing for: PpfFunctions
+✅ Module completed: PpfFunctions (7/8)
+Embedded window only supports Windowed mode.
+🚀 Started independent performance testing for: SamplingGen
+📊 generate_samples_RANDOM_1d_32: 0.02 ms (norm) vs baseline 0.02 ms (1.1% change) (thresh: 9.8%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_RANDOM_1d_256: 0.11 ms (norm) vs baseline 0.12 ms (-4.7% change) (thresh: 5.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_RANDOM_1d_1024: 0.49 ms (norm) vs baseline 0.48 ms (1.5% change) (thresh: 15.8%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_RANDOM_3d_32: 0.04 ms (norm) vs baseline 0.05 ms (-14.9% change) (thresh: 20.7%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_RANDOM_3d_256: 0.19 ms (norm) vs baseline 0.18 ms (4.3% change) (thresh: 25.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_RANDOM_3d_1024: 0.80 ms (norm) vs baseline 0.72 ms (11.2% change) (thresh: 15.3%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_RANDOM_10d_32: 0.13 ms (norm) vs baseline 0.10 ms (25.6% change) (thresh: 25.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_RANDOM_10d_256: 0.54 ms (norm) vs baseline 0.53 ms (1.6% change) (thresh: 15.4%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_RANDOM_10d_1024: 2.13 ms (norm) vs baseline 1.89 ms (12.3% change) (thresh: 11.4%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_1d_32: 0.03 ms (norm) vs baseline 0.03 ms (1.1% change) (thresh: 7.1%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_1d_256: 0.19 ms (norm) vs baseline 0.19 ms (0.2% change) (thresh: 23.8%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_1d_1024: 0.77 ms (norm) vs baseline 0.74 ms (2.8% change) (thresh: 24.2%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_3d_32: 0.07 ms (norm) vs baseline 0.07 ms (-3.7% change) (thresh: 24.8%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📈 Significant improvement for 'sampling_gen_generate_samples_SOBOL_3d_256' (-8.3%) - consider updating baseline.
+📊 generate_samples_SOBOL_3d_256: 0.35 ms (norm) vs baseline 0.38 ms (-8.3% change) (thresh: 7.1%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📈 Significant improvement for 'sampling_gen_generate_samples_SOBOL_3d_1024' (-10.2%) - consider updating baseline.
+📊 generate_samples_SOBOL_3d_1024: 1.14 ms (norm) vs baseline 1.27 ms (-10.2% change) (thresh: 8.8%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_10d_32: 0.18 ms (norm) vs baseline 0.19 ms (-5.0% change) (thresh: 5.1%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_10d_256: 0.95 ms (norm) vs baseline 0.94 ms (0.8% change) (thresh: 15.2%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_10d_1024: 3.85 ms (norm) vs baseline 3.66 ms (5.3% change) (thresh: 14.1%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_RANDOM_1d_32: 0.03 ms (norm) vs baseline 0.03 ms (4.3% change) (thresh: 6.5%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_RANDOM_1d_256: 0.18 ms (norm) vs baseline 0.18 ms (1.6% change) (thresh: 8.1%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_RANDOM_1d_1024: 0.72 ms (norm) vs baseline 0.72 ms (0.3% change) (thresh: 6.2%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📈 Significant improvement for 'sampling_gen_generate_samples_SOBOL_RANDOM_3d_32' (-18.3%) - consider updating baseline.
+📊 generate_samples_SOBOL_RANDOM_3d_32: 0.07 ms (norm) vs baseline 0.08 ms (-18.3% change) (thresh: 5.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_RANDOM_3d_256: 0.34 ms (norm) vs baseline 0.33 ms (2.6% change) (thresh: 12.7%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_RANDOM_3d_1024: 1.20 ms (norm) vs baseline 1.14 ms (5.6% change) (thresh: 19.3%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_RANDOM_10d_32: 0.19 ms (norm) vs baseline 0.15 ms (21.9% change) (thresh: 25.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_RANDOM_10d_256: 0.87 ms (norm) vs baseline 0.83 ms (5.5% change) (thresh: 13.5%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_SOBOL_RANDOM_10d_1024: 3.64 ms (norm) vs baseline 3.75 ms (-3.1% change) (thresh: 5.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_HALTON_1d_32: 0.03 ms (norm) vs baseline 0.03 ms (4.1% change) (thresh: 7.1%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_HALTON_1d_256: 0.26 ms (norm) vs baseline 0.25 ms (3.5% change) (thresh: 25.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_HALTON_1d_1024: 1.14 ms (norm) vs baseline 1.13 ms (0.8% change) (thresh: 7.9%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_HALTON_3d_32: 0.08 ms (norm) vs baseline 0.06 ms (16.7% change) (thresh: 25.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_HALTON_3d_256: 0.48 ms (norm) vs baseline 0.47 ms (1.1% change) (thresh: 7.9%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_HALTON_3d_1024: 2.07 ms (norm) vs baseline 2.06 ms (0.6% change) (thresh: 5.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_HALTON_10d_32: 0.16 ms (norm) vs baseline 0.16 ms (-1.0% change) (thresh: 12.9%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_HALTON_10d_256: 0.99 ms (norm) vs baseline 0.98 ms (0.4% change) (thresh: 5.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 generate_samples_HALTON_10d_1024: 4.49 ms (norm) vs baseline 4.45 ms (0.9% change) (thresh: 5.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📈 Significant improvement for 'sampling_gen_coordinated_shuffle_performance' (-6.0%) - consider updating baseline.
+📊 coordinated_shuffle_performance: 22.32 ms (norm) vs baseline 23.75 ms (-6.0% change) (thresh: 5.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+📊 sample_indices_performance: 0.13 ms (norm) vs baseline 0.14 ms (-1.4% change) (thresh: 25.0%)
+💾 Saved intermediate results for SamplingGen: SamplingGen_2025-06-18_12-35-53.json
+✅ Completed performance testing for: SamplingGen
+✅ Module completed: SamplingGen (8/8)
+🏁 All performance test suites completed! Triggering final phase...
+📦 Consolidating results for run: 2025-06-18_12-35-53
+
+❌ TEST RUN FAILED - 3 of 87 tests failed:
+   1. sampling_gen_generate_samples_RANDOM_10d_32:
+      Current: 0.129 ms | Baseline: 0.103 ms | Change: 25.6%
+      Threshold: 25.0% | Sample size: 15 | CV: 6.8%
+   2. helper_functions_binomial_coefficient:
+      Current: 0.310 ms | Baseline: 0.271 ms | Change: 14.3%
+      Threshold: 5.0% | Sample size: 15 | CV: 2.4%
+   3. sampling_gen_generate_samples_RANDOM_10d_1024:
+      Current: 2.126 ms | Baseline: 1.893 ms | Change: 12.3%
+      Threshold: 11.4% | Sample size: 15 | CV: 4.0%
+🗑️ Discarding failure snapshot as per configuration.
+🗑️  Cleaned up intermediate file: BasicStats_2025-06-18_12-35-53.json
+🗑️  Cleaned up intermediate file: CdfFunctions_2025-06-18_12-35-53.json
+🗑️  Cleaned up intermediate file: Distributions_2025-06-18_12-35-53.json
+🗑️  Cleaned up intermediate file: ErrorFunctions_2025-06-18_12-35-53.json
+🗑️  Cleaned up intermediate file: HelperFunctions_2025-06-18_12-35-53.json
+🗑️  Cleaned up intermediate file: PmfPdfFunctions_2025-06-18_12-35-53.json
+🗑️  Cleaned up intermediate file: PpfFunctions_2025-06-18_12-35-53.json
+🗑️  Cleaned up intermediate file: SamplingGen_2025-06-18_12-35-53.json
+✅ All 8 modules completed successfully
+🎉 Performance test run completed successfully!
+   📊 Results saved in: res://addons/godot-stat-math/tests/performance/results/
+   📈 Latest results: res://addons/godot-stat-math/tests/performance/results/latest.json
+   📋 Baseline: res://addons/godot-stat-math/tests/performance/results/baseline.json
+--- Debugging process stopped ---
