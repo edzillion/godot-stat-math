@@ -10,12 +10,42 @@ class_name PerfTestManager extends RefCounted
 const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/results/baseline.json"
 const RESULTS_DIR: String = "res://addons/godot-stat-math/tests/performance/results/"
 const CORE_TEST_DIR: String = "res://addons/godot-stat-math/tests/performance/core/"
-const REGRESSION_THRESHOLD: float = 0.20  # 20% slower = regression
+const REGRESSION_THRESHOLD: float = 0.20  # 20% slower = regression (fallback for tests without statistical data)
 const WARMUP_ITERATIONS: int = 10
 const MEASUREMENT_ITERATIONS: int = 5
 const FUNCTION_CALLS_PER_MEASUREMENT: int = 100
 const KEEP_PREVIOUS_FAILURES: bool = false
+const DISABLE_REGRESSION_CHECKING: bool = false
 const MAX_SNAPSHOTS: int = 50  # Keep 50 most recent snapshots for robust statistics
+
+# Dynamic threshold calculation parameters
+const MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD: int = 5  # Minimum samples needed for dynamic thresholds
+const MIN_THRESHOLD_PERCENT: float = 0.05  # Base minimum threshold (5%)
+const ROBUST_MIN_THRESHOLD_PERCENT: float = 0.08  # Robust minimum threshold (8%) for more stable testing
+const MAX_THRESHOLD_PERCENT: float = 0.25  # Maximum 25% threshold
+const HIGH_CONFIDENCE_SAMPLES: int = 30  # 30+ samples = high confidence
+const MEDIUM_CONFIDENCE_SAMPLES: int = 15  # 15+ samples = medium confidence
+
+# Threshold refinement parameters
+const THRESHOLD_SAFETY_BUFFER: float = 1.1  # 10% buffer for borderline cases
+const STABLE_FUNCTION_CV_THRESHOLD: float = 0.05  # CV threshold for considering function "very stable"
+const STABLE_FUNCTION_MIN_THRESHOLD: float = 0.12  # 12% minimum for very stable functions
+const FAST_FUNCTION_THRESHOLD_MS: float = 0.5  # Functions under 0.5ms get special handling
+const FAST_FUNCTION_MIN_THRESHOLD: float = 0.15  # 15% minimum for very fast functions
+
+# Advanced threshold refinement for different volatility levels
+const LOW_VOLATILITY_CV_THRESHOLD: float = 0.08  # Functions with CV < 8% are low volatility
+const MEDIUM_VOLATILITY_CV_THRESHOLD: float = 0.15  # Functions with CV < 15% are medium volatility
+const LOW_VOLATILITY_MIN_THRESHOLD: float = 0.15  # 15% minimum for low volatility functions
+const MEDIUM_VOLATILITY_MIN_THRESHOLD: float = 0.20  # 20% minimum for medium volatility functions
+const HIGH_VOLATILITY_MIN_THRESHOLD: float = 0.25  # 25% minimum for high volatility functions
+
+# Mature baseline adjustments (for sample sizes >= 25)
+const MATURE_BASELINE_SAMPLE_SIZE: int = 25  # Consider baseline "mature" at 25+ samples
+const MATURE_BASELINE_MULTIPLIER: float = 1.3  # 30% higher thresholds for mature baselines
+
+# Percentile-based threshold parameters
+const PERCENTILE_THRESHOLD: float = 95.0  # Use 95th percentile (only 5% of runs slower)
 
 # Hardware normalization constants
 const BASELINE_CPU_SCORE: float = 5000000.0  # Reference CPU performance score (ops/sec)
@@ -23,13 +53,13 @@ const BASELINE_MEMORY_SCORE: float = 25.0  # Reference memory performance score 
 
 # Test categorization for targeted normalization
 const CPU_BOUND_TESTS: Array[String] = [
-	"distributions_", "cdffunctions_", "pmfpdffunctions_", "ppffunctions_", 
-	"errorfunctions_", "helperfunctions_gamma", "helperfunctions_beta", 
-	"helperfunctions_incomplete_beta", "helperfunctions_binomial"
+	"distributions_", "cdf_functions_", "pmf_pdf_functions_", "ppf_functions_", 
+	"error_functions_", "helper_functions_gamma", "helper_functions_beta", 
+	"helper_functions_incomplete_beta", "helper_functions_binomial"
 ]
 
 const MEMORY_BOUND_TESTS: Array[String] = [
-	"basicstats_", "samplinggen_", "helperfunctions_sanitize"
+	"basic_stats_", "sampling_gen_", "helper_functions_sanitize"
 ]
 
 # ========== COMPLETION TRACKING SYSTEM ==========
@@ -93,6 +123,16 @@ static func _filename_to_module_name(filename: String) -> String:
 				if part.length() > 0:
 					result += part.capitalize()
 			return result
+
+## Convert PascalCase module name to snake_case for test naming
+static func _module_name_to_snake_case(module_name: String) -> String:
+	var result: String = ""
+	for i in range(module_name.length()):
+		var c: String = module_name[i]
+		if c >= "A" and c <= "Z" and i > 0:
+			result += "_"
+		result += c.to_lower()
+	return result
 
 ## Initialize completion tracking system
 static func _initialize_completion_tracker() -> void:
@@ -232,8 +272,15 @@ static func _consolidate_run_results() -> void:
 	# Save as latest.json
 	_save_json_file(RESULTS_DIR.path_join("latest.json"), consolidated_data)
 	
-	# Save timestamped snapshot (pass_ or fail_)
+	# Report test run summary
 	var has_failures: bool = failed_tests > 0
+	if has_failures:
+		print("\n❌ TEST RUN FAILED - %d of %d tests failed:" % [failed_tests, total_tests])
+		_report_failed_tests(consolidated_tests)
+	else:
+		print("\n✅ TEST RUN PASSED - All %d tests passed!" % total_tests)
+	
+	# Save timestamped snapshot (pass_ or fail_)
 	var snapshot_prefix: String = "fail" if has_failures else "pass"
 	var snapshot_filepath: String = RESULTS_DIR.path_join("%s_%s.json" % [snapshot_prefix, _run_timestamp])
 	
@@ -257,6 +304,39 @@ static func _consolidate_run_results() -> void:
 		_cleanup_old_snapshots()
 
 
+
+## Report details of failed tests with their stats and thresholds
+static func _report_failed_tests(consolidated_tests: Dictionary) -> void:
+	var failed_test_details: Array[Dictionary] = []
+	
+	# Collect failed test information
+	for test_name in consolidated_tests:
+		var test_data: Dictionary = consolidated_tests[test_name]
+		if test_data.status == "fail":
+			failed_test_details.append({
+				"name": test_name,
+				"data": test_data
+			})
+	
+	# Sort failed tests by severity (highest diff_percent first)
+	failed_test_details.sort_custom(func(a, b): return a.data.diff_percent > b.data.diff_percent)
+	
+	# Report each failed test
+	for i in range(failed_test_details.size()):
+		var test_info: Dictionary = failed_test_details[i]
+		var test_name: String = test_info.name
+		var test_data: Dictionary = test_info.data
+		
+		var current_ms: float = test_data.get("result_ms", 0.0)
+		var baseline_ms: float = test_data.get("baseline_ms", 0.0)
+		var diff_percent: float = test_data.get("diff_percent", 0.0)
+		var threshold_percent: float = test_data.get("threshold_percent", REGRESSION_THRESHOLD) * 100.0
+		var sample_size: int = test_data.get("sample_size", 0)
+		var cv: float = test_data.get("coefficient_of_variation", 0.0) * 100.0
+		
+		print("   %d. %s:" % [i + 1, test_name])
+		print("      Current: %.3f ms | Baseline: %.3f ms | Change: %.1f%%" % [current_ms, baseline_ms, diff_percent])
+		print("      Threshold: %.1f%% | Sample size: %d | CV: %.1f%%" % [threshold_percent, sample_size, cv])
 
 ## Reset completion tracker (for testing purposes)
 static func reset_completion_tracker() -> void:
@@ -366,6 +446,102 @@ func _get_test_normalization_factor(test_name: String) -> float:
 	# Default: mixed workload (70% CPU, 30% memory)
 	return (PerfTestManager._cpu_factor * 0.7 + PerfTestManager._memory_factor * 0.3)
 
+## Calculate dynamic threshold for a test based on percentile analysis with refinements
+static func _calculate_dynamic_threshold(measurements: Array[float], baseline_median: float) -> float:
+	var sample_size: int = measurements.size()
+	
+	# If insufficient data, use fallback threshold
+	if sample_size < MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD:
+		return REGRESSION_THRESHOLD
+	
+	# Sort measurements for percentile calculation
+	var sorted_measurements: Array[float] = measurements.duplicate()
+	sorted_measurements.sort()
+	
+	# Calculate coefficient of variation for stability assessment
+	var cv: float = StatMath.BasicStats.standard_deviation(measurements) / baseline_median
+	
+	# Use 95th percentile - only 5% of historical runs were slower than this
+	var percentile_95_threshold: float = StatMath.BasicStats.percentile(sorted_measurements, PERCENTILE_THRESHOLD)
+	var percentile_threshold_percent: float = (percentile_95_threshold - baseline_median) / baseline_median
+	
+	# Apply confidence interval adjustment based on sample size
+	# Smaller samples get slightly higher thresholds due to uncertainty
+	var confidence_multiplier: float = 1.0
+	if sample_size < MEDIUM_CONFIDENCE_SAMPLES:
+		confidence_multiplier = 1.2  # 20% higher threshold for small samples
+	elif sample_size < HIGH_CONFIDENCE_SAMPLES:
+		confidence_multiplier = 1.1  # 10% higher threshold for medium samples
+	
+	var calculated_threshold: float = percentile_threshold_percent * confidence_multiplier
+	
+	# REFINEMENT 1: Use robust minimum threshold instead of aggressive 5%
+	var base_min_threshold: float = ROBUST_MIN_THRESHOLD_PERCENT
+	
+	# REFINEMENT 2: Add safety buffer for borderline cases
+	calculated_threshold = calculated_threshold * THRESHOLD_SAFETY_BUFFER
+	
+	# REFINEMENT 3: Special handling for very fast functions (under 0.5ms)
+	# Small absolute variations create large percentage changes in fast functions
+	if baseline_median < FAST_FUNCTION_THRESHOLD_MS:
+		base_min_threshold = max(base_min_threshold, FAST_FUNCTION_MIN_THRESHOLD)
+	
+	# REFINEMENT 4: Advanced CV-based threshold scaling with volatility levels
+	# Different minimum thresholds based on function volatility patterns
+	var volatility_min_threshold: float = base_min_threshold
+	
+	if cv < STABLE_FUNCTION_CV_THRESHOLD:
+		# Very stable functions (CV < 5%) - original logic
+		volatility_min_threshold = max(volatility_min_threshold, STABLE_FUNCTION_MIN_THRESHOLD)
+	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
+		# Low volatility functions (CV 5-8%) - need higher thresholds
+		volatility_min_threshold = max(volatility_min_threshold, LOW_VOLATILITY_MIN_THRESHOLD)
+	elif cv < MEDIUM_VOLATILITY_CV_THRESHOLD:
+		# Medium volatility functions (CV 8-15%) - moderate thresholds
+		volatility_min_threshold = max(volatility_min_threshold, MEDIUM_VOLATILITY_MIN_THRESHOLD)
+	else:
+		# High volatility functions (CV > 15%) - standard thresholds
+		volatility_min_threshold = max(volatility_min_threshold, HIGH_VOLATILITY_MIN_THRESHOLD)
+	
+	# REFINEMENT 5: Mature baseline adjustment
+	# With 25+ samples, we have high confidence in the baseline but need more tolerance
+	# for natural performance variation in production environments
+	if sample_size >= MATURE_BASELINE_SAMPLE_SIZE:
+		volatility_min_threshold = volatility_min_threshold * MATURE_BASELINE_MULTIPLIER
+	
+	# Apply the refined minimum threshold
+	var final_threshold: float = max(calculated_threshold, volatility_min_threshold)
+	
+	# Clamp to maximum bounds
+	final_threshold = min(final_threshold, MAX_THRESHOLD_PERCENT)
+	
+	# Debug info for threshold selection
+	var volatility_level: String = "high"
+	if cv < STABLE_FUNCTION_CV_THRESHOLD:
+		volatility_level = "very stable"
+	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
+		volatility_level = "low"
+	elif cv < MEDIUM_VOLATILITY_CV_THRESHOLD:
+		volatility_level = "medium"
+	
+	print("📊 Refined threshold for baseline=%.3fms, n=%d, CV=%.1f%% (%s volatility):" % [
+		baseline_median, sample_size, cv * 100, volatility_level
+	])
+	print("   • %.0fth percentile: %.3fms (raw: %.1f%%, buffered: %.1f%%)" % [
+		PERCENTILE_THRESHOLD, percentile_95_threshold, 
+		percentile_threshold_percent * 100, calculated_threshold * 100
+	])
+	print("   • Volatility min threshold: %.1f%% (fast: %s, mature: %s)" % [
+		volatility_min_threshold * 100,
+		"yes" if baseline_median < FAST_FUNCTION_THRESHOLD_MS else "no",
+		"yes" if sample_size >= MATURE_BASELINE_SAMPLE_SIZE else "no"
+	])
+	print("   • Final threshold: %.1f%% (confidence: %.1f, sample size: %d)" % [
+		final_threshold * 100, confidence_multiplier, sample_size
+	])
+	
+	return final_threshold
+
 ## ========== INDEPENDENT TEST SUITE INTERFACE ==========
 
 ## Measure a test function performance with warmup and multiple iterations
@@ -409,58 +585,111 @@ func load_baseline() -> Dictionary:
 		push_error("Failed to parse baseline JSON: %s" % BASELINE_FILE)
 		return {}
 	
-	var data: Dictionary = json.data
-	if not data.has("tests"):
-		push_error("Baseline file missing 'tests' key: " + BASELINE_FILE)
-		return {}
-	
-	return data["tests"]
+	return json.data
 
 ## Check performance regression and save result immediately (independent per suite)
-func check_performance_regression(module_name: String, test_name: String, current_results: Dictionary, baseline_data: Dictionary) -> void:
+func check_performance_regression(module_name: String, test_name: String, current_results: Dictionary, baseline_data: Dictionary) -> bool:
 	# Set module name if not already set
 	if _module_name.is_empty():
 		_module_name = module_name
 	
-	var current_time: float = current_results.execution_time_ms
+	var baseline_meta: Dictionary = baseline_data.get("meta", {})
+	var baseline_tests: Dictionary = baseline_data.get("tests", {})
+	var expected_regressions: Array = baseline_meta.get("expected_regressions", [])
+	
+	var raw_time: float = current_results.execution_time_ms
+	var prefixed_test_name: String = "%s_%s" % [_module_name_to_snake_case(module_name), test_name]
+	
 	var baseline_time: float = NAN
 	var is_failure: bool = false
+	var status: String = "pass"
 	
-	if not baseline_data.is_empty():
+	# Apply hardware normalization *before* comparison
+	var normalization_factor: float = _get_test_normalization_factor(prefixed_test_name)
+	var normalized_time_ms: float = raw_time * normalization_factor
+	
+	if not baseline_tests.is_empty():
 		# Look for test with module prefix since all modules are in one baseline file
-		var prefixed_test_name: String = "%s_%s" % [module_name.to_lower(), test_name]
-		if baseline_data.has(prefixed_test_name):
-			baseline_time = baseline_data[prefixed_test_name].result_ms
-			var time_change: float = (current_time - baseline_time) / baseline_time
-			is_failure = time_change > REGRESSION_THRESHOLD
+		if baseline_tests.has(prefixed_test_name):
+			var baseline_test_data: Dictionary = baseline_tests[prefixed_test_name]
+			baseline_time = baseline_test_data.result_ms
+			var time_change: float = (normalized_time_ms - baseline_time) / baseline_time
 			
-			print("📊 %s: %.2f ms vs baseline %.2f ms (%.1f%% change)" % [
-				test_name, current_time, baseline_time, time_change * 100.0
-			])
+			# Use dynamic threshold if available, fallback to fixed threshold
+			var effective_threshold: float = REGRESSION_THRESHOLD
+			if baseline_test_data.has("threshold_percent"):
+				effective_threshold = baseline_test_data.threshold_percent
+			
+			# Always perform the regression calculation for consistent measurement overhead
+			var calculated_failure: bool = time_change > effective_threshold
+			
+			if DISABLE_REGRESSION_CHECKING:
+				# Do all the same work but force pass result
+				print("☑️ Regression checking disabled. Using current result for '%s'. (would be: %.1f%% change)" % [prefixed_test_name, time_change * 100.0])
+				status = "pass (disabled)"
+				is_failure = false  # Force pass regardless of calculation
+			else:
+				# Normal regression checking logic
+				is_failure = calculated_failure
+				
+				if is_failure:
+					if prefixed_test_name in expected_regressions:
+						print("⚠️  Expected regression for '%s'. Marking as pass." % prefixed_test_name)
+						is_failure = false # Override failure for overall run status
+						status = "pass (expected)"
+					else:
+						status = "fail"
+				elif time_change < -effective_threshold:
+					var msg = "Significant improvement for '%s' (%.1f%%) - consider updating baseline." % [prefixed_test_name, time_change * 100.0]
+					print("📈 %s" % msg)
+					push_warning(msg)
+				
+				# Enhanced reporting with dynamic threshold info
+				var threshold_info: String = ""
+				if baseline_test_data.has("threshold_percent"):
+					threshold_info = " (thresh: %.1f%%)" % (effective_threshold * 100.0)
+				
+				print("📊 %s: %.2f ms (norm) vs baseline %.2f ms (%.1f%% change)%s" % [
+					test_name, normalized_time_ms, baseline_time, time_change * 100.0, threshold_info
+				])
 		else:
-			print("⚠️  No baseline found for %s - treating as new test" % prefixed_test_name)
-			baseline_time = current_time  # Use current as baseline for new tests
+			if DISABLE_REGRESSION_CHECKING:
+				print("☑️ Regression checking disabled. No baseline found for '%s' - treating as new test." % prefixed_test_name)
+			else:
+				print("⚠️  No baseline found for %s - treating as new test" % prefixed_test_name)
+			baseline_time = normalized_time_ms  # Use current as baseline for new tests
 	else:
-		print("⚠️  No baseline data available - treating as new test: %s" % test_name)
-		baseline_time = current_time  # Use current as baseline
+		if DISABLE_REGRESSION_CHECKING:
+			print("☑️ Regression checking disabled. No baseline data available for '%s'." % prefixed_test_name)
+			status = "pass (disabled)"
+		else: # This case handles when baseline_tests is empty
+			print("⚠️  No baseline data available - treating as new test: %s" % prefixed_test_name)
+		baseline_time = normalized_time_ms  # Use current as baseline
 	
-	# Apply hardware normalization to current time
-	var normalization_factor: float = _get_test_normalization_factor(test_name)
-	var normalized_time_ms: float = current_time * normalization_factor
-	
-	# Store result for this module
-	var prefixed_test_name: String = "%s_%s" % [module_name.to_lower(), test_name]
-	_module_results[prefixed_test_name] = {
+	# Store result for this module with threshold information
+	var result_data: Dictionary = {
 		"result_ms": normalized_time_ms,  # Normalized value
 		"baseline_ms": baseline_time, 
-		"raw_ms": current_time,  # Raw value for debugging
-		"diff_percent": ((normalized_time_ms - baseline_time) / baseline_time) * 100.0 if not is_nan(baseline_time) else 0.0,
-		"status": "fail" if is_failure else "pass",
+		"raw_ms": raw_time,  # Raw value for debugging
+		"diff_percent": ((normalized_time_ms - baseline_time) / baseline_time) * 100.0 if not is_nan(baseline_time) and baseline_time > 0.0 else 0.0,
+		"status": status,
 		"hardware_factor": normalization_factor
 	}
 	
+	# Include threshold information if available
+	if not baseline_tests.is_empty() and baseline_tests.has(prefixed_test_name):
+		var baseline_test_data: Dictionary = baseline_tests[prefixed_test_name]
+		if baseline_test_data.has("threshold_percent"):
+			result_data["threshold_percent"] = baseline_test_data.threshold_percent
+			result_data["sample_size"] = baseline_test_data.get("sample_size", 0)
+			result_data["coefficient_of_variation"] = baseline_test_data.get("coefficient_of_variation", 0.0)
+	
+	_module_results[prefixed_test_name] = result_data
+	
 	# Save immediately after each test
 	_save_module_results()
+	
+	return is_failure
 
 ## Generate reproducible test data for performance tests
 func generate_test_data(size: int, seed: int = 12345) -> Array[float]:
@@ -561,12 +790,14 @@ static func _update_baseline_from_snapshots() -> void:
 	var recent_files: Array[String] = pass_files.slice(-MAX_SNAPSHOTS) if pass_files.size() > MAX_SNAPSHOTS else pass_files
 	
 	print("📊 Updating baseline from %d successful test runs" % recent_files.size())
-	if recent_files.size() >= 10:
-		print("   🎯 Sufficient data for statistical confidence (n≥10)")
-	elif recent_files.size() >= 5:
-		print("   ⚠️  Limited data - consider running more tests (n=%d)" % recent_files.size())
+	if recent_files.size() >= HIGH_CONFIDENCE_SAMPLES:
+		print("   🎯 High confidence data for statistical analysis (n≥%d)" % HIGH_CONFIDENCE_SAMPLES)
+	elif recent_files.size() >= MEDIUM_CONFIDENCE_SAMPLES:
+		print("   ⚠️  Medium confidence - consider running more tests (n=%d)" % recent_files.size())
+	elif recent_files.size() >= MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD:
+		print("   ⚠️  Limited confidence but sufficient for dynamic thresholds (n=%d)" % recent_files.size())
 	else:
-		print("   🚨 Very limited data - results may be unstable (n=%d)" % recent_files.size())
+		print("   🚨 Very limited data - using fallback thresholds (n=%d)" % recent_files.size())
 	
 	# Load and accumulate results using statistical analysis
 	var test_data_arrays: Dictionary = {}  # test_name -> Array[float] of all measurements
@@ -608,7 +839,7 @@ static func _update_baseline_from_snapshots() -> void:
 		print("❌ No valid test data found in successful runs")
 		return
 	
-	# Calculate robust statistics using StatMath library
+	# Calculate robust statistics and dynamic thresholds using StatMath library
 	var baseline_tests: Dictionary = {}
 	var statistics_summary: Dictionary = {}
 	
@@ -622,52 +853,83 @@ static func _update_baseline_from_snapshots() -> void:
 		
 		# Use median for robustness against outliers
 		var test_median: float = StatMath.BasicStats.median(measurements)
+		var test_mean: float = StatMath.BasicStats.mean(measurements)
+		var test_std: float = StatMath.BasicStats.standard_deviation(measurements) if measurements.size() > 1 else 0.0
+		var coefficient_of_variation: float = (test_std / test_mean) if test_mean > 0.0 else 0.0
+		
+		# Calculate dynamic threshold based on statistical analysis
+		var dynamic_threshold: float = _calculate_dynamic_threshold(measurements, test_median)
+		
 		baseline_tests[test_name] = {
 			"result_ms": test_median,
 			"baseline_ms": test_median, 
 			"diff_percent": 0.0,
-			"status": "pass"
+			"status": "pass",
+			"threshold_percent": dynamic_threshold,
+			"sample_size": measurements.size(),
+			"coefficient_of_variation": coefficient_of_variation
 		}
 		
 		# Store statistics for reporting
-		if measurements.size() > 1:
-			var test_mean: float = StatMath.BasicStats.mean(measurements)
-			var test_std: float = StatMath.BasicStats.standard_deviation(measurements)
-			statistics_summary[test_name] = {
-				"mean": test_mean,
-				"median": test_median,
-				"std_dev": test_std,
-				"sample_size": measurements.size(),
-				"coefficient_of_variation": (test_std / test_mean) if test_mean > 0.0 else 0.0
-			}
+		statistics_summary[test_name] = {
+			"mean": test_mean,
+			"median": test_median,
+			"std_dev": test_std,
+			"sample_size": measurements.size(),
+			"coefficient_of_variation": coefficient_of_variation,
+			"dynamic_threshold": dynamic_threshold
+		}
 	
 	# Report statistical summary for well-sampled tests
-	print("📈 Statistical Summary:")
+	print("📈 Statistical Summary with Dynamic Thresholds:")
 	var high_variance_tests: Array[String] = []
+	var dynamic_threshold_count: int = 0
+	
 	for test_name in statistics_summary:
 		var stats: Dictionary = statistics_summary[test_name]
 		var cv: float = stats.coefficient_of_variation
+		var threshold: float = stats.dynamic_threshold
+		
 		if cv > 0.15:  # Flag tests with >15% coefficient of variation
 			high_variance_tests.append(test_name)
 		
+		if stats.sample_size >= MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD:
+			dynamic_threshold_count += 1
+		
 		if stats.sample_size >= 5:  # Log detailed stats for reasonably sampled tests
-			print("   %s: median=%.3fms, cv=%.1f%%, n=%d" % [
-				test_name, stats.median, cv * 100.0, stats.sample_size
+			print("   %s: median=%.3fms, cv=%.1f%%, threshold=%.1f%%, n=%d" % [
+				test_name, stats.median, cv * 100.0, threshold * 100.0, stats.sample_size
 			])
 	
+	print("🎯 Dynamic thresholds calculated for %d/%d tests" % [dynamic_threshold_count, statistics_summary.size()])
 	if not high_variance_tests.is_empty():
 		print("⚠️  High variance tests (CV > 15%%): %s" % str(high_variance_tests.slice(0, 5)))
 	
-	# Save the updated baseline
+	# Determine confidence level based on sample size
+	var confidence: String = "low"
+	if recent_files.size() >= HIGH_CONFIDENCE_SAMPLES:
+		confidence = "high"
+	elif recent_files.size() >= MEDIUM_CONFIDENCE_SAMPLES:
+		confidence = "medium"
+	
+	# Save the updated baseline with dynamic thresholds
 	var baseline_data: Dictionary = {
 		"tests": baseline_tests,
 		"meta": {
-			"type": "automatic_baseline",
+			"expected_regressions": [],
+			"type": "automatic_baseline_percentile_based",
 			"generated_at": Time.get_datetime_string_from_system(),
 			"total_tests": baseline_tests.size(),
 			"source_snapshots": recent_files.size(),
-			"statistical_method": "robust_median",
-			"confidence": "high" if recent_files.size() >= 10 else ("medium" if recent_files.size() >= 5 else "low")
+			"statistical_method": "percentile_based_thresholds",
+			"confidence": confidence,
+			"dynamic_threshold_tests": dynamic_threshold_count,
+			"threshold_parameters": {
+				"percentile_threshold": PERCENTILE_THRESHOLD,
+				"min_samples": MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD,
+				"min_threshold": MIN_THRESHOLD_PERCENT,
+				"max_threshold": MAX_THRESHOLD_PERCENT
+			}
 		}
 	}
 	

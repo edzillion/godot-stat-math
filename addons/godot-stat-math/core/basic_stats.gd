@@ -20,8 +20,8 @@ static func mean(data: Array[float]) -> float:
 	for value in data:
 		sum_val += value
 	
-	## TEMPORARY: Intentional delay to test performance failure collection
-	#OS.delay_msec(100)
+	# # TEMPORARY: Intentional delay to test performance failure collection
+	# OS.delay_msec(100)
 	
 	return sum_val / float(data.size())
 
@@ -149,6 +149,45 @@ static func maximum(data: Array[float]) -> float:
 		return NAN
 	
 	return data.max()
+
+
+# Percentile: Calculates the value below which a given percentage of data falls
+# Uses linear interpolation for percentiles that fall between data points.
+# percentile_value should be between 0.0 and 100.0 (e.g., 50.0 for median, 95.0 for 95th percentile)
+# Note: This function assumes the input array is already sorted.
+static func percentile(data: Array[float], percentile_value: float) -> float:
+	if not (data.size() > 0):
+		push_error("Cannot calculate percentile of empty array.")
+		return NAN
+	
+	if percentile_value < 0.0 or percentile_value > 100.0:
+		push_error("Percentile value must be between 0.0 and 100.0. Received: %f" % percentile_value)
+		return NAN
+	
+	var size: int = data.size()
+	
+	# Handle edge cases
+	if percentile_value == 0.0:
+		return data[0]
+	if percentile_value == 100.0:
+		return data[size - 1]
+	
+	# Calculate position using the "R-6" quantile method (commonly used)
+	var position: float = (percentile_value / 100.0) * (size - 1)
+	var lower_index: int = int(position)
+	var upper_index: int = lower_index + 1
+	
+	# If position is exactly on an index, return that value
+	if position == float(lower_index):
+		return data[lower_index]
+	
+	# If upper_index would be out of bounds, return the last element
+	if upper_index >= size:
+		return data[size - 1]
+	
+	# Linear interpolation between the two surrounding values
+	var weight: float = position - float(lower_index)
+	return data[lower_index] * (1.0 - weight) + data[upper_index] * weight
 
 
 # Summary Statistics: Calculates all basic statistics and returns them in a Dictionary
