@@ -1,0 +1,10 @@
+name: Minimal Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ec2-runner
+    steps:
+      - run: echo "Hello from EC2 runner"
