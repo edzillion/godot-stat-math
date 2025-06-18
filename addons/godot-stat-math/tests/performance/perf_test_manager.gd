@@ -51,6 +51,10 @@ const PERCENTILE_THRESHOLD: float = 95.0  # Use 95th percentile (only 5% of runs
 const BASELINE_CPU_SCORE: float = 5000000.0  # Reference CPU performance score (ops/sec)
 const BASELINE_MEMORY_SCORE: float = 25.0  # Reference memory performance score (MB/s)
 
+# Hardware normalization control
+const HARDWARE_NORMALIZATION_DISABLED: bool = true  # Disable hardware normalization - causes CI issues
+const CI_ENVIRONMENT_DETECTED: bool = OS.has_environment("CI") or OS.has_environment("GITHUB_ACTIONS")  # Auto-detect CI
+
 # Test categorization for targeted normalization
 const CPU_BOUND_TESTS: Array[String] = [
 	"distributions_", "cdf_functions_", "pmf_pdf_functions_", "ppf_functions_", 
@@ -363,6 +367,15 @@ func set_module_name(module_name: String) -> void:
 static func _calibrate_hardware() -> void:
 	if _hardware_calibrated:
 		return
+	
+	if HARDWARE_NORMALIZATION_DISABLED:
+		print("🔧 Hardware normalization disabled - using raw performance measurements")
+		if CI_ENVIRONMENT_DETECTED:
+			print("   CI environment detected - normalization disabled to prevent CI/local baseline conflicts")
+		_cpu_factor = 1.0
+		_memory_factor = 1.0
+		_hardware_calibrated = true
+		return
 		
 	print("🔧 Calibrating hardware performance...")
 	
@@ -433,6 +446,10 @@ static func _benchmark_memory() -> float:
 
 ## Determine normalization factor for a specific test
 func _get_test_normalization_factor(test_name: String) -> float:
+	# If hardware normalization is disabled, return 1.0 (no normalization)
+	if HARDWARE_NORMALIZATION_DISABLED:
+		return 1.0
+	
 	# Check if test is CPU-bound
 	for cpu_pattern in CPU_BOUND_TESTS:
 		if test_name.begins_with(cpu_pattern):

@@ -1,0 +1,94 @@
+name: Performance Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - quick
+        - load
+      runner_timeout:
+        description: 'Runner timeout (hours)'
+        required: false
+        default: '2'
+
+jobs:
+  trigger-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      runner-triggered: ${{ steps.trigger.outputs.triggered }}
+    steps:
+      - name: Trigger AWS Runner
+        id: trigger
+        run: |
+          echo "Triggering AWS runner..."
+          response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
+          echo "Response: $response"
+          
+          if echo "$response" | grep -q "launched successfully"; then
+            echo "triggered=true" >> $GITHUB_OUTPUT
+            echo "✅ Runner launched successfully"
+          else
+            echo "triggered=false" >> $GITHUB_OUTPUT
+            echo "❌ Failed to launch runner"
+            exit 1
+          fi
+          
+      - name: Wait for runner
+        run: |
+          echo "Waiting 90 seconds for runner to come online..."
+          sleep 90
+
+  performance-test:
+    needs: trigger-runner
+    runs-on: [self-hosted, performance-test]
+    if: needs.trigger-runner.outputs.runner-triggered == 'true'
+    timeout-minutes: 120
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: System info
+        run: |
+          echo "=== System Information ==="
+          echo "Timestamp: $(date)"
+          echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
+          echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
+          echo "CPU Cores: $(nproc)"
+          echo "Memory: $(free -h | awk '/^Mem:/ {print $2}')"
+          echo "CPU Model: $(cat /proc/cpuinfo | grep 'model name' | head -1 | cut -d: -f2 | xargs)"
+          echo "Disk Space: $(df -h / | tail -1 | awk '{print $2}')"
+          echo "==========================="
+          
+      - name: Run performance tests
+        run: |
+          echo "🚀 Running performance test suite: ${{ github.event.inputs.test_suite }}"
+          echo "Test started at: $(date)"
+          
+          # Example performance test - replace with your actual tests
+          echo "Running CPU benchmark..."
+          time dd if=/dev/zero of=/tmp/test bs=1M count=1000
+          
+          echo "Running memory test..."
+          free -h
+          
+          echo "Test completed at: $(date)"
+          
+          # Create results directory
+          mkdir -p test-results
+          echo "Performance test completed successfully" > test-results/summary.txt
+          echo "Test suite: ${{ github.event.inputs.test_suite }}" >> test-results/summary.txt
+          echo "Timestamp: $(date)" >> test-results/summary.txt
+          
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results-${{ github.run_number }}
+          path: test-results/
+        if: always()
