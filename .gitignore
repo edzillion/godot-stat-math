@@ -1,10 +1,10 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
-reports/
 .cursor/
 monaco/
 .vscode/
+local/
 
 # Godot-generated files
 *.uid
