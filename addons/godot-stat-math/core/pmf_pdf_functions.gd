@@ -9,7 +9,7 @@ class_name PmfPdfFunctions extends RefCounted
 ##
 ## Distribution Categories:
 ## • PMF for discrete distributions (Binomial, Poisson, Negative Binomial)
-## • PDF for continuous distributions (placeholder for future implementation)
+## • PDF for continuous distributions (Normal, Exponential, Uniform, Gamma, Beta, Chi-squared, Student's t, F-distribution)
 ## • Uses logarithmic calculations for numerical stability
 
 
@@ -117,18 +117,166 @@ static func negative_binomial_pmf(k_trials: int, r_successes: int, p_prob: float
 # CONTINUOUS DISTRIBUTION PDFs
 # =============================================================================
 
-## Placeholder for future PDF implementations.
+## Calculates the PDF of a normal distribution: f(x; μ, σ).
 ##
-## PDF functions for continuous distributions will be added here, such as:
-## • Normal PDF: [code]f(x) = (1/σ√(2π)) e^(-(x-μ)²/(2σ²))[/code]
-## • Exponential PDF: [code]f(x) = λe^(-λx)[/code] for [code]x ≥ 0[/code]
-## • Gamma PDF, Beta PDF, etc.
+## Returns the probability density at [code]x[/code] for a normal (Gaussian) distribution 
+## with mean [code]μ[/code] and standard deviation [code]σ[/code].
 ##
-## Example implementation:
-## [codeblock]
-## static func normal_pdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
-##     var variance: float = sigma * sigma
-##     var term1: float = 1.0 / (sigma * sqrt(2.0 * PI))
-##     var term2: float = exp(-(pow(x - mu, 2.0)) / (2.0 * variance))
-##     return term1 * term2
-## [/codeblock]
+## Mathematical Note: [code]f(x) = (1/σ√(2π)) e^(-(x-μ)²/(2σ²))[/code]
+static func normal_pdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
+	if not (sigma > 0.0):
+		push_error("Standard deviation (sigma) must be positive. Received: %s" % sigma)
+		return NAN
+	
+	var variance: float = sigma * sigma
+	var term1: float = 1.0 / (sigma * sqrt(2.0 * PI))
+	var term2: float = exp(-pow(x - mu, 2.0) / (2.0 * variance))
+	return term1 * term2
+
+
+## Calculates the PDF of an exponential distribution: f(x; λ).
+##
+## Returns the probability density at [code]x[/code] for an exponential distribution 
+## with rate parameter [code]λ[/code]. Used for modeling waiting times and decay processes.
+##
+## Mathematical Note: [code]f(x) = λe^(-λx)[/code] for [code]x ≥ 0[/code], [code]0[/code] otherwise
+static func exponential_pdf(x: float, lambda_param: float) -> float:
+	if not (lambda_param > 0.0):
+		push_error("Rate parameter (lambda_param) must be positive. Received: %s" % lambda_param)
+		return NAN
+	
+	if x < 0.0:
+		return 0.0
+	
+	return lambda_param * exp(-lambda_param * x)
+
+
+## Calculates the PDF of a uniform distribution: f(x; a, b).
+##
+## Returns the probability density at [code]x[/code] for a uniform distribution 
+## on the interval [code][a, b][/code].
+##
+## Mathematical Note: [code]f(x) = 1/(b-a)[/code] for [code]a ≤ x ≤ b[/code], [code]0[/code] otherwise
+static func uniform_pdf(x: float, a: float, b: float) -> float:
+	if not (b > a):
+		push_error("Parameter b must be greater than a. Received a=%s, b=%s" % [a, b])
+		return NAN
+	
+	if x < a or x > b:
+		return 0.0
+	
+	return 1.0 / (b - a)
+
+
+## Calculates the PDF of a gamma distribution: f(x; k, θ).
+##
+## Returns the probability density at [code]x[/code] for a gamma distribution 
+## with shape parameter [code]k[/code] and scale parameter [code]θ[/code].
+##
+## Mathematical Note: [code]f(x) = (1/(Γ(k)θ^k)) x^(k-1) e^(-x/θ)[/code] for [code]x ≥ 0[/code]
+static func gamma_pdf(x: float, k_shape: float, theta_scale: float) -> float:
+	if not (k_shape > 0.0):
+		push_error("Shape parameter (k_shape) must be positive. Received: %s" % k_shape)
+		return NAN
+	if not (theta_scale > 0.0):
+		push_error("Scale parameter (theta_scale) must be positive. Received: %s" % theta_scale)
+		return NAN
+	
+	if x <= 0.0:
+		return 0.0
+	
+	# Formula: (1/(Γ(k)θ^k)) * x^(k-1) * e^(-x/θ)
+	# Using logs for numerical stability
+	var log_gamma_k: float = StatMath.HelperFunctions.log_gamma(k_shape)
+	var log_term1: float = -log_gamma_k - k_shape * log(theta_scale)
+	var log_term2: float = (k_shape - 1.0) * log(x)
+	var log_term3: float = -x / theta_scale
+	
+	var log_pdf_val: float = log_term1 + log_term2 + log_term3
+	return exp(log_pdf_val)
+
+
+## Calculates the PDF of a beta distribution: f(x; α, β).
+##
+## Returns the probability density at [code]x[/code] for a beta distribution 
+## with shape parameters [code]α[/code] and [code]β[/code]. Defined on [0, 1].
+##
+## Mathematical Note: [code]f(x) = (Γ(α+β)/(Γ(α)Γ(β))) x^(α-1) (1-x)^(β-1)[/code]
+static func beta_pdf(x: float, alpha: float, beta_param: float) -> float:
+	if not (alpha > 0.0 and beta_param > 0.0):
+		push_error("Shape parameters (alpha, beta_param) must be positive. Received alpha=%s, beta_param=%s" % [alpha, beta_param])
+		return NAN
+	
+	if x <= 0.0 or x >= 1.0:
+		return 0.0
+	
+	# Formula: (Γ(α+β)/(Γ(α)Γ(β))) * x^(α-1) * (1-x)^(β-1)
+	# Using logs for numerical stability
+	var log_beta_func: float = StatMath.HelperFunctions.log_gamma(alpha) + StatMath.HelperFunctions.log_gamma(beta_param) - StatMath.HelperFunctions.log_gamma(alpha + beta_param)
+	var log_term1: float = -log_beta_func
+	var log_term2: float = (alpha - 1.0) * log(x)
+	var log_term3: float = (beta_param - 1.0) * log(1.0 - x)
+	
+	var log_pdf_val: float = log_term1 + log_term2 + log_term3
+	return exp(log_pdf_val)
+
+
+## Calculates the PDF of a chi-squared distribution: f(x; k).
+##
+## Returns the probability density at [code]x[/code] for a chi-squared distribution 
+## with [code]k[/code] degrees of freedom. This is a special case of the gamma distribution.
+##
+## Mathematical Note: [code]f(x) = (1/(2^(k/2)Γ(k/2))) x^(k/2-1) e^(-x/2)[/code] for [code]x ≥ 0[/code]
+static func chi_squared_pdf(x: float, k_df: float) -> float:
+	if not (k_df > 0.0):
+		push_error("Degrees of freedom (k_df) must be positive. Received: %s" % k_df)
+		return NAN
+	
+	# Chi-squared is Gamma(k/2, 2), so use gamma_pdf with appropriate parameters
+	return gamma_pdf(x, k_df / 2.0, 2.0)
+
+
+## Calculates the PDF of a Student's t-distribution: f(x; ν).
+##
+## Returns the probability density at [code]x[/code] for a Student's t-distribution 
+## with [code]ν[/code] (nu) degrees of freedom.
+##
+## Mathematical Note: [code]f(x) = (Γ((ν+1)/2)/(√(νπ)Γ(ν/2))) (1 + x²/ν)^(-(ν+1)/2)[/code]
+static func t_pdf(x: float, df_nu: float) -> float:
+	if not (df_nu > 0.0):
+		push_error("Degrees of freedom (df_nu) must be positive. Received: %s" % df_nu)
+		return NAN
+	
+	# Formula: (Γ((ν+1)/2)/(√(νπ)Γ(ν/2))) * (1 + x²/ν)^(-(ν+1)/2)
+	# Using logs for numerical stability
+	var log_gamma_term: float = StatMath.HelperFunctions.log_gamma((df_nu + 1.0) / 2.0) - StatMath.HelperFunctions.log_gamma(df_nu / 2.0)
+	var log_normalizer: float = log_gamma_term - 0.5 * log(df_nu * PI)
+	var log_power_term: float = -(df_nu + 1.0) / 2.0 * log(1.0 + (x * x) / df_nu)
+	
+	var log_pdf_val: float = log_normalizer + log_power_term
+	return exp(log_pdf_val)
+
+
+## Calculates the PDF of an F-distribution: f(x; d1, d2).
+##
+## Returns the probability density at [code]x[/code] for an F-distribution 
+## with numerator degrees of freedom [code]d1[/code] and denominator degrees of freedom [code]d2[/code].
+##
+## Mathematical Note: Uses beta function relationship for numerical stability
+static func f_pdf(x: float, d1_df: float, d2_df: float) -> float:
+	if not (d1_df > 0.0 and d2_df > 0.0):
+		push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=%s, d2_df=%s" % [d1_df, d2_df])
+		return NAN
+	
+	if x <= 0.0:
+		return 0.0
+	
+	# Formula using beta function relationship
+	# f(x) = (Γ((d1+d2)/2)/(Γ(d1/2)Γ(d2/2))) * (d1/d2)^(d1/2) * x^(d1/2-1) * (1 + (d1/d2)x)^(-(d1+d2)/2)
+	var log_beta_term: float = StatMath.HelperFunctions.log_gamma((d1_df + d2_df) / 2.0) - StatMath.HelperFunctions.log_gamma(d1_df / 2.0) - StatMath.HelperFunctions.log_gamma(d2_df / 2.0)
+	var log_ratio_term: float = (d1_df / 2.0) * log(d1_df / d2_df)
+	var log_x_term: float = (d1_df / 2.0 - 1.0) * log(x)
+	var log_denominator_term: float = -((d1_df + d2_df) / 2.0) * log(1.0 + (d1_df / d2_df) * x)
+	
+	var log_pdf_val: float = log_beta_term + log_ratio_term + log_x_term + log_denominator_term
+	return exp(log_pdf_val)
