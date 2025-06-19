@@ -136,6 +136,22 @@ jobs:
             echo "✅ Test reports and performance results committed and pushed"
           fi
           
+      - name: Create addon zip
+        run: |
+          echo "Creating test addon zip for version ${{ steps.extract-version.outputs.version-string }}"
+          cd addons
+          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-test.zip godot-stat-math/ -x "*.uid"
+          
+          echo "Created: godot-stat-math-${{ steps.extract-version.outputs.version-string }}-test.zip"
+          zipinfo ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-test.zip
+
+      - name: Upload zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: godot-stat-math-test-${{ github.run_number }}
+          path: godot-stat-math-*-test.zip
+        if: always()
+
       - name: Generate test summary
         run: |
           echo "## 🧪 Performance Integration Test Complete" >> $GITHUB_STEP_SUMMARY
@@ -144,6 +160,7 @@ jobs:
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
           echo "- **Results Committed**: ${{ github.event.inputs.commit_results }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Addon Artifact**: Uploaded" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
@@ -154,4 +171,4 @@ jobs:
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🎯 This test validates the complete workflow: AWS spot instances → GDUnit4 tests → commit results back to repo" >> $GITHUB_STEP_SUMMARY
+          echo "🎯 This test validates the complete workflow: AWS spot instances → GDUnit4 tests → commit results → upload artifact" >> $GITHUB_STEP_SUMMARY
