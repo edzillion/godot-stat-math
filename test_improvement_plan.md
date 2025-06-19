@@ -124,3 +124,4 @@ This document outlines the observations, suggestions, and outstanding tasks for 
 - Maintain balance between test coverage and execution time ✓
 - Document any assumptions or limitations in test cases ✓
 - This is alpha software, we do not need to document changes
+- Tests with multiple similar scenarios schould be gdunit4 parametrized tests
