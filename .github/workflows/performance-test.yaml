@@ -72,6 +72,9 @@ jobs:
           version-regex: config\/version=\"\K[0-9.\-A-z]*
         id: extract-version
           
+      - name: Clean up previous reports
+        run: rm -rf reports
+      
       - name: Run GDUnit4 tests (including performance tests)
         uses: MikeSchulze/gdunit4-action@v1
         with:
