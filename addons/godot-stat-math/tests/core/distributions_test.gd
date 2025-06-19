@@ -483,11 +483,6 @@ func test_randf_normal_statistical_properties() -> void:
 	assert_float(sample_mean).is_between(expected_mean - tolerance, expected_mean + tolerance)
 
 
-func test_randf_normal_typical_case() -> void:
-	# DEPRECATED: This test is too weak. Replaced by test_randf_normal_statistical_properties.
-	pass
-
-
 func test_randf_normal_invalid_sigma_zero() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_normal(0.0, 0.0)

@@ -1016,14 +1016,13 @@ static func _selection_tracking_draw(population_size: int, draw_count: int, samp
 
 # --- SOBOL SEQUENCE IMPLEMENTATION ---
 
-## Returns nth prime number for Halton sequences
+## Returns the nth prime number from the StatMath.PRIMES array.
+## Used for Halton sequence base selection.
 static func _get_nth_prime(n: int) -> int:
-	const PRIMES: Array[int] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
-	if n < PRIMES.size():
-		return PRIMES[n]
-	else:
-		# Simple fallback for higher dimensions (not optimized)
-		return 2 + n  # This is not correct but prevents crashes
+	if n < 0 or n >= StatMath.PRIMES.size():
+		push_error("SamplingGen: Prime number index %d out of range [0, %d]" % [n, StatMath.PRIMES.size() - 1])
+		return 2  # Return first prime as fallback
+	return StatMath.PRIMES[n]
 
 
 ## Generates Sobol sequence integers for a specific dimension.

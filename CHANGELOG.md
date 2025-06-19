@@ -74,6 +74,12 @@ var shuffled_deck: Array[int] = StatMath.SamplingGen.coordinated_shuffle(52, Sta
 - **37 SamplingGen Test Cases**: All passing with sequence continuity validation  
 - **Mathematical Accuracy**: Tests validate statistical function correctness within acceptable tolerances
 - **Integration Tests**: Full addon functionality verified
+- **Extended Test Data**: Added scipy-validated test data for new distributions:
+  - Student's t-distribution PDF (including Cauchy case)
+  - Beta distribution PDF (with special shape cases)
+  - Chi-squared distribution PDF (with normal approximation cases)
+- **Special Cases**: Added test data for important mathematical relationships and limit behaviors
+- **Comprehensive Coverage**: Each distribution includes standard cases, edge cases, and special mathematical relationships
 
 ### 🔧 DEVELOPER EXPERIENCE
 - **Static Typing**: All functions use proper GDScript typing for better IDE support

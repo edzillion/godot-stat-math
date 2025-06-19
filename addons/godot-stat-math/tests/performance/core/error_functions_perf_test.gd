@@ -23,7 +23,7 @@ func test_error_function_performance() -> void:
 	var current_results: Dictionary = _measure_test(test_name, func():
 		for i in range(TEST_ITERATIONS):
 			for x_val in TEST_VALUES:
-				StatMath.ErrorFunctions.error_function(x_val)
+				StatMath.ErrorFunctions.erf(x_val)
 	)
 	
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
@@ -36,7 +36,7 @@ func test_complementary_error_function_performance() -> void:
 	var current_results: Dictionary = _measure_test(test_name, func():
 		for i in range(TEST_ITERATIONS):
 			for x_val in TEST_VALUES:
-				StatMath.ErrorFunctions.complementary_error_function(x_val)
+				StatMath.ErrorFunctions.erfc(x_val)
 	)
 	
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
@@ -49,7 +49,7 @@ func test_error_function_inverse_performance() -> void:
 	var current_results: Dictionary = _measure_test(test_name, func():
 		for i in range(TEST_ITERATIONS):
 			for y_val in INVERSE_ERROR_FUNCTION_VALUES:
-				StatMath.ErrorFunctions.error_function_inverse(y_val)
+				StatMath.ErrorFunctions.erf_inv(y_val)
 	)
 	
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
@@ -62,7 +62,7 @@ func test_complementary_error_function_inverse_performance() -> void:
 	var current_results: Dictionary = _measure_test(test_name, func():
 		for i in range(TEST_ITERATIONS):
 			for y_val in INVERSE_COMP_ERROR_FUNCTION_VALUES:
-				StatMath.ErrorFunctions.complementary_error_function_inverse(y_val)
+				StatMath.ErrorFunctions.erfc_inv(y_val)
 	)
 	
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)

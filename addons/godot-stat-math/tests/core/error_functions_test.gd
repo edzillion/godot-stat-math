@@ -5,94 +5,94 @@ const FLOAT_TOLERANCE: float = 1e-6
 
 # --- Error Function (erf) ---
 func test_error_function_zero() -> void:
-	var result: float = StatMath.ErrorFunctions.error_function(0.0)
+	var result: float = StatMath.ErrorFunctions.erf(0.0)
 	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_error_function_positive() -> void:
-	var result: float = StatMath.ErrorFunctions.error_function(1.0)
+	var result: float = StatMath.ErrorFunctions.erf(1.0)
 	assert_float(result).is_equal_approx(0.84270079, FLOAT_TOLERANCE) # Reference value
 
 func test_error_function_negative() -> void:
-	var result: float = StatMath.ErrorFunctions.error_function(-1.0)
+	var result: float = StatMath.ErrorFunctions.erf(-1.0)
 	assert_float(result).is_equal_approx(-0.84270079, FLOAT_TOLERANCE) # Odd function
 
 func test_error_function_large_positive() -> void:
-	var result: float = StatMath.ErrorFunctions.error_function(10.0)
+	var result: float = StatMath.ErrorFunctions.erf(10.0)
 	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE) # erf(10) ~ 1
 
 func test_error_function_large_negative() -> void:
-	var result: float = StatMath.ErrorFunctions.error_function(-10.0)
+	var result: float = StatMath.ErrorFunctions.erf(-10.0)
 	assert_float(result).is_equal_approx(-1.0, FLOAT_TOLERANCE) # erf(-10) ~ -1
 
 # --- Complementary Error Function (erfc) ---
 func test_complementary_error_function_zero() -> void:
-	var result: float = StatMath.ErrorFunctions.complementary_error_function(0.0)
+	var result: float = StatMath.ErrorFunctions.erfc(0.0)
 	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
 
 func test_complementary_error_function_positive() -> void:
-	var result: float = StatMath.ErrorFunctions.complementary_error_function(1.0)
+	var result: float = StatMath.ErrorFunctions.erfc(1.0)
 	assert_float(result).is_equal_approx(0.15729921, FLOAT_TOLERANCE) # 1 - erf(1)
 
 func test_complementary_error_function_negative() -> void:
-	var result: float = StatMath.ErrorFunctions.complementary_error_function(-1.0)
+	var result: float = StatMath.ErrorFunctions.erfc(-1.0)
 	assert_float(result).is_equal_approx(1.84270079, FLOAT_TOLERANCE) # 1 - erf(-1)
 
 # --- Inverse Error Function (erfinv) ---
 func test_error_function_inverse_round_trip() -> void:
 	var x: float = 0.5
-	var erf_x: float = StatMath.ErrorFunctions.error_function(x)
-	var result: float = StatMath.ErrorFunctions.error_function_inverse(erf_x)
+	var erf_x: float = StatMath.ErrorFunctions.erf(x)
+	var result: float = StatMath.ErrorFunctions.erf_inv(erf_x)
 	assert_float(result).is_equal_approx(x, FLOAT_TOLERANCE)
 
 func test_error_function_inverse_zero() -> void:
-	var result: float = StatMath.ErrorFunctions.error_function_inverse(0.0)
+	var result: float = StatMath.ErrorFunctions.erf_inv(0.0)
 	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_error_function_inverse_one() -> void:
-	var result: float = StatMath.ErrorFunctions.error_function_inverse(1.0)
+	var result: float = StatMath.ErrorFunctions.erf_inv(1.0)
 	assert_float(result).is_equal_approx(INF, FLOAT_TOLERANCE)
 
 func test_error_function_inverse_minus_one() -> void:
-	var result: float = StatMath.ErrorFunctions.error_function_inverse(-1.0)
+	var result: float = StatMath.ErrorFunctions.erf_inv(-1.0)
 	assert_float(result).is_equal_approx(-INF, FLOAT_TOLERANCE)
 
 func test_error_function_inverse_invalid_gt_one() -> void:
 	var test_call: Callable = func():
-		StatMath.ErrorFunctions.error_function_inverse(1.1)
+		StatMath.ErrorFunctions.erf_inv(1.1)
 	await assert_error(test_call).is_push_error("Input y for erfinv must be in the range [-1, 1]. Received: 1.1")
 
 func test_error_function_inverse_invalid_lt_minus_one() -> void:
 	var test_call: Callable = func():
-		StatMath.ErrorFunctions.error_function_inverse(-1.1)
+		StatMath.ErrorFunctions.erf_inv(-1.1)
 	await assert_error(test_call).is_push_error("Input y for erfinv must be in the range [-1, 1]. Received: -1.1")
 
 # --- Inverse Complementary Error Function (erfcinv) ---
 func test_complementary_error_function_inverse_round_trip() -> void:
 	var x: float = 0.5
-	var erfc_x: float = StatMath.ErrorFunctions.complementary_error_function(x)
-	var result: float = StatMath.ErrorFunctions.complementary_error_function_inverse(erfc_x)
+	var erfc_x: float = StatMath.ErrorFunctions.erfc(x)
+	var result: float = StatMath.ErrorFunctions.erfc_inv(erfc_x)
 	assert_float(result).is_equal_approx(x, FLOAT_TOLERANCE)
 
 func test_complementary_error_function_inverse_one() -> void:
-	var result: float = StatMath.ErrorFunctions.complementary_error_function_inverse(1.0)
+	var result: float = StatMath.ErrorFunctions.erfc_inv(1.0)
 	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_complementary_error_function_inverse_zero() -> void:
-	var result: float = StatMath.ErrorFunctions.complementary_error_function_inverse(0.0)
+	var result: float = StatMath.ErrorFunctions.erfc_inv(0.0)
 	assert_float(result).is_equal_approx(INF, FLOAT_TOLERANCE)
 
 func test_complementary_error_function_inverse_two() -> void:
-	var result: float = StatMath.ErrorFunctions.complementary_error_function_inverse(2.0)
+	var result: float = StatMath.ErrorFunctions.erfc_inv(2.0)
 	assert_float(result).is_equal_approx(-INF, FLOAT_TOLERANCE)
 
 func test_complementary_error_function_inverse_invalid_gt_two() -> void:
 	var test_call: Callable = func():
-		StatMath.ErrorFunctions.complementary_error_function_inverse(2.1)
+		StatMath.ErrorFunctions.erfc_inv(2.1)
 	await assert_error(test_call).is_push_error("Input y for erfcinv must be in the range [0, 2]. Received: 2.1")
 
 func test_complementary_error_function_inverse_invalid_lt_zero() -> void:
 	var test_call: Callable = func():
-		StatMath.ErrorFunctions.complementary_error_function_inverse(-0.1)
+		StatMath.ErrorFunctions.erfc_inv(-0.1)
 	await assert_error(test_call).is_push_error("Input y for erfcinv must be in the range [0, 2]. Received: -0.1")
 
 # --- Gamma and Log Gamma Functions ---

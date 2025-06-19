@@ -158,7 +158,7 @@ func test_stat_math_integration_with_helper_functions() -> void:
 
 func test_stat_math_integration_with_error_functions() -> void:
 	# Test integration with ErrorFunctions module
-	var erf_val: float = StatMath.ErrorFunctions.error_function(1.0)
+	var erf_val: float = StatMath.ErrorFunctions.erf(1.0)
 	assert_float(erf_val).is_equal_approx(0.84270079, 1e-6)
 
 # --- Edge Cases and Error Handling ---
