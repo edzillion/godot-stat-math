@@ -324,6 +324,7 @@ static func _get_confidence_level(sample_size: int) -> String:
 ## Static completion tracker - shared across all test suite instances
 static var _discovered_modules: Array[String] = []
 static var _completed_modules: Array[String] = []
+static var _started_modules: Array[String] = []  # Track which modules actually started
 static var _completion_tracker_initialized: bool = false
 static var _final_phase_triggered: bool = false
 static var _run_timestamp: String = ""
@@ -401,14 +402,33 @@ static func _initialize_completion_tracker() -> void:
 	_run_timestamp = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 	_discovered_modules = _discover_test_modules()
 	_completed_modules.clear()
+	_started_modules.clear()  # Initialize started modules tracker
 	_final_phase_triggered = false
 	_completion_tracker_initialized = true
 	
+	# Clean up any orphaned intermediate files from previous incomplete runs
+	_cleanup_orphaned_intermediate_files()
+	
 	print("🎯 Performance test run initialized:")
 	print("   Run timestamp: %s" % _run_timestamp)
-	print("   Expected modules: %s" % str(_discovered_modules))
-	print("   Total modules: %d" % _discovered_modules.size())
+	print("   Available modules: %s" % str(_discovered_modules))
+	print("   Total available: %d" % _discovered_modules.size())
 	print("   Regression Checking Disabled: %s" % _disable_regression_checking)
+
+## Register that a module has started (called when PerfTestManager instance is created)
+static func register_module_start(module_name: String) -> void:
+	if not _completion_tracker_initialized:
+		_initialize_completion_tracker()
+	
+	if module_name in _started_modules:
+		return  # Already registered as started
+	
+	if not module_name in _discovered_modules:
+		push_warning("Unknown module started: %s (available: %s)" % [module_name, str(_discovered_modules)])
+		return
+	
+	_started_modules.append(module_name)
+	print("🚀 Module started: %s (%d modules active in this run)" % [module_name, _started_modules.size()])
 
 ## Register module completion and check for final phase trigger
 static func register_module_completion(module_name: String) -> void:
@@ -419,14 +439,26 @@ static func register_module_completion(module_name: String) -> void:
 		return  # Already registered
 	
 	if not module_name in _discovered_modules:
-		push_warning("Unknown module completed: %s (expected: %s)" % [module_name, str(_discovered_modules)])
+		push_warning("Unknown module completed: %s (available: %s)" % [module_name, str(_discovered_modules)])
 		return
 	
 	_completed_modules.append(module_name)
-	print("✅ Module completed: %s (%d/%d)" % [module_name, _completed_modules.size(), _discovered_modules.size()])
+	print("✅ Module completed: %s (%d/%d started modules complete)" % [
+		module_name, _completed_modules.size(), _started_modules.size()
+	])
 	
-	# Check if all modules are complete
-	if _completed_modules.size() == _discovered_modules.size() and not _final_phase_triggered:
+	# Check if all STARTED modules are complete (not all discovered modules)
+	# This allows partial test runs to consolidate properly
+	var all_started_complete: bool = true
+	for started_module in _started_modules:
+		if not started_module in _completed_modules:
+			all_started_complete = false
+			break
+	
+	if all_started_complete and not _final_phase_triggered:
+		print("🏁 All started modules completed! (%d/%d total available)" % [
+			_started_modules.size(), _discovered_modules.size()
+		])
 		await _trigger_final_phase()
 
 ## Trigger final phase actions when all test suites are complete
@@ -444,11 +476,15 @@ static func _trigger_final_phase() -> void:
 	# Consolidate results from the completed run
 	await _consolidate_run_results()
 	
-	if _completed_modules.size() == _discovered_modules.size():
-		print("✅ All %d modules completed successfully" % _completed_modules.size())
+	var completion_summary: String = ""
+	if _started_modules.size() == _discovered_modules.size():
+		completion_summary = "✅ Full test suite completed (%d modules)" % _started_modules.size()
 	else:
-		print("❌ Only %d of %d modules completed" % [_completed_modules.size(), _discovered_modules.size()])
-		
+		completion_summary = "✅ Partial test run completed (%d of %d available modules)" % [
+			_started_modules.size(), _discovered_modules.size()
+		]
+	
+	print(completion_summary)
 	print("🎉 Performance test run completed successfully!")
 	print("   📊 Results saved in: %s" % RESULTS_DIR)
 	print("   📈 Latest results: %slatest.json" % RESULTS_DIR)
@@ -595,6 +631,7 @@ static func reset_completion_tracker() -> void:
 	_completion_tracker_initialized = false
 	_discovered_modules.clear()
 	_completed_modules.clear()
+	_started_modules.clear()
 	_final_phase_triggered = false
 
 # Instance-specific data (no more shared static state!)
@@ -610,6 +647,8 @@ func _init() -> void:
 ## Set the module name for this test suite instance
 func set_module_name(module_name: String) -> void:
 	_module_name = module_name
+	# Register that this module has started
+	register_module_start(module_name)
 
 ## Calculate dynamic threshold for a test based on percentile analysis with refinements
 static func _calculate_dynamic_threshold(measurements: Array[float], baseline_median: float) -> float:
@@ -1133,3 +1172,32 @@ static func _cleanup_old_snapshots() -> void:
 		for fail_file in fail_files:
 			dir.remove(fail_file)
 			print("🗑️  Removed failure snapshot: %s" % fail_file)
+
+## Clean up orphaned intermediate files from incomplete test runs
+static func _cleanup_orphaned_intermediate_files() -> void:
+	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
+	if dir == null:
+		return
+	
+	var orphaned_files: Array[String] = []
+	dir.list_dir_begin()
+	var file_name: String = dir.get_next()
+	
+	while file_name != "":
+		# Look for module intermediate files (format: ModuleName_timestamp.json)
+		# These should not start with "pass_", "fail_", or be "latest.json", "baseline.json"
+		if (file_name.ends_with(".json") and 
+			not file_name.begins_with("pass_") and 
+			not file_name.begins_with("fail_") and
+			file_name != "latest.json" and 
+			file_name != "baseline.json"):
+			orphaned_files.append(file_name)
+		file_name = dir.get_next()
+	
+	# Remove orphaned intermediate files
+	for orphaned_file in orphaned_files:
+		var err: Error = dir.remove(orphaned_file)
+		if err == OK:
+			print("🗑️  Cleaned up orphaned intermediate file: %s" % orphaned_file)
+		else:
+			push_warning("Failed to remove orphaned file: %s (error: %d)" % [orphaned_file, err])

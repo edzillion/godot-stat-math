@@ -47,7 +47,7 @@ static func normal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 		push_error("Standard deviation (sigma) must be positive for Normal CDF. Received: %s" % sigma)
 		return NAN
 	var z: float = (x - mu) / sigma
-	return 0.5 * (1.0 + StatMath.ErrorFunctions.error_function(z / sqrt(2.0)))
+	return 0.5 * (1.0 + StatMath.ErrorFunctions.erf(z / sqrt(2.0)))
 
 
 ## Calculates the CDF of an exponential distribution: F(x; λ).
