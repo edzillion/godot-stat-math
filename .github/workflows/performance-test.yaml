@@ -3,10 +3,10 @@ name: Test Performance Integration
 on:
   workflow_dispatch:
     inputs:
-      commit_results:
-        description: 'Commit performance results back to repo'
+      disable_regression_checking:
+        description: 'Disable performance regression checking (set to true to build baselines)'
         required: false
-        default: true
+        default: false
         type: boolean
 
 jobs:
@@ -78,6 +78,8 @@ jobs:
           godot-version: "4.4"
           paths: "res://addons/godot-stat-math/tests"
           upload-report: false
+        env:
+          DISABLE_REGRESSION_CHECKING: ${{ github.event.inputs.disable_regression_checking }}
 
       - name: Check performance results
         run: |
@@ -104,7 +106,6 @@ jobs:
           fi
 
       - name: Commit test reports and performance results
-        if: github.event.inputs.commit_results == 'true'
         run: |
           echo "Committing GDUnit4 test reports and performance results..."
           git config --global user.name "github-actions[bot]"
@@ -159,7 +160,7 @@ jobs:
           echo "- **Version**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Results Committed**: ${{ github.event.inputs.commit_results }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Regression Checking Disabled**: ${{ github.event.inputs.disable_regression_checking }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Addon Artifact**: Uploaded" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           

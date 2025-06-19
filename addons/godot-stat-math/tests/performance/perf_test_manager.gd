@@ -15,7 +15,6 @@ const WARMUP_ITERATIONS: int = 10
 const MEASUREMENT_ITERATIONS: int = 5
 const FUNCTION_CALLS_PER_MEASUREMENT: int = 100
 const KEEP_PREVIOUS_FAILURES: bool = false
-const DISABLE_REGRESSION_CHECKING: bool = true
 const MAX_SNAPSHOTS: int = 50  # Keep 50 most recent snapshots for robust statistics
 
 # Dynamic threshold calculation parameters
@@ -55,6 +54,7 @@ static var _completed_modules: Array[String] = []
 static var _completion_tracker_initialized: bool = false
 static var _final_phase_triggered: bool = false
 static var _run_timestamp: String = ""
+static var _disable_regression_checking: bool = false
 
 ## Discover all test suite modules from the core directory
 static func _discover_test_modules() -> Array[String]:
@@ -121,6 +121,10 @@ static func _initialize_completion_tracker() -> void:
 	if _completion_tracker_initialized:
 		return
 	
+	# Read regression checking setting from environment variable ONCE
+	var regression_check_env: String = OS.get_environment("DISABLE_REGRESSION_CHECKING").to_lower()
+	_disable_regression_checking = (regression_check_env == "true")
+	
 	_run_timestamp = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 	_discovered_modules = _discover_test_modules()
 	_completed_modules.clear()
@@ -131,6 +135,7 @@ static func _initialize_completion_tracker() -> void:
 	print("   Run timestamp: %s" % _run_timestamp)
 	print("   Expected modules: %s" % str(_discovered_modules))
 	print("   Total modules: %d" % _discovered_modules.size())
+	print("   Regression Checking Disabled: %s" % _disable_regression_checking)
 
 ## Register module completion and check for final phase trigger
 static func register_module_completion(module_name: String) -> void:
@@ -506,7 +511,7 @@ func check_performance_regression(module_name: String, test_name: String, curren
 			# Always perform the regression calculation for consistent measurement overhead
 			var calculated_failure: bool = time_change > effective_threshold
 			
-			if DISABLE_REGRESSION_CHECKING:
+			if _disable_regression_checking:
 				# Do all the same work but force pass result
 				print("☑️ Regression checking disabled. Using current result for '%s'. (would be: %.1f%% change)" % [prefixed_test_name, time_change * 100.0])
 				status = "pass (disabled)"
@@ -536,13 +541,13 @@ func check_performance_regression(module_name: String, test_name: String, curren
 					test_name, raw_time_ms, baseline_time_ms, time_change * 100.0, threshold_info
 				])
 		else:
-			if DISABLE_REGRESSION_CHECKING:
+			if _disable_regression_checking:
 				print("☑️ Regression checking disabled. No baseline found for '%s' - treating as new test." % prefixed_test_name)
 			else:
 				print("⚠️  No baseline found for %s - treating as new test" % prefixed_test_name)
 			baseline_time_ms = raw_time_ms  # Use current as baseline for new tests
 	else:
-		if DISABLE_REGRESSION_CHECKING:
+		if _disable_regression_checking:
 			print("☑️ Regression checking disabled. No baseline data available for '%s'." % prefixed_test_name)
 			status = "pass (disabled)"
 		else: # This case handles when baseline_tests is empty
