@@ -2,6 +2,12 @@ name: Run Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      disable_regression_checking:
+        description: 'Disable performance regression checking'
+        required: false
+        default: false
+        type: boolean
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -31,8 +37,8 @@ jobs:
           
       - name: Wait for runner
         run: |
-          echo "Waiting 30 seconds for runner to come online..."
-          sleep 30
+          echo "Waiting 15 seconds for runner to come online..."
+          sleep 15
 
   test-and-commit:
     needs: trigger-runner
@@ -82,18 +88,24 @@ jobs:
           godot-version: "4.4"
           paths: "res://addons/godot-stat-math/tests"
           upload-report: false
+        env:
+          DISABLE_REGRESSION_CHECKING: ${{ github.event.inputs.disable_regression_checking }}
 
-      - name: Commit test reports
+      - name: Commit test and performance results
         run: |
-          echo "Committing GDUnit4 test reports..."
+          echo "Committing GDUnit4 test and performance results..."
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           REPORTS_DIR="reports"
+          PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
 
-          # Add reports directory if it exists
+          # Add both directories if they exist
           if [ -d "$REPORTS_DIR" ]; then
             git add "$REPORTS_DIR/"
+          fi
+          if [ -d "$PERF_RESULTS_DIR" ]; then
+            git add "$PERF_RESULTS_DIR/"
           fi
 
           if git diff --staged --quiet; then
@@ -103,7 +115,7 @@ jobs:
             
             git commit -m "$COMMIT_MSG"
             git push origin ${{ github.ref_name }}
-            echo "✅ Test reports committed and pushed"
+            echo "✅ Test reports and performance results committed and pushed"
           fi
           
       - name: Generate test summary
@@ -112,4 +124,12 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Test reports committed to branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY 
+          echo "- **Test results committed to branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Regression Checking Disabled**: ${{ github.event.inputs.disable_regression_checking }}" >> $GITHUB_STEP_SUMMARY
+          
+          PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+          if [ -d "$PERF_RESULTS_DIR" ]; then
+            PASS_FILES=$(find "$PERF_RESULTS_DIR" -name "pass_*.json" | wc -l)
+            FAIL_FILES=$(find "$PERF_RESULTS_DIR" -name "fail_*.json" | wc -l)
+            echo "- **Performance Snapshots**: $PASS_FILES pass, $FAIL_FILES fail" >> $GITHUB_STEP_SUMMARY
+          fi 
