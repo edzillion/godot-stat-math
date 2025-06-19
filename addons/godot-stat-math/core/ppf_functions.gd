@@ -105,7 +105,7 @@ static func normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 	# One refinement step for additional precision (optional, but good practice for Acklam's algorithm)
 	# Using Normal CDF: 0.5 * (1 + erf(x / sqrt(2)))
 	if abs(x) < 10: # Refinement is more effective for non-extreme values
-		var cdf_val := 0.5 * (1.0 + StatMath.ErrorFunctions.error_function(x / sqrt(2.0)))
+		var cdf_val := 0.5 * (1.0 + StatMath.ErrorFunctions.erf(x / sqrt(2.0)))
 		var error_in_cdf := cdf_val - p
 		var pdf_val := (1.0 / sqrt(2.0 * PI)) * exp(-0.5 * x * x)
 		if pdf_val > 1e-10: # Avoid division by zero or very small numbers
