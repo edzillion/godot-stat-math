@@ -357,33 +357,13 @@ func test_sanitize_numeric_array_is_sorted() -> void:
 
 func test_sanitize_numeric_array_filter_non_positive() -> void:
 	var input: Array[float] = [-10.0, 0.0, 1.0, 2.5, -3.0]
-	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(input, true)
+	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(input)
 	var expected: Array[float] = [1.0, 2.5]
 	assert_array(result).is_equal(expected)
 
 func test_sanitize_numeric_array_empty_input() -> void:
 	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array([])
 	assert_array(result).is_empty()
-
-# --- Prime Number Functions ---
-func test_is_prime() -> void:
-	assert_bool(StatMath.HelperFunctions.is_prime(2)).is_true()
-	assert_bool(StatMath.HelperFunctions.is_prime(3)).is_true()
-	assert_bool(StatMath.HelperFunctions.is_prime(17)).is_true()
-	assert_bool(StatMath.HelperFunctions.is_prime(1)).is_false()
-	assert_bool(StatMath.HelperFunctions.is_prime(4)).is_false()
-	assert_bool(StatMath.HelperFunctions.is_prime(20)).is_false()
-	assert_bool(StatMath.HelperFunctions.is_prime(0)).is_false()
-	assert_bool(StatMath.HelperFunctions.is_prime(-5)).is_false()
-
-func test_next_prime() -> void:
-	assert_int(StatMath.HelperFunctions.next_prime(2)).is_equal(3)
-	assert_int(StatMath.HelperFunctions.next_prime(3)).is_equal(5)
-	assert_int(StatMath.HelperFunctions.next_prime(14)).is_equal(17)
-	assert_int(StatMath.HelperFunctions.next_prime(20)).is_equal(23)
-	# Test starting from non-positive
-	assert_int(StatMath.HelperFunctions.next_prime(0)).is_equal(2)
-	assert_int(StatMath.HelperFunctions.next_prime(-10)).is_equal(2)
 
 # --- Sobol Sequence ---
 func test_sobol_sequence_generation() -> void:

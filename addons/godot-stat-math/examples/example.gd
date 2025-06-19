@@ -16,7 +16,7 @@ func _ready():
 		var x = StatMath.PpfFunctions.normal_ppf(p, mu, sigma)
 		# CDF for Normal(mu, sigma) is Φ((x-mu)/sigma), where Φ(z) = 0.5 * (1 + erf(z / sqrt(2)))
 		var standard_normal_variate = (x - mu) / sigma
-		var cdf = 0.5 * (1.0 + StatMath.ErrorFunctions.error_function(standard_normal_variate / sqrt(2.0)))
+		var cdf = 0.5 * (1.0 + StatMath.ErrorFunctions.erf(standard_normal_variate / sqrt(2.0)))
 		print("p=%.3f → x=%.4f, Verification: CDF(%.4f)=%.4f" % [p, x, x, cdf])
 	
 	# Example 2: Exponential Distribution

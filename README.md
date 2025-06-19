@@ -38,7 +38,7 @@ var weibull_quantile: float = StatMath.PpfFunctions.weibull_ppf(0.95, 2.0, 1.5)
 # Mathematical helper functions
 var binom_coeff: float = StatMath.HelperFunctions.binomial_coefficient(10, 3)
 var gamma_val: float = StatMath.HelperFunctions.gamma_function(2.5)
-var erf_val: float = StatMath.ErrorFunctions.error_function(1.0)
+var erf_val: float = StatMath.ErrorFunctions.erf(1.0)
 
 # Basic statistics - analyze player scores
 var raw_scores = [95.5, "invalid", 87.2, null, 92.1, 88.8, 90.0]
