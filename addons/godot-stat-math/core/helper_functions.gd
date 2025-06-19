@@ -225,8 +225,8 @@ static func log_beta_function_direct(a: float, b: float) -> float:
 
 
 # Regularized Lower Incomplete Gamma Function: P(a,z) = γ(a,z) / Γ(a)
-# IMPLEMENTATION NOTE: Uses simplified series expansion method for basic functionality.
-# For high-precision applications, consider implementing continued fractions method.
+# IMPROVED: Uses continued fractions for better numerical stability across all parameter ranges.
+# The original series expansion was prone to numerical instability for certain parameter combinations.
 static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
 	if not (a > 0.0):
 		push_error("Shape parameter a must be positive for Incomplete Gamma function. Received: %s" % a)
@@ -243,46 +243,97 @@ static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
 		return 1.0 - exp(-z)
 	
 	# For very large z relative to a, P(a,z) approaches 1
-	# Use a more conservative threshold to avoid premature convergence
 	if z > a + 50.0:
 		return 1.0
 	
-	# Use series expansion: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / Γ(a+n+1))
-	# Which simplifies to: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / (a*(a+1)*...*(a+n)))
-	var max_terms: int = 100
-	var tolerance: float = 1e-12
+	# IMPROVED ALGORITHM: Use different methods based on parameter ranges for better stability
+	var result: float
 	
-	var series_sum: float = 1.0  # First term (n=0)
+	if z < a + 1.0:
+		# Use series expansion for z < a + 1 (generally more stable in this range)
+		result = _gamma_series_expansion(a, z)
+	else:
+		# Use continued fraction expansion for z >= a + 1 (more stable for larger z)
+		result = 1.0 - _gamma_continued_fraction(a, z)
+	
+	# Final validation - should never be outside [0,1] with proper implementation
+	if result < 0.0 or result > 1.0:
+		push_warning("lower_incomplete_gamma_regularized: Numerical instability detected for a=%s, z=%s (result=%s). Using fallback." % [a, z, result])
+		# Fallback to simple approximation for problematic cases
+		if z < a:
+			result = pow(z / (a + z), a) * 0.5  # Conservative lower bound
+		else:
+			result = 1.0 - exp(-z) * pow(z, a) / (gamma_function(a + 1.0))  # Upper bound approximation
+		result = clamp(result, 0.0, 1.0)
+	
+	return result
+
+# Helper function: Series expansion method (for z < a + 1)
+static func _gamma_series_expansion(a: float, z: float) -> float:
+	var max_terms: int = 200  # Increased iterations for better convergence
+	var tolerance: float = 1e-15  # Tighter tolerance
+	
+	var series_sum: float = 1.0
 	var term: float = 1.0
 	
-	# Calculate the series sum
 	for n in range(1, max_terms):
 		term *= z / (a + float(n - 1))
 		series_sum += term
 		
-		# Check convergence
-		if abs(term) < tolerance:
+		# Check convergence with relative tolerance
+		if abs(term / series_sum) < tolerance:
 			break
 	
-	# Calculate the final result: (z^a * e^(-z) / Γ(a)) * series_sum
-	var log_prefix: float = a * log(z) - z - log_gamma(a)
-	var result: float = exp(log_prefix) * series_sum
+	# More stable calculation using log space
+	var log_result: float = a * log(z) - z - log_gamma(a) + log(series_sum)
 	
-	# Clamp to valid range [0,1] but be careful not to clamp too aggressively
-	# Only clamp if we're slightly outside bounds due to numerical errors
-	if result > 1.0 and result < 1.001:
-		result = 1.0
-	elif result < 0.0 and result > -0.001:
-		result = 0.0
-	elif result < 0.0 or result > 1.0:
-		push_warning("lower_incomplete_gamma_regularized: Result %s is outside [0,1] for a=%s, z=%s. Clamping." % [result, a, z])
-		result = clamp(result, 0.0, 1.0)
+	# Prevent overflow/underflow
+	if log_result > 0.0:  # Result would be > 1.0
+		return 1.0
+	elif log_result < -50.0:  # Result would be essentially 0
+		return 0.0
 	
-	# Warning for edge cases
-	if a < 0.5 or z > 50.0:
-		push_warning("lower_incomplete_gamma_regularized: Using series expansion for a=%s, z=%s. Consider more advanced methods for extreme parameters." % [a, z])
+	return exp(log_result)
+
+# Helper function: Continued fraction method (for z >= a + 1)  
+static func _gamma_continued_fraction(a: float, z: float) -> float:
+	var max_iterations: int = 200
+	var tolerance: float = 1e-15
 	
-	return result
+	# Continued fraction coefficients
+	var b: float = z + 1.0 - a
+	var c: float = 1e30  # Large number
+	var d: float = 1.0 / b
+	var h: float = d
+	
+	for i in range(1, max_iterations + 1):
+		var an: float = -float(i) * (float(i) - a)
+		b += 2.0
+		
+		d = an * d + b
+		if abs(d) < 1e-30:
+			d = 1e-30
+		c = b + an / c
+		if abs(c) < 1e-30:
+			c = 1e-30
+		
+		d = 1.0 / d
+		var del: float = d * c
+		h *= del
+		
+		if abs(del - 1.0) < tolerance:
+			break
+	
+	# Calculate final result
+	var log_result: float = a * log(z) - z - log_gamma(a) + log(h)
+	
+	# Prevent overflow/underflow  
+	if log_result > 0.0:
+		return 1.0
+	elif log_result < -50.0:
+		return 0.0
+	
+	return exp(log_result)
 
 # --- Data Preprocessing Functions ---
 
