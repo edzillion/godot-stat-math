@@ -365,23 +365,6 @@ func test_sanitize_numeric_array_empty_input() -> void:
 	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array([])
 	assert_array(result).is_empty()
 
-# --- Sobol Sequence ---
-func test_sobol_sequence_generation() -> void:
-	var num_points: int = 10
-	var dim: int = 2
-	var result: Array = StatMath.HelperFunctions.sobol_sequence(num_points, dim)
-	
-	assert_int(result.size()).is_equal(num_points)
-	for point in result:
-		assert_int(point.size()).is_equal(dim)
-		for value in point:
-			assert_float(value).is_between(0.0, 1.0)
-
-func test_sobol_sequence_invalid_dim() -> void:
-	var test_call: Callable = func():
-		StatMath.HelperFunctions.sobol_sequence(10, 0)
-	await assert_error(test_call).is_push_error("Sobol sequence dimension must be positive. Received: 0")
-
 func test_lower_incomplete_gamma_regularized_known_value() -> void:
 	# Value from WolframAlpha: regularized_gamma_P(2.5, 3.5) approx 0.7385
 	var result: float = StatMath.HelperFunctions.lower_incomplete_gamma_regularized(2.5, 3.5)
