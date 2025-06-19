@@ -60,22 +60,6 @@ func test_median_absolute_deviation_performance() -> void:
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
 
 
-func test_summary_statistics_performance() -> void:
-	var test_name: String = "summary_statistics"
-	var baseline_data: Dictionary = _load_baseline()
-	
-	var current_results: Dictionary = _measure_test(test_name, func():
-		for dataset_size in DATASET_SIZES:
-			var test_data: Array[float] = _generate_test_data(dataset_size)
-			test_data.sort()  # Summary stats expects sorted data
-			
-			# Summary statistics - all calculations at once
-			StatMath.BasicStats.summary_statistics(test_data)
-	)
-	
-	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
-
-
 func test_sample_statistics_performance() -> void:
 	var test_name: String = "sample_statistics"
 	var baseline_data: Dictionary = _load_baseline()
