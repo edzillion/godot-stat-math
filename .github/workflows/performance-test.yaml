@@ -103,28 +103,39 @@ jobs:
             echo "❌ Performance results directory not found"
           fi
 
-      - name: Commit GDUnit4 test reports
+      - name: Commit test reports and performance results
         if: github.event.inputs.commit_results == 'true'
         run: |
-          echo "Committing GDUnit4 test reports..."
+          echo "Committing GDUnit4 test reports and performance results..."
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          if [ -d "reports" ]; then
-            git add reports/
-            if git diff --staged --quiet; then
-              echo "No test report changes to commit"
-            else
-              TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
-              COMMIT_MSG="📊 GDUnit4 test reports - $TIMESTAMP"
-              git commit -m "$COMMIT_MSG"
-              git push origin ${{ github.ref_name }}
-              echo "✅ Test reports committed and pushed"
-            fi
-          else
-            echo "❌ No reports directory found to commit"
+
+          REPORTS_DIR="reports"
+          PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+
+          # Add both directories if they exist
+          if [ -d "$REPORTS_DIR" ]; then
+            git add "$REPORTS_DIR/"
+          fi
+          if [ -d "$PERF_RESULTS_DIR" ]; then
+            git add "$PERF_RESULTS_DIR/"
           fi
 
+          if git diff --staged --quiet; then
+            echo "No new test results to commit"
+          else
+            TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
+            COMMIT_MSG="📊 Test & Perf Results - $TIMESTAMP
+
+            - Instance: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)
+            - Commit: ${{ github.sha }}
+            - Run: ${{ github.run_number }}"
+            
+            git commit -m "$COMMIT_MSG"
+            git push origin ${{ github.ref_name }}
+            echo "✅ Test reports and performance results committed and pushed"
+          fi
+          
       - name: Generate test summary
         run: |
           echo "## 🧪 Performance Integration Test Complete" >> $GITHUB_STEP_SUMMARY
@@ -132,8 +143,15 @@ jobs:
           echo "- **Version**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Test Reports Committed**: ${{ github.event.inputs.commit_results }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Results Committed**: ${{ github.event.inputs.commit_results }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
+          RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+          if [ -d "$RESULTS_DIR" ]; then
+            PASS_FILES=$(find "$RESULTS_DIR" -name "pass_*.json" | wc -l)
+            FAIL_FILES=$(find "$RESULTS_DIR" -name "fail_*.json" | wc -l)
+            echo "- **Performance Snapshots**: $PASS_FILES pass, $FAIL_FILES fail" >> $GITHUB_STEP_SUMMARY
+          fi
+          
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🎯 This test validates the complete workflow: AWS spot instances → GDUnit4 tests → test reports → commit back to repo" >> $GITHUB_STEP_SUMMARY
+          echo "🎯 This test validates the complete workflow: AWS spot instances → GDUnit4 tests → commit results back to repo" >> $GITHUB_STEP_SUMMARY
