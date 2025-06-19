@@ -11,6 +11,7 @@ const BASELINE_FILE: String = "res://addons/godot-stat-math/tests/performance/re
 const RESULTS_DIR: String = "res://addons/godot-stat-math/tests/performance/results/"
 const CORE_TEST_DIR: String = "res://addons/godot-stat-math/tests/performance/core/"
 const REGRESSION_THRESHOLD: float = 0.20  # 20% slower = regression (fallback for tests without statistical data)
+const IMPROVEMENT_WARNING_THRESHOLD: float = 0.30  # 30% improvement triggers "consider updating baseline" warning
 const WARMUP_ITERATIONS: int = 10
 const MEASUREMENT_ITERATIONS: int = 5
 const FUNCTION_CALLS_PER_MEASUREMENT: int = 100
@@ -45,6 +46,278 @@ const MATURE_BASELINE_MULTIPLIER: float = 1.3  # 30% higher thresholds for matur
 
 # Percentile-based threshold parameters
 const PERCENTILE_THRESHOLD: float = 95.0  # Use 95th percentile (only 5% of runs slower)
+
+# ========== STANDALONE STATISTICS ANALYSIS ==========
+
+## Analyze measurements and return detailed statistics with dynamic threshold calculation
+## This can be called independently without running performance tests
+static func analyze_measurements(measurements: Array[float], baseline_median: float = NAN, print_details: bool = true) -> Dictionary:
+	if measurements.is_empty():
+		push_error("Cannot analyze empty measurements array")
+		return {}
+	
+	# Calculate baseline median from measurements if not provided
+	if is_nan(baseline_median):
+		var sorted_measurements: Array[float] = measurements.duplicate()
+		sorted_measurements.sort()
+		baseline_median = StatMath.BasicStats.median(sorted_measurements)
+	
+	# Calculate basic statistics
+	var mean: float = StatMath.BasicStats.mean(measurements)
+	var std_dev: float = StatMath.BasicStats.standard_deviation(measurements)
+	var cv: float = std_dev / baseline_median if baseline_median > 0.0 else 0.0
+	var sample_size: int = measurements.size()
+	
+	# Calculate percentiles
+	var sorted_measurements: Array[float] = measurements.duplicate()
+	sorted_measurements.sort()
+	var min_val: float = sorted_measurements[0]
+	var max_val: float = sorted_measurements[-1]
+	var p25: float = StatMath.BasicStats.percentile(sorted_measurements, 25.0)
+	var p75: float = StatMath.BasicStats.percentile(sorted_measurements, 75.0)
+	var p95: float = StatMath.BasicStats.percentile(sorted_measurements, 95.0)
+	var p99: float = StatMath.BasicStats.percentile(sorted_measurements, 99.0)
+	
+	# Calculate dynamic threshold
+	var dynamic_threshold: float = _calculate_dynamic_threshold(measurements, baseline_median)
+	
+	# Determine volatility level
+	var volatility_level: String = "high"
+	if cv < STABLE_FUNCTION_CV_THRESHOLD:
+		volatility_level = "very stable"
+	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
+		volatility_level = "low"
+	elif cv < MEDIUM_VOLATILITY_CV_THRESHOLD:
+		volatility_level = "medium"
+	
+	# Determine confidence level
+	var confidence_level: String = "low"
+	if sample_size >= HIGH_CONFIDENCE_SAMPLES:
+		confidence_level = "high"
+	elif sample_size >= MEDIUM_CONFIDENCE_SAMPLES:
+		confidence_level = "medium"
+	elif sample_size >= MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD:
+		confidence_level = "limited"
+	
+	var analysis_result: Dictionary = {
+		"sample_size": sample_size,
+		"mean": mean,
+		"median": baseline_median,
+		"std_dev": std_dev,
+		"coefficient_of_variation": cv,
+		"min": min_val,
+		"max": max_val,
+		"range": max_val - min_val,
+		"percentiles": {
+			"p25": p25,
+			"p75": p75,
+			"p95": p95,
+			"p99": p99
+		},
+		"dynamic_threshold": dynamic_threshold,
+		"volatility_level": volatility_level,
+		"confidence_level": confidence_level,
+		"is_fast_function": baseline_median < FAST_FUNCTION_THRESHOLD_MS,
+		"is_mature_baseline": sample_size >= MATURE_BASELINE_SAMPLE_SIZE,
+		"can_use_dynamic_threshold": sample_size >= MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD
+	}
+	
+	if print_details:
+		print("📊 Measurement Analysis Results:")
+		print("   Sample Size: %d (confidence: %s)" % [sample_size, confidence_level])
+		print("   Central Tendency: mean=%.3fms, median=%.3fms" % [mean, baseline_median])
+		print("   Variability: std=%.3fms, CV=%.1f%% (%s volatility)" % [std_dev, cv * 100, volatility_level])
+		print("   Range: min=%.3fms, max=%.3fms (span: %.3fms)" % [min_val, max_val, max_val - min_val])
+		print("   Percentiles: P25=%.3fms, P75=%.3fms, P95=%.3fms, P99=%.3fms" % [p25, p75, p95, p99])
+		print("   Dynamic Threshold: %.1f%% (fast function: %s, mature: %s)" % [
+			dynamic_threshold * 100, 
+			"yes" if analysis_result.is_fast_function else "no",
+			"yes" if analysis_result.is_mature_baseline else "no"
+		])
+	
+	return analysis_result
+
+## Analyze a specific test from the baseline file
+static func analyze_baseline_test(test_name: String, print_details: bool = true) -> Dictionary:
+	var baseline_data: Dictionary = _load_json_file(BASELINE_FILE)
+	if baseline_data.is_empty():
+		push_error("Could not load baseline file: %s" % BASELINE_FILE)
+		return {}
+	
+	var baseline_tests: Dictionary = baseline_data.get("tests", {})
+	if not baseline_tests.has(test_name):
+		push_error("Test '%s' not found in baseline. Available tests: %s" % [test_name, str(baseline_tests.keys())])
+		return {}
+	
+	var test_data: Dictionary = baseline_tests[test_name]
+	var baseline_median: float = test_data.get("result_ms", 0.0)
+	var sample_size: int = test_data.get("sample_size", 1)
+	var cv: float = test_data.get("coefficient_of_variation", 0.0)
+	var threshold: float = test_data.get("threshold_percent", REGRESSION_THRESHOLD)
+	
+	# Create a synthetic measurements array for analysis (limited info from baseline)
+	# This is a simplified analysis since we don't have the raw measurements
+	var analysis_result: Dictionary = {
+		"test_name": test_name,
+		"baseline_median": baseline_median,
+		"sample_size": sample_size,
+		"coefficient_of_variation": cv,
+		"current_threshold": threshold,
+		"status": test_data.get("status", "unknown"),
+		"volatility_level": _get_volatility_level(cv),
+		"confidence_level": _get_confidence_level(sample_size),
+		"is_fast_function": baseline_median < FAST_FUNCTION_THRESHOLD_MS,
+		"is_mature_baseline": sample_size >= MATURE_BASELINE_SAMPLE_SIZE,
+		"can_use_dynamic_threshold": sample_size >= MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD
+	}
+	
+	if print_details:
+		print("📊 Baseline Test Analysis: %s" % test_name)
+		print("   Baseline: %.3fms (n=%d, confidence: %s)" % [baseline_median, sample_size, analysis_result.confidence_level])
+		print("   Variability: CV=%.1f%% (%s volatility)" % [cv * 100, analysis_result.volatility_level])
+		print("   Current Threshold: %.1f%% (fast: %s, mature: %s)" % [
+			threshold * 100,
+			"yes" if analysis_result.is_fast_function else "no",
+			"yes" if analysis_result.is_mature_baseline else "no"
+		])
+	
+	return analysis_result
+
+## Analyze all tests in the baseline file and return summary statistics
+static func analyze_all_baseline_tests(print_summary: bool = true) -> Dictionary:
+	var baseline_data: Dictionary = _load_json_file(BASELINE_FILE)
+	if baseline_data.is_empty():
+		push_error("Could not load baseline file: %s" % BASELINE_FILE)
+		return {}
+	
+	var baseline_tests: Dictionary = baseline_data.get("tests", {})
+	var baseline_meta: Dictionary = baseline_data.get("meta", {})
+	
+	if baseline_tests.is_empty():
+		push_warning("No tests found in baseline file")
+		return {}
+	
+	var test_analyses: Dictionary = {}
+	var summary_stats: Dictionary = {
+		"total_tests": 0,
+		"high_confidence_tests": 0,
+		"medium_confidence_tests": 0,
+		"low_confidence_tests": 0,
+		"very_stable_tests": 0,
+		"low_volatility_tests": 0,
+		"medium_volatility_tests": 0,
+		"high_volatility_tests": 0,
+		"fast_functions": 0,
+		"mature_baselines": 0,
+		"dynamic_threshold_eligible": 0,
+		"avg_threshold": 0.0,
+		"avg_cv": 0.0,
+		"avg_sample_size": 0.0
+	}
+	
+	var total_threshold: float = 0.0
+	var total_cv: float = 0.0
+	var total_sample_size: int = 0
+	
+	# Analyze each test
+	for test_name in baseline_tests:
+		var test_analysis: Dictionary = analyze_baseline_test(test_name, false)
+		test_analyses[test_name] = test_analysis
+		
+		summary_stats.total_tests += 1
+		
+		# Count by confidence level
+		match test_analysis.confidence_level:
+			"high":
+				summary_stats.high_confidence_tests += 1
+			"medium":
+				summary_stats.medium_confidence_tests += 1
+			_:
+				summary_stats.low_confidence_tests += 1
+		
+		# Count by volatility level
+		match test_analysis.volatility_level:
+			"very stable":
+				summary_stats.very_stable_tests += 1
+			"low":
+				summary_stats.low_volatility_tests += 1
+			"medium":
+				summary_stats.medium_volatility_tests += 1
+			_:
+				summary_stats.high_volatility_tests += 1
+		
+		# Count special characteristics
+		if test_analysis.is_fast_function:
+			summary_stats.fast_functions += 1
+		if test_analysis.is_mature_baseline:
+			summary_stats.mature_baselines += 1
+		if test_analysis.can_use_dynamic_threshold:
+			summary_stats.dynamic_threshold_eligible += 1
+		
+		# Accumulate for averages
+		total_threshold += test_analysis.current_threshold
+		total_cv += test_analysis.coefficient_of_variation
+		total_sample_size += test_analysis.sample_size
+	
+	# Calculate averages
+	summary_stats.avg_threshold = total_threshold / summary_stats.total_tests
+	summary_stats.avg_cv = total_cv / summary_stats.total_tests
+	summary_stats.avg_sample_size = float(total_sample_size) / summary_stats.total_tests
+	
+	var result: Dictionary = {
+		"baseline_meta": baseline_meta,
+		"test_analyses": test_analyses,
+		"summary": summary_stats
+	}
+	
+	if print_summary:
+		print("📊 Baseline Analysis Summary:")
+		print("   Total Tests: %d" % summary_stats.total_tests)
+		print("   Confidence Distribution: High=%d, Medium=%d, Low=%d" % [
+			summary_stats.high_confidence_tests, 
+			summary_stats.medium_confidence_tests, 
+			summary_stats.low_confidence_tests
+		])
+		print("   Volatility Distribution: Very Stable=%d, Low=%d, Medium=%d, High=%d" % [
+			summary_stats.very_stable_tests,
+			summary_stats.low_volatility_tests,
+			summary_stats.medium_volatility_tests,
+			summary_stats.high_volatility_tests
+		])
+		print("   Special Characteristics: Fast=%d, Mature=%d, Dynamic Eligible=%d" % [
+			summary_stats.fast_functions,
+			summary_stats.mature_baselines,
+			summary_stats.dynamic_threshold_eligible
+		])
+		print("   Averages: Threshold=%.1f%%, CV=%.1f%%, Sample Size=%.1f" % [
+			summary_stats.avg_threshold * 100,
+			summary_stats.avg_cv * 100,
+			summary_stats.avg_sample_size
+		])
+	
+	return result
+
+## Helper function to get volatility level from coefficient of variation
+static func _get_volatility_level(cv: float) -> String:
+	if cv < STABLE_FUNCTION_CV_THRESHOLD:
+		return "very stable"
+	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
+		return "low"
+	elif cv < MEDIUM_VOLATILITY_CV_THRESHOLD:
+		return "medium"
+	else:
+		return "high"
+
+## Helper function to get confidence level from sample size
+static func _get_confidence_level(sample_size: int) -> String:
+	if sample_size >= HIGH_CONFIDENCE_SAMPLES:
+		return "high"
+	elif sample_size >= MEDIUM_CONFIDENCE_SAMPLES:
+		return "medium"
+	elif sample_size >= MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD:
+		return "limited"
+	else:
+		return "low"
 
 # ========== COMPLETION TRACKING SYSTEM ==========
 
@@ -527,7 +800,7 @@ func check_performance_regression(module_name: String, test_name: String, curren
 						status = "pass (expected)"
 					else:
 						status = "fail"
-				elif time_change < -effective_threshold:
+				elif time_change < -IMPROVEMENT_WARNING_THRESHOLD:
 					var msg = "Significant improvement for '%s' (%.1f%%) - consider updating baseline." % [prefixed_test_name, time_change * 100.0]
 					print("📈 %s" % msg)
 					push_warning(msg)
