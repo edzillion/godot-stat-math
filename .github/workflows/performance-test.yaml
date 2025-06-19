@@ -45,6 +45,7 @@ jobs:
     timeout-minutes: 60
     permissions:
       checks: write
+      contents: write
     
     steps:
       - name: Checkout code
