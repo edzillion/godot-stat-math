@@ -111,7 +111,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No new test results to commit"
           else
-            COMMIT_MSG="📊 Test Results - ${{ github.workflow }} #${{ github.run_number }}"
+            COMMIT_MSG="📊 Test Results - ${{ github.workflow }} ${{ github.run_number }}"
             
             git commit -m "$COMMIT_MSG"
             git push origin ${{ github.ref_name }}
