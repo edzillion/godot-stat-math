@@ -1,0 +1,115 @@
+name: Run Tests
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  trigger-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      runner-triggered: ${{ steps.trigger.outputs.triggered }}
+    steps:
+      - name: Trigger AWS Runner
+        id: trigger
+        run: |
+          echo "Triggering AWS runner for test run..."
+          response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
+          echo "Response: $response"
+          
+          if echo "$response" | grep -q "launched successfully"; then
+            echo "triggered=true" >> $GITHUB_OUTPUT
+            echo "✅ Runner launched successfully"
+          else
+            echo "triggered=false" >> $GITHUB_OUTPUT
+            echo "❌ Failed to launch runner"
+            exit 1
+          fi
+          
+      - name: Wait for runner
+        run: |
+          echo "Waiting 30 seconds for runner to come online..."
+          sleep 30
+
+  test-and-commit:
+    needs: trigger-runner
+    runs-on: [self-hosted, linux, x64]
+    if: needs.trigger-runner.outputs.runner-triggered == 'true'
+    env:
+      LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu
+    timeout-minutes: 60
+    permissions:
+      checks: write
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+        
+      - name: Synchronize with remote branch
+        run: |
+          echo "Pulling latest changes for branch ${{ github.ref_name }}..."
+          git pull origin ${{ github.ref_name }}
+          
+      - name: System info
+        run: |
+          echo "=== Test Run Environment ==="
+          echo "Timestamp: $(date)"
+          echo "Commit: ${{ github.sha }}"
+          echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
+          echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
+          echo "=========================="
+
+      - name: Extract version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: project.godot
+          version-regex: config\/version=\"\K[0-9.\-A-z]*
+        id: extract-version
+          
+      - name: Clean up previous reports
+        run: rm -rf reports
+      
+      - name: Run GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests"
+          upload-report: false
+
+      - name: Commit test reports
+        run: |
+          echo "Committing GDUnit4 test reports..."
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          REPORTS_DIR="reports"
+
+          # Add reports directory if it exists
+          if [ -d "$REPORTS_DIR" ]; then
+            git add "$REPORTS_DIR/"
+          fi
+
+          if git diff --staged --quiet; then
+            echo "No new test results to commit"
+          else
+            COMMIT_MSG="📊 Test Results - ${{ github.workflow }} #${{ github.run_number }}"
+            
+            git commit -m "$COMMIT_MSG"
+            git push origin ${{ github.ref_name }}
+            echo "✅ Test reports committed and pushed"
+          fi
+          
+      - name: Generate test summary
+        run: |
+          echo "## 🧪 Test Run Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test reports committed to branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY 
