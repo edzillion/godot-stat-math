@@ -1,20 +1,35 @@
 # res://addons/godot-stat-math/core/sampling_gen.gd
-class_name SamplingGen
+class_name SamplingGen extends RefCounted
 
+## Advanced Sampling and Quasi-Random Number Generation
+##
+## This class provides sophisticated sampling methods including quasi-random sequences, 
+## Latin hypercube sampling, and coordinated shuffling for statistical simulations.
+## Designed for high-performance multi-dimensional sampling with threading support.
+##
+## Features:
+## • Quasi-random sequences (Sobol, Halton) for low-discrepancy sampling
+## • Latin Hypercube sampling for space-filling designs
+## • Coordinated shuffling with statistical guarantees
+## • Memory pooling and threading for performance optimization
+## • Multiple selection strategies (with/without replacement)
+
+## Defines the available sampling methods for generating random sequences.
 enum SamplingMethod {
-	RANDOM,           # Pseudo-random sampling
-	SOBOL,            # Sobol quasi-random sequence
-	SOBOL_RANDOM,     # Randomized Sobol sequence
-	HALTON,           # Halton quasi-random sequence
-	HALTON_RANDOM,    # Randomized Halton sequence
-	LATIN_HYPERCUBE   # Latin Hypercube space-filling design
+	RANDOM,           ## Pseudo-random sampling using standard RNG
+	SOBOL,            ## Sobol quasi-random sequence for low-discrepancy
+	SOBOL_RANDOM,     ## Randomized Sobol sequence combining QMC benefits with randomization
+	HALTON,           ## Halton quasi-random sequence based on prime numbers
+	HALTON_RANDOM,    ## Randomized Halton sequence with random offsets
+	LATIN_HYPERCUBE   ## Latin Hypercube space-filling design for stratified sampling
 }
 
+## Defines strategies for selecting samples from populations.
 enum SelectionStrategy {
-	WITH_REPLACEMENT,          # Allow duplicates (like rolling dice, bootstrap sampling)
-	FISHER_YATES,              # Without replacement - shuffle then draw
-	RESERVOIR,                 # Without replacement - when draw count unknown
-	SELECTION_TRACKING         # Without replacement - memory efficient
+	WITH_REPLACEMENT,          ## Allow duplicates (bootstrap sampling, rolling dice)
+	FISHER_YATES,              ## Without replacement using Fisher-Yates shuffle
+	RESERVOIR,                 ## Without replacement using reservoir algorithm
+	SELECTION_TRACKING         ## Without replacement with memory-efficient tracking
 }
 
 const _SOBOL_BITS: int = 30
@@ -509,12 +524,11 @@ static func _coordinated_shuffle_worker(task: BatchShuffleTask) -> void:
 
 ## Unified interface for generating samples in 1, 2, or N dimensions.
 ##
-## @param n_draws: int The number of samples to draw.
-## @param dimensions: int The number of dimensions (1, 2, or N).
-## @param method: SamplingMethod The sampling method to use.
-## @param starting_index: int Starting index for deterministic sequences (default 0).
-## @param sample_seed: int The random seed (optional, uses global RNG if -1).
-## @return Variant Returns Array[float] for 1D, Array[Vector2] for 2D, Array[Array[float]] for ND.
+## Returns different types based on dimensions: [code]Array[float][/code] for 1D, 
+## [code]Array[Vector2][/code] for 2D, [code]Array[Array[float]][/code] for N-D.
+## Supports all sampling methods including quasi-random sequences.
+##
+## Mathematical Note: For quasi-random methods, low-discrepancy sequences provide better coverage than pseudo-random
 static func generate_samples(
 	n_draws: int, 
 	dimensions: int = 1,
@@ -563,12 +577,10 @@ static func generate_samples(
 
 ## Generates N-dimensional samples using the specified method.
 ##
-## @param n_draws: int The number of samples to draw.
-## @param dimensions: int The number of dimensions.
-## @param method: SamplingMethod The sampling method to use.
-## @param starting_index: int Starting index for deterministic sequences.
-## @param sample_seed: int The random seed (optional, uses global RNG if -1).
-## @return Array An array of n_draws samples, each with 'dimensions' values (Array[Array[float]] conceptually).
+## Returns an array of samples where each sample is an array of [code]dimensions[/code] values.
+## Uses threading for dimensions ≥ 3 for optimal performance. Supports all sampling methods.
+##
+## Mathematical Note: Quasi-random sequences maintain uniformity across all dimensions simultaneously
 static func generate_samples_nd(
 	n_draws: int, 
 	dimensions: int, 
@@ -680,14 +692,13 @@ static func generate_samples_nd(
 	return samples
 
 
-## Performs a complete coordinated shuffle of a deck using multi-dimensional sampling.
-## This is the key method for your coordinated Fisher-Yates approach.
+## Performs a complete coordinated shuffle using multi-dimensional sampling.
 ##
-## @param deck_size: int Size of the deck to shuffle.
-## @param method: SamplingMethod The sampling method to use for coordination.
-## @param point_index: int Which point in the sequence to use (for deterministic sequences).
-## @param sample_seed: int The random seed (optional, uses global RNG if -1).
-## @return Array[int] The shuffled deck as indices [0, deck_size-1].
+## Uses a single multi-dimensional point to drive the Fisher-Yates shuffle algorithm,
+## ensuring statistical guarantees across the entire shuffle operation. 
+## This is the core method for coordinated shuffling.
+##
+## Mathematical Note: Uses [code](deck_size-1)[/code] dimensional point for Fisher-Yates coordination
 static func coordinated_shuffle(
 	deck_size: int, 
 	method: SamplingMethod = SamplingMethod.SOBOL,
@@ -746,12 +757,10 @@ static func coordinated_shuffle(
 
 ## Generates multiple coordinated shuffles efficiently.
 ##
-## @param deck_size: int Size of each deck to shuffle.
-## @param n_shuffles: int Number of shuffles to generate.
-## @param method: SamplingMethod The sampling method to use.
-## @param starting_index: int Starting point in the sequence.
-## @param sample_seed: int The random seed (optional, uses global RNG if -1).
-## @return Array Array of shuffled decks (Array[Array[int]] conceptually).
+## Creates multiple shuffles using sequential points from the specified sampling sequence.
+## Uses threading for [code]n_shuffles ≥ 2[/code] to maximize performance with batch operations.
+##
+## Mathematical Note: Each shuffle uses consecutive points from the quasi-random sequence for coordination
 static func coordinated_batch_shuffles(
 	deck_size: int,
 	n_shuffles: int, 
@@ -781,16 +790,13 @@ static func coordinated_batch_shuffles(
 
 # --- DISCRETE INDEX SAMPLING (for finite populations, card games, bootstrap) ---
 
-## Enhanced interface for sampling indices from a finite population.
-## Combines sampling methods (how to generate random numbers) with selection strategies 
-## (how to use those numbers to select indices).
+## Samples indices from a finite population using advanced selection strategies.
 ##
-## @param population_size: int The size of the population to sample from (0 to population_size-1).
-## @param draw_count: int The number of indices to draw.
-## @param selection_strategy: SelectionStrategy How to select indices (with/without replacement).
-## @param sampling_method: SamplingMethod How to generate the underlying random numbers.
-## @param sample_seed: int The random seed (optional, uses global RNG if -1).
-## @return Array[int] An Array of integers representing selected indices. Empty if invalid parameters.
+## Combines sampling methods (how to generate random numbers) with selection strategies 
+## (how to use those numbers for population sampling). Supports both replacement and 
+## non-replacement sampling with various optimization strategies.
+##
+## Mathematical Note: Selection strategies optimize for different use cases - bootstrap (with replacement), surveys (without replacement)
 static func sample_indices(
 	population_size: int, 
 	draw_count: int, 

@@ -1,15 +1,29 @@
 # res://addons/godot-stat-math/core/pmf_pdf_functions.gd
-extends RefCounted
+class_name PmfPdfFunctions extends RefCounted
 
-# Probability Mass Functions (PMF) and Probability Density Functions (PDF)
-# This script provides static methods to calculate the PMF for discrete distributions
-# and PDF for continuous distributions. The PMF/PDF gives the probability (or density)
-# of a random variable taking on a specific value.
+## Probability Mass Functions (PMF) and Probability Density Functions (PDF)
+##
+## This class provides static methods to calculate probability mass functions for discrete 
+## distributions and probability density functions for continuous distributions. The PMF/PDF 
+## gives the probability (or density) of a random variable taking on a specific value.
+##
+## Distribution Categories:
+## • PMF for discrete distributions (Binomial, Poisson, Negative Binomial)
+## • PDF for continuous distributions (placeholder for future implementation)
+## • Uses logarithmic calculations for numerical stability
 
-# Binomial Distribution PMF: P(X=k_successes | n_trials, p_prob)
-# Calculates the probability of observing exactly k_successes in n_trials independent
-# Bernoulli trials, each with a success probability p_prob.
-# Uses logarithms for numerical stability with potentially large combinations or small probabilities.
+
+# =============================================================================
+# DISCRETE DISTRIBUTION PMFs
+# =============================================================================
+
+## Calculates the PMF of a binomial distribution: P(X = k | n, p).
+##
+## Returns the probability of observing exactly [code]k[/code] successes in [code]n[/code] 
+## independent Bernoulli trials, each with success probability [code]p[/code].
+## Uses logarithmic calculations for numerical stability.
+##
+## Mathematical Note: [code]P(X = k) = (n choose k) p^k (1-p)^(n-k)[/code]
 static func binomial_pmf(k_successes: int, n_trials: int, p_prob: float) -> float:
 	if not (n_trials >= 0):
 		push_error("Number of trials (n_trials) must be non-negative. Received: %s" % n_trials)
@@ -37,10 +51,13 @@ static func binomial_pmf(k_successes: int, n_trials: int, p_prob: float) -> floa
 	return exp(log_pmf_val)
 
 
-# Poisson Distribution PMF: P(X=k_events | lambda_param)
-# Calculates the probability of observing exactly k_events in a fixed interval,
-# given an average rate lambda_param of events.
-# Uses logarithms for numerical stability.
+## Calculates the PMF of a Poisson distribution: P(X = k | λ).
+##
+## Returns the probability of observing exactly [code]k[/code] events in a fixed interval, 
+## given an average rate [code]λ[/code] of events. Uses logarithmic calculations for 
+## numerical stability.
+##
+## Mathematical Note: [code]P(X = k) = (λ^k e^(-λ)) / k![/code]
 static func poisson_pmf(k_events: int, lambda_param: float) -> float:
 	if not (lambda_param >= 0.0):
 		push_error("Rate parameter (lambda_param) must be non-negative. Received: %s" % lambda_param)
@@ -62,10 +79,13 @@ static func poisson_pmf(k_events: int, lambda_param: float) -> float:
 	return exp(log_pmf_val)
 
 
-# Negative Binomial Distribution PMF: P(X=k_trials | r_successes, p_prob)
-# Calculates the probability that the r_successes-th success occurs on exactly the k_trials-th trial
-# in a series of independent Bernoulli trials with success probability p_prob.
-# Uses logarithms for numerical stability.
+## Calculates the PMF of a negative binomial distribution: P(X = k | r, p).
+##
+## Returns the probability that the [code]r[/code]-th success occurs on exactly the 
+## [code]k[/code]-th trial in independent Bernoulli trials with success probability [code]p[/code].
+## Uses logarithmic calculations for numerical stability.
+##
+## Mathematical Note: [code]P(X = k) = (k-1 choose r-1) p^r (1-p)^(k-r)[/code]
 static func negative_binomial_pmf(k_trials: int, r_successes: int, p_prob: float) -> float:
 	if not (r_successes > 0):
 		push_error("Number of required successes (r_successes) must be positive. Received: %s" % r_successes)
@@ -93,12 +113,22 @@ static func negative_binomial_pmf(k_trials: int, r_successes: int, p_prob: float
 	return exp(log_pmf_val)
 
 
-# --- Probability Density Functions (PDF) ---
-# (PDF functions will be added here later)
-# Example:
-# static func normal_pdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
-#     assert(sigma > 0.0, "Standard deviation (sigma) must be positive for Normal PDF.")
-#     var variance: float = sigma * sigma
-#     var term1: float = 1.0 / (sigma * sqrt(2.0 * PI))
-#     var term2: float = exp(-(pow(x - mu, 2.0)) / (2.0 * variance))
-#     return term1 * term2
+# =============================================================================
+# CONTINUOUS DISTRIBUTION PDFs
+# =============================================================================
+
+## Placeholder for future PDF implementations.
+##
+## PDF functions for continuous distributions will be added here, such as:
+## • Normal PDF: [code]f(x) = (1/σ√(2π)) e^(-(x-μ)²/(2σ²))[/code]
+## • Exponential PDF: [code]f(x) = λe^(-λx)[/code] for [code]x ≥ 0[/code]
+## • Gamma PDF, Beta PDF, etc.
+##
+## Example implementation:
+## [codeblock]
+## static func normal_pdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
+##     var variance: float = sigma * sigma
+##     var term1: float = 1.0 / (sigma * sqrt(2.0 * PI))
+##     var term2: float = exp(-(pow(x - mu, 2.0)) / (2.0 * variance))
+##     return term1 * term2
+## [/codeblock]
