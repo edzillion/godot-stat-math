@@ -241,3 +241,41 @@ func test_normal_cdf_standard_values() -> void:
 
 
 ## UNCOVERED ISSUES: **WILL BE ADDED TO AS WE PROGRESS**
+
+### ✅ ISSUE #1: CDF Data Structure Mismatch (RESOLVED)
+**Location**: `cdf_functions_test.gd` line 8-34
+**Problem**: The `_build_cdf_test_parameters()` function manually reshapes data because table structure doesn't match test usage
+**Data Issue**: Table stores `{ "params": [1.96, 0.0, 1.0], "expected": 0.975 }` but test needs `["normal", 1.96, [0.0, 1.0], 0.975]`
+**✅ RESOLUTION**: Fixed `generate_test_data.py` to output test-ready structure: `["normal", 1.96, [0.0, 1.0], 0.97500210]`
+**✅ IMPACT**: Eliminated `_build_cdf_test_parameters()` function, all 152 CDF tests passing with direct table usage
+
+### 🎯 AUDIT PHASE COMPLETE - BATTLE ASSESSMENT:
+
+#### ✅ ALREADY DATA-DRIVEN (Keep as reference examples):
+- **error_functions_test.gd** - ✅ COMPLETE - Perfect table data usage
+- **cdf_functions_test.gd** - 🔄 PARTIAL - Has data structure issue requiring fix
+
+#### ❌ HARDCODED MAGIC NUMBER INFESTATIONS:
+- **stat_math_test.gd** - 🔥 MASSIVE (constants testing has hardcoded values)
+- ✅ **basic_stats_test.gd** - ✅ **CONVERTED** (60/60 tests passed with scipy data!)
+- **pmf_pdf_functions_test.gd** - 🔥 MAJOR (calculated hardcoded probability values)
+- **ppf_functions_test.gd** - ⚠️ LIGHT (special value hardcoded assertions)
+- **helper_functions_test.gd** - ⚠️ MODERATE (utility function hardcoded values)
+- **cdf_pdf_integration_test.gd** - ⚠️ LIGHT (boundary value hardcoded assertions)
+
+#### 📊 INFECTION STATISTICS:
+- **Total Files Contaminated**: 6 out of 9 core test files (67% infection rate!)
+- **Hardcoded Assertion Count**: 150+ detected instances
+- **Priority Files for Conversion**: `basic_stats_test.gd`, `pmf_pdf_functions_test.gd`, `stat_math_test.gd`
+
+### ✅ ISSUE #2: Basic Stats Hardcoded Values (RESOLVED)
+**Location**: `basic_stats_test.gd` lines 17-311
+**Problem**: Extensive hardcoded expected values in test assertions
+**Examples**: `assert_float(result).is_equal_approx(3.0, StatMath.FLOAT_TOLERANCE)`
+**✅ RESOLUTION**: Converted all hardcoded values to use `BASIC_STATS_TEST_DATA.VALUES` 
+**✅ IMPACT**: All 60 tests passing, eliminated 50+ hardcoded magic numbers
+
+### 🚨 NEXT TARGETS:
+1. **pmf_pdf_functions_test.gd** - 🔥 MAJOR contamination priority
+2. **stat_math_test.gd** - 🔥 MASSIVE contamination  
+3. **helper_functions_test.gd** - ⚠️ MODERATE contamination

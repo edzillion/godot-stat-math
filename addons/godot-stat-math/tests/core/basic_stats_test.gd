@@ -2,7 +2,7 @@
 class_name BasicStatsTest extends GdUnitTestSuite
 
 
-# Import test data for Phase 3 advanced tests
+# Import test data for data-driven tests
 const BASIC_STATS_TEST_DATA = preload("res://addons/godot-stat-math/tables/basic_stats_test_data.gd")
 
 # Test data sets
@@ -27,8 +27,10 @@ func test_mean_decimal_data() -> void:
 	assert_float(result).is_equal_approx(expected, StatMath.FLOAT_TOLERANCE)
 
 func test_mean_single_value() -> void:
-	var result: float = StatMath.BasicStats.mean(single_value)
-	assert_float(result).is_equal_approx(42.0, StatMath.FLOAT_TOLERANCE)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.mean(data)
+	assert_float(result).is_equal_approx(test_data["expected_mean"], StatMath.FLOAT_TOLERANCE)
 
 func test_mean_empty_array() -> void:
 	var test_call: Callable = func():
@@ -96,8 +98,11 @@ func test_median_with_repeated_decimal_values() -> void:
 	assert_float(result).is_equal_approx(2.1, StatMath.FLOAT_TOLERANCE)  # Middle element of 7
 
 func test_median_single_value() -> void:
-	var result: float = StatMath.BasicStats.median(single_value)
-	assert_float(result).is_equal_approx(42.0, StatMath.FLOAT_TOLERANCE)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	var result: float = StatMath.BasicStats.median(sorted_data)
+	assert_float(result).is_equal_approx(test_data["expected_median"], StatMath.FLOAT_TOLERANCE)
 
 func test_median_empty_array() -> void:
 	var test_call: Callable = func():
@@ -111,8 +116,10 @@ func test_variance_simple_data() -> void:
 	assert_float(result).is_equal_approx(2.0, StatMath.FLOAT_TOLERANCE)
 
 func test_variance_single_value() -> void:
-	var result: float = StatMath.BasicStats.variance(single_value)
-	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.variance(data)
+	assert_float(result).is_equal_approx(test_data["expected_variance"], StatMath.FLOAT_TOLERANCE)
 
 func test_variance_empty_array() -> void:
 	var test_call: Callable = func():
@@ -125,8 +132,10 @@ func test_standard_deviation_simple_data() -> void:
 	assert_float(result).is_equal_approx(sqrt(2.0), StatMath.FLOAT_TOLERANCE)
 
 func test_standard_deviation_single_value() -> void:
-	var result: float = StatMath.BasicStats.standard_deviation(single_value)
-	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.standard_deviation(data)
+	assert_float(result).is_equal_approx(test_data["expected_std"], StatMath.FLOAT_TOLERANCE)
 
 func test_standard_deviation_empty_array() -> void:
 	var test_call: Callable = func():
@@ -166,7 +175,10 @@ func test_median_absolute_deviation_simple_data() -> void:
 	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 
 func test_median_absolute_deviation_single_value() -> void:
-	var result: float = StatMath.BasicStats.median_absolute_deviation(single_value)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	var result: float = StatMath.BasicStats.median_absolute_deviation(sorted_data)
 	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_median_absolute_deviation_empty_array() -> void:
@@ -180,8 +192,10 @@ func test_range_spread_simple_data() -> void:
 	assert_float(result).is_equal_approx(4.0, StatMath.FLOAT_TOLERANCE)  # 5.0 - 1.0
 
 func test_range_spread_single_value() -> void:
-	var result: float = StatMath.BasicStats.range_spread(single_value)
-	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.range_spread(data)
+	assert_float(result).is_equal_approx(test_data["expected_range"], StatMath.FLOAT_TOLERANCE)
 
 func test_range_spread_empty_array() -> void:
 	var test_call: Callable = func():

@@ -34,12 +34,12 @@
 		<div class="report-container">
 			<h1>Testsuite Report</h1>
 			<div>
-				<span class="label">res://addons/godot-stat-math/tests/core/distributions_test.gd</span>
+				<span class="label">res://addons/godot-stat-math/tests/core/cdf_functions_test.gd</span>
 			</div>
 			<div class="summary">
 				<div class="summary-item">
 					<span class="label">Tests</span>
-					<span class="value">208</span>
+					<span class="value">152</span>
 				</div>
 				<div class="summary-item">
 					<span class="label">Skipped</span>
@@ -59,7 +59,7 @@
 				</div>
 				<div class="summary-item">
 					<span class="label">Duration</span>
-					<span class="value">8s 194ms</span>
+					<span class="value">8s 758ms</span>
 				</div>
 				<div class="success-rate">
 					<div class="check-icon status-passed">✓</div>
@@ -73,7 +73,7 @@
 		<div class="breadcrumb">
 			<a href="../index.html"><span>All</span></a>
 			<a href="../path/addons.godot-stat-math.tests.core.html"><span>addons/godot-stat-math/tests/core</span></a>
-			<a class="active" href="#"><span>distributions_test</span></a>
+			<a class="active" href="#"><span>cdf_functions_test</span></a>
 		</div>
 	</header>
 
@@ -94,11 +94,11 @@
 					<tbody>
 						
 								<tr class="testcase-group">
-									<td>test_randi_bernoulli_p_zero</td>
+									<td>test_cdf_scipy_validation_parametrized:0 (CDF_TEST_DATA.VALUES['scipy_validation_tests')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>32ms</td>
+									<td>69ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -108,11 +108,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_bernoulli_p_one</td>
+									<td>test_cdf_monotonicity_parametrized:0 (StatMath.SupportedDistributions.NORMAL, [0.0, 1.0], [-3.0, -1.0, 0.0, 1.0, 3.0])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>16ms</td>
+									<td>52ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -122,11 +122,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_bernoulli_p_half</td>
+									<td>test_cdf_monotonicity_parametrized:1 (StatMath.SupportedDistributions.NORMAL, [2.0, 0.5], [1.0, 1.5, 2.0, 2.5, 3.0])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>17ms</td>
+									<td>53ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -136,11 +136,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_bernoulli_invalid_p_too_low</td>
+									<td>test_cdf_monotonicity_parametrized:2 (StatMath.SupportedDistributions.EXPONENTIAL, [1.0], [0.0, 0.5, 1.0, 2.0, 5.0])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>23ms</td>
+									<td>50ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -150,11 +150,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_bernoulli_invalid_p_too_high</td>
+									<td>test_cdf_monotonicity_parametrized:3 (StatMath.SupportedDistributions.EXPONENTIAL, [2.0], [0.0, 0.25, 0.5, 1.0, 2.5])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>25ms</td>
+									<td>49ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -164,11 +164,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_binomial_p_zero</td>
+									<td>test_cdf_monotonicity_parametrized:4 (StatMath.SupportedDistributions.UNIFORM, [1.0, 4.0], [0.5, 1.0, 2.0, 3.0, 4.0, 4.5])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>8ms</td>
+									<td>47ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -178,11 +178,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_binomial_p_one</td>
+									<td>test_cdf_monotonicity_parametrized:5 (StatMath.SupportedDistributions.GAMMA, [2.0, 1.0], [0.0, 0.5, 1.0, 2.0, 4.0])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>48ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -192,11 +192,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_binomial_n_zero</td>
+									<td>test_cdf_monotonicity_parametrized:6 (StatMath.SupportedDistributions.BETA, [2.0, 3.0], [0.0, 0.2, 0.5, 0.8, 1.0])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>53ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -206,11 +206,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_binomial_statistical_properties</td>
+									<td>test_cdf_monotonicity_parametrized:7 (StatMath.SupportedDistributions.CHI_SQUARE, [2.0], [0.0, 1.0, 2.0, 5.0, 10.0])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>40ms</td>
+									<td>52ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -220,11 +220,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_binomial_typical_case</td>
+									<td>test_cdf_monotonicity_parametrized:8 (StatMath.SupportedDistributions.T_DISTRIBUTION, [5.0], [-3.0, -1.0, 0.0, 1.0, 3.0])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>50ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -234,11 +234,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_binomial_invalid_p_too_low</td>
+									<td>test_cdf_monotonicity_parametrized:9 (StatMath.SupportedDistributions.F_DISTRIBUTION, [2.0, 3.0], [0.0, 0.5, 1.0, 2.0, 5.0])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>48ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -248,11 +248,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_binomial_invalid_p_too_high</td>
+									<td>test_cdf_monotonicity_parametrized:10 (StatMath.SupportedDistributions.WEIBULL, [1.0, 2.0], [0.0, 0.5, 1.0, 1.5, 2.0])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>17ms</td>
+									<td>49ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -262,11 +262,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_binomial_invalid_n_negative</td>
+									<td>test_cdf_monotonicity_parametrized:11 (StatMath.SupportedDistributions.PARETO, [1.0, 2.0], [0.5, 1.0, 1.5, 2.0, 3.0])</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>58ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -276,11 +276,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_geometric_p_one</td>
+									<td>test_cdf_boundary_values_parametrized:0 ('normal', 'negative_infinity', [0.0, 1.0], -1000.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>48ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -290,11 +290,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_geometric_typical_case</td>
+									<td>test_cdf_boundary_values_parametrized:1 ('exponential', 'zero', [1.0], 0.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>53ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -304,11 +304,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_geometric_p_very_small_expect_large_or_inf</td>
+									<td>test_cdf_boundary_values_parametrized:2 ('exponential', 'negative', [1.0], -1.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>17ms</td>
+									<td>47ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -318,11 +318,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_geometric_invalid_p_zero</td>
+									<td>test_cdf_boundary_values_parametrized:3 ('gamma', 'zero', [2.0, 1.0], 0.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>29ms</td>
+									<td>56ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -332,11 +332,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_geometric_invalid_p_too_low</td>
+									<td>test_cdf_boundary_values_parametrized:4 ('gamma', 'negative', [2.0, 1.0], -1.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>22ms</td>
+									<td>62ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -346,11 +346,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_geometric_invalid_p_too_high</td>
+									<td>test_cdf_boundary_values_parametrized:5 ('beta', 'zero', [2.0, 3.0], 0.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>25ms</td>
+									<td>48ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -360,11 +360,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_poisson_typical_case</td>
+									<td>test_cdf_boundary_values_parametrized:6 ('beta', 'negative', [2.0, 3.0], -0.1, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>67ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -374,11 +374,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_poisson_small_lambda</td>
+									<td>test_cdf_boundary_values_parametrized:7 ('chi_square', 'zero', [2.0], 0.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>47ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -388,11 +388,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_poisson_invalid_lambda_zero</td>
+									<td>test_cdf_boundary_values_parametrized:8 ('chi_square', 'negative', [2.0], -1.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>48ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -402,11 +402,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_poisson_invalid_lambda_negative</td>
+									<td>test_cdf_boundary_values_parametrized:9 ('f', 'zero', [2.0, 3.0], 0.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>46ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -416,11 +416,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_pseudo_c_param_one</td>
+									<td>test_cdf_boundary_values_parametrized:10 ('f', 'negative', [2.0, 3.0], -1.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>45ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -430,11 +430,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_pseudo_typical_case</td>
+									<td>test_cdf_boundary_values_parametrized:11 ('weibull', 'zero', [1.0, 2.0], 0.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>46ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -444,11 +444,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_pseudo_c_param_half</td>
+									<td>test_cdf_boundary_values_parametrized:12 ('weibull', 'negative', [1.0, 2.0], -1.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>46ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -458,11 +458,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_pseudo_invalid_c_param_zero</td>
+									<td>test_cdf_boundary_values_parametrized:13 ('pareto', 'below_scale', [2.0, 1.0], 1.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>20ms</td>
+									<td>47ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -472,11 +472,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_pseudo_invalid_c_param_negative</td>
+									<td>test_cdf_boundary_values_parametrized:14 ('normal', 'positive_infinity', [0.0, 1.0], 1000.0, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>46ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -486,11 +486,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_pseudo_invalid_c_param_too_high</td>
+									<td>test_cdf_boundary_values_parametrized:15 ('exponential', 'large_x', [1.0], 100.0, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>21ms</td>
+									<td>47ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -500,11 +500,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_seige_initial_capture_guaranteed</td>
+									<td>test_cdf_boundary_values_parametrized:16 ('gamma', 'large_x', [2.0, 1.0], 100.0, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>17ms</td>
+									<td>45ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -514,11 +514,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_seige_capture_after_one_guaranteed_win</td>
+									<td>test_cdf_boundary_values_parametrized:17 ('beta', 'one', [2.0, 3.0], 1.0, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>45ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -528,11 +528,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_seige_typical_case</td>
+									<td>test_cdf_boundary_values_parametrized:18 ('beta', 'above_one', [2.0, 3.0], 1.1, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>16ms</td>
+									<td>47ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -542,11 +542,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_seige_no_change_eventually_captures</td>
+									<td>test_cdf_boundary_values_parametrized:19 ('chi_square', 'large_x', [2.0], 100.0, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>47ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -556,11 +556,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_seige_invalid_w_too_low</td>
+									<td>test_cdf_boundary_values_parametrized:20 ('t', 'positive_infinity', [5.0], 1000.0, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>31ms</td>
+									<td>47ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -570,11 +570,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_seige_invalid_w_too_high</td>
+									<td>test_cdf_boundary_values_parametrized:21 ('f', 'large_x', [2.0, 3.0], 100.0, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>25ms</td>
+									<td>45ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -584,11 +584,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_seige_invalid_c0_too_low</td>
+									<td>test_cdf_boundary_values_parametrized:22 ('weibull', 'large_x', [1.0, 2.0], 100.0, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>31ms</td>
+									<td>45ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -598,11 +598,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_seige_invalid_c0_too_high</td>
+									<td>test_cdf_boundary_values_parametrized:23 ('pareto', 'large_x', [1.0, 2.0], 1000.0, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>52ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -612,11 +612,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_uniform_equal_bounds</td>
+									<td>test_cdf_boundary_values_parametrized:24 ('uniform', 'left_bound', [2.0, 5.0], 2.0, 0.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>17ms</td>
+									<td>46ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -626,11 +626,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_uniform_typical_range</td>
+									<td>test_cdf_boundary_values_parametrized:25 ('uniform', 'right_bound', [2.0, 5.0], 5.0, 1.0)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>45ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -640,11 +640,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_uniform_negative_range</td>
+									<td>test_cdf_boundary_values_parametrized:26 ('uniform', 'midpoint', [2.0, 5.0], 3.5, 0.5)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>45ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -654,11 +654,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_uniform_mixed_sign_range</td>
+									<td>test_cdf_boundary_values_parametrized:27 ('t', 'zero', [5.0], 0.0, 0.5)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>48ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -668,11 +668,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_uniform_single_value_range</td>
+									<td>test_cdf_boundary_values_parametrized:28 ('t', 'zero', [1.0], 0.0, 0.5)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>46ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -682,11 +682,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_uniform_deterministic_with_seed</td>
+									<td>test_cdf_standard_quantiles_parametrized:0 ('normal', 'median_check', [0.0, 1.0], 0.49, 0.51)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>45ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -696,11 +696,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randi_uniform_invalid_min_greater_than_max</td>
+									<td>test_cdf_standard_quantiles_parametrized:1 ('exponential', 'median_check', [1.0], 0.49, 0.51)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>32ms</td>
+									<td>52ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -710,11 +710,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_uniform_a_equals_b</td>
+									<td>test_cdf_standard_quantiles_parametrized:2 ('uniform', 'median_check', [2.0, 6.0], 0.49, 0.51)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>51ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -724,11 +724,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_uniform_typical_case</td>
+									<td>test_cdf_standard_quantiles_parametrized:3 ('gamma', 'first_quartile', [2.0, 1.0], 0.20, 0.30)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>51ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -738,11 +738,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_uniform_negative_range</td>
+									<td>test_cdf_standard_quantiles_parametrized:4 ('beta', 'first_quartile', [2.0, 2.0], 0.20, 0.30)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>11ms</td>
+									<td>50ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -752,11 +752,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_uniform_mixed_sign_range</td>
+									<td>test_cdf_standard_quantiles_parametrized:5 ('chi_square', 'third_quartile', [1.0], 0.70, 0.80)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>18ms</td>
+									<td>48ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -766,11 +766,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_uniform_invalid_a_greater_than_b</td>
+									<td>test_cdf_standard_quantiles_parametrized:6 ('t', 'median_check', [10.0], 0.49, 0.51)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>48ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -780,11 +780,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_exponential_typical_case</td>
+									<td>test_cdf_standard_quantiles_parametrized:7 ('f', 'median_check', [10.0, 10.0], 0.49, 0.51)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>48ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -794,11 +794,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_exponential_small_lambda</td>
+									<td>test_cdf_standard_quantiles_parametrized:8 ('weibull', 'median_check', [1.0, 1.0], 0.49, 0.51)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>45ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -808,11 +808,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_exponential_large_lambda</td>
+									<td>test_cdf_standard_quantiles_parametrized:9 ('pareto', 'median_check', [1.0, 1.0], 0.49, 0.51)</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>47ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -822,11 +822,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_exponential_invalid_lambda_zero</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:0 ('normal', 'sigma_zero', [0.0, 0.0], 'Standard deviation (sigma) must be positive for Normal CDF. Received: 0.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>25ms</td>
+									<td>55ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -836,11 +836,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_exponential_invalid_lambda_negative</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:1 ('normal', 'sigma_negative', [0.0, -1.0], 'Standard deviation (sigma) must be positive for Normal CDF. Received: -1.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>16ms</td>
+									<td>69ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -850,11 +850,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_exponential_statistical_properties</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:2 ('exponential', 'lambda_zero', [0.0], 'Rate parameter (lambda_param) must be positive for Exponential CDF. Received: 0.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>11ms</td>
+									<td>55ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -864,11 +864,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_erlang_typical_case</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:3 ('exponential', 'lambda_negative', [-1.0], 'Rate parameter (lambda_param) must be positive for Exponential CDF. Received: -1.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>68ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -878,11 +878,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_erlang_k_one</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:4 ('gamma', 'shape_zero', [0.0, 1.0], 'Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=0.0, theta_scale=1.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>8ms</td>
+									<td>64ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -892,11 +892,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_erlang_invalid_k_zero</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:5 ('gamma', 'scale_zero', [1.0, 0.0], 'Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=1.0, theta_scale=0.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>62ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -906,11 +906,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_erlang_invalid_k_negative</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:6 ('beta', 'alpha_zero', [0.0, 1.0], 'Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=0.0, beta_param=1.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>23ms</td>
+									<td>58ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -920,11 +920,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_erlang_invalid_lambda_zero</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:7 ('beta', 'beta_negative', [1.0, -1.0], 'Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=1.0, beta_param=-1.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>23ms</td>
+									<td>53ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -934,11 +934,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_erlang_invalid_lambda_negative</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:8 ('uniform', 'a_greater_than_b', [5.0, 2.0], 'Parameter a must be less than or equal to b for Uniform CDF. Received a=5.0, b=2.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>60ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -948,11 +948,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_gaussian_returns_float</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:9 ('chi_square', 'df_zero', [0.0], 'Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: 0.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>63ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -962,11 +962,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_normal_default_parameters</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:10 ('chi_square', 'df_negative', [-1.0], 'Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: -1.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>63ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -976,11 +976,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_normal_sigma_zero</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:11 ('t', 'df_zero', [0.0], 'Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: 0.0'], ['t', 'df_negative', [-5.0], 'Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: -5.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>63ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -990,11 +990,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_normal_typical_case</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:12 ('f', 'd1_zero', [0.0, 5.0], 'Degrees of freedom (d1_df, d2_df) must be positive for F-Distribution CDF. Received d1_df=0.0, d2_df=5.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>57ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -1004,11 +1004,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_normal_negative_mu</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:13 ('f', 'd2_negative', [5.0, -1.0], 'Degrees of freedom (d1_df, d2_df) must be positive for F-Distribution CDF. Received d1_df=5.0, d2_df=-1.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>75ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -1018,11 +1018,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_normal_invalid_sigma_negative</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:14 ('weibull', 'scale_zero', [0.0, 2.0], 'Scale parameter must be positive for Weibull CDF. Received: 0.0')</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>23ms</td>
+									<td>73ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -1032,7 +1032,161 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_normal_statistical_properties</td>
+									<td>test_cdf_parameter_validation_enhanced_parametrized:15 ('weibull', 'shape_negative', [1.0, -1.0], 'Shape parameter must be positive for Weibull CDF. Received: -1.0')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>70ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_cdf_parameter_validation_enhanced_parametrized:16 ('pareto', 'scale_zero', [0.0, 1.0], 'Scale parameter must be positive for Pareto CDF. Received: 0.0')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>63ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_cdf_parameter_validation_enhanced_parametrized:17 ('pareto', 'shape_negative', [1.0, -2.0], 'Shape parameter must be positive for Pareto CDF. Received: -2.0')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>62ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_cdf_parameter_validation_enhanced_parametrized:18 ('binomial', 'n_negative', [-1, 0.5], 'Number of trials (n_trials) must be non-negative. Received: -1')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>63ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_cdf_parameter_validation_enhanced_parametrized:19 ('binomial', 'p_negative', [5, -0.1], 'Probability (p_prob) must be between 0.0 and 1.0. Received: -0.1')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>62ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_cdf_parameter_validation_enhanced_parametrized:20 ('binomial', 'p_greater_than_one', [5, 1.5], 'Probability (p_prob) must be between 0.0 and 1.0. Received: 1.5')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>62ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_cdf_parameter_validation_enhanced_parametrized:21 ('poisson', 'lambda_negative', [-1.0], 'Rate parameter (lambda_param) must be non-negative for Poisson CDF. Received: -1.0')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>61ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_cdf_parameter_validation_enhanced_parametrized:22 ('geometric', 'p_zero', [0.0], 'Success probability (p_prob) must be in (0,1]. Received: 0.0')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>64ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_cdf_parameter_validation_enhanced_parametrized:23 ('geometric', 'p_greater_than_one', [1.5], 'Success probability (p_prob) must be in (0,1]. Received: 1.5')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>63ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_cdf_parameter_validation_enhanced_parametrized:24 ('negative_binomial', 'r_zero', [0, 0.5], 'Number of successes (r_successes) must be positive. Received: 0')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>62ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_cdf_parameter_validation_enhanced_parametrized:25 ('negative_binomial', 'p_zero', [5, 0.0], 'Success probability (p_prob) must be in (0,1]. Received: 0.0')</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>62ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_uniform_cdf_basic_range</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
@@ -1046,245 +1200,7 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_normal_invalid_sigma_zero</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>24ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_basic</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_with_location</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_with_scale</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_with_location_and_scale</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_negative_location</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_very_small_scale</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_large_scale</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_deterministic_with_seed</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>18ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_multiple_calls_different_values</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_invalid_scale_zero</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_invalid_scale_negative</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_statistical_properties</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>32ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_heavy_tails_property</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>21ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_damage_variation</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_market_price_fluctuation</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>16ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_procedural_terrain_height</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_cauchy_npc_reaction_time</td>
+									<td>test_uniform_cdf_x_below_a</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
@@ -1298,11 +1214,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_cauchy_particle_velocity_distribution</td>
+									<td>test_uniform_cdf_x_above_b</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>16ms</td>
+									<td>7ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -1312,11 +1228,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randv_histogram_basic_case</td>
+									<td>test_uniform_cdf_a_equals_b</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>7ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -1326,11 +1242,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randv_histogram_probabilities_not_normalized</td>
+									<td>test_uniform_cdf_invalid_a_greater_than_b</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>27ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -1340,497 +1256,7 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randv_histogram_single_value</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randv_histogram_single_value_non_one_prob</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randv_histogram_empty_values</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randv_histogram_empty_probabilities</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>18ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randv_histogram_mismatched_sizes</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>24ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randv_histogram_non_numeric_probability</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randv_histogram_negative_probability</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randv_histogram_zero_sum_probabilities</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>30ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_rng_determinism_with_set_seed</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>19ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_basic</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_shape_one</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_shape_less_than_one</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>12ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_shape_greater_than_one</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_large_parameters</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_deterministic_with_seed</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>17ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_invalid_shape_zero</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_invalid_shape_negative</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>24ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_invalid_scale_zero</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>30ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_invalid_scale_negative</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>23ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_basic</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_symmetric</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_skewed_left</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_skewed_right</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_uniform</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_large_parameters</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_small_parameters</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_deterministic_with_seed</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>18ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_invalid_alpha_zero</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_invalid_alpha_negative</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>23ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_invalid_beta_zero</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_invalid_beta_negative</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_statistical_properties</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>28ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_statistical_properties</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>20ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_gamma_damage_variation</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_beta_quality_scores</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_combined_gamma_beta_procedural_generation</td>
+									<td>test_normal_cdf_standard_normal</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
@@ -1844,11 +1270,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_triangular_basic</td>
+									<td>test_normal_cdf_mu_sigma</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>15ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -1858,11 +1284,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_triangular_symmetric</td>
+									<td>test_normal_cdf_known_value</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>9ms</td>
+									<td>14ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -1872,567 +1298,7 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_triangular_left_skewed</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_right_skewed</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_mode_at_minimum</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>16ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_mode_at_maximum</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_negative_range</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_mixed_sign_range</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_small_range</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_large_range</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_deterministic_with_seed</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>16ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_multiple_calls_different_values</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_degenerate_case_equal_bounds</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_nearly_equal_bounds</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_invalid_mode_too_low</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_invalid_mode_too_high</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>32ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_invalid_max_less_than_min</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>24ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_invalid_max_equal_min_with_different_mode</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>30ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_statistical_properties</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>20ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_mode_bias_verification</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>18ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_weapon_damage</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_npc_stat_generation</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_loot_quality</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_skill_check_difficulty</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_resource_spawn_rate</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_procedural_terrain_height</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>17ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_ai_decision_confidence</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>8ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_pricing_variation</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_triangular_multiple_parameters</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_basic</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_scale_parameter</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_different_shapes</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_large_scale</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>16ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_small_scale</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_very_small_shape</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_large_shape</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_deterministic_with_seed</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>17ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_multiple_calls_different_values</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_invalid_scale_zero</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_invalid_scale_negative</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>24ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_invalid_shape_zero</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_invalid_shape_negative</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>24ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_statistical_properties</td>
+									<td>test_normal_cdf_invalid_sigma_zero</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
@@ -2446,11 +1312,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_pareto_heavy_tail_property</td>
+									<td>test_exponential_cdf_typical</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>24ms</td>
+									<td>8ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2460,11 +1326,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_pareto_concentration_near_minimum</td>
+									<td>test_exponential_cdf_x_zero</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>31ms</td>
+									<td>6ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2474,11 +1340,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_pareto_wealth_distribution</td>
+									<td>test_exponential_cdf_invalid_lambda_zero</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>13ms</td>
+									<td>29ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2488,11 +1354,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_pareto_loot_rarity</td>
+									<td>test_beta_cdf_symmetric</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>21ms</td>
+									<td>14ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2502,11 +1368,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_pareto_city_population</td>
+									<td>test_beta_cdf_x_zero</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>13ms</td>
+									<td>16ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2516,11 +1382,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_pareto_resource_deposits</td>
+									<td>test_beta_cdf_x_one</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>21ms</td>
+									<td>7ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2530,11 +1396,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_pareto_market_price_spikes</td>
+									<td>test_beta_cdf_invalid_alpha_beta</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>13ms</td>
+									<td>29ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2544,11 +1410,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_pareto_player_skill_gaps</td>
+									<td>test_gamma_cdf_known_value</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>21ms</td>
+									<td>15ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2558,11 +1424,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_pareto_quest_reward_scaling</td>
+									<td>test_gamma_cdf_x_zero</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>10ms</td>
+									<td>8ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2572,259 +1438,7 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_pareto_network_effect_scaling</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_power_law_scaling</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_pareto_multiple_applications</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>10ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_basic</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_scale_parameter</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>26ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_exponential_case</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>12ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_rayleigh_case</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_different_shapes</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>12ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_large_scale</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_small_scale</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>19ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_very_small_shape</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>9ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_large_shape</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>11ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_deterministic_with_seed</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>18ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_multiple_calls_different_values</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>18ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_invalid_scale_zero</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>25ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_invalid_scale_negative</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>24ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_invalid_shape_zero</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>24ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_invalid_shape_negative</td>
-									<td><span class="status status-passed">PASSED</span></td>
-									<td>0</td>
-									<td>0</td>
-									<td>31ms</td>
-									<td class="report-column">
-										<pre>
-
-										</pre>
-									</td>
-								</tr>
-
-
-								<tr class="testcase-group">
-									<td>test_randf_weibull_statistical_properties</td>
+									<td>test_gamma_cdf_invalid_shape_scale</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
@@ -2838,11 +1452,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_shape_effect_on_distribution</td>
+									<td>test_chi_square_cdf_known_value</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>32ms</td>
+									<td>9ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2852,7 +1466,105 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_exponential_equivalence</td>
+									<td>test_chi_square_cdf_x_zero</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>16ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_chi_square_cdf_invalid_df</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>30ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_f_cdf_known_value</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>9ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_f_cdf_x_zero</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>7ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_f_cdf_invalid_df</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>28ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_t_cdf_x_zero</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>15ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_t_cdf_known_value</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>7ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_t_cdf_invalid_df</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
@@ -2866,11 +1578,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_equipment_durability</td>
+									<td>test_binomial_cdf_known_value</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>11ms</td>
+									<td>8ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2880,11 +1592,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_wind_speed_simulation</td>
+									<td>test_binomial_cdf_k_negative</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>17ms</td>
+									<td>15ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2894,7 +1606,7 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_survival_time_modeling</td>
+									<td>test_binomial_cdf_k_ge_n</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
@@ -2908,11 +1620,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_component_reliability</td>
+									<td>test_binomial_cdf_invalid_n_negative</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>11ms</td>
+									<td>21ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2922,11 +1634,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_weather_event_duration</td>
+									<td>test_binomial_cdf_invalid_p</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>17ms</td>
+									<td>42ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2936,11 +1648,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_quest_completion_time</td>
+									<td>test_poisson_cdf_known_value</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>19ms</td>
+									<td>7ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2950,11 +1662,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_resource_depletion</td>
+									<td>test_poisson_cdf_k_negative</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>12ms</td>
+									<td>8ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2964,11 +1676,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_player_session_length</td>
+									<td>test_poisson_cdf_invalid_lambda_negative</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>12ms</td>
+									<td>28ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2978,11 +1690,11 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_network_latency_spikes</td>
+									<td>test_geometric_cdf_known_value</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>19ms</td>
+									<td>8ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -2992,11 +1704,515 @@
 
 
 								<tr class="testcase-group">
-									<td>test_randf_weibull_multiple_reliability_applications</td>
+									<td>test_geometric_cdf_k_less_than_1</td>
 									<td><span class="status status-passed">PASSED</span></td>
 									<td>0</td>
 									<td>0</td>
-									<td>11ms</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_geometric_cdf_invalid_p_zero</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>29ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_negative_binomial_cdf_known_value</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>7ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_negative_binomial_cdf_k_less_than_r</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_negative_binomial_cdf_invalid_r</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>29ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_negative_binomial_cdf_invalid_p</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>28ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_x_equals_scale</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>15ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_basic_calculation</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_x_below_scale</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_large_x</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>15ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_different_shapes</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>23ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_monotonicity</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>9ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_bounds</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_deterministic</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_invalid_scale_zero</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>28ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_invalid_scale_negative</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>22ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_invalid_shape_zero</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>28ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_invalid_shape_negative</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>30ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_wealth_distribution_probability</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_loot_rarity_distribution</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_damage_resistance_calculation</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>14ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_pareto_cdf_market_price_analysis</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>7ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_known_value</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_basic_calculation</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>15ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_x_below_zero</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>7ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_exponential_case</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_monotonicity</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>13ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_bounds</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_invalid_shape</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>43ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_invalid_scale</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>42ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_equipment_failure_probability</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>14ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_survival_analysis</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>7ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_wind_speed_distribution</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>7ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_component_reliability</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>13ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_quest_completion_analysis</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>7ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_resource_depletion_modeling</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>8ms</td>
+									<td class="report-column">
+										<pre>
+
+										</pre>
+									</td>
+								</tr>
+
+
+								<tr class="testcase-group">
+									<td>test_weibull_cdf_network_latency_analysis</td>
+									<td><span class="status status-passed">PASSED</span></td>
+									<td>0</td>
+									<td>0</td>
+									<td>14ms</td>
 									<td class="report-column">
 										<pre>
 
@@ -3015,7 +2231,7 @@
 	</main>
 
 	<footer>
-		<p>Generated by <a href="https://github.com/MikeSchulze/gdUnit4">GdUnit4</a> at 2025-06-20 20:19:41</p>
+		<p>Generated by <a href="https://github.com/MikeSchulze/gdUnit4">GdUnit4</a> at 2025-06-20 21:29:58</p>
 		<div class="status-legend">
 			<span class="status-legend-item">
 				<span class="status-box status-skipped"></span> Skipped

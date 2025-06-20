@@ -5,49 +5,14 @@ class_name CdfFunctionsTest extends GdUnitTestSuite
 var simple_data: Array[float] = [1.0, 2.0, 3.0, 4.0, 5.0]
 const CDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/cdf_test_data.gd")
 
-## Builds test parameters from generated scipy-validated data instead of magic numbers
-static func _build_cdf_test_parameters() -> Array:
-	var test_params: Array = []
-	var data: Dictionary = CDF_TEST_DATA.VALUES
-	
-	# Normal CDF tests
-	if data.has("normal_cdf"):
-		for case in data["normal_cdf"]:
-			test_params.append(["normal", case.params[0], [case.params[1], case.params[2]], case.expected])
-	
-	# Exponential CDF tests
-	if data.has("exponential_cdf"):
-		for case in data["exponential_cdf"]:
-			test_params.append(["exponential", case.params[0], [case.params[1]], case.expected])
-	
-	# Gamma CDF tests
-	if data.has("gamma_cdf"):
-		for case in data["gamma_cdf"]:
-			test_params.append(["gamma", case.params[0], [case.params[1], case.params[2]], case.expected])
-	
-	# Beta CDF tests
-	if data.has("beta_cdf"):
-		for case in data["beta_cdf"]:
-			test_params.append(["beta", case.params[0], [case.params[1], case.params[2]], case.expected])
-	
-	# Chi-square CDF tests
-	if data.has("chi_square_cdf"):
-		for case in data["chi_square_cdf"]:
-			test_params.append(["chi_square", case.params[0], [case.params[1]], case.expected])
-	
-	# Weibull CDF tests
-	if data.has("weibull_cdf"):
-		for case in data["weibull_cdf"]:
-			test_params.append(["weibull", case.params[0], [case.params[1], case.params[2]], case.expected])
-	
-	return test_params
+# Manual data transformation function ELIMINATED - data structure optimized for direct usage
 
 # =============================================================================
 # PHASE 3: ENHANCED CDF TESTING - SCIPY VALIDATED DATA
 # =============================================================================
 
-## Tests CDF functions against scipy-validated reference values
-func test_cdf_scipy_validation_parametrized(distribution: String, x: float, params: Array, expected: float, test_parameters := _build_cdf_test_parameters()) -> void:
+## Tests CDF functions against scipy-validated reference values using optimized data structure
+func test_cdf_scipy_validation_parametrized(distribution: String, x: float, params: Array, expected: float, test_parameters := CDF_TEST_DATA.VALUES["scipy_validation_tests"]) -> void:
 	var result: float = _get_cdf_value(distribution, x, params)
 	assert_float(result).is_equal_approx(expected, StatMath.INVERSE_FUNCTION_TOLERANCE)
 
