@@ -94,6 +94,11 @@ const MAX_ITERATIONS: int = 200
 ## Mathematical Note: [code]10^-9[/code] provides good balance between precision and numerical stability
 const EPSILON: float = 1.0e-9
 
+## Standard floating point tolerance for test assertions and approximate comparisons.
+##
+## Mathematical Note: [code]10^-7[/code] provides robust floating point comparison for statistical calculations
+const FLOAT_TOLERANCE: float = 1.0e-7
+
 ## Lanczos approximation parameter for Gamma function calculations.
 ##
 ## Mathematical Note: [code]g = 7.5[/code] provides optimal accuracy for the Lanczos method
@@ -137,7 +142,7 @@ const P_ERR: float  =  0.3275911
 ## Usage Examples:
 ## [codeblock]
 ## # Instead of strings:
-## var sample = StatMath.Distributions.randf_from_distribution("normal", [0.0, 1.0])
+## var sample = StatMath.Distributions.randf_from_distribution(StatMath.SupportedDistributions.NORMAL, [0.0, 1.0])
 ## 
 ## # Use enum values:
 ## var sample = StatMath.Distributions.randf_from_distribution(StatMath.SupportedDistributions.NORMAL, [0.0, 1.0])

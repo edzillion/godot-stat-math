@@ -3,6 +3,270 @@ import scipy.special as special
 import numpy as np
 import os
 
+def generate_basic_stats_test_data():
+    """
+    Generates comprehensive test data for basic statistics functions including:
+    - Non-normal distributions
+    - Numerical stability edge cases  
+    - Mixed data types
+    - Single element arrays
+    """
+    
+    # Non-normal distribution test cases
+    basic_stats_data = {
+        # Right-skewed data (common in game analytics - player scores, session times)
+        "right_skewed_data": {
+            "data": [1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 5.0, 10.0, 25.0, 100.0],
+            "sorted_data": [1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 5.0, 10.0, 25.0, 100.0],
+            "expected_mean": np.mean([1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 5.0, 10.0, 25.0, 100.0]),
+            "expected_median": np.median([1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 5.0, 10.0, 25.0, 100.0]),
+            "expected_variance": np.var([1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 5.0, 10.0, 25.0, 100.0], ddof=0),
+            "expected_std": np.std([1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 5.0, 10.0, 25.0, 100.0], ddof=0),
+            "expected_sample_variance": np.var([1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 5.0, 10.0, 25.0, 100.0], ddof=1),
+            "expected_sample_std": np.std([1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 5.0, 10.0, 25.0, 100.0], ddof=1),
+            "expected_range": 100.0 - 1.0,
+            "expected_min": 1.0,
+            "expected_max": 100.0,
+        },
+        
+        # Left-skewed data (rare high scores with many lower scores)
+        "left_skewed_data": {
+            "data": [0.1, 1.0, 5.0, 8.0, 9.0, 9.2, 9.5, 9.7, 9.8, 9.9],
+            "sorted_data": [0.1, 1.0, 5.0, 8.0, 9.0, 9.2, 9.5, 9.7, 9.8, 9.9],
+            "expected_mean": np.mean([0.1, 1.0, 5.0, 8.0, 9.0, 9.2, 9.5, 9.7, 9.8, 9.9]),
+            "expected_median": np.median([0.1, 1.0, 5.0, 8.0, 9.0, 9.2, 9.5, 9.7, 9.8, 9.9]),
+            "expected_variance": np.var([0.1, 1.0, 5.0, 8.0, 9.0, 9.2, 9.5, 9.7, 9.8, 9.9], ddof=0),
+            "expected_std": np.std([0.1, 1.0, 5.0, 8.0, 9.0, 9.2, 9.5, 9.7, 9.8, 9.9], ddof=0),
+            "expected_sample_variance": np.var([0.1, 1.0, 5.0, 8.0, 9.0, 9.2, 9.5, 9.7, 9.8, 9.9], ddof=1),
+            "expected_sample_std": np.std([0.1, 1.0, 5.0, 8.0, 9.0, 9.2, 9.5, 9.7, 9.8, 9.9], ddof=1),
+            "expected_range": 9.9 - 0.1,
+            "expected_min": 0.1,
+            "expected_max": 9.9,
+        },
+        
+        # Heavy-tailed data (damage spikes, network latency)
+        "heavy_tailed_data": {
+            "data": [1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 25.0, 1.6, 1.7, 150.0],
+            "sorted_data": [1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 25.0, 150.0],
+            "expected_mean": np.mean([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 25.0, 1.6, 1.7, 150.0]),
+            "expected_median": np.median([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 25.0, 150.0]),
+            "expected_variance": np.var([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 25.0, 1.6, 1.7, 150.0], ddof=0),
+            "expected_std": np.std([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 25.0, 1.6, 1.7, 150.0], ddof=0),
+            "expected_sample_variance": np.var([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 25.0, 1.6, 1.7, 150.0], ddof=1),
+            "expected_sample_std": np.std([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 25.0, 1.6, 1.7, 150.0], ddof=1),
+            "expected_range": 150.0 - 1.0,
+            "expected_min": 1.0,
+            "expected_max": 150.0,
+        },
+        
+        # Bimodal data (two distinct player skill groups)
+        "bimodal_data": {
+            "data": [1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0],
+            "sorted_data": [1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0],
+            "expected_mean": np.mean([1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0]),
+            "expected_median": np.median([1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0]),
+            "expected_variance": np.var([1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0], ddof=0),
+            "expected_std": np.std([1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0], ddof=0),
+            "expected_sample_variance": np.var([1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0], ddof=1),
+            "expected_sample_std": np.std([1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0], ddof=1),
+            "expected_range": 9.0 - 1.0,
+            "expected_min": 1.0,
+            "expected_max": 9.0,
+        },
+        
+        # Power-law data (common in gaming analytics)
+        "power_law_data": {
+            "data": [1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0],
+            "sorted_data": [1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0],
+            "expected_mean": np.mean([1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0]),
+            "expected_median": np.median([1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0]),
+            "expected_variance": np.var([1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0], ddof=0),
+            "expected_std": np.std([1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0], ddof=0),
+            "expected_sample_variance": np.var([1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0], ddof=1),
+            "expected_sample_std": np.std([1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0], ddof=1),
+            "expected_range": 128.0 - 1.0,
+            "expected_min": 1.0,
+            "expected_max": 128.0,
+        },
+        
+        # Numerical stability test cases
+        "very_large_numbers": {
+            "data": [1e10, 2e10, 3e10, 4e10, 5e10],
+            "sorted_data": [1e10, 2e10, 3e10, 4e10, 5e10],
+            "expected_mean": np.mean([1e10, 2e10, 3e10, 4e10, 5e10]),
+            "expected_median": np.median([1e10, 2e10, 3e10, 4e10, 5e10]),
+            "expected_variance": np.var([1e10, 2e10, 3e10, 4e10, 5e10], ddof=0),
+            "expected_std": np.std([1e10, 2e10, 3e10, 4e10, 5e10], ddof=0),
+            "expected_sample_variance": np.var([1e10, 2e10, 3e10, 4e10, 5e10], ddof=1),
+            "expected_sample_std": np.std([1e10, 2e10, 3e10, 4e10, 5e10], ddof=1),
+            "expected_range": 5e10 - 1e10,
+            "expected_min": 1e10,
+            "expected_max": 5e10,
+        },
+        
+        "very_small_numbers": {
+            "data": [1e-10, 2e-10, 3e-10, 4e-10, 5e-10],
+            "sorted_data": [1e-10, 2e-10, 3e-10, 4e-10, 5e-10],
+            "expected_mean": np.mean([1e-10, 2e-10, 3e-10, 4e-10, 5e-10]),
+            "expected_median": np.median([1e-10, 2e-10, 3e-10, 4e-10, 5e-10]),
+            "expected_variance": np.var([1e-10, 2e-10, 3e-10, 4e-10, 5e-10], ddof=0),
+            "expected_std": np.std([1e-10, 2e-10, 3e-10, 4e-10, 5e-10], ddof=0),
+            "expected_sample_variance": np.var([1e-10, 2e-10, 3e-10, 4e-10, 5e-10], ddof=1),
+            "expected_sample_std": np.std([1e-10, 2e-10, 3e-10, 4e-10, 5e-10], ddof=1),
+            "expected_range": 5e-10 - 1e-10,
+            "expected_min": 1e-10,
+            "expected_max": 5e-10,
+        },
+        
+        "mixed_magnitude_data": {
+            "data": [1e-8, 1.0, 1e8],
+            "sorted_data": [1e-8, 1.0, 1e8],
+            "expected_mean": np.mean([1e-8, 1.0, 1e8]),
+            "expected_median": np.median([1e-8, 1.0, 1e8]),
+            "expected_variance": np.var([1e-8, 1.0, 1e8], ddof=0),
+            "expected_std": np.std([1e-8, 1.0, 1e8], ddof=0),
+            "expected_sample_variance": np.var([1e-8, 1.0, 1e8], ddof=1),
+            "expected_sample_std": np.std([1e-8, 1.0, 1e8], ddof=1),
+            "expected_range": 1e8 - 1e-8,
+            "expected_min": 1e-8,
+            "expected_max": 1e8,
+        },
+        
+        # High precision edge cases
+        "close_numbers": {
+            "data": [1.0000000001, 1.0000000002, 1.0000000003, 1.0000000004, 1.0000000005],
+            "sorted_data": [1.0000000001, 1.0000000002, 1.0000000003, 1.0000000004, 1.0000000005],
+            "expected_mean": np.mean([1.0000000001, 1.0000000002, 1.0000000003, 1.0000000004, 1.0000000005]),
+            "expected_median": np.median([1.0000000001, 1.0000000002, 1.0000000003, 1.0000000004, 1.0000000005]),
+            "expected_variance": np.var([1.0000000001, 1.0000000002, 1.0000000003, 1.0000000004, 1.0000000005], ddof=0),
+            "expected_std": np.std([1.0000000001, 1.0000000002, 1.0000000003, 1.0000000004, 1.0000000005], ddof=0),
+            "expected_sample_variance": np.var([1.0000000001, 1.0000000002, 1.0000000003, 1.0000000004, 1.0000000005], ddof=1),
+            "expected_sample_std": np.std([1.0000000001, 1.0000000002, 1.0000000003, 1.0000000004, 1.0000000005], ddof=1),
+            "expected_range": 1.0000000005 - 1.0000000001,
+            "expected_min": 1.0000000001,
+            "expected_max": 1.0000000005,
+        },
+        
+        # Integer-like data as floats (game scores)
+        "integer_like_floats": {
+            "data": [1000.0, 1500.0, 2000.0, 2500.0, 3000.0],
+            "sorted_data": [1000.0, 1500.0, 2000.0, 2500.0, 3000.0],
+            "expected_mean": np.mean([1000.0, 1500.0, 2000.0, 2500.0, 3000.0]),
+            "expected_median": np.median([1000.0, 1500.0, 2000.0, 2500.0, 3000.0]),
+            "expected_variance": np.var([1000.0, 1500.0, 2000.0, 2500.0, 3000.0], ddof=0),
+            "expected_std": np.std([1000.0, 1500.0, 2000.0, 2500.0, 3000.0], ddof=0),
+            "expected_sample_variance": np.var([1000.0, 1500.0, 2000.0, 2500.0, 3000.0], ddof=1),
+            "expected_sample_std": np.std([1000.0, 1500.0, 2000.0, 2500.0, 3000.0], ddof=1),
+            "expected_range": 3000.0 - 1000.0,
+            "expected_min": 1000.0,
+            "expected_max": 3000.0,
+        },
+        
+        # Single element edge cases
+        "single_zero": {
+            "data": [0.0],
+            "sorted_data": [0.0],
+            "expected_mean": 0.0,
+            "expected_median": 0.0,
+            "expected_variance": 0.0,
+            "expected_std": 0.0,
+            "expected_range": 0.0,
+            "expected_min": 0.0,
+            "expected_max": 0.0,
+        },
+        
+        "single_negative": {
+            "data": [-42.0],
+            "sorted_data": [-42.0],
+            "expected_mean": -42.0,
+            "expected_median": -42.0,
+            "expected_variance": 0.0,
+            "expected_std": 0.0,
+            "expected_range": 0.0,
+            "expected_min": -42.0,
+            "expected_max": -42.0,
+        },
+        
+        "single_large": {
+            "data": [1e10],
+            "sorted_data": [1e10],
+            "expected_mean": 1e10,
+            "expected_median": 1e10,
+            "expected_variance": 0.0,
+            "expected_std": 0.0,
+            "expected_range": 0.0,
+            "expected_min": 1e10,
+            "expected_max": 1e10,
+        },
+        
+        "single_small": {
+            "data": [1e-10],
+            "sorted_data": [1e-10],
+            "expected_mean": 1e-10,
+            "expected_median": 1e-10,
+            "expected_variance": 0.0,
+            "expected_std": 0.0,
+            "expected_range": 0.0,
+            "expected_min": 1e-10,
+            "expected_max": 1e-10,
+        },
+        
+        # Identical values for numerical stability
+        "identical_values": {
+            "data": [42.42424242, 42.42424242, 42.42424242, 42.42424242, 42.42424242],
+            "sorted_data": [42.42424242, 42.42424242, 42.42424242, 42.42424242, 42.42424242],
+            "expected_mean": 42.42424242,
+            "expected_median": 42.42424242,
+            "expected_variance": 0.0,
+            "expected_std": 0.0,
+            "expected_sample_variance": 0.0,
+            "expected_sample_std": 0.0,
+            "expected_range": 0.0,
+            "expected_min": 42.42424242,
+            "expected_max": 42.42424242,
+        },
+    }
+    
+    # Generate the test data file
+    generate_basic_stats_data_file("basic_stats_test_data", basic_stats_data)
+
+def generate_basic_stats_data_file(filename, data):
+    """Generate a GDScript test data file for basic statistics"""
+    output_path = os.path.join("addons", "godot-stat-math", "tables", f"{filename}.gd")
+    
+    content = [
+        f"# res://addons/godot-stat-math/tables/{filename}.gd",
+        "# THIS FILE IS AUTOGENERATED BY generate_test_data.py",
+        "# DO NOT EDIT MANUALLY",
+        "",
+        "const VALUES: Dictionary = {",
+    ]
+
+    for test_name, test_data in data.items():
+        content.append(f'\t"{test_name}": {{')
+        
+        # Add data array
+        data_str = ", ".join(map(str, test_data["data"]))
+        content.append(f'\t\t"data": [{data_str}],')
+        
+        # Add sorted data array
+        sorted_data_str = ", ".join(map(str, test_data["sorted_data"]))
+        content.append(f'\t\t"sorted_data": [{sorted_data_str}],')
+        
+        # Add expected values
+        for key, value in test_data.items():
+            if key not in ["data", "sorted_data"]:
+                content.append(f'\t\t"{key}": {value:.12f},')
+        
+        content.append("\t},")
+    
+    content.append("}")
+    
+    with open(output_path, "w", newline="\n") as f:
+        f.write("\n".join(content))
+        
+    print(f"Successfully generated basic stats test data at: {output_path}")
+
 def generate_test_data():
     """
     Generates GDScript files with pre-calculated values for statistical functions
@@ -215,6 +479,9 @@ def generate_test_data():
     generate_data_file("error_functions_test_data", error_functions_data)
     generate_data_file("helper_functions_test_data", helper_functions_data)
     generate_data_file("ppf_test_data", ppf_data)
+    
+    # Generate basic stats test data
+    generate_basic_stats_test_data()
 
 def generate_data_file(filename, data):
     """Generate a GDScript test data file"""

@@ -2,7 +2,7 @@
 class_name HelperFunctionsTest extends GdUnitTestSuite
 
 const HELPER_FUNCTIONS_TEST_DATA = preload("res://addons/godot-stat-math/tables/helper_functions_test_data.gd")
-const FLOAT_TOLERANCE: float = 1e-6
+const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
 
 # --- Binomial Coefficient ---
 func test_binomial_coefficient_basic() -> void:
