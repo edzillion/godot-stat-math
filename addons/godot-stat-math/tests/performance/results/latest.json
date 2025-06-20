@@ -1,0 +1,58 @@
+{
+	"meta": {
+		"failed_tests": 0,
+		"generated_at": "2025-06-20T01:26:20",
+		"modules_included": 1,
+		"original_timestamp": "2025-06-20_01-26-20",
+		"passed_tests": 5,
+		"total_tests": 5,
+		"type": "test_run"
+	},
+	"tests": {
+		"basic_stats_mean_variance_calculation": {
+			"baseline_ms": 2.035,
+			"coefficient_of_variation": 0.00860783865144355,
+			"diff_percent": -33.5135135135135,
+			"result_ms": 1.353,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		},
+		"basic_stats_median_absolute_deviation": {
+			"baseline_ms": 5.156,
+			"coefficient_of_variation": 0.00992601828900878,
+			"diff_percent": -43.1923972071373,
+			"result_ms": 2.929,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		},
+		"basic_stats_median_calculation": {
+			"baseline_ms": 2.168,
+			"coefficient_of_variation": 0.0138032338179042,
+			"diff_percent": -40.8210332103321,
+			"result_ms": 1.283,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		},
+		"basic_stats_min_max_range_calculation": {
+			"baseline_ms": 1.028,
+			"coefficient_of_variation": 0.0116403923969549,
+			"diff_percent": -36.8677042801556,
+			"result_ms": 0.649,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		},
+		"basic_stats_sample_statistics": {
+			"baseline_ms": 1.853,
+			"coefficient_of_variation": 0.0429226482029126,
+			"diff_percent": -34.9703184025904,
+			"result_ms": 1.205,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		}
+	}
+}

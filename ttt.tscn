@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dnolj7732fjos"]
+
+[ext_resource type="Script" uid="uid://bl81sxqajb2e8" path="res://test_weibull_quick.gd" id="1_sjl4l"]
+
+[node name="Ttt" type="Node"]
+script = ExtResource("1_sjl4l")

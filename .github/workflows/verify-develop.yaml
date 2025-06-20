@@ -11,24 +11,6 @@ env:
   GODOT_VERSION: 4.4
 
 jobs:
-  run-gdunit-tests:
-    runs-on: ubuntu-22.04
-    permissions:
-      checks: write
-      actions: read
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run GDUnit4 tests
-        uses: MikeSchulze/gdunit4-action@v1
-        with:
-          godot-version: "${{ env.GODOT_VERSION }}"
-          paths: "res://addons/godot-stat-math/tests"
-
   validate-addon-structure:
     runs-on: ubuntu-latest
     steps:
@@ -57,3 +39,68 @@ jobs:
           fi
           
           echo "✅ Addon structure validation passed"
+
+  trigger-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      runner-triggered: ${{ steps.trigger.outputs.triggered }}
+    steps:
+      - name: Trigger AWS Runner
+        id: trigger
+        run: |
+          echo "Triggering AWS runner for PR verification..."
+          response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
+          echo "Response: $response"
+          
+          if echo "$response" | grep -q "launched successfully"; then
+            echo "triggered=true" >> $GITHUB_OUTPUT
+            echo "✅ Runner launched successfully"
+          else
+            echo "triggered=false" >> $GITHUB_OUTPUT
+            echo "❌ Failed to launch runner"
+            exit 1
+          fi
+          
+      - name: Wait for runner
+        run: |
+          echo "Waiting 30 seconds for runner to come online..."
+          echo "⏳ Spot instance starting up..."
+          sleep 30
+          echo "✅ Proceeding to job execution"
+
+  run-gdunit-tests:
+    needs: [validate-addon-structure, trigger-runner]
+    runs-on: [self-hosted, performance-test, linux]
+    if: needs.trigger-runner.outputs.runner-triggered == 'true'
+    timeout-minutes: 60
+    permissions:
+      checks: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: System info
+        run: |
+          echo "=== PR Test Environment ==="
+          echo "PR Number: ${{ github.event.number }}"
+          echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
+          echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
+          echo "CPU Cores: $(nproc)"
+          echo "=========================="
+
+      - name: Run GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "${{ env.GODOT_VERSION }}"
+          paths: "res://addons/godot-stat-math/tests"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-pr-${{ github.event.number }}
+          path: reports/
+        if: always()

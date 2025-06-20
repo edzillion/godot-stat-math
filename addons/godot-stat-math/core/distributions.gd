@@ -1,15 +1,29 @@
 # res://addons/godot-stat-math/core/distributions.gd
 class_name Distributions extends RefCounted
 
-# Random Variate Generation for Statistical Distributions
-# This script provides methods to generate random numbers (variates) from various
-# common statistical distributions. These are essential for simulations, modeling,
-# and various forms of statistical analysis.
+## Random Variate Generation for Statistical Distributions
+##
+## This class provides methods to generate random numbers (variates) from various
+## common statistical distributions. These functions are essential for simulations, 
+## modeling, and statistical analysis in game development.
+##
+## Distribution Categories:
+## • Discrete distributions (Bernoulli, Binomial, Geometric, Poisson)
+## • Continuous distributions (Normal, Exponential, Gamma, Beta, etc.)
+## • Specialized distributions (Triangular, Pareto, Weibull, Cauchy)
+## • Custom distributions (Pseudo, Siege, Histogram)
 
 
-# Bernoulli Distribution: randi_bernoulli(p)
-# Generates an integer (0 or 1) from a Bernoulli distribution.
-# Returns 1 (success) with probability p, and 0 (failure) with probability 1-p.
+# =============================================================================
+# DISCRETE DISTRIBUTIONS
+# =============================================================================
+
+## Generates an integer from a Bernoulli distribution.
+##
+## Returns 1 (success) with probability [code]p[/code], and 0 (failure) with probability [code]1-p[/code].
+## This is the fundamental building block for many other discrete distributions.
+##
+## Mathematical Note: [code]E[X] = p[/code], [code]Var(X) = p(1-p)[/code]
 static func randi_bernoulli(p: float = 0.5) -> int:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Success probability (p) must be between 0.0 and 1.0. Received: %s" % p)
@@ -20,10 +34,12 @@ static func randi_bernoulli(p: float = 0.5) -> int:
 		return 0
 
 
-# Binomial Distribution: randi_binomial(p, n)
-# Generates an integer representing the number of successes in n independent
-# Bernoulli trials, each with success probability p.
-# Algorithm uses repeated generation from a geometric distribution.
+## Generates an integer from a Binomial distribution.
+##
+## Returns the number of successes in [code]n[/code] independent Bernoulli trials, 
+## each with success probability [code]p[/code]. Uses repeated geometric distribution sampling.
+##
+## Mathematical Note: [code]E[X] = np[/code], [code]Var(X) = np(1-p)[/code]
 static func randi_binomial(p: float, n: int) -> int:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Success probability (p) must be between 0.0 and 1.0. Received: %s" % p)
@@ -49,12 +65,12 @@ static func randi_binomial(p: float, n: int) -> int:
 	return -1 # Error/unexpected state
 
 
-# Geometric Distribution: randi_geometric(p)
-# Returns the number of Bernoulli trials needed to get one success (always >= 1).
-# Uses inverse transform sampling. For very small p, can return StatMath.INT64_MAX_VAL.
-# Parameters:
-#   p: float - Success probability per trial (0.0 < p <= 1.0).
-# Returns: int - Number of trials.
+## Generates an integer from a Geometric distribution.
+##
+## Returns the number of Bernoulli trials needed to get one success (always ≥ 1).
+## Uses inverse transform sampling for efficiency.
+##
+## Mathematical Note: [code]E[X] = 1/p[/code], [code]Var(X) = (1-p)/p²[/code]
 static func randi_geometric(p: float) -> int:
 	if not (p > 0.0 and p <= 1.0):
 		push_error("Success probability (p) must be in (0,1]. Received: %s" % p)
@@ -91,9 +107,12 @@ static func randi_geometric(p: float) -> int:
 	return final_result
 
 
-# Poisson Distribution: randi_poisson(lambda_param)
-# Generates an integer from a Poisson distribution with mean lambda_param (average rate of events).
-# Uses Knuth's algorithm (multiplying uniform random numbers).
+## Generates an integer from a Poisson distribution.
+##
+## Models the number of events occurring in a fixed interval when events occur 
+## independently at a constant average rate [code]lambda_param[/code]. Uses Knuth's algorithm.
+##
+## Mathematical Note: [code]E[X] = Var(X) = λ[/code]
 static func randi_poisson(lambda_param: float) -> int:
 	if not (lambda_param > 0.0):
 		push_error("Rate parameter (lambda_param) must be positive. Received: %s" % lambda_param)
@@ -111,8 +130,25 @@ static func randi_poisson(lambda_param: float) -> int:
 	return k - 1
 
 
-# Pseudo Random Integer Generation (Custom/Specific use case)
-# Generates an integer based on an iterative Bernoulli process with increasing success probability.
+## Generates an integer from a discrete uniform distribution.
+##
+## Returns a random integer uniformly distributed in [code][min_val, max_val][/code] (both inclusive).
+## Wrapper around Godot's randi_range for consistency with other distribution functions.
+static func randi_uniform(min_val: int, max_val: int) -> int:
+	if not (min_val <= max_val):
+		push_error("Minimum value must be less than or equal to maximum value for integer uniform distribution. Received min=%s, max=%s" % [min_val, max_val])
+		return -1
+	return StatMath.get_rng().randi_range(min_val, max_val)
+
+
+# =============================================================================
+# CUSTOM DISCRETE DISTRIBUTIONS
+# =============================================================================
+
+## Generates an integer from a custom pseudo-random process.
+##
+## Uses an iterative Bernoulli process with increasing success probability.
+## Success probability starts at [code]c_param[/code] and increases by [code]c_param[/code] each trial.
 static func randi_pseudo(c_param: float) -> int:
 	if not (c_param > 0.0 and c_param <= 1.0):
 		push_error("Probability increment (c_param) must be in (0.0, 1.0]. Received: %s" % c_param)
@@ -132,8 +168,11 @@ static func randi_pseudo(c_param: float) -> int:
 	return trial
 
 
-# Siege Random Integer Generation (Custom/Specific use case)
-# Simulates a scenario where capture probability changes based on win/loss outcomes.
+## Generates an integer from a custom siege scenario model.
+##
+## Simulates a scenario where capture probability changes based on win/loss outcomes.
+## Attack probability is [code]w[/code], capture probability starts at [code]c_0[/code] and 
+## changes by [code]c_win[/code] or [code]c_lose[/code] based on attack results.
 static func randi_seige(w: float, c_0: float, c_win: float, c_lose: float) -> int:
 	if not (w >= 0.0 and w <= 1.0):
 		push_error("Parameter w (win probability) must be between 0.0 and 1.0. Received: %s" % w)
@@ -166,19 +205,16 @@ static func randi_seige(w: float, c_0: float, c_win: float, c_lose: float) -> in
 	return -1 # Error/unexpected state
 
 
-# Uniform Distribution (Integer): randi_uniform(min_val, max_val)
-# Generates a random integer uniformly distributed in [min_val, max_val] (both inclusive).
-# This is a wrapper around Godot's randi_range for consistency with other distribution functions.
-static func randi_uniform(min_val: int, max_val: int) -> int:
-	if not (min_val <= max_val):
-		push_error("Minimum value must be less than or equal to maximum value for integer uniform distribution. Received min=%s, max=%s" % [min_val, max_val])
-		return -1
-	return StatMath.get_rng().randi_range(min_val, max_val)
+# =============================================================================
+# CONTINUOUS DISTRIBUTIONS
+# =============================================================================
 
-
-# Uniform Distribution (Float): randf_uniform(a, b)
-# Generates a random float uniformly distributed in the interval [a, b).
-# If a = b, returns a.
+## Generates a float from a continuous uniform distribution.
+##
+## Returns a random float uniformly distributed in the interval [code][a, b)[/code].
+## All values in the interval have equal probability density.
+##
+## Mathematical Note: [code]E[X] = (a+b)/2[/code], [code]Var(X) = (b-a)²/12[/code]
 static func randf_uniform(a: float, b: float) -> float:
 	if not (a <= b):
 		push_error("Lower bound (a) must be less than or equal to upper bound (b) for Uniform distribution. Received a=%s, b=%s" % [a, b])
@@ -188,9 +224,12 @@ static func randf_uniform(a: float, b: float) -> float:
 	return StatMath.get_rng().randf() * (b - a) + a
 
 
-# Exponential Distribution (Float): randf_exponential(lambda_param)
-# Generates a random float from an exponential distribution with rate parameter lambda_param.
-# Uses inverse transform sampling method: -log(1-U)/lambda, where U is Uniform(0,1).
+## Generates a float from an Exponential distribution.
+##
+## Models the time between events in a Poisson process with rate [code]lambda_param[/code].
+## Uses inverse transform sampling: [code]-log(1-U)/λ[/code] where U ~ Uniform(0,1).
+##
+## Mathematical Note: [code]E[X] = 1/λ[/code], [code]Var(X) = 1/λ²[/code]
 static func randf_exponential(lambda_param: float) -> float:
 	if not (lambda_param > 0.0):
 		push_error("Rate parameter (lambda_param) must be positive for Exponential distribution. Received: %s" % lambda_param)
@@ -201,12 +240,13 @@ static func randf_exponential(lambda_param: float) -> float:
 		u = StatMath.get_rng().randf()
 	return -log(1.0 - u) / lambda_param
 
-	
-# Erlang Distribution (Float): randf_erlang(k, lambda_param)
-# Generates a random float from an Erlang distribution with shape k (positive integer)
-# and rate lambda_param (positive float).
-# An Erlang(k, lambda) variate is the sum of k independent Exponential(lambda) variates.
-# This implementation uses the method based on product of k uniform variates.
+
+## Generates a float from an Erlang distribution.
+##
+## Special case of Gamma distribution with integer shape parameter [code]k[/code].
+## Represents the sum of [code]k[/code] independent Exponential([code]lambda_param[/code]) variables.
+##
+## Mathematical Note: [code]E[X] = k/λ[/code], [code]Var(X) = k/λ²[/code]
 static func randf_erlang(k: int, lambda_param: float) -> float:
 	if not (k > 0):
 		push_error("Shape parameter (k) must be a positive integer for Erlang distribution. Received: %s" % k)
@@ -225,10 +265,12 @@ static func randf_erlang(k: int, lambda_param: float) -> float:
 	return -log(product) / lambda_param
 
 
-# Gamma Distribution (Float): randf_gamma(shape, scale)
-# Generates a random float from a gamma distribution with shape and scale parameters.
-# Uses Marsaglia and Tsang's method for shape >= 1, rejection sampling for shape < 1.
-# Note: This uses scale parameterization (Gamma(α, θ)) where mean = α*θ and var = α*θ²
+## Generates a float from a Gamma distribution.
+##
+## Uses scale parameterization: [code]Gamma(α, θ)[/code] where mean = [code]αθ[/code] and variance = [code]αθ²[/code].
+## Uses Marsaglia and Tsang's method for shape ≥ 1, rejection sampling for shape < 1.
+##
+## Mathematical Note: [code]E[X] = αθ[/code], [code]Var(X) = αθ²[/code]
 static func randf_gamma(shape: float, scale: float = 1.0) -> float:
 	if not (shape > 0.0):
 		push_error("Shape parameter must be positive for Gamma distribution. Received: %s" % shape)
@@ -273,10 +315,12 @@ static func randf_gamma(shape: float, scale: float = 1.0) -> float:
 	return 0.0
 
 
-# Beta Distribution (Float): randf_beta(alpha, beta)
-# Generates a random float from a beta distribution using the gamma-to-beta transformation.
-# Uses the relationship: if X~Gamma(α,1) and Y~Gamma(β,1), then X/(X+Y)~Beta(α,β)
-# This avoids the need for complex special functions ("incomplete" beta, etc.)
+## Generates a float from a Beta distribution.
+##
+## Uses the gamma-to-beta transformation: if [code]X ~ Gamma(α,1)[/code] and [code]Y ~ Gamma(β,1)[/code], 
+## then [code]X/(X+Y) ~ Beta(α,β)[/code]. Values are always in [code][0,1][/code].
+##
+## Mathematical Note: [code]E[X] = α/(α+β)[/code], [code]Var(X) = αβ/[(α+β)²(α+β+1)][/code]
 static func randf_beta(alpha: float, beta_param: float) -> float:
 	if not (alpha > 0.0):
 		push_error("Alpha parameter must be positive for Beta distribution. Received: %s" % alpha)
@@ -296,9 +340,12 @@ static func randf_beta(alpha: float, beta_param: float) -> float:
 	return x / (x + y)
 
 
-# Gaussian (Standard Normal) Distribution (Float): randf_gaussian()
-# Generates a random float from a standard normal distribution N(0,1).
-# Uses the Box-Muller transform, returning one of the two generated variates.
+## Generates a float from a standard normal distribution N(0,1).
+##
+## Uses the Box-Muller transform to convert uniform random variables to normal.
+## Returns one of the two generated variates (the other is discarded).
+##
+## Mathematical Note: [code]E[X] = 0[/code], [code]Var(X) = 1[/code]
 static func randf_gaussian() -> float: 
 	var u1: float = StatMath.get_rng().randf()
 	while u1 == 0.0: # Avoid log(0) if randf() could return 0.
@@ -310,29 +357,26 @@ static func randf_gaussian() -> float:
 	return z0
 
 
-# Normal Distribution (Float): randf_normal(mu, sigma)
-# Generates a random float from a normal (Gaussian) distribution with specified
-# mean (mu) and standard deviation (sigma).
-# Defaults to N(0,1) if mu and sigma are not provided.
-# Transforms a standard normal variate: Z*sigma + mu.
+## Generates a float from a normal distribution with specified mean and standard deviation.
+##
+## Transforms a standard normal variate: [code]Z*σ + μ[/code] where [code]Z ~ N(0,1)[/code].
+## Defaults to [code]N(0,1)[/code] if parameters are not provided.
+##
+## Mathematical Note: [code]E[X] = μ[/code], [code]Var(X) = σ²[/code]
 static func randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float: 
-	if not (sigma >= 0.0):
-		push_error("Standard deviation (sigma) must be non-negative. Received: %s" % sigma)
+	if not (sigma > 0.0):
+		push_error("Standard deviation (sigma) must be positive. Received: %s" % sigma)
 		return NAN
-	if sigma == 0.0:
-		return mu # If sigma is 0, all values are the mean.
 	return mu + sigma * randf_gaussian()
 
 
-# Cauchy Distribution (Float): randf_cauchy(location, scale)
-# Generates a random float from a Cauchy (Lorentzian) distribution with location and scale parameters.
-# Uses the ratio of two independent standard normal variates: X/Y where X,Y ~ N(0,1).
-# Note: Cauchy distribution has undefined mean and variance due to heavy tails.
-# Useful for modeling extreme events, market fluctuations, and procedural generation with dramatic outliers.
-# Parameters:
-#   location: float - The location parameter (median of the distribution, default: 0.0).
-#   scale: float - The scale parameter (controls spread, must be > 0.0, default: 1.0).
-# Returns: float - A Cauchy-distributed random value.
+## Generates a float from a Cauchy (Lorentzian) distribution.
+##
+## Uses the ratio of two independent standard normal variates. The Cauchy distribution 
+## has undefined mean and variance due to heavy tails, making it useful for modeling 
+## extreme events and outliers.
+##
+## Mathematical Note: Mean and variance are undefined due to heavy tails
 static func randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float:
 	if not (scale > 0.0):
 		push_error("Scale parameter must be positive for Cauchy distribution. Received: %s" % scale)
@@ -353,16 +397,13 @@ static func randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float:
 	return location + scale * (x / y)
 
 
-# Triangular Distribution (Float): randf_triangular(min_value, max_value, mode_value)
-# Generates a random float from a triangular distribution with specified bounds and mode.
-# The distribution forms a triangle shape with peak at mode_value between min_value and max_value.
-# Uses inverse transform sampling method for efficiency and accuracy.
-# Commonly used in game development for intuitive parameter generation where you know min/most_likely/max values.
-# Parameters:
-#   min_value: float - The minimum possible value (left bound of triangle).
-#   max_value: float - The maximum possible value (right bound of triangle).
-#   mode_value: float - The most likely value (peak of triangle), must satisfy min_value ≤ mode_value ≤ max_value.
-# Returns: float - A triangular-distributed random value between min_value and max_value.
+## Generates a float from a Triangular distribution.
+##
+## Creates values with a triangular probability density function, peaking at [code]mode_value[/code].
+## Uses inverse transform sampling for efficiency. Commonly used in game development 
+## when you know minimum, most likely, and maximum values.
+##
+## Mathematical Note: [code]E[X] = (a+b+c)/3[/code] where c is the mode
 static func randf_triangular(min_value: float, max_value: float, mode_value: float) -> float:
 	if not (max_value >= min_value):
 		push_error("Maximum value must be greater than or equal to minimum value for Triangular distribution. Received min=%s, max=%s" % [min_value, max_value])
@@ -399,18 +440,13 @@ static func randf_triangular(min_value: float, max_value: float, mode_value: flo
 		return max_value - sqrt(right_area_factor)
 
 
-# Pareto Distribution (Float): randf_pareto(scale_param, shape_param)
-# Generates a random float from a Pareto distribution (also known as power law distribution).
-# Models the famous "80/20 rule" and heavy-tailed distributions common in economics and nature.
-# Uses inverse transform sampling method for efficiency and mathematical accuracy.
-# Commonly used in game development for wealth distribution, loot rarity, city sizes, and resource allocation.
-# Parameters:
-#   scale_param: float - The scale parameter (minimum possible value, must be > 0.0).
-#   shape_param: float - The shape parameter (controls heaviness of tail, must be > 0.0).
-#                       Higher values = lighter tail, more concentration near minimum.
-#                       Lower values = heavier tail, more extreme values possible.
-# Returns: float - A Pareto-distributed random value ≥ scale_param.
-# Note: Mean exists only if shape_param > 1, variance exists only if shape_param > 2.
+## Generates a float from a Pareto distribution (power law).
+##
+## Models the famous "80/20 rule" and heavy-tailed distributions. Uses exponential 
+## transformation method: if [code]Y ~ Exponential(shape)[/code], then 
+## [code]X = scale * exp(Y) ~ Pareto(scale, shape)[/code].
+##
+## Mathematical Note: Mean exists only if [code]shape > 1[/code], variance exists only if [code]shape > 2[/code]
 static func randf_pareto(scale_param: float, shape_param: float) -> float:
 	if not (scale_param > 0.0):
 		push_error("Scale parameter must be positive for Pareto distribution. Received: %s" % scale_param)
@@ -427,20 +463,12 @@ static func randf_pareto(scale_param: float, shape_param: float) -> float:
 	return scale_param * exp(exponential_variate)
 
 
-# Weibull Distribution (Float): randf_weibull(scale_param, shape_param)
-# Generates a random float from a Weibull distribution with scale and shape parameters.
-# Widely used for modeling reliability, survival analysis, wind speeds, and failure rates.
-# Uses inverse transform sampling with the closed-form solution: scale * (-ln(1-U))^(1/shape).
-# Commonly used in game development for equipment durability, weather simulation, and time-to-event modeling.
-# Parameters:
-#   scale_param: float - The scale parameter λ (characteristic life, must be > 0.0).
-#   shape_param: float - The shape parameter k (controls distribution shape, must be > 0.0).
-#                       k < 1: decreasing failure rate (infant mortality)
-#                       k = 1: constant failure rate (exponential distribution)
-#                       k > 1: increasing failure rate (wear-out failures)
-#                       k = 2: Rayleigh distribution (wind speeds)
-# Returns: float - A Weibull-distributed random value ≥ 0.
-# Note: Mean = scale * Γ(1 + 1/shape), where Γ is the gamma function.
+## Generates a float from a Weibull distribution.
+##
+## Widely used for reliability analysis, survival analysis, and weather modeling.
+## Uses inverse transform sampling: [code]λ * (-ln(1-U))^(1/k)[/code] where U ~ Uniform(0,1).
+##
+## Mathematical Note: Mean = [code]λ * Γ(1 + 1/k)[/code] where Γ is the gamma function
 static func randf_weibull(scale_param: float, shape_param: float) -> float:
 	if not (scale_param > 0.0):
 		push_error("Scale parameter must be positive for Weibull distribution. Received: %s" % scale_param)
@@ -464,13 +492,15 @@ static func randf_weibull(scale_param: float, shape_param: float) -> float:
 	return scale_param * power_term
 
 
-# Histogram Distribution (Variant): randv_histogram(values, probabilities)
-# Generates a random value from a discrete distribution based on provided values and probabilities.
-# Uses cumulative distribution function (CDF) to determine which value to return.
-# Parameters:
-#   values: Array - Array of values to sample from.
-#   probabilities: Array - Array of probabilities for each value.
-# Returns: Variant - A random value from the distribution.
+# =============================================================================
+# HISTOGRAM DISTRIBUTION
+# =============================================================================
+
+## Generates a random value from a discrete histogram distribution.
+##
+## Samples from provided values using their associated probabilities. Probabilities 
+## are automatically normalized, so they don't need to sum to 1. Uses cumulative 
+## distribution function (CDF) for efficient sampling.
 static func randv_histogram(values: Array, probabilities: Array) -> Variant:
 	if values.is_empty():
 		push_error("Values array cannot be empty.")

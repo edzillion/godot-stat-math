@@ -47,10 +47,31 @@ func test_randi_binomial_n_zero() -> void:
 	assert_int(result).is_equal(0)
 
 
+func test_randi_binomial_statistical_properties() -> void:
+	var n_trials: int = 20
+	var p: float = 0.4
+	var expected_mean: float = n_trials * p # E[X] = np
+	
+	var sample_size: int = 2000
+	var samples: Array[int] = []
+	for i in range(sample_size):
+		samples.append(StatMath.Distributions.randi_binomial(p, n_trials))
+	
+	var float_samples: Array[float] = []
+	for s in samples:
+		float_samples.append(float(s))
+		
+	var sample_mean: float = StatMath.BasicStats.mean(float_samples)
+	# Check if sample mean is close to expected mean.
+	# Tolerance can be based on standard error of the mean: sqrt(np(1-p)) / sqrt(sample_size)
+	var expected_std_dev: float = sqrt(n_trials * p * (1.0 - p))
+	var tolerance: float = 4.0 * expected_std_dev / sqrt(sample_size)
+	assert_float(sample_mean).is_between(expected_mean - tolerance, expected_mean + tolerance)
+
+
 func test_randi_binomial_typical_case() -> void:
-	var n_trials: int = 10
-	var result: int = StatMath.Distributions.randi_binomial(0.5, n_trials)
-	assert_bool(result >= 0 and result <= n_trials).is_true() # Result should be between 0 and %d % n_trials
+	# DEPRECATED: This test is too weak. Replaced by test_randi_binomial_statistical_properties.
+	pass
 
 
 func test_randi_binomial_invalid_p_too_low() -> void:
@@ -348,6 +369,23 @@ func test_randf_exponential_invalid_lambda_negative() -> void:
 	await assert_error(test_invalid_input).is_push_error("Rate parameter (lambda_param) must be positive for Exponential distribution. Received: -1.0")
 
 
+func test_randf_exponential_statistical_properties() -> void:
+	var lambda_param: float = 1.5
+	var expected_mean: float = 1.0 / lambda_param # E[X] = 1/lambda
+	
+	var sample_size: int = 2000
+	var samples: Array[float] = []
+	for i in range(sample_size):
+		samples.append(StatMath.Distributions.randf_exponential(lambda_param))
+	
+	var sample_mean: float = StatMath.BasicStats.mean(samples)
+	# Check if sample mean is close to expected mean.
+	# Tolerance can be based on standard error of the mean: (1/lambda) / sqrt(n)
+	var expected_std_dev: float = 1.0 / lambda_param
+	var tolerance: float = 4.0 * expected_std_dev / sqrt(sample_size)
+	assert_float(sample_mean).is_between(expected_mean - tolerance, expected_mean + tolerance)
+
+
 # Tests for randf_erlang
 func test_randf_erlang_typical_case() -> void:
 	# Erlang distribution should produce non-negative results.
@@ -411,10 +449,8 @@ func test_randf_normal_sigma_zero() -> void:
 
 
 func test_randf_normal_typical_case() -> void:
-	var result: float = StatMath.Distributions.randf_normal(10.0, 2.0)
-	assert_bool(typeof(result) == TYPE_FLOAT).is_true() # randf_normal with specific mu/sigma should return a float.
-	assert_bool(is_nan(result)).is_false() # Normal result should not be NaN.
-	assert_bool(is_inf(result)).is_false() # Normal result should not be INF.
+	# DEPRECATED: This test is too weak. Replaced by test_randf_normal_statistical_properties.
+	pass
 
 
 func test_randf_normal_negative_mu() -> void:
@@ -427,7 +463,30 @@ func test_randf_normal_negative_mu() -> void:
 func test_randf_normal_invalid_sigma_negative() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_normal(0.0, -1.0)
-	await assert_error(test_invalid_input).is_push_error("Standard deviation (sigma) must be non-negative. Received: -1.0")
+	await assert_error(test_invalid_input).is_push_error("Standard deviation (sigma) must be positive. Received: -1.0")
+
+
+func test_randf_normal_statistical_properties() -> void:
+	var mu: float = 10.0
+	var sigma: float = 2.0
+	var expected_mean: float = mu
+	
+	var sample_size: int = 2000
+	var samples: Array[float] = []
+	for i in range(sample_size):
+		samples.append(StatMath.Distributions.randf_normal(mu, sigma))
+	
+	var sample_mean: float = StatMath.BasicStats.mean(samples)
+	# Check if sample mean is close to mu.
+	# Tolerance can be based on standard error of the mean: sigma / sqrt(n)
+	var tolerance: float = 4.0 * sigma / sqrt(sample_size)
+	assert_float(sample_mean).is_between(expected_mean - tolerance, expected_mean + tolerance)
+
+
+func test_randf_normal_invalid_sigma_zero() -> void:
+	var test_invalid_input: Callable = func():
+		StatMath.Distributions.randf_normal(0.0, 0.0)
+	await assert_error(test_invalid_input).is_push_error("Standard deviation (sigma) must be positive. Received: 0.0")
 
 
 # Tests for randf_cauchy

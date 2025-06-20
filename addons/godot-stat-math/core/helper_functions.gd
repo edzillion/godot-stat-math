@@ -1,20 +1,33 @@
 # res://addons/godot-stat-math/core/helper_functions.gd
-extends RefCounted
+class_name HelperFunctions extends RefCounted
 
-# Core Mathematical Helper Functions
-# This script provides a collection of static mathematical utility functions,
-# including logarithms of factorials, binomial coefficients, direct calculation
-# of binomial coefficients, and various special functions like Gamma, Beta,
-# and their incomplete or regularized forms.
-# These are fundamental for many statistical calculations.
+## Core Mathematical Helper Functions
+##
+## This class provides essential mathematical utility functions including combinatorial 
+## calculations, special functions (Gamma, Beta), and numerical utilities. These functions 
+## serve as the mathematical foundation for statistical calculations throughout the StatMath library.
+##
+## Mathematical Categories:
+## • Combinatorial functions (binomial coefficients, factorials)
+## • Gamma and Beta functions with their incomplete variants
+## • Array sanitization and preprocessing utilities
+## • Logarithmic versions for numerical stability
 
 # Constants are now defined in StatMath.gd
 
-# --- Combinatorial Functions ---
+# =============================================================================
+# COMBINATORIAL FUNCTIONS
+# =============================================================================
 
-# Binomial Coefficient: C(n, r) or "n choose r"
-# Calculates the number of ways to choose r items from a set of n items
-# without regard to the order of selection.
+## Calculates the binomial coefficient C(n, r) or "n choose r".
+##
+## Computes the number of ways to choose r items from a set of n items without 
+## regard to the order of selection. Uses symmetry optimization and iterative 
+## calculation to maintain numerical precision.
+##
+## Formula: [code]C(n,r) = n! / (r! × (n-r)!)[/code]
+##
+## Uses symmetry [code]C(n,r) = C(n, n-r)[/code] for efficiency.
 static func binomial_coefficient(n: int, r: int) -> float:
 	if not (n >= 0):
 		push_error("Parameter n must be non-negative for binomial coefficient. Received: %s" % n)
@@ -44,9 +57,15 @@ static func binomial_coefficient(n: int, r: int) -> float:
 	return coeff
 
 
-# Logarithm of Factorial: log(n!)
-# Calculates the natural logarithm of n factorial.
-# Useful for avoiding overflow with large factorials.
+## Calculates the natural logarithm of n factorial: log(n!).
+##
+## Computes [code]ln(n!)[/code] directly without calculating the factorial itself, 
+## avoiding overflow issues with large factorials. Essential for statistical 
+## calculations involving large numbers.
+##
+## Formula: [code]log(n!) = Σᵢ₌₂ⁿ log(i)[/code]
+##
+## Special Cases: [code]log(0!) = log(1!) = 0[/code]
 static func log_factorial(n: int) -> float:
 	if not (n >= 0):
 		push_error("Factorial (and its log) is undefined for negative numbers. Received: %s" % n)
@@ -60,8 +79,13 @@ static func log_factorial(n: int) -> float:
 	return result
 
 
-# Logarithm of Binomial Coefficient: log(nCk) or log(n choose k)
-# Calculates the natural logarithm of the binomial coefficient C(n, k).
+## Calculates the natural logarithm of the binomial coefficient: log(C(n,k)).
+##
+## Computes [code]ln(C(n,k))[/code] using logarithmic arithmetic to avoid overflow
+## issues with large binomial coefficients. More numerically stable than 
+## [code]log(binomial_coefficient(n,k))[/code] for large values.
+##
+## Formula: [code]log(C(n,k)) = Σᵢ₌₁ᵏ [log(n-i+1) - log(i)][/code]
 static func log_binomial_coef(n: int, k: int) -> float:
 	if not (n >= 0):
 		push_error("Parameter n must be non-negative for binomial coefficient. Received: %s" % n)
@@ -90,11 +114,18 @@ static func log_binomial_coef(n: int, k: int) -> float:
 		result -= log(float(i))
 	return result
 
-# --- Gamma Function and Related --- 
 
-# Gamma Function: Γ(z)
-# Computes the Gamma function using the Lanczos approximation.
-# Handles positive real numbers; uses reflection formula for z <= 0.
+# =============================================================================
+# GAMMA FUNCTION AND RELATED
+# =============================================================================
+
+## Computes the Gamma function Γ(z).
+##
+## The Gamma function is a generalization of the factorial function to real and complex numbers.
+## For positive integers: [code]Γ(n) = (n-1)![/code]
+## Uses the Lanczos approximation for positive values and the reflection formula for negative values.
+##
+## Mathematical Note: [code]Γ(z)Γ(1-z) = π/sin(πz)[/code] (reflection formula)
 static func gamma_function(z: float) -> float:
 	if z <= 0.0:
 		# Reflection formula: Γ(z) * Γ(1-z) = π / sin(πz)
@@ -120,9 +151,12 @@ static func gamma_function(z: float) -> float:
 	return sqrt(2.0 * PI) * pow(y_base, x + 0.5) * exp(-y_base) * series_sum
 
 
-# Logarithm of the Gamma Function: log(Γ(z))
-# Computes the natural logarithm of the Gamma function using Lanczos approximation directly for log.
-# More numerically stable than log(gamma_function(z)) for large z.
+## Computes the natural logarithm of the Gamma function: log(Γ(z)).
+##
+## More numerically stable than [code]log(gamma_function(z))[/code] for large z.
+## Uses Lanczos approximation directly in logarithmic form to avoid overflow.
+##
+## Mathematical Note: Only defined for [code]z > 0[/code] where [code]Γ(z) > 0[/code]
 static func log_gamma(z: float) -> float:
 	if not (z > 0.0):
 		push_error("Log Gamma function is typically defined for z > 0. Received: %s" % z)
@@ -140,10 +174,17 @@ static func log_gamma(z: float) -> float:
 	# log(sqrt(2π)) + log(sum) + (x+0.5)*log(y) - y
 	return log(sqrt(2.0 * PI)) + log(series_sum_val) + (x + 0.5) * log(y_base) - y_base
 
-# --- Beta Function and Related --- 
 
-# Beta Function: B(a, b)
-# Defined as Γ(a)Γ(b) / Γ(a+b).
+# =============================================================================
+# BETA FUNCTION AND RELATED
+# =============================================================================
+
+## Computes the Beta function B(a, b).
+##
+## The Beta function is defined as [code]B(a,b) = Γ(a)Γ(b) / Γ(a+b)[/code].
+## Uses logarithmic arithmetic for numerical stability with large parameter values.
+##
+## Mathematical Note: [code]B(a,b) = B(b,a)[/code] (symmetric property)
 static func beta_function(a: float, b: float) -> float:
 	if not (a > 0.0 and b > 0.0):
 		push_error("Parameters a and b must be positive for Beta function. Received a=%s, b=%s" % [a, b])
@@ -158,10 +199,23 @@ static func beta_function(a: float, b: float) -> float:
 	return exp(log_gamma_a + log_gamma_b - log_gamma_a_plus_b)
 
 
-# Regularized Incomplete Beta Function: I_x(a, b)
-# Calculates the regularized incomplete beta function, I_x(a,b) = B(x;a,b) / B(a,b).
-# IMPLEMENTATION NOTE: Uses simplified numerical integration method for basic functionality.
-# For high-precision applications, consider implementing continued fractions method.
+## Computes the natural logarithm of the Beta function: log(B(a,b)).
+##
+## More numerically stable than [code]log(beta_function(a,b))[/code] for large parameters.
+## Formula: [code]log(B(a,b)) = log(Γ(a)) + log(Γ(b)) - log(Γ(a+b))[/code]
+static func log_beta_function_direct(a: float, b: float) -> float:
+	if not (a > 0.0 and b > 0.0):
+		push_error("Parameters a and b must be positive for Beta function. Received a=%s, b=%s" % [a, b])
+		return NAN
+	return log_gamma(a) + log_gamma(b) - log_gamma(a+b)
+
+
+## Computes the regularized incomplete Beta function: I_x(a, b).
+##
+## Calculates [code]I_x(a,b) = B(x;a,b) / B(a,b)[/code] where [code]B(x;a,b)[/code] is 
+## the incomplete Beta function. Uses numerical integration method for basic functionality.
+##
+## Mathematical Note: [code]I_0(a,b) = 0[/code], [code]I_1(a,b) = 1[/code]
 static func incomplete_beta(x_val: float, a: float, b: float) -> float:
 	if not (a > 0.0 and b > 0.0):
 		push_error("Shape parameters a and b must be positive. Received a=%s, b=%s" % [a, b])
@@ -215,18 +269,13 @@ static func incomplete_beta(x_val: float, a: float, b: float) -> float:
 	return result
 
 
-# Direct Beta Function (avoid recomputing logs if gamma_function is directly available and stable)
-# For use in incomplete_beta if the exp(log_gamma sum) is problematic or for direct calls.
-static func log_beta_function_direct(a: float, b: float) -> float:
-	if not (a > 0.0 and b > 0.0):
-		push_error("Parameters a and b must be positive for Beta function. Received a=%s, b=%s" % [a, b])
-		return NAN
-	return log_gamma(a) + log_gamma(b) - log_gamma(a+b)
-
-
-# Regularized Lower Incomplete Gamma Function: P(a,z) = γ(a,z) / Γ(a)
-# IMPLEMENTATION NOTE: Uses simplified series expansion method for basic functionality.
-# For high-precision applications, consider implementing continued fractions method.
+## Computes the regularized lower incomplete Gamma function: P(a,z).
+##
+## Calculates [code]P(a,z) = γ(a,z) / Γ(a)[/code] where [code]γ(a,z)[/code] is the 
+## lower incomplete Gamma function. Uses different numerical methods based on parameter 
+## ranges for optimal stability.
+##
+## Mathematical Note: [code]P(a,0) = 0[/code], [code]P(a,∞) = 1[/code]
 static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
 	if not (a > 0.0):
 		push_error("Shape parameter a must be positive for Incomplete Gamma function. Received: %s" % a)
@@ -243,60 +292,136 @@ static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
 		return 1.0 - exp(-z)
 	
 	# For very large z relative to a, P(a,z) approaches 1
-	# Use a more conservative threshold to avoid premature convergence
 	if z > a + 50.0:
 		return 1.0
 	
-	# Use series expansion: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / Γ(a+n+1))
-	# Which simplifies to: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / (a*(a+1)*...*(a+n)))
-	var max_terms: int = 100
-	var tolerance: float = 1e-12
+	# IMPROVED ALGORITHM: Use different methods based on parameter ranges for better stability
+	var result: float
 	
-	var series_sum: float = 1.0  # First term (n=0)
+	if z < a + 1.0:
+		# Use series expansion for z < a + 1 (generally more stable in this range)
+		result = _gamma_series_expansion(a, z)
+	else:
+		# Use continued fraction expansion for z >= a + 1 (more stable for larger z)
+		result = 1.0 - _gamma_continued_fraction(a, z)
+	
+	# Final validation - should never be outside [0,1] with proper implementation
+	if result < 0.0 or result > 1.0:
+		push_warning("lower_incomplete_gamma_regularized: Numerical instability detected for a=%s, z=%s (result=%s). Using fallback." % [a, z, result])
+		# Fallback to simple approximation for problematic cases
+		if z < a:
+			result = pow(z / (a + z), a) * 0.5  # Conservative lower bound
+		else:
+			result = 1.0 - exp(-z) * pow(z, a) / (gamma_function(a + 1.0))  # Upper bound approximation
+		result = clamp(result, 0.0, 1.0)
+	
+	return result
+
+
+## Helper function for series expansion method (used when z < a + 1).
+##
+## Implements the series expansion form of the incomplete Gamma function for better 
+## numerical stability in the appropriate parameter range.
+static func _gamma_series_expansion(a: float, z: float) -> float:
+	var max_terms: int = 200  # Increased iterations for better convergence
+	var tolerance: float = 1e-15  # Tighter tolerance
+	
+	var series_sum: float = 1.0
 	var term: float = 1.0
 	
-	# Calculate the series sum
 	for n in range(1, max_terms):
 		term *= z / (a + float(n - 1))
 		series_sum += term
 		
-		# Check convergence
-		if abs(term) < tolerance:
+		# Check convergence with relative tolerance
+		if abs(term / series_sum) < tolerance:
 			break
 	
-	# Calculate the final result: (z^a * e^(-z) / Γ(a)) * series_sum
-	var log_prefix: float = a * log(z) - z - log_gamma(a)
-	var result: float = exp(log_prefix) * series_sum
+	# More stable calculation using log space
+	var log_result: float = a * log(z) - z - log_gamma(a) + log(series_sum)
 	
-	# Clamp to valid range [0,1] but be careful not to clamp too aggressively
-	# Only clamp if we're slightly outside bounds due to numerical errors
-	if result > 1.0 and result < 1.001:
-		result = 1.0
-	elif result < 0.0 and result > -0.001:
-		result = 0.0
-	elif result < 0.0 or result > 1.0:
-		push_warning("lower_incomplete_gamma_regularized: Result %s is outside [0,1] for a=%s, z=%s. Clamping." % [result, a, z])
-		result = clamp(result, 0.0, 1.0)
+	# Prevent overflow/underflow
+	if log_result > 0.0:  # Result would be > 1.0
+		return 1.0
+	elif log_result < -50.0:  # Result would be essentially 0
+		return 0.0
 	
-	# Warning for edge cases
-	if a < 0.5 or z > 50.0:
-		push_warning("lower_incomplete_gamma_regularized: Using series expansion for a=%s, z=%s. Consider more advanced methods for extreme parameters." % [a, z])
-	
-	return result
+	return exp(log_result)
 
-# --- Data Preprocessing Functions ---
 
-# Sanitize Numeric Array: Clean and sort numeric data
-# Ingests an Array with elements of any type, sanitizes non-integers/floats, 
-# and returns a sorted Array[float]. Non-numeric values are filtered out.
-# This is useful for preprocessing data before statistical calculations.
+## Helper function for continued fraction method (used when z >= a + 1).
+##
+## Implements the continued fraction form of the incomplete Gamma function for better 
+## numerical stability with larger z values relative to a.
+static func _gamma_continued_fraction(a: float, z: float) -> float:
+	var max_iterations: int = 200
+	var tolerance: float = 1e-15
+	
+	# Continued fraction coefficients
+	var b: float = z + 1.0 - a
+	var c: float = 1e30  # Large number
+	var d: float = 1.0 / b
+	var h: float = d
+	
+	for i in range(1, max_iterations + 1):
+		var an: float = -float(i) * (float(i) - a)
+		b += 2.0
+		
+		d = an * d + b
+		if abs(d) < 1e-30:
+			d = 1e-30
+		c = b + an / c
+		if abs(c) < 1e-30:
+			c = 1e-30
+		
+		d = 1.0 / d
+		var del: float = d * c
+		h *= del
+		
+		if abs(del - 1.0) < tolerance:
+			break
+	
+	# Calculate final result
+	var log_result: float = a * log(z) - z - log_gamma(a) + log(h)
+	
+	# Prevent overflow/underflow  
+	if log_result > 0.0:
+		return 1.0
+	elif log_result < -50.0:
+		return 0.0
+	
+	return exp(log_result)
+
+
+# =============================================================================
+# DATA PREPROCESSING FUNCTIONS
+# =============================================================================
+
+## Sanitizes and sorts a mixed-type array into a clean Array[float].
+##
+## Accepts an Array with elements of any type, filters out non-numeric values, 
+## converts remaining elements to float, and returns a sorted array. Essential 
+## for preprocessing data before statistical calculations.
+##
+## Non-numeric values (strings, nulls, objects, etc.) are silently skipped.
 static func sanitize_numeric_array(input_array: Array) -> Array[float]:
 	var sanitized: Array[float] = []
 	
 	for element in input_array:
 		if element is int or element is float:
-			sanitized.append(float(element))
-		# Non-numeric values (strings, nulls, objects, etc.) are silently skipped
+			var val: float = float(element)
+			# Only include finite values (exclude INF and NAN)
+			if is_finite(val):
+				sanitized.append(val)
+		elif element is String:
+			# Try to convert string to float
+			var str_val: String = element as String
+			if str_val.is_valid_float():
+				var val: float = str_val.to_float()
+				# Only include finite values (exclude INF and NAN)
+				if is_finite(val):
+					sanitized.append(val)
+		# Non-numeric values (nulls, objects, etc.) are silently skipped
 	
 	sanitized.sort()
 	return sanitized

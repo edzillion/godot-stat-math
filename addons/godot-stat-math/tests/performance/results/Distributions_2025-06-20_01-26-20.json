@@ -1,0 +1,19 @@
+{
+	"meta": {
+		"generated_at": "2025-06-20T01:26:21",
+		"total_tests": 1
+	},
+	"module": "Distributions",
+	"tests": {
+		"distributions_randf_normal": {
+			"baseline_ms": 0.144,
+			"coefficient_of_variation": 0.013058293576952,
+			"diff_percent": 26.3888888888889,
+			"result_ms": 0.182,
+			"sample_size": 15.0,
+			"status": "fail",
+			"threshold_percent": 0.15
+		}
+	},
+	"timestamp": "2025-06-20_01-26-20"
+}
