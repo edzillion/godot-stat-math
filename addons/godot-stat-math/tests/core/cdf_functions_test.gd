@@ -1,9 +1,9 @@
-# addons/godot-stat-math/tests/core/cdf_functions_test.gd
+# res://addons/godot-stat-math/tests/core/cdf_functions_test.gd
 class_name CdfFunctionsTest extends GdUnitTestSuite
 
 const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
-const SCIPY_TOLERANCE: float = 1e-5  # Tolerance for scipy-validated values
-const BOUNDARY_TOLERANCE: float = 1e-10  # Tolerance for boundary conditions
+# Using centralized tolerance constants from StatMath class
+# Using centralized BOUNDARY_TOLERANCE from StatMath class
 
 var simple_data: Array[float] = [1.0, 2.0, 3.0, 4.0, 5.0]
 const CDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/cdf_test_data.gd")
@@ -52,7 +52,7 @@ static func _build_cdf_test_parameters() -> Array:
 ## Tests CDF functions against scipy-validated reference values
 func test_cdf_scipy_validation_parametrized(distribution: String, x: float, params: Array, expected: float, test_parameters := _build_cdf_test_parameters()) -> void:
 	var result: float = _get_cdf_value(distribution, x, params)
-	assert_float(result).is_equal_approx(expected, SCIPY_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.INVERSE_FUNCTION_TOLERANCE)
 
 # =============================================================================
 # PHASE 3: MONOTONICITY TESTING FOR ALL DISTRIBUTIONS  
@@ -127,7 +127,7 @@ func test_cdf_boundary_values_parametrized(distribution: String, boundary_type: 
 	["t", "zero", [1.0], 0.0, 0.5]
 	]) -> void:
 	var result: float = _get_cdf_value(distribution, x_value, params)
-	assert_float(result).is_equal_approx(expected, BOUNDARY_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.BOUNDARY_TOLERANCE)
 
 # =============================================================================
 # PHASE 3: SPECIAL VALUES AND QUANTILES
@@ -681,7 +681,7 @@ func test_weibull_cdf_known_value() -> void:
 	var params: Array[float] = [1.5, 2.0, 1.0]  # x, scale, shape
 	var expected: float = 0.527633447258985  # scipy.stats.weibull_min.cdf(1.5, c=1.0, scale=2.0)
 	var result: float = StatMath.CdfFunctions.weibull_cdf(params[0], params[1], params[2])
-	assert_float(result).is_equal_approx(expected, SCIPY_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.INVERSE_FUNCTION_TOLERANCE)
 
 func test_weibull_cdf_basic_calculation() -> void:
 	# For x = 2, scale = 2, shape = 2: F(2) = 1 - exp(-(2/2)^2) = 1 - exp(-1) ≈ 0.632

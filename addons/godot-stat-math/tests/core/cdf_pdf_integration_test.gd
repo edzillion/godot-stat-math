@@ -10,8 +10,7 @@ class_name CdfPdfIntegrationTest extends GdUnitTestSuite
 ## • Numerical stability under various conditions
 ## • Cross-distribution mathematical relationships
 
-const PROBABILITY_TOLERANCE: float = 1e-6  # For probability calculations
-const DERIVATIVE_TOLERANCE: float = 1e-3  # For numerical derivative tests
+# Using centralized tolerances from StatMath class
 const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
 
 # =============================================================================
@@ -23,7 +22,7 @@ func test_normal_cdf_pdf_derivative_relationship() -> void:
 	var test_points: Array[float] = [-2.0, -1.0, 0.0, 1.0, 2.0]
 	var mu: float = 0.0
 	var sigma: float = 1.0
-	var h: float = 1e-6  # Small step for numerical derivative
+	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
 	for x in test_points:
 		# Calculate numerical derivative: d/dx CDF(x) ≈ (CDF(x+h) - CDF(x-h)) / (2h)
@@ -34,13 +33,13 @@ func test_normal_cdf_pdf_derivative_relationship() -> void:
 		# Calculate actual PDF value
 		var pdf_value: float = StatMath.PmfPdfFunctions.normal_pdf(x, mu, sigma)
 		
-		assert_float(numerical_derivative).is_equal_approx(pdf_value, DERIVATIVE_TOLERANCE)
+		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
 
 ## Tests that the numerical derivative of Exponential CDF approximates Exponential PDF
 func test_exponential_cdf_pdf_derivative_relationship() -> void:
 	var test_points: Array[float] = [0.1, 0.5, 1.0, 2.0, 5.0]  # Avoid x=0 for stability
 	var lambda_param: float = 2.0
-	var h: float = 1e-6
+	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
 	for x in test_points:
 		var cdf_plus: float = StatMath.CdfFunctions.exponential_cdf(x + h, lambda_param)
@@ -49,14 +48,14 @@ func test_exponential_cdf_pdf_derivative_relationship() -> void:
 		
 		var pdf_value: float = StatMath.PmfPdfFunctions.exponential_pdf(x, lambda_param)
 		
-		assert_float(numerical_derivative).is_equal_approx(pdf_value, DERIVATIVE_TOLERANCE)
+		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
 
 ## Tests that the numerical derivative of Uniform CDF approximates Uniform PDF
 func test_uniform_cdf_pdf_derivative_relationship() -> void:
 	var a: float = 1.0
 	var b: float = 4.0
 	var test_points: Array[float] = [1.5, 2.0, 2.5, 3.0, 3.5]  # Points strictly inside [a,b]
-	var h: float = 1e-6
+	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
 	for x in test_points:
 		var cdf_plus: float = StatMath.CdfFunctions.uniform_cdf(x + h, a, b)
@@ -65,14 +64,14 @@ func test_uniform_cdf_pdf_derivative_relationship() -> void:
 		
 		var pdf_value: float = StatMath.PmfPdfFunctions.uniform_pdf(x, a, b)
 		
-		assert_float(numerical_derivative).is_equal_approx(pdf_value, DERIVATIVE_TOLERANCE)
+		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
 
 ## Tests that the numerical derivative of Beta CDF approximates Beta PDF
 func test_beta_cdf_pdf_derivative_relationship() -> void:
 	var alpha: float = 2.0
 	var beta_param: float = 3.0
 	var test_points: Array[float] = [0.1, 0.3, 0.5, 0.7, 0.9]  # Points strictly inside (0,1)
-	var h: float = 1e-6
+	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
 	for x in test_points:
 		var cdf_plus: float = StatMath.CdfFunctions.beta_cdf(x + h, alpha, beta_param)
@@ -81,7 +80,7 @@ func test_beta_cdf_pdf_derivative_relationship() -> void:
 		
 		var pdf_value: float = StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta_param)
 		
-		assert_float(numerical_derivative).is_equal_approx(pdf_value, DERIVATIVE_TOLERANCE)
+		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
 
 ## Tests Gamma distribution probability consistency (Gamma(1,scale) = Exponential(1/scale))
 func test_gamma_cdf_pdf_probability_consistency() -> void:
@@ -97,14 +96,14 @@ func test_gamma_cdf_pdf_probability_consistency() -> void:
 		var exponential_cdf: float = StatMath.CdfFunctions.exponential_cdf(x, lambda_equiv)
 		
 		# They should be approximately equal due to mathematical relationship
-		assert_float(gamma_cdf).is_equal_approx(exponential_cdf, PROBABILITY_TOLERANCE)
+		assert_float(gamma_cdf).is_equal_approx(exponential_cdf, StatMath.PROBABILITY_TOLERANCE)
 
 ## Tests that the numerical derivative of Weibull CDF approximates Weibull PDF
 func test_weibull_cdf_pdf_derivative_relationship() -> void:
 	var scale_param: float = 2.0
 	var shape_param: float = 2.0
 	var test_points: Array[float] = [0.5, 1.0, 1.5, 2.0, 3.0]  # Points > 0
-	var h: float = 1e-6
+	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
 	for x in test_points:
 		var cdf_plus: float = StatMath.CdfFunctions.weibull_cdf(x + h, scale_param, shape_param)
@@ -113,7 +112,7 @@ func test_weibull_cdf_pdf_derivative_relationship() -> void:
 		
 		var pdf_value: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale_param, shape_param)
 		
-		assert_float(numerical_derivative).is_equal_approx(pdf_value, DERIVATIVE_TOLERANCE)
+		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
 
 # =============================================================================
 # CDF MONOTONICITY TESTS

@@ -1,4 +1,4 @@
-# addons/godot-stat-math/core/distributions_test.gd
+# res://addons/godot-stat-math/tests/core/distributions_test.gd
 class_name DistributionsTest extends GdUnitTestSuite
 
 

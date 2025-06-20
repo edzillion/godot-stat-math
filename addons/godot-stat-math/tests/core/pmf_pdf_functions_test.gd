@@ -1,4 +1,4 @@
-# addons/godot-stat-math/tests/core/pmf_pdf_functions_test.gd
+# res://addons/godot-stat-math/tests/core/pmf_pdf_functions_test.gd
 class_name PmfPdfFunctionsTest extends GdUnitTestSuite
 
 const PMF_PDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/pmf_pdf_test_data.gd")
@@ -6,7 +6,7 @@ const PMF_PDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/pmf_pdf_t
 # --- Binomial PMF ---
 func test_binomial_pmf_basic() -> void:
 	var result: float = StatMath.PmfPdfFunctions.binomial_pmf(2, 5, 0.5)
-	assert_float(result).is_equal_approx(0.3125, 1e-7) # C(5,2) * 0.5^2 * 0.5^3 = 10 * 0.25 * 0.125 = 0.3125
+	assert_float(result).is_equal_approx(0.3125, StatMath.PROBABILITY_TOLERANCE) # C(5,2) * 0.5^2 * 0.5^3 = 10 * 0.25 * 0.125 = 0.3125
 
 func test_binomial_pmf_edge_cases(k: int, n: int, p: float, expected: float, test_parameters := [
 	[0, 5, 0.5, 0.03125],  # k = 0
@@ -16,7 +16,7 @@ func test_binomial_pmf_edge_cases(k: int, n: int, p: float, expected: float, tes
 	[5, 5, 1.0, 1.0],      # p = 1
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.binomial_pmf(k, n, p)
-	assert_float(result).is_equal_approx(expected, 1e-7)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_binomial_pmf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -30,7 +30,7 @@ func test_binomial_pmf_invalid_parameters() -> void:
 # --- Poisson PMF ---
 func test_poisson_pmf_basic() -> void:
 	var result: float = StatMath.PmfPdfFunctions.poisson_pmf(2, 3.0)
-	assert_float(result).is_equal_approx(0.2240418, 1e-7) # (3^2 * e^-3) / 2! = 9 * e^-3 / 2
+	assert_float(result).is_equal_approx(0.2240418, StatMath.PROBABILITY_TOLERANCE) # (3^2 * e^-3) / 2! = 9 * e^-3 / 2
 
 func test_poisson_pmf_edge_cases(k: int, lambda_param: float, expected: float, test_parameters := [
 	[0, 3.0, exp(-3.0)],  # k = 0
@@ -38,7 +38,7 @@ func test_poisson_pmf_edge_cases(k: int, lambda_param: float, expected: float, t
 	[-1, 3.0, 0.0],       # k < 0
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.poisson_pmf(k, lambda_param)
-	assert_float(result).is_equal_approx(expected, 1e-7)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_poisson_pmf_invalid_parameters() -> void:
 	var test_call: Callable = func():
@@ -48,7 +48,7 @@ func test_poisson_pmf_invalid_parameters() -> void:
 # --- Negative Binomial PMF ---
 func test_negative_binomial_pmf_basic() -> void:
 	var result: float = StatMath.PmfPdfFunctions.negative_binomial_pmf(5, 2, 0.5)
-	assert_float(result).is_equal_approx(0.125, 1e-7) # C(4,1) * 0.5^2 * 0.5^3 = 4 * 0.25 * 0.125 = 0.125
+	assert_float(result).is_equal_approx(0.125, StatMath.PROBABILITY_TOLERANCE) # C(4,1) * 0.5^2 * 0.5^3 = 4 * 0.25 * 0.125 = 0.125
 
 func test_negative_binomial_pmf_edge_cases(k: int, r: int, p: float, expected: float, test_parameters := [
 	[2, 2, 0.5, 0.25],  # k = r
@@ -56,7 +56,7 @@ func test_negative_binomial_pmf_edge_cases(k: int, r: int, p: float, expected: f
 	[2, 2, 1.0, 1.0],   # p = 1
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.negative_binomial_pmf(k, r, p)
-	assert_float(result).is_equal_approx(expected, 1e-7)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_negative_binomial_pmf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -80,7 +80,7 @@ func test_normal_pdf_parametrized(x: float, mu: float, sigma: float, expected: f
 	[5.0, 3.0, 2.0, (1.0 / (2.0 * sqrt(2.0 * PI))) * exp(-0.5)],  # Custom parameters: (x-mu)/sigma = 1, so exp(-0.5*1^2) = exp(-0.5)
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.normal_pdf(x, mu, sigma)
-	assert_float(result).is_equal_approx(expected, 1e-6)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_normal_pdf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -106,7 +106,7 @@ func test_exponential_pdf_parametrized(x: float, lambda_param: float, expected: 
 	[-1.0, 1.0, 0.0],  # Negative x should return 0
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, lambda_param)
-	assert_float(result).is_equal_approx(expected, 1e-7)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_exponential_pdf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -133,7 +133,7 @@ func test_uniform_pdf_parametrized(x: float, a: float, b: float, expected: float
 	[0.0, -2.0, 2.0, 0.25],  # Symmetric around 0
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.uniform_pdf(x, a, b)
-	assert_float(result).is_equal_approx(expected, 1e-7)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_uniform_pdf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -154,14 +154,14 @@ func test_uniform_pdf_invalid_parameters() -> void:
 func test_gamma_pdf_basic() -> void:
 	# For Gamma(2, 1), PDF at x=1 is e^(-1) = exp(-1)
 	var result: float = StatMath.PmfPdfFunctions.gamma_pdf(1.0, 2.0, 1.0)
-	assert_float(result).is_equal_approx(exp(-1.0), 1e-7)
+	assert_float(result).is_equal_approx(exp(-1.0), StatMath.PROBABILITY_TOLERANCE)
 
 func test_gamma_pdf_edge_cases(x: float, k_shape: float, theta_scale: float, expected: float, test_parameters := [
 	[0.0, 2.0, 1.0, 0.0],   # At x=0
 	[-1.0, 2.0, 1.0, 0.0],  # Negative x
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.gamma_pdf(x, k_shape, theta_scale)
-	assert_float(result).is_equal_approx(expected, 1e-7)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_gamma_pdf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -195,21 +195,21 @@ func test_beta_pdf_scipy_validated() -> void:
 	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["beta_pdf"]
 	for case in test_data:
 		var result: float = StatMath.PmfPdfFunctions.beta_pdf(case["params"][0], case["params"][1], case["params"][2])
-		assert_float(result).is_equal_approx(case["expected"], 1e-7)
+		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
 func test_beta_pdf_uniform_special_case(x: float, test_parameters := [
 	[0.2], [0.4], [0.6], [0.8],
 ]) -> void:
 	# Beta(1,1) is uniform on [0,1]
 	var result: float = StatMath.PmfPdfFunctions.beta_pdf(x, 1.0, 1.0)
-	assert_float(result).is_equal_approx(1.0, 1e-7)
+	assert_float(result).is_equal_approx(1.0, StatMath.PROBABILITY_TOLERANCE)
 
 func test_beta_pdf_outside_range(x: float, alpha: float, beta_param: float, expected: float, test_parameters := [
 	[-0.1, 2.0, 2.0, 0.0],  # Below range
 	[1.1, 2.0, 2.0, 0.0],   # Above range
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta_param)
-	assert_float(result).is_equal_approx(expected, 1e-7)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_beta_pdf_symmetry(x: float, alpha: float, beta_param: float, test_parameters := [
 	[0.3, 2.0, 2.0],  # Basic symmetry test
@@ -220,11 +220,11 @@ func test_beta_pdf_symmetry(x: float, alpha: float, beta_param: float, test_para
 	var x_mirror: float = 1.0 - x
 	var pdf1: float = StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta_param)
 	var pdf2: float = StatMath.PmfPdfFunctions.beta_pdf(x_mirror, alpha, beta_param)
-	assert_float(pdf1).is_equal_approx(pdf2, 1e-7)
+	assert_float(pdf1).is_equal_approx(pdf2, StatMath.PROBABILITY_TOLERANCE)
 
 func test_beta_pdf_boundary_behavior() -> void:
 	# Test values very close to boundaries
-	var epsilon: float = 1e-10
+	var epsilon: float = StatMath.BOUNDARY_TOLERANCE
 	
 	# Values just inside the range should give finite results
 	var result_near_zero: float = StatMath.PmfPdfFunctions.beta_pdf(epsilon, 2.0, 2.0)
@@ -267,14 +267,14 @@ func test_chi_squared_pdf_scipy_validated() -> void:
 	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["chi_squared_pdf"]
 	for case in test_data:
 		var result: float = StatMath.PmfPdfFunctions.chi_squared_pdf(case["params"][0], case["params"][1])
-		assert_float(result).is_equal_approx(case["expected"], 1e-7)
+		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
 func test_chi_squared_pdf_edge_cases(x: float, k_df: float, expected: float, test_parameters := [
 	[0.0, 2.0, 0.0],   # At x=0
 	[-1.0, 2.0, 0.0],  # Negative x
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.chi_squared_pdf(x, k_df)
-	assert_float(result).is_equal_approx(expected, 1e-7)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_chi_squared_pdf_exponential_relationship(x: float, test_parameters := [
 	[1.0], [1.5], [2.0], [3.0], [5.0],
@@ -282,7 +282,7 @@ func test_chi_squared_pdf_exponential_relationship(x: float, test_parameters := 
 	# Chi-squared with df=2 is equivalent to exponential with rate=1/2
 	var chi_squared_result: float = StatMath.PmfPdfFunctions.chi_squared_pdf(x, 2.0)
 	var exponential_result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, 0.5)
-	assert_float(chi_squared_result).is_equal_approx(exponential_result, 1e-7)
+	assert_float(chi_squared_result).is_equal_approx(exponential_result, StatMath.PROBABILITY_TOLERANCE)
 
 func test_chi_squared_pdf_gamma_relationship(x: float, test_parameters := [
 	[1.0],
@@ -295,7 +295,7 @@ func test_chi_squared_pdf_gamma_relationship(x: float, test_parameters := [
 	if x > 0:
 		var chi_sq_result: float = StatMath.PmfPdfFunctions.chi_squared_pdf(x, df)
 		var gamma_result: float = StatMath.PmfPdfFunctions.gamma_pdf(x, df / 2.0, 2.0)
-		assert_float(chi_sq_result).is_equal_approx(gamma_result, 1e-6)
+		assert_float(chi_sq_result).is_equal_approx(gamma_result, StatMath.PROBABILITY_TOLERANCE)
 
 func test_chi_squared_pdf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -317,11 +317,11 @@ func test_t_pdf_scipy_validated() -> void:
 	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["students_t_pdf"]
 	for case in test_data:
 		var result: float = StatMath.PmfPdfFunctions.t_pdf(case["params"][0], case["params"][1])
-		assert_float(result).is_equal_approx(case["expected"], 1e-7)
+		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
 func test_t_pdf_special_cases(x: float, df_nu: float, expected: float, tolerance: float, test_parameters := [
-	[0.0, 1000.0, 1.0 / sqrt(2.0 * PI), 1e-2],  # For large df, approaches standard normal
-	[0.0, 1.0, 1.0 / PI, 1e-7],                  # t(1) is Cauchy distribution
+	[0.0, 1000.0, 1.0 / sqrt(2.0 * PI), StatMath.ASYMPTOTIC_TOLERANCE],  # For large df, approaches standard normal
+	[0.0, 1.0, 1.0 / PI, StatMath.PROBABILITY_TOLERANCE],                  # t(1) is Cauchy distribution
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.t_pdf(x, df_nu)
 	assert_float(result).is_equal_approx(expected, tolerance)
@@ -333,7 +333,7 @@ func test_t_pdf_symmetry(x: float, df_nu: float, test_parameters := [
 ]) -> void:
 	var result1: float = StatMath.PmfPdfFunctions.t_pdf(x, df_nu)
 	var result2: float = StatMath.PmfPdfFunctions.t_pdf(-x, df_nu)
-	assert_float(result1).is_equal_approx(result2, 1e-7)
+	assert_float(result1).is_equal_approx(result2, StatMath.PROBABILITY_TOLERANCE)
 
 func test_t_pdf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -362,7 +362,7 @@ func test_f_pdf_edge_cases(x: float, d1_df: float, d2_df: float, expected: float
 	[-1.0, 2.0, 3.0, 0.0],  # Negative x
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.f_pdf(x, d1_df, d2_df)
-	assert_float(result).is_equal_approx(expected, 1e-7)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_f_pdf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -409,7 +409,7 @@ func test_gamma_pdf_exponential_special_case(x: float, test_parameters := [
 	if x > 0:
 		var gamma_result: float = StatMath.PmfPdfFunctions.gamma_pdf(x, 1.0, scale)
 		var exp_result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, rate)
-		assert_float(gamma_result).is_equal_approx(exp_result, 1e-6)
+		assert_float(gamma_result).is_equal_approx(exp_result, StatMath.PROBABILITY_TOLERANCE)
 
 # Test PDF properties - all PDFs should be non-negative
 func test_normal_pdf_non_negative(x: float, test_parameters := [
@@ -502,7 +502,7 @@ func test_weibull_pdf_scipy_validated() -> void:
 	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["weibull_pdf"]
 	for case in test_data:
 		var result: float = StatMath.PmfPdfFunctions.weibull_pdf(case["params"][0], case["params"][1], case["params"][2])
-		assert_float(result).is_equal_approx(case["expected"], 1e-7)
+		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
 func test_weibull_pdf_edge_cases(x: float, scale_param: float, shape_param: float, expected: float, test_parameters := [
 	[0.0, 1.0, 2.0, 0.0],    # At x=0 for shape > 1
@@ -514,7 +514,7 @@ func test_weibull_pdf_edge_cases(x: float, scale_param: float, shape_param: floa
 	if expected == INF:
 		assert_bool(is_inf(result)).is_true()
 	else:
-		assert_float(result).is_equal_approx(expected, 1e-7)
+		assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_weibull_pdf_exponential_special_case(x: float, test_parameters := [
 	[0.5], [1.0], [2.0], [3.0],
@@ -527,7 +527,7 @@ func test_weibull_pdf_exponential_special_case(x: float, test_parameters := [
 	if x >= 0:
 		var weibull_result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
 		var exp_result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, rate)
-		assert_float(weibull_result).is_equal_approx(exp_result, 1e-6)
+		assert_float(weibull_result).is_equal_approx(exp_result, StatMath.PROBABILITY_TOLERANCE)
 
 func test_weibull_pdf_rayleigh_special_case(x: float, test_parameters := [
 	[0.5], [1.0], [1.5], [2.0],
@@ -541,7 +541,7 @@ func test_weibull_pdf_rayleigh_special_case(x: float, test_parameters := [
 		# Rayleigh PDF: f(x) = (x/σ²) * exp(-(x²)/(2σ²)) where σ = scale/sqrt(2)
 		var sigma: float = scale / sqrt(2.0)
 		var rayleigh_expected: float = (x / (sigma * sigma)) * exp(-(x * x) / (2.0 * sigma * sigma))
-		assert_float(weibull_result).is_equal_approx(rayleigh_expected, 1e-6)
+		assert_float(weibull_result).is_equal_approx(rayleigh_expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_weibull_pdf_monotonicity() -> void:
 	# For different shape parameters, test monotonic behavior
@@ -580,11 +580,11 @@ func test_weibull_pdf_boundary_conditions(x: float, scale_param: float, shape_pa
 		if shape_param < 1.0:
 			assert_bool(is_inf(result)).is_true()
 		elif shape_param == 1.0:
-			assert_float(result).is_equal_approx(1.0 / scale_param, 1e-6)
+			assert_float(result).is_equal_approx(1.0 / scale_param, StatMath.PROBABILITY_TOLERANCE)
 		else:  # shape_param > 1.0
-			assert_float(result).is_equal_approx(0.0, 1e-7)
+			assert_float(result).is_equal_approx(0.0, StatMath.PROBABILITY_TOLERANCE)
 	elif x == 1000.0:
-		assert_float(result).is_less(1e-10)  # Should be very small
+		assert_float(result).is_less(StatMath.BOUNDARY_TOLERANCE)  # Should be very small
 
 func test_weibull_pdf_deterministic_behavior() -> void:
 	# Same inputs should always give same outputs
@@ -595,7 +595,7 @@ func test_weibull_pdf_deterministic_behavior() -> void:
 	var result1: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
 	var result2: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
 	
-	assert_float(result1).is_equal_approx(result2, 1e-15)
+	assert_float(result1).is_equal_approx(result2, StatMath.HIGH_PRECISION_TOLERANCE)
 
 func test_weibull_pdf_non_negative(x: float, test_parameters := [
 	[-2.0], [-1.0], [0.0], [1.0], [2.0], [5.0],
@@ -636,14 +636,14 @@ func test_lognormal_pdf_scipy_validated() -> void:
 	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["lognormal_pdf"]
 	for case in test_data:
 		var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(case["params"][0], case["params"][1], case["params"][2])
-		assert_float(result).is_equal_approx(case["expected"], 1e-7)
+		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
 func test_lognormal_pdf_edge_cases(x: float, mu: float, sigma: float, expected: float, test_parameters := [
 	[0.0, 0.0, 1.0, 0.0],    # At x=0
 	[-1.0, 0.0, 1.0, 0.0],   # Negative x
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(x, mu, sigma)
-	assert_float(result).is_equal_approx(expected, 1e-7)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_lognormal_pdf_relationship_to_normal() -> void:
 	# If X ~ Lognormal(μ, σ), then ln(X) ~ Normal(μ, σ)
@@ -656,7 +656,7 @@ func test_lognormal_pdf_relationship_to_normal() -> void:
 	
 	# Lognormal PDF = Normal PDF of log(x) divided by x
 	var expected: float = normal_result / x
-	assert_float(lognormal_result).is_equal_approx(expected, 1e-6)
+	assert_float(lognormal_result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_lognormal_pdf_non_negative(x: float, test_parameters := [
 	[-2.0], [-1.0], [0.0], [1.0], [2.0], [5.0],
@@ -723,7 +723,7 @@ func test_pdf_integration_uniform() -> void:
 		var x: float = a + (float(i) + 0.5) * step_size
 		sum += StatMath.PmfPdfFunctions.uniform_pdf(x, a, b) * step_size
 	
-	assert_float(sum).is_equal_approx(1.0, 0.001)  # Uniform should be very precise
+	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_TOLERANCE)  # Uniform should be very precise
 
 func test_pdf_integration_beta() -> void:
 	# Test that beta PDF integrates to 1.0 over [0, 1]

@@ -450,3 +450,128 @@ static func convert_to_float_array(input_array: Array) -> Array[float]:
 		converted.append(float(element))
 	
 	return converted
+
+
+# =============================================================================
+# CENTRALIZED TEST HELPER FUNCTIONS
+# =============================================================================
+
+## Validates that all indices in a sample are within valid range [0, population_size-1].
+##
+## Used by sampling tests to ensure index validity without checking uniqueness.
+## Asserts that all indices are non-negative and less than population_size.
+static func assert_valid_indices(samples: Array[int], population_size: int) -> void:
+	for sample_val in samples:
+		assert(sample_val >= 0, "Sample index must be non-negative")
+		assert(sample_val < population_size, "Sample index must be less than population size")
+
+
+## Validates that all indices in a sample are unique and within valid range.
+##
+## Used by sampling tests to ensure both validity and uniqueness of indices.
+## First calls assert_valid_indices(), then verifies all values are unique.
+static func assert_unique_indices(samples: Array[int], population_size: int) -> void:
+	assert_valid_indices(samples, population_size)
+	
+	# Check all samples are unique
+	var unique_values: Dictionary = {}
+	for sample_val in samples:
+		assert(not unique_values.has(sample_val), "Sample indices must be unique")
+		unique_values[sample_val] = true
+	assert(unique_values.size() == samples.size(), "Number of unique indices must equal sample size")
+
+
+## Gets CDF value for any distribution using the appropriate StatMath function.
+##
+## Centralized helper that routes CDF calculations to the correct StatMath function
+## based on distribution type. Handles both enum and string distribution identifiers.
+static func get_cdf_value(distribution: Variant, x: float, params: Array) -> float:
+	var dist_enum: StatMath.SupportedDistributions
+	
+	if distribution is StatMath.SupportedDistributions:
+		dist_enum = distribution
+	elif distribution is String:
+		dist_enum = string_to_distribution_enum(distribution)
+	else:
+		push_error("Invalid distribution type. Expected SupportedDistributions enum or String.")
+		return NAN
+	
+	match dist_enum:
+		StatMath.SupportedDistributions.NORMAL:
+			return StatMath.CdfFunctions.normal_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.EXPONENTIAL:
+			return StatMath.CdfFunctions.exponential_cdf(x, params[0])
+		StatMath.SupportedDistributions.UNIFORM:
+			return StatMath.CdfFunctions.uniform_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.GAMMA:
+			return StatMath.CdfFunctions.gamma_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.BETA:
+			return StatMath.CdfFunctions.beta_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.WEIBULL:
+			return StatMath.CdfFunctions.weibull_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.PARETO:
+			return StatMath.CdfFunctions.pareto_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.CHI_SQUARE:
+			return StatMath.CdfFunctions.chi_square_cdf(x, params[0])
+		_:
+			push_error("CDF function not implemented for distribution: %s" % distribution)
+			return NAN
+
+
+## Gets PPF value for any distribution using the appropriate StatMath function.
+##
+## Centralized helper that routes PPF calculations to the correct StatMath function
+## based on distribution type. Handles both enum and string distribution identifiers.
+static func get_ppf_value(distribution: Variant, p: float, params: Array) -> float:
+	var dist_enum: StatMath.SupportedDistributions
+	
+	if distribution is StatMath.SupportedDistributions:
+		dist_enum = distribution
+	elif distribution is String:
+		dist_enum = string_to_distribution_enum(distribution)
+	else:
+		push_error("Invalid distribution type. Expected SupportedDistributions enum or String.")
+		return NAN
+	
+	match dist_enum:
+		StatMath.SupportedDistributions.NORMAL:
+			return StatMath.PpfFunctions.normal_ppf(p, params[0], params[1])
+		StatMath.SupportedDistributions.EXPONENTIAL:
+			return StatMath.PpfFunctions.exponential_ppf(p, params[0])
+		StatMath.SupportedDistributions.UNIFORM:
+			return StatMath.PpfFunctions.uniform_ppf(p, params[0], params[1])
+		StatMath.SupportedDistributions.WEIBULL:
+			return StatMath.PpfFunctions.weibull_ppf(p, params[0], params[1])
+		StatMath.SupportedDistributions.PARETO:
+			return StatMath.PpfFunctions.pareto_ppf(p, params[0], params[1])
+		_:
+			push_error("PPF function not implemented for distribution: %s" % distribution)
+			return NAN
+
+
+## Converts a string distribution name to SupportedDistributions enum.
+##
+## Centralized helper for converting string identifiers to proper enum values.
+## Supports both uppercase and lowercase string inputs for flexibility.
+static func string_to_distribution_enum(distribution: String) -> StatMath.SupportedDistributions:
+	var upper_dist: String = distribution.to_upper()
+	match upper_dist:
+		"NORMAL":
+			return StatMath.SupportedDistributions.NORMAL
+		"EXPONENTIAL":
+			return StatMath.SupportedDistributions.EXPONENTIAL
+		"UNIFORM":
+			return StatMath.SupportedDistributions.UNIFORM
+		"GAMMA":
+			return StatMath.SupportedDistributions.GAMMA
+		"BETA":
+			return StatMath.SupportedDistributions.BETA
+		"WEIBULL":
+			return StatMath.SupportedDistributions.WEIBULL
+		"PARETO":
+			return StatMath.SupportedDistributions.PARETO
+		"CHI_SQUARE":
+			return StatMath.SupportedDistributions.CHI_SQUARE
+		_:
+			push_error("Unknown distribution string: %s" % distribution)
+			return StatMath.SupportedDistributions.NORMAL  # Default fallback

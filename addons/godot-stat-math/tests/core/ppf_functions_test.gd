@@ -1,4 +1,4 @@
-# addons/godot-stat-math/tests/core/ppf_functions_test.gd
+# res://addons/godot-stat-math/tests/core/ppf_functions_test.gd
 class_name PpfFunctionsTest extends GdUnitTestSuite
 
 # =============================================================================
@@ -8,14 +8,7 @@ class_name PpfFunctionsTest extends GdUnitTestSuite
 ## Tolerance for floating point comparisons in PPF calculations  
 const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
 
-## Tolerance for scipy validation comparisons
-const SCIPY_TOLERANCE: float = 2e-6
-
-## Tolerance for numerical approximations  
-const NUMERICAL_TOLERANCE: float = 1e-5
-
-## Tolerance for CDF-PPF consistency (round-trip) tests
-const CDF_PPF_CONSISTENCY_TOLERANCE: float = 1e-5
+# Using centralized tolerances from StatMath class
 
 # =============================================================================
 # PHASE 3: SCIPY VALIDATION TESTS
@@ -30,7 +23,7 @@ func test_normal_ppf_scipy_validation_parametrized(p: float, mu: float, sigma: f
 	[0.84134475, 0.0, 1.0, 1.0]
 	]) -> void:
 	var result: float = StatMath.PpfFunctions.normal_ppf(p, mu, sigma)
-	assert_float(result).is_equal_approx(expected, SCIPY_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.INVERSE_FUNCTION_TOLERANCE)
 
 ## Validates exponential distribution PPF against known scipy values
 ## Note: scipy uses scale parameterization (scale = 1/lambda), we use rate parameterization (lambda)
@@ -44,7 +37,7 @@ func test_exponential_ppf_scipy_validation_parametrized(p: float, lambda_param: 
 	[0.1, 0.5, 0.21072103],        # scipy: p=0.1, scale=0.5 -> lambda=2.0, expected=0.21072103
 	]) -> void:
 	var result: float = StatMath.PpfFunctions.exponential_ppf(p, lambda_param)
-	assert_float(result).is_equal_approx(expected, SCIPY_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.INVERSE_FUNCTION_TOLERANCE)
 
 ## Validates uniform distribution PPF against known scipy values
 func test_uniform_ppf_scipy_validation_parametrized(p: float, a: float, b: float, expected: float, test_parameters := [
@@ -55,7 +48,7 @@ func test_uniform_ppf_scipy_validation_parametrized(p: float, a: float, b: float
 	[1.0, 0.0, 1.0, 1.0]
 	]) -> void:
 	var result: float = StatMath.PpfFunctions.uniform_ppf(p, a, b)
-	assert_float(result).is_equal_approx(expected, SCIPY_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.INVERSE_FUNCTION_TOLERANCE)
 
 ## Validates pareto distribution PPF against known scipy values
 func test_pareto_ppf_scipy_validation_parametrized(p: float, scale: float, shape: float, expected: float, test_parameters := [
@@ -64,7 +57,7 @@ func test_pareto_ppf_scipy_validation_parametrized(p: float, scale: float, shape
 	[0.9, 3.0, 2.0, 9.48683298]
 	]) -> void:
 	var result: float = StatMath.PpfFunctions.pareto_ppf(p, scale, shape)
-	assert_float(result).is_equal_approx(expected, SCIPY_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.INVERSE_FUNCTION_TOLERANCE)
 
 ## Validates weibull distribution PPF against known scipy values
 func test_weibull_ppf_scipy_validation_parametrized(p: float, scale: float, shape: float, expected: float, test_parameters := [
@@ -73,7 +66,7 @@ func test_weibull_ppf_scipy_validation_parametrized(p: float, scale: float, shap
 	[0.25, 1.0, 2.0, 0.53636002]
 	]) -> void:
 	var result: float = StatMath.PpfFunctions.weibull_ppf(p, scale, shape)
-	assert_float(result).is_equal_approx(expected, SCIPY_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.INVERSE_FUNCTION_TOLERANCE)
 
 # =============================================================================
 # PHASE 3: CONSISTENCY TESTS (CDF-PPF INVERSE RELATIONSHIPS)
@@ -107,7 +100,7 @@ func test_cdf_ppf_round_trip_consistency_parametrized(distribution: StatMath.Sup
 	# Forward: x -> CDF(x) -> PPF(CDF(x)) should equal x
 	var cdf_value: float = _get_cdf_value(distribution, test_x, params)
 	var ppf_result: float = _get_ppf_value(distribution, cdf_value, params)
-	assert_float(ppf_result).is_equal_approx(test_x, CDF_PPF_CONSISTENCY_TOLERANCE)
+	assert_float(ppf_result).is_equal_approx(test_x, StatMath.CDF_PPF_CONSISTENCY_TOLERANCE)
 
 ## Tests that PPF and CDF are inverse functions (p -> PPF(p) -> CDF(PPF(p)) = p)
 func test_ppf_cdf_round_trip_consistency_parametrized(distribution: StatMath.SupportedDistributions, test_p: float, params: Array, test_parameters := [
@@ -133,7 +126,7 @@ func test_ppf_cdf_round_trip_consistency_parametrized(distribution: StatMath.Sup
 	# Reverse: p -> PPF(p) -> CDF(PPF(p)) should equal p
 	var ppf_value: float = _get_ppf_value(distribution, test_p, params)
 	var cdf_result: float = _get_cdf_value(distribution, ppf_value, params)
-	assert_float(cdf_result).is_equal_approx(test_p, CDF_PPF_CONSISTENCY_TOLERANCE)
+	assert_float(cdf_result).is_equal_approx(test_p, StatMath.CDF_PPF_CONSISTENCY_TOLERANCE)
 
 # =============================================================================
 # PHASE 3: MONOTONICITY AND MATHEMATICAL PROPERTIES
@@ -215,7 +208,7 @@ func test_ppf_boundary_conditions_parametrized(distribution: StatMath.SupportedD
 			var expected_mid: float = (params[0] + params[1]) / 2.0
 			assert_float(result).is_equal_approx(expected_mid, FLOAT_TOLERANCE)
 		"ln_2":
-			assert_float(result).is_equal_approx(0.6931472, SCIPY_TOLERANCE)
+			assert_float(result).is_equal_approx(0.6931472, StatMath.SPECIAL_VALUES_TOLERANCE)
 		"one_quarter":
 			var expected_quarter: float = params[0] + 0.25 * (params[1] - params[0])
 			assert_float(result).is_equal_approx(expected_quarter, FLOAT_TOLERANCE)
@@ -274,7 +267,7 @@ func test_ppf_special_relationships_parametrized(relationship_type: String, para
 			var rate: float = params[2]
 			var weibull_ppf: float = StatMath.PpfFunctions.weibull_ppf(p_value, scale, shape)
 			var exp_ppf: float = StatMath.PpfFunctions.exponential_ppf(p_value, rate)
-			assert_float(weibull_ppf).is_equal_approx(exp_ppf, NUMERICAL_TOLERANCE)
+			assert_float(weibull_ppf).is_equal_approx(exp_ppf, StatMath.NUMERICAL_TOLERANCE)
 		
 		"normal_large_param":
 			# Test that normal PPF gives expected z-scores
@@ -282,9 +275,9 @@ func test_ppf_special_relationships_parametrized(relationship_type: String, para
 			var sigma: float = params[1]
 			var result: float = StatMath.PpfFunctions.normal_ppf(p_value, mu, sigma)
 			if p_value == 0.025:
-				assert_float(result).is_equal_approx(-1.9599640, SCIPY_TOLERANCE)
+				assert_float(result).is_equal_approx(-1.9599640, StatMath.SPECIAL_VALUES_TOLERANCE)
 			elif p_value == 0.975:
-				assert_float(result).is_equal_approx(1.9599640, SCIPY_TOLERANCE)
+				assert_float(result).is_equal_approx(1.9599640, StatMath.SPECIAL_VALUES_TOLERANCE)
 		
 		"uniform_degenerate":
 			# When a = b, PPF should always return that value
@@ -299,7 +292,7 @@ func test_ppf_special_relationships_parametrized(relationship_type: String, para
 			var shape: float = params[1]
 			var result: float = StatMath.PpfFunctions.pareto_ppf(p_value, scale, shape)
 			if p_value == 0.5 and shape == 1.0:
-				assert_float(result).is_equal_approx(2.0 * scale, NUMERICAL_TOLERANCE)
+				assert_float(result).is_equal_approx(2.0 * scale, StatMath.NUMERICAL_TOLERANCE)
 
 # =============================================================================
 # PHASE 3: HELPER FUNCTIONS

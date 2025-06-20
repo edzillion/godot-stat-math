@@ -1,4 +1,4 @@
-# addons/godot-stat-math/tests/core/sampling_gen_test.gd
+# res://addons/godot-stat-math/tests/core/sampling_gen_test.gd
 class_name SamplingGenTest extends GdUnitTestSuite
 
 # Member variables here if needed, e.g. for complex setups or shared resources.

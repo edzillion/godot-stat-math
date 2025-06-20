@@ -1,4 +1,4 @@
-# addons/godot-stat-math/tests/core/helper_functions_test.gd
+# res://addons/godot-stat-math/tests/core/helper_functions_test.gd
 class_name HelperFunctionsTest extends GdUnitTestSuite
 
 const HELPER_FUNCTIONS_TEST_DATA = preload("res://addons/godot-stat-math/tables/helper_functions_test_data.gd")
