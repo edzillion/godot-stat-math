@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites id="2025-06-20" name="report_60" tests="95" failures="1" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="ppf_functions_test" package="addons/godot-stat-math/tests/core" timestamp="2025-06-20T10:44:22" hostname="localhost" tests="95" failures="1" errors="1" skipped="0" flaky="0" time="4.889">
+		<testcase name="test_normal_ppf_scipy_validation_parametrized:0 (0.025, 0.0, 1.0, -1.95996398)" classname="ppf_functions_test" time="0.058">
+		</testcase>
+		<testcase name="test_normal_ppf_scipy_validation_parametrized:1 (0.5, 0.0, 1.0, 0.00000000)" classname="ppf_functions_test" time="0.058">
+		</testcase>
+		<testcase name="test_normal_ppf_scipy_validation_parametrized:2 (0.975, 0.0, 1.0, 1.95996398)" classname="ppf_functions_test" time="0.059">
+		</testcase>
+		<testcase name="test_normal_ppf_scipy_validation_parametrized:3 (0.5, 10.0, 2.0, 10.00000000)" classname="ppf_functions_test" time="0.066">
+		</testcase>
+		<testcase name="test_normal_ppf_scipy_validation_parametrized:4 (0.84134475, 0.0, 1.0, 1.00000002)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_exponential_ppf_scipy_validation_parametrized:0 (0.5, 1.0, 0.69314718)" classname="ppf_functions_test" time="0.043">
+		</testcase>
+		<testcase name="test_exponential_ppf_scipy_validation_parametrized:1 (0.632121, 1.0, 1.00000120)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_exponential_ppf_scipy_validation_parametrized:2 (0.95, 0.5, 1.49786614)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_exponential_ppf_scipy_validation_parametrized:3 (0.1, 2.0, 0.21072103)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_uniform_ppf_scipy_validation_parametrized:0 (0.25, 0.0, 4.0, 1.00000000)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_uniform_ppf_scipy_validation_parametrized:1 (0.5, 1.0, 5.0, 3.00000000)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_uniform_ppf_scipy_validation_parametrized:2 (0.75, 2.0, 6.0, 5.00000000)" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_uniform_ppf_scipy_validation_parametrized:3 (0.0, 0.0, 1.0, 0.00000000)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_uniform_ppf_scipy_validation_parametrized:4 (1.0, 0.0, 1.0, 1.00000000)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_pareto_ppf_scipy_validation_parametrized:0 (0.5, 1.0, 1.0, 2.00000000)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_pareto_ppf_scipy_validation_parametrized:1 (0.75, 2.0, 1.0, 8.00000000)" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_pareto_ppf_scipy_validation_parametrized:2 (0.9, 3.0, 2.0, 9.48683298)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_weibull_ppf_scipy_validation_parametrized:0 (0.5, 1.0, 1.0, 0.69314718)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_weibull_ppf_scipy_validation_parametrized:1 (0.632121, 2.0, 2.0, 2.00000120)" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_weibull_ppf_scipy_validation_parametrized:2 (0.25, 1.0, 2.0, 0.53636002)" classname="ppf_functions_test" time="0.042">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:0 (&apos;normal&apos;, 0.0, [0.0, 1.0])" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:1 (&apos;normal&apos;, 1.5, [0.0, 1.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:2 (&apos;normal&apos;, -2.0, [0.0, 1.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:3 (&apos;normal&apos;, 5.0, [2.0, 1.5])" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:4 (&apos;exponential&apos;, 0.5, [1.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:5 (&apos;exponential&apos;, 2.0, [0.5])" classname="ppf_functions_test" time="0.042">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:6 (&apos;exponential&apos;, 1.0, [2.0])" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:7 (&apos;exponential&apos;, 5.0, [0.2])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:8 (&apos;uniform&apos;, 1.5, [1.0, 4.0])" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:9 (&apos;uniform&apos;, 2.5, [0.0, 5.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:10 (&apos;uniform&apos;, 3.0, [2.0, 6.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:11 (&apos;weibull&apos;, 1.0, [1.0, 1.0])" classname="ppf_functions_test" time="0.036">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:12 (&apos;weibull&apos;, 2.0, [2.0, 2.0])" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:13 (&apos;weibull&apos;, 0.5, [1.5, 3.0])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:14 (&apos;pareto&apos;, 2.5, [2.0, 1.5])" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:15 (&apos;pareto&apos;, 5.0, [2.0, 1.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:16 (&apos;pareto&apos;, 3.0, [2.5, 3.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:0 (&apos;normal&apos;, 0.1, [0.0, 1.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:1 (&apos;normal&apos;, 0.5, [0.0, 1.0])" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:2 (&apos;normal&apos;, 0.9, [0.0, 1.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:3 (&apos;normal&apos;, 0.25, [5.0, 2.0])" classname="ppf_functions_test" time="0.043">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:4 (&apos;exponential&apos;, 0.2, [1.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:5 (&apos;exponential&apos;, 0.5, [2.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:6 (&apos;exponential&apos;, 0.8, [0.5])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:7 (&apos;uniform&apos;, 0.3, [1.0, 4.0])" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:8 (&apos;uniform&apos;, 0.7, [0.0, 10.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:9 (&apos;weibull&apos;, 0.4, [1.0, 1.0])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:10 (&apos;weibull&apos;, 0.6, [2.0, 2.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:11 (&apos;pareto&apos;, 0.3, [2.0, 1.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:12 (&apos;pareto&apos;, 0.8, [2.0, 1.5])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:0 (&apos;normal&apos;, [0.0, 1.0], [0.1, 0.25, 0.5, 0.75, 0.9])" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:1 (&apos;normal&apos;, [2.0, 0.5], [0.05, 0.3, 0.6, 0.8, 0.95])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:2 (&apos;exponential&apos;, [1.0], [0.1, 0.3, 0.5, 0.7, 0.9])" classname="ppf_functions_test" time="0.044">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:3 (&apos;exponential&apos;, [2.0], [0.05, 0.25, 0.5, 0.75, 0.95])" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:4 (&apos;uniform&apos;, [1.0, 5.0], [0.0, 0.25, 0.5, 0.75, 1.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:5 (&apos;uniform&apos;, [0.0, 10.0], [0.1, 0.4, 0.6, 0.8, 0.99])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:6 (&apos;weibull&apos;, [1.0, 1.0], [0.1, 0.3, 0.5, 0.7, 0.9])" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:7 (&apos;weibull&apos;, [2.0, 2.0], [0.05, 0.25, 0.5, 0.75, 0.95])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:8 (&apos;pareto&apos;, [2.0, 1.0], [0.1, 0.3, 0.5, 0.7, 0.9])" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:9 (&apos;pareto&apos;, [2.0, 1.5], [0.05, 0.25, 0.5, 0.75, 0.95])" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:0 (&apos;normal&apos;, &apos;p_zero&apos;, [0.0, 1.0], 0.0, &apos;negative_infinity&apos;)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:1 (&apos;exponential&apos;, &apos;p_zero&apos;, [1.0], 0.0, &apos;zero&apos;)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:2 (&apos;uniform&apos;, &apos;p_zero&apos;, [2.0, 5.0], 0.0, &apos;lower_bound&apos;)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:3 (&apos;weibull&apos;, &apos;p_zero&apos;, [1.0, 2.0], 0.0, &apos;zero&apos;)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:4 (&apos;pareto&apos;, &apos;p_zero&apos;, [2.0, 1.5], 0.0, &apos;scale_value&apos;)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:5 (&apos;normal&apos;, &apos;p_one&apos;, [0.0, 1.0], 1.0, &apos;positive_infinity&apos;)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:6 (&apos;exponential&apos;, &apos;p_one&apos;, [1.0], 1.0, &apos;positive_infinity&apos;)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:7 (&apos;uniform&apos;, &apos;p_one&apos;, [2.0, 5.0], 1.0, &apos;upper_bound&apos;)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:8 (&apos;weibull&apos;, &apos;p_one&apos;, [1.0, 2.0], 1.0, &apos;positive_infinity&apos;)" classname="ppf_functions_test" time="0.042">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:9 (&apos;pareto&apos;, &apos;p_one&apos;, [2.0, 1.5], 1.0, &apos;positive_infinity&apos;)" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:10 (&apos;normal&apos;, &apos;median&apos;, [0.0, 1.0], 0.5, &apos;zero&apos;)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:11 (&apos;normal&apos;, &apos;median&apos;, [5.0, 2.0], 0.5, &apos;mean_value&apos;)" classname="ppf_functions_test" time="0.044">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:12 (&apos;uniform&apos;, &apos;median&apos;, [2.0, 8.0], 0.5, &apos;midpoint&apos;)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:13 (&apos;exponential&apos;, &apos;median&apos;, [1.0], 0.5, &apos;ln_2&apos;)" classname="ppf_functions_test" time="0.042">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:14 (&apos;uniform&apos;, &apos;first_quartile&apos;, [0.0, 4.0], 0.25, &apos;one_quarter&apos;)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:15 (&apos;uniform&apos;, &apos;third_quartile&apos;, [0.0, 4.0], 0.75, &apos;three_quarters&apos;)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_parameter_validation_enhanced_parametrized:0 (&apos;normal&apos;, &apos;p_negative&apos;, [0.0, 1.0], -0.1, &apos;Probability p must be between 0.0 and 1.0&apos;)" classname="ppf_functions_test" time="0.060">
+			<error message="ERROR: res://addons/godot-stat-math/tests/core/ppf_functions_test.gd:-1" type="ABORT">
+<![CDATA[
+Godot Runtime Error !
+	'at: push_error (core/variant/variant_utility.cpp:1098)'
+Error: 'Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1'
+]]>
+			</error>
+			<failure message="FAILED: res://addons/godot-stat-math/tests/core/ppf_functions_test.gd:100" type="FAILURE">
+<![CDATA[
+Expecting: push_error() is called.
+	message: 'Probability p must be between 0.0 and 1.0'
+	found: Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1
+]]>
+			</failure>
+		</testcase>
+	</testsuite>
+</testsuites>

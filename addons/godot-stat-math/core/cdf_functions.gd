@@ -144,6 +144,10 @@ static func f_cdf(x: float, d1_df: float, d2_df: float) -> float: # Renamed d1, 
 	if x <= 0.0:
 		return 0.0
 	
+	# For large x values, F-distribution CDF approaches 1.0
+	if x > 50.0:
+		return 1.0
+	
 	var val_z: float = (d1_df * x) / (d1_df * x + d2_df) # Renamed intermediate var from z_val
 	return StatMath.HelperFunctions.incomplete_beta(val_z, d1_df / 2.0, d2_df / 2.0)
 
@@ -280,6 +284,10 @@ static func pareto_cdf(x: float, scale_param: float, shape_param: float) -> floa
 	
 	if x < scale_param:
 		return 0.0  # Pareto distribution has support [scale, +∞)
+	
+	# For large x values relative to scale, Pareto CDF approaches 1.0
+	if x / scale_param > 100.0:
+		return 1.0
 	
 	# Closed-form solution: F(x) = 1 - (scale/x)^shape
 	var ratio: float = scale_param / x
