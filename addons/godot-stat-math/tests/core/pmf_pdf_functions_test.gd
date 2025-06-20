@@ -1,6 +1,8 @@
 # addons/godot-stat-math/tests/core/pmf_pdf_functions_test.gd
 class_name PmfPdfFunctionsTest extends GdUnitTestSuite
 
+const PMF_PDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/pmf_pdf_test_data.gd")
+
 # --- Binomial PMF ---
 func test_binomial_pmf_basic() -> void:
 	var result: float = StatMath.PmfPdfFunctions.binomial_pmf(2, 5, 0.5)
@@ -75,7 +77,7 @@ func test_normal_pdf_parametrized(x: float, mu: float, sigma: float, expected: f
 	[0.0, 0.0, 1.0, 1.0 / sqrt(2.0 * PI)],  # Standard normal at mean
 	[1.0, 0.0, 1.0, (1.0 / sqrt(2.0 * PI)) * exp(-0.5)],  # One std dev from mean
 	[2.0, 2.0, 1.0, 1.0 / sqrt(2.0 * PI)],  # Different mean, at mean
-	[5.0, 3.0, 2.0, (1.0 / (2.0 * sqrt(2.0 * PI))) * exp(-1.0)],  # Custom parameters
+	[5.0, 3.0, 2.0, (1.0 / (2.0 * sqrt(2.0 * PI))) * exp(-0.5)],  # Custom parameters: (x-mu)/sigma = 1, so exp(-0.5*1^2) = exp(-0.5)
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.normal_pdf(x, mu, sigma)
 	assert_float(result).is_equal_approx(expected, 1e-6)
@@ -190,7 +192,7 @@ func test_gamma_pdf_invalid_parameters() -> void:
 
 # --- Beta PDF ---
 func test_beta_pdf_scipy_validated() -> void:
-	var test_data: Array = PmfPdfTestData.VALUES["beta_pdf"]
+	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["beta_pdf"]
 	for case in test_data:
 		var result: float = StatMath.PmfPdfFunctions.beta_pdf(case["params"][0], case["params"][1], case["params"][2])
 		assert_float(result).is_equal_approx(case["expected"], 1e-7)
@@ -262,7 +264,7 @@ func test_beta_pdf_invalid_parameters() -> void:
 
 # --- Chi-squared PDF ---
 func test_chi_squared_pdf_scipy_validated() -> void:
-	var test_data: Array = PmfPdfTestData.VALUES["chi_squared_pdf"]
+	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["chi_squared_pdf"]
 	for case in test_data:
 		var result: float = StatMath.PmfPdfFunctions.chi_squared_pdf(case["params"][0], case["params"][1])
 		assert_float(result).is_equal_approx(case["expected"], 1e-7)
@@ -312,7 +314,7 @@ func test_chi_squared_pdf_invalid_parameters() -> void:
 
 # --- Student's t PDF ---
 func test_t_pdf_scipy_validated() -> void:
-	var test_data: Array = PmfPdfTestData.VALUES["students_t_pdf"]
+	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["students_t_pdf"]
 	for case in test_data:
 		var result: float = StatMath.PmfPdfFunctions.t_pdf(case["params"][0], case["params"][1])
 		assert_float(result).is_equal_approx(case["expected"], 1e-7)
@@ -494,3 +496,185 @@ func test_pdf_integration_approximation(distribution: String, test_parameters :=
 				sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta) * 0.01
 	
 	assert_float(sum).is_equal_approx(1.0, 0.01)
+
+# --- Weibull PDF ---
+func test_weibull_pdf_scipy_validated() -> void:
+	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["weibull_pdf"]
+	for case in test_data:
+		var result: float = StatMath.PmfPdfFunctions.weibull_pdf(case["params"][0], case["params"][1], case["params"][2])
+		assert_float(result).is_equal_approx(case["expected"], 1e-7)
+
+func test_weibull_pdf_edge_cases(x: float, scale_param: float, shape_param: float, expected: float, test_parameters := [
+	[0.0, 1.0, 2.0, 0.0],    # At x=0 for shape > 1
+	[-1.0, 1.0, 2.0, 0.0],   # Negative x
+	[0.0, 1.0, 0.5, INF],    # At x=0 for shape < 1 (should be infinity)
+	[0.0, 1.0, 1.0, 1.0],    # At x=0 for shape = 1 (exponential case)
+]) -> void:
+	var result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale_param, shape_param)
+	if expected == INF:
+		assert_bool(is_inf(result)).is_true()
+	else:
+		assert_float(result).is_equal_approx(expected, 1e-7)
+
+func test_weibull_pdf_exponential_special_case(x: float, test_parameters := [
+	[0.5], [1.0], [2.0], [3.0],
+]) -> void:
+	# When shape=1, Weibull becomes exponential
+	var scale: float = 2.0
+	var shape: float = 1.0
+	var rate: float = 1.0 / scale
+	
+	if x >= 0:
+		var weibull_result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
+		var exp_result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, rate)
+		assert_float(weibull_result).is_equal_approx(exp_result, 1e-6)
+
+func test_weibull_pdf_rayleigh_special_case(x: float, test_parameters := [
+	[0.5], [1.0], [1.5], [2.0],
+]) -> void:
+	# When shape=2, Weibull becomes Rayleigh distribution
+	var scale: float = 2.0
+	var shape: float = 2.0
+	
+	if x >= 0:
+		var weibull_result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
+		# Rayleigh PDF: f(x) = (x/σ²) * exp(-(x²)/(2σ²)) where σ = scale/sqrt(2)
+		var sigma: float = scale / sqrt(2.0)
+		var rayleigh_expected: float = (x / (sigma * sigma)) * exp(-(x * x) / (2.0 * sigma * sigma))
+		assert_float(weibull_result).is_equal_approx(rayleigh_expected, 1e-6)
+
+func test_weibull_pdf_monotonicity() -> void:
+	# For different shape parameters, test monotonic behavior
+	var scale: float = 2.0
+	
+	# Shape < 1: Decreasing function
+	var shape_decreasing: float = 0.5
+	var x1: float = 0.1
+	var x2: float = 1.0
+	var pdf1: float = StatMath.PmfPdfFunctions.weibull_pdf(x1, scale, shape_decreasing)
+	var pdf2: float = StatMath.PmfPdfFunctions.weibull_pdf(x2, scale, shape_decreasing)
+	assert_float(pdf1).is_greater(pdf2)  # Should decrease
+	
+	# Shape > 1: First increases then decreases
+	var shape_unimodal: float = 2.0
+	var x_small: float = 0.1
+	var x_mode: float = scale * pow((shape_unimodal - 1.0) / shape_unimodal, 1.0 / shape_unimodal)
+	var x_large: float = 5.0
+	
+	var pdf_small: float = StatMath.PmfPdfFunctions.weibull_pdf(x_small, scale, shape_unimodal)
+	var pdf_mode: float = StatMath.PmfPdfFunctions.weibull_pdf(x_mode, scale, shape_unimodal)
+	var pdf_large: float = StatMath.PmfPdfFunctions.weibull_pdf(x_large, scale, shape_unimodal)
+	
+	assert_float(pdf_small).is_less(pdf_mode)  # Increases to mode
+	assert_float(pdf_mode).is_greater(pdf_large)  # Decreases after mode
+
+func test_weibull_pdf_boundary_conditions(x: float, scale_param: float, shape_param: float, test_parameters := [
+	[0.0, 1.0, 0.5],  # x=0, shape<1 (infinity)
+	[0.0, 1.0, 1.0],  # x=0, shape=1 (finite)
+	[0.0, 1.0, 2.0],  # x=0, shape>1 (zero)
+	[1000.0, 1.0, 2.0],  # Large x (should approach 0)
+]) -> void:
+	var result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale_param, shape_param)
+	
+	if x == 0.0:
+		if shape_param < 1.0:
+			assert_bool(is_inf(result)).is_true()
+		elif shape_param == 1.0:
+			assert_float(result).is_equal_approx(1.0 / scale_param, 1e-6)
+		else:  # shape_param > 1.0
+			assert_float(result).is_equal_approx(0.0, 1e-7)
+	elif x == 1000.0:
+		assert_float(result).is_less(1e-10)  # Should be very small
+
+func test_weibull_pdf_deterministic_behavior() -> void:
+	# Same inputs should always give same outputs
+	var x: float = 1.5
+	var shape: float = 2.0
+	var scale: float = 3.0
+	
+	var result1: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
+	var result2: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
+	
+	assert_float(result1).is_equal_approx(result2, 1e-15)
+
+func test_weibull_pdf_non_negative(x: float, test_parameters := [
+	[-2.0], [-1.0], [0.0], [1.0], [2.0], [5.0],
+]) -> void:
+	var result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, 1.0, 2.0)
+	if not is_inf(result):
+		assert_float(result).is_greater_equal(0.0)
+
+func test_weibull_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.weibull_pdf(1.0, -1.0, 1.0)
+	await assert_error(test_call1).is_push_error("Scale parameter (scale_param) must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.weibull_pdf(1.0, 0.0, 1.0)
+	await assert_error(test_call2).is_push_error("Scale parameter (scale_param) must be positive. Received: 0.0")
+	
+	var test_call3: Callable = func():
+		StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, -1.0)
+	await assert_error(test_call3).is_push_error("Shape parameter (shape_param) must be positive. Received: -1.0")
+	
+	var test_call4: Callable = func():
+		StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, 0.0)
+	await assert_error(test_call4).is_push_error("Shape parameter (shape_param) must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, -1.0, 1.0)
+	var result2: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, 0.0, 1.0)
+	var result3: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, -1.0)
+	var result4: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+	assert_bool(is_nan(result3)).is_true()
+	assert_bool(is_nan(result4)).is_true()
+
+# --- Lognormal PDF ---
+func test_lognormal_pdf_scipy_validated() -> void:
+	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["lognormal_pdf"]
+	for case in test_data:
+		var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(case["params"][0], case["params"][1], case["params"][2])
+		assert_float(result).is_equal_approx(case["expected"], 1e-7)
+
+func test_lognormal_pdf_edge_cases(x: float, mu: float, sigma: float, expected: float, test_parameters := [
+	[0.0, 0.0, 1.0, 0.0],    # At x=0
+	[-1.0, 0.0, 1.0, 0.0],   # Negative x
+]) -> void:
+	var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(x, mu, sigma)
+	assert_float(result).is_equal_approx(expected, 1e-7)
+
+func test_lognormal_pdf_relationship_to_normal() -> void:
+	# If X ~ Lognormal(μ, σ), then ln(X) ~ Normal(μ, σ)
+	var x: float = 2.0
+	var mu: float = 0.5
+	var sigma: float = 1.0
+	
+	var lognormal_result: float = StatMath.PmfPdfFunctions.lognormal_pdf(x, mu, sigma)
+	var normal_result: float = StatMath.PmfPdfFunctions.normal_pdf(log(x), mu, sigma)
+	
+	# Lognormal PDF = Normal PDF of log(x) divided by x
+	var expected: float = normal_result / x
+	assert_float(lognormal_result).is_equal_approx(expected, 1e-6)
+
+func test_lognormal_pdf_non_negative(x: float, test_parameters := [
+	[-2.0], [-1.0], [0.0], [1.0], [2.0], [5.0],
+]) -> void:
+	var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(x, 0.0, 1.0)
+	assert_float(result).is_greater_equal(0.0)
+
+func test_lognormal_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, -1.0)
+	await assert_error(test_call1).is_push_error("Standard deviation (sigma) must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, 0.0)
+	await assert_error(test_call2).is_push_error("Standard deviation (sigma) must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, -1.0)
+	var result2: float = StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()

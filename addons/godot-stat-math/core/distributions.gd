@@ -364,11 +364,9 @@ static func randf_gaussian() -> float:
 ##
 ## Mathematical Note: [code]E[X] = μ[/code], [code]Var(X) = σ²[/code]
 static func randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float: 
-	if not (sigma >= 0.0):
-		push_error("Standard deviation (sigma) must be non-negative. Received: %s" % sigma)
+	if not (sigma > 0.0):
+		push_error("Standard deviation (sigma) must be positive. Received: %s" % sigma)
 		return NAN
-	if sigma == 0.0:
-		return mu # If sigma is 0, all values are the mean.
 	return mu + sigma * randf_gaussian()
 
 
