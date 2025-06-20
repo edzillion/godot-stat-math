@@ -71,7 +71,7 @@ func test_generate_samples_unified_interface_starting_index() -> void:
 	
 	# samples_start_3 should equal elements [3,4,5] from first_6
 	for i in range(n_draws):
-		assert_float(typed_start_3[i]).is_equal_approx(typed_first_6[i + 3], 0.00001)
+		assert_float(typed_start_3[i]).is_equal_approx(typed_first_6[i + 3], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_unified_interface_edge_cases() -> void:
@@ -146,7 +146,7 @@ func test_generate_samples_nd_starting_index_determinism() -> void:
 	
 	for i in range(n_draws):
 		for d in range(dimensions):
-			assert_float(samples_0[i][d]).is_equal_approx(samples_0_repeat[i][d], 0.0000001)
+			assert_float(samples_0[i][d]).is_equal_approx(samples_0_repeat[i][d], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_nd_all_methods() -> void:
@@ -399,7 +399,7 @@ func test_generate_samples_1d_sobol_deterministic() -> void:
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(typed_samples[i]).is_equal_approx(expected_sobol[i], 0.00001)
+		assert_float(typed_samples[i]).is_equal_approx(expected_sobol[i], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_1d_halton_deterministic() -> void:
@@ -410,7 +410,7 @@ func test_generate_samples_1d_halton_deterministic() -> void:
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(typed_samples[i]).is_equal_approx(expected_halton[i], 0.00001)
+		assert_float(typed_samples[i]).is_equal_approx(expected_halton[i], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_1d_seeded_reproducibility() -> void:
@@ -426,7 +426,7 @@ func test_generate_samples_1d_seeded_reproducibility() -> void:
 	
 	assert_int(typed_sobol_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(typed_sobol_1[i]).is_equal_approx(typed_sobol_2[i], 0.0000001)
+		assert_float(typed_sobol_1[i]).is_equal_approx(typed_sobol_2[i], StatMath.DETERMINISM_TOLERANCE)
 	
 	# Test LATIN_HYPERCUBE reproducibility
 	var lhs_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 0, seed)
@@ -437,7 +437,7 @@ func test_generate_samples_1d_seeded_reproducibility() -> void:
 	
 	assert_int(typed_lhs_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(typed_lhs_1[i]).is_equal_approx(typed_lhs_2[i], 0.0000001)
+		assert_float(typed_lhs_1[i]).is_equal_approx(typed_lhs_2[i], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_1d_latin_hypercube_stratification() -> void:
@@ -487,7 +487,7 @@ func test_generate_samples_2d_sobol_deterministic() -> void:
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_vector(typed_samples[i]).is_equal_approx(expected_sobol_2d[i], Vector2(0.00001, 0.00001))
+		assert_vector(typed_samples[i]).is_equal_approx(expected_sobol_2d[i], Vector2(StatMath.DETERMINISM_TOLERANCE, StatMath.DETERMINISM_TOLERANCE))
 
 
 # --- DISCRETE INDEX SAMPLING TESTS (updated) ---
@@ -866,4 +866,4 @@ func test_starting_index_sobol_sequence_continuity() -> void:
 	
 	# part2_explicit should match the second half of full_sequence
 	for i in range(second_half):
-		assert_float(part2_typed[i]).is_equal_approx(typed_full_sequence[first_half + i], 0.00001)
+		assert_float(part2_typed[i]).is_equal_approx(typed_full_sequence[first_half + i], StatMath.DETERMINISM_TOLERANCE)

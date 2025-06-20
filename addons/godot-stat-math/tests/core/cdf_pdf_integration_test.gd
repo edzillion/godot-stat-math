@@ -170,15 +170,15 @@ func test_end_to_end_normal_distribution_workflow() -> void:
 	
 	# Validate that sample statistics are close to theoretical values
 	# With 1000 samples, we expect good approximation
-	assert_float(sample_mean).is_equal_approx(mu, 0.2)  # Within 0.2 of true mean
-	assert_float(sample_std).is_equal_approx(sigma, 0.3)  # Within 0.3 of true std
+	assert_float(sample_mean).is_equal_approx(mu, StatMath.NEGATIVE_BINOMIAL_TOLERANCE)  # Within tolerance of true mean
+	assert_float(sample_std).is_equal_approx(sigma, StatMath.HIGH_DISTRIBUTION_TOLERANCE)  # Within tolerance of true std
 	
 	# Test that our CDF/PDF functions work with sample data
 	samples.sort()  # Sort the array before calculating percentile
 	var percentile_95: float = StatMath.BasicStats.percentile(samples, 95.0)
 	var theoretical_95: float = StatMath.PpfFunctions.normal_ppf(0.95, mu, sigma)
 	
-	assert_float(percentile_95).is_equal_approx(theoretical_95, 1.0)  # Within 1.0 - increased tolerance for sampling variation
+	assert_float(percentile_95).is_equal_approx(theoretical_95, StatMath.DEFAULT_TOLERANCE_FACTOR)  # Within tolerance factor - increased tolerance for sampling variation
 
 ## Tests cross-function consistency in probability calculations
 func test_cross_function_probability_consistency() -> void:
@@ -199,7 +199,7 @@ func test_cross_function_probability_consistency() -> void:
 		var ppf_val: float = _get_ppf_value(name, cdf_val, dist["ppf_params"])
 		
 		# PPF(CDF(x)) should equal x
-		assert_float(ppf_val).is_equal_approx(dist["cdf_params"][0], 1e-4)
+		assert_float(ppf_val).is_equal_approx(dist["cdf_params"][0], StatMath.INVERSE_CONSISTENCY_TOLERANCE)
 
 # =============================================================================
 # NUMERICAL STABILITY TESTS

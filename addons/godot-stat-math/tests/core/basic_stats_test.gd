@@ -2,7 +2,6 @@
 class_name BasicStatsTest extends GdUnitTestSuite
 
 const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
-const HIGH_PRECISION_TOLERANCE: float = 1e-9
 
 # Import test data for Phase 3 advanced tests
 const BASIC_STATS_TEST_DATA = preload("res://addons/godot-stat-math/tables/basic_stats_test_data.gd")
@@ -89,7 +88,7 @@ func test_median_enhanced_decimal_precision() -> void:
 	# Sorted: [1.123456789, 1.555555555, 1.777777777, 1.999999999, 2.444444444, 2.666666666, 2.987654321]
 	# Median should be 1.999999999 (middle element)
 	var result: float = StatMath.BasicStats.median(high_precision_data)
-	assert_float(result).is_equal_approx(1.999999999, HIGH_PRECISION_TOLERANCE)
+	assert_float(result).is_equal_approx(1.999999999, StatMath.HIGH_PRECISION_TOLERANCE)
 
 func test_median_with_repeated_decimal_values() -> void:
 	# Test median with repeated decimal values
@@ -249,7 +248,7 @@ func test_percentile_interpolation() -> void:
 	# Position = (4-1) * (33.333/100) = 0.99999
 	# Lower index = 0, weight = 0.99999
 	# 10 * (1-0.99999) + 20 * 0.99999 ~= 20
-	assert_float(StatMath.BasicStats.percentile(data, 33.333)).is_equal_approx(20.0, 1e-4)
+	assert_float(StatMath.BasicStats.percentile(data, 33.333)).is_equal_approx(20.0, StatMath.INTERPOLATION_TOLERANCE)
 	
 	# Position = (4-1) * (50/100) = 1.5
 	# Lower index = 1, weight = 0.5

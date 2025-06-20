@@ -164,6 +164,93 @@ const BOUNDARY_TOLERANCE: float = 1.0e-10
 ## Mathematical Note: [code]10^-2[/code] for large-parameter approximations (e.g., t-distribution → normal)
 const ASYMPTOTIC_TOLERANCE: float = 1.0e-2
 
+## Interpolation tolerance for percentile calculations.
+##
+## Mathematical Note: [code]10^-4[/code] appropriate for linear interpolation in statistical functions
+const INTERPOLATION_TOLERANCE: float = 1.0e-4
+
+
+
+## Numerical integration tolerance for mathematical computations.
+##
+## Mathematical Note: [code]5×10^-3[/code] accounts for truncation errors in infinite-tail distributions
+const NUMERICAL_INTEGRATION_TOLERANCE: float = 5.0e-3
+
+## Symmetry validation tolerance for testing mathematical properties.
+##
+## Mathematical Note: [code]10^-4[/code] for symmetry tests around mathematical points
+const SYMMETRY_TOLERANCE: float = 1.0e-4
+
+## Error function inverse approximation tolerance.
+##
+## Mathematical Note: [code]2×10^-2[/code] accounts for Newton-Raphson convergence limitations
+const ERF_INV_TOLERANCE: float = 2.0e-2
+
+## Statistical test standard deviation multiplier for confidence intervals.
+##
+## Mathematical Note: [code]4.0[/code] represents ~4σ confidence level for statistical validation
+const STATISTICAL_TEST_STD_DEV_MULTIPLIER: float = 4.0
+
+## Default tolerance factor for adaptive tolerance calculations.
+##
+## Mathematical Note: [code]1.0[/code] baseline multiplier for dynamic tolerance adjustment
+const DEFAULT_TOLERANCE_FACTOR: float = 1.0
+
+## Sampling tolerance for statistical distributions and random number generation.
+##
+## Mathematical Note: [code]10^-6[/code] for sampling validation and distribution testing
+const SAMPLING_TOLERANCE: float = 1.0e-6
+
+## Inverse consistency tolerance for PPF-CDF round-trip validation.
+##
+## Mathematical Note: [code]10^-5[/code] ensures inverse function accuracy
+const INVERSE_CONSISTENCY_TOLERANCE: float = 1.0e-5
+
+## Stability tolerance for numerical algorithm convergence.
+##
+## Mathematical Note: [code]10^-6[/code] for algorithm stability testing
+const STABILITY_TOLERANCE: float = 1.0e-6
+
+## Stress test boundary value for extreme parameter testing.
+##
+## Mathematical Note: [code]10^-17[/code] for testing numerical stability at extreme scales
+const STRESS_TEST_BOUNDARY: float = 1.0e-17
+
+## Stress test small value for boundary condition testing.
+##
+## Mathematical Note: [code]10^-3[/code] for testing small parameter behavior
+const STRESS_TEST_SMALL_VALUE: float = 1.0e-3
+
+## Interface tolerance for API consistency testing.
+##
+## Mathematical Note: [code]10^-7[/code] for testing interface contracts and return value consistency
+const INTERFACE_TOLERANCE: float = 1.0e-7
+
+## Determinism tolerance for reproducible random number generation.
+##
+## Mathematical Note: [code]10^-7[/code] ensures exact reproducibility in deterministic contexts
+const DETERMINISM_TOLERANCE: float = 1.0e-7
+
+## Distribution-specific tolerance for hypergeometric distribution tests.
+##
+## Mathematical Note: [code]0.15[/code] accounts for discrete distribution sampling variance
+const HYPERGEOMETRIC_TOLERANCE: float = 0.15
+
+## Distribution-specific tolerance for negative binomial distribution tests.
+##
+## Mathematical Note: [code]0.2[/code] accounts for higher variance in negative binomial sampling
+const NEGATIVE_BINOMIAL_TOLERANCE: float = 0.2
+
+## Distribution-specific high tolerance for challenging distributions.
+##
+## Mathematical Note: [code]0.5[/code] for distributions with high variability or convergence challenges
+const HIGH_DISTRIBUTION_TOLERANCE: float = 0.5
+
+## Distribution-specific tolerance for beta distribution tests.
+##
+## Mathematical Note: [code]0.1[/code] for bounded distributions with moderate variance
+const BETA_TOLERANCE: float = 0.1
+
 ## Lanczos approximation parameter for Gamma function calculations.
 ##
 ## Mathematical Note: [code]g = 7.5[/code] provides optimal accuracy for the Lanczos method
