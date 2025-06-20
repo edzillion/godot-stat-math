@@ -65,7 +65,7 @@ func test_randi_binomial_statistical_properties() -> void:
 	# Check if sample mean is close to expected mean.
 	# Tolerance can be based on standard error of the mean: sqrt(np(1-p)) / sqrt(sample_size)
 	var expected_std_dev: float = sqrt(n_trials * p * (1.0 - p))
-	var tolerance: float = 4.0 * expected_std_dev / sqrt(sample_size)
+	var tolerance: float = StatMath.STATISTICAL_TEST_STD_DEV_MULTIPLIER * expected_std_dev / sqrt(sample_size)
 	assert_float(sample_mean).is_between(expected_mean - tolerance, expected_mean + tolerance)
 
 
@@ -106,7 +106,7 @@ func test_randi_geometric_typical_case() -> void:
 
 func test_randi_geometric_p_very_small_expect_large_or_inf() -> void:
 	# With a very small p, we expect a very large number of trials, possibly INF (int64.max).
-	var p_very_small: float = 0.0000000000000001 # 1e-17
+	var p_very_small: float = StatMath.STRESS_TEST_BOUNDARY # 1e-17
 	var result: int = StatMath.Distributions.randi_geometric(p_very_small)
 	# Check if it's a large positive number or int64.max if INF was cast.
 	print("randi_geometric(1e-17) returned: %s (Expected large positive or int64.max)" % result)
@@ -483,7 +483,7 @@ func test_randf_normal_statistical_properties() -> void:
 	var sample_mean: float = StatMath.BasicStats.mean(samples)
 	# Check if sample mean is close to mu.
 	# Tolerance can be based on standard error of the mean: sigma / sqrt(n)
-	var tolerance: float = 4.0 * sigma / sqrt(sample_size)
+	var tolerance: float = StatMath.STATISTICAL_TEST_STD_DEV_MULTIPLIER * sigma / sqrt(sample_size)
 	assert_float(sample_mean).is_between(expected_mean - tolerance, expected_mean + tolerance)
 
 

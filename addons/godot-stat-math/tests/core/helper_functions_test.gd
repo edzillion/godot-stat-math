@@ -143,7 +143,7 @@ func test_incomplete_beta_numerical_integration_beta_3_2() -> void:
 	var beta_func: float = StatMath.HelperFunctions.beta_function(a, b)
 	var expected_normalized: float = expected_raw / beta_func
 	
-	assert_float(result).is_equal_approx(expected_normalized, 1e-3) # Numerical integration tolerance
+	assert_float(result).is_equal_approx(expected_normalized, StatMath.NUMERICAL_INTEGRATION_TOLERANCE) # Numerical integration tolerance
 
 
 func test_incomplete_beta_symmetry() -> void:
@@ -155,7 +155,7 @@ func test_incomplete_beta_symmetry() -> void:
 	var left_side: float = StatMath.HelperFunctions.incomplete_beta(x, a, b)
 	var right_side: float = 1.0 - StatMath.HelperFunctions.incomplete_beta(1.0 - x, b, a)
 	
-	assert_float(left_side).is_equal_approx(right_side, 1e-4) # Should be symmetric
+	assert_float(left_side).is_equal_approx(right_side, StatMath.SYMMETRY_TOLERANCE) # Should be symmetric
 
 
 func test_incomplete_beta_monotonicity() -> void:

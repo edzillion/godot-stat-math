@@ -494,8 +494,8 @@ func test_pdf_integration_approximation(distribution: StatMath.SupportedDistribu
 			for i in range(0, 101):
 				var x: float = float(i) * 0.01
 				sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta) * 0.01
-	
-	assert_float(sum).is_equal_approx(1.0, 0.01)
+
+	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
 
 # --- Weibull PDF ---
 func test_weibull_pdf_scipy_validated() -> void:
@@ -694,7 +694,7 @@ func test_pdf_integration_normal() -> void:
 		var x: float = float(i) * step_size
 		sum += StatMath.PmfPdfFunctions.normal_pdf(x, 0.0, sigma) * step_size
 	
-	assert_float(sum).is_equal_approx(1.0, 0.01)  # 1% tolerance for numerical integration
+	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)  # Numerical integration tolerance
 
 func test_pdf_integration_exponential() -> void:
 	# Test that exponential PDF integrates to 1.0 over [0, +∞)
