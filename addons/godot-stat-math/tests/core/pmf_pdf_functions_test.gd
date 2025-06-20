@@ -3,10 +3,12 @@ class_name PmfPdfFunctionsTest extends GdUnitTestSuite
 
 const PMF_PDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/pmf_pdf_test_data.gd")
 
+
 # --- Binomial PMF ---
 func test_binomial_pmf_basic() -> void:
 	var result: float = StatMath.PmfPdfFunctions.binomial_pmf(2, 5, 0.5)
 	assert_float(result).is_equal_approx(0.3125, StatMath.PROBABILITY_TOLERANCE) # C(5,2) * 0.5^2 * 0.5^3 = 10 * 0.25 * 0.125 = 0.3125
+
 
 func test_binomial_pmf_edge_cases(k: int, n: int, p: float, expected: float, test_parameters := [
 	[0, 5, 0.5, 0.03125],  # k = 0
@@ -18,6 +20,7 @@ func test_binomial_pmf_edge_cases(k: int, n: int, p: float, expected: float, tes
 	var result: float = StatMath.PmfPdfFunctions.binomial_pmf(k, n, p)
 	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
+
 func test_binomial_pmf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
 		StatMath.PmfPdfFunctions.binomial_pmf(2, -1, 0.5)
@@ -26,6 +29,11 @@ func test_binomial_pmf_invalid_parameters() -> void:
 	var test_call2: Callable = func():
 		StatMath.PmfPdfFunctions.binomial_pmf(2, 5, -0.1)
 	await assert_error(test_call2).is_push_error("Success probability (p_prob) must be between 0.0 and 1.0. Received: -0.1")
+
+	var test_call3: Callable = func():
+		StatMath.PmfPdfFunctions.binomial_pmf(2, 5, 1.1)
+	await assert_error(test_call3).is_push_error("Success probability (p_prob) must be between 0.0 and 1.0. Received: 1.1")
+
 
 # --- Poisson PMF ---
 func test_poisson_pmf_basic() -> void:

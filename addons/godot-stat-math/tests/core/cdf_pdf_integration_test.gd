@@ -1,17 +1,12 @@
 # res://addons/godot-stat-math/tests/core/cdf_pdf_integration_test.gd
 class_name CdfPdfIntegrationTest extends GdUnitTestSuite
 
-## Phase 3: Integration Testing - Mathematical Relationships
-##
 ## This test suite verifies integration and end-to-end statistical workflows:
 ## • CDF and PDF consistency through probability calculations
 ## • CDFs should be monotonically increasing  
 ## • End-to-end statistical computation validation
 ## • Numerical stability under various conditions
 ## • Cross-distribution mathematical relationships
-
-# Using centralized tolerances from StatMath class
-const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
 
 # =============================================================================
 # CDF ↔ PDF DERIVATIVE RELATIONSHIP TESTS
@@ -229,15 +224,15 @@ func test_numerical_stability_extreme_values() -> void:
 ## Tests behavior at distribution boundaries and special points
 func test_distribution_boundary_behavior() -> void:
 	# Test uniform distribution at boundaries
-	assert_float(StatMath.CdfFunctions.uniform_cdf(1.0, 1.0, 4.0)).is_equal_approx(0.0, FLOAT_TOLERANCE)
-	assert_float(StatMath.CdfFunctions.uniform_cdf(4.0, 1.0, 4.0)).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.CdfFunctions.uniform_cdf(1.0, 1.0, 4.0)).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
+	assert_float(StatMath.CdfFunctions.uniform_cdf(4.0, 1.0, 4.0)).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 	
 	# Test beta distribution at boundaries
-	assert_float(StatMath.CdfFunctions.beta_cdf(0.0, 2.0, 3.0)).is_equal_approx(0.0, FLOAT_TOLERANCE)
-	assert_float(StatMath.CdfFunctions.beta_cdf(1.0, 2.0, 3.0)).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.CdfFunctions.beta_cdf(0.0, 2.0, 3.0)).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
+	assert_float(StatMath.CdfFunctions.beta_cdf(1.0, 2.0, 3.0)).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 	
 	# Test exponential distribution at x=0
-	assert_float(StatMath.CdfFunctions.exponential_cdf(0.0, 2.0)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.CdfFunctions.exponential_cdf(0.0, 2.0)).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 # =============================================================================
 # HELPER FUNCTIONS

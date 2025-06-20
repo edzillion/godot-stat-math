@@ -1,25 +1,6 @@
 # res://addons/godot-stat-math/tests/core/sampling_gen_test.gd
 class_name SamplingGenTest extends GdUnitTestSuite
 
-# Member variables here if needed, e.g. for complex setups or shared resources.
-
-
-# Called before each test.
-func before_test() -> void:
-	pass
-
-
-# Called after each test.
-func after_test() -> void:
-	pass
-
-
-# =============================================================================
-# TOLERANCE CONSTANTS
-# =============================================================================
-
-const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
-
 # =============================================================================
 # UNIFIED INTERFACE TESTS (generate_samples)
 # =============================================================================

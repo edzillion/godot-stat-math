@@ -2,15 +2,6 @@
 class_name PpfFunctionsTest extends GdUnitTestSuite
 
 # =============================================================================
-# TOLERANCE CONSTANTS
-# =============================================================================
-
-## Tolerance for floating point comparisons in PPF calculations  
-const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
-
-# Using centralized tolerances from StatMath class
-
-# =============================================================================
 # PHASE 3: SCIPY VALIDATION TESTS
 # =============================================================================
 
@@ -195,26 +186,26 @@ func test_ppf_boundary_conditions_parametrized(distribution: StatMath.SupportedD
 		"positive_infinity":
 			assert_bool(is_inf(result) and result > 0.0).is_true()
 		"zero":
-			assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+			assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 		"lower_bound":
-			assert_float(result).is_equal_approx(params[0], FLOAT_TOLERANCE)
+			assert_float(result).is_equal_approx(params[0], StatMath.FLOAT_TOLERANCE)
 		"upper_bound":
-			assert_float(result).is_equal_approx(params[1], FLOAT_TOLERANCE)
+			assert_float(result).is_equal_approx(params[1], StatMath.FLOAT_TOLERANCE)
 		"scale_value":
-			assert_float(result).is_equal_approx(params[0], FLOAT_TOLERANCE)  # Pareto scale
+			assert_float(result).is_equal_approx(params[0], StatMath.FLOAT_TOLERANCE)  # Pareto scale
 		"mean_value":
-			assert_float(result).is_equal_approx(params[0], FLOAT_TOLERANCE)  # Normal mean
+			assert_float(result).is_equal_approx(params[0], StatMath.FLOAT_TOLERANCE)  # Normal mean
 		"midpoint":
 			var expected_mid: float = (params[0] + params[1]) / 2.0
-			assert_float(result).is_equal_approx(expected_mid, FLOAT_TOLERANCE)
+			assert_float(result).is_equal_approx(expected_mid, StatMath.FLOAT_TOLERANCE)
 		"ln_2":
 			assert_float(result).is_equal_approx(0.6931472, StatMath.SPECIAL_VALUES_TOLERANCE)
 		"one_quarter":
 			var expected_quarter: float = params[0] + 0.25 * (params[1] - params[0])
-			assert_float(result).is_equal_approx(expected_quarter, FLOAT_TOLERANCE)
+			assert_float(result).is_equal_approx(expected_quarter, StatMath.FLOAT_TOLERANCE)
 		"three_quarters":
 			var expected_three_quarter: float = params[0] + 0.75 * (params[1] - params[0])
-			assert_float(result).is_equal_approx(expected_three_quarter, FLOAT_TOLERANCE)
+			assert_float(result).is_equal_approx(expected_three_quarter, StatMath.FLOAT_TOLERANCE)
 
 # =============================================================================
 # PHASE 3: ENHANCED PARAMETER VALIDATION
@@ -284,7 +275,7 @@ func test_ppf_special_relationships_parametrized(relationship_type: String, para
 			var a: float = params[0]
 			var b: float = params[1]
 			var result: float = StatMath.PpfFunctions.uniform_ppf(p_value, a, b)
-			assert_float(result).is_equal_approx(a, FLOAT_TOLERANCE)
+			assert_float(result).is_equal_approx(a, StatMath.FLOAT_TOLERANCE)
 		
 		"pareto_scale":
 			# For Pareto(scale, 1), PPF(0.5) = 2*scale

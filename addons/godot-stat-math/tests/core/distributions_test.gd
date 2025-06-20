@@ -2,7 +2,6 @@
 class_name DistributionsTest extends GdUnitTestSuite
 
 
-
 func test_randi_bernoulli_p_zero() -> void:
 	var result: int = StatMath.Distributions.randi_bernoulli(0.0)
 	assert_int(result).is_equal(0)

@@ -1,13 +1,12 @@
 # res://addons/godot-stat-math/tests/core/error_functions_test.gd
 class_name ErrorFunctionsTest extends GdUnitTestSuite
 
-const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
 const ERROR_FUNCTIONS_TEST_DATA = preload("res://addons/godot-stat-math/tables/error_functions_test_data.gd")
 
 # --- Error Function (erf) ---
 func test_error_function_zero() -> void:
 	var result: float = StatMath.ErrorFunctions.erf(0.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_error_function_positive() -> void:
 	var test_data: Array = ERROR_FUNCTIONS_TEST_DATA.VALUES["erf"]
@@ -25,16 +24,16 @@ func test_error_function_negative() -> void:
 
 func test_error_function_large_positive() -> void:
 	var result: float = StatMath.ErrorFunctions.erf(10.0)
-	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE) # erf(10) ~ 1
+	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE) # erf(10) ~ 1
 
 func test_error_function_large_negative() -> void:
 	var result: float = StatMath.ErrorFunctions.erf(-10.0)
-	assert_float(result).is_equal_approx(-1.0, FLOAT_TOLERANCE) # erf(-10) ~ -1
+	assert_float(result).is_equal_approx(-1.0, StatMath.FLOAT_TOLERANCE) # erf(-10) ~ -1
 
 # --- Complementary Error Function (erfc) ---
 func test_complementary_error_function_zero() -> void:
 	var result: float = StatMath.ErrorFunctions.erfc(0.0)
-	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 
 func test_complementary_error_function_positive() -> void:
 	var test_data: Array = ERROR_FUNCTIONS_TEST_DATA.VALUES["erfc"]
@@ -59,15 +58,15 @@ func test_error_function_inverse_round_trip() -> void:
 
 func test_error_function_inverse_zero() -> void:
 	var result: float = StatMath.ErrorFunctions.erf_inv(0.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_error_function_inverse_one() -> void:
 	var result: float = StatMath.ErrorFunctions.erf_inv(1.0)
-	assert_float(result).is_equal_approx(INF, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(INF, StatMath.FLOAT_TOLERANCE)
 
 func test_error_function_inverse_minus_one() -> void:
 	var result: float = StatMath.ErrorFunctions.erf_inv(-1.0)
-	assert_float(result).is_equal_approx(-INF, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(-INF, StatMath.FLOAT_TOLERANCE)
 
 func test_error_function_inverse_invalid_gt_one() -> void:
 	var test_call: Callable = func():
@@ -90,15 +89,15 @@ func test_complementary_error_function_inverse_round_trip() -> void:
 
 func test_complementary_error_function_inverse_one() -> void:
 	var result: float = StatMath.ErrorFunctions.erfc_inv(1.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_complementary_error_function_inverse_zero() -> void:
 	var result: float = StatMath.ErrorFunctions.erfc_inv(0.0)
-	assert_float(result).is_equal_approx(INF, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(INF, StatMath.FLOAT_TOLERANCE)
 
 func test_complementary_error_function_inverse_two() -> void:
 	var result: float = StatMath.ErrorFunctions.erfc_inv(2.0)
-	assert_float(result).is_equal_approx(-INF, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(-INF, StatMath.FLOAT_TOLERANCE)
 
 func test_complementary_error_function_inverse_invalid_gt_two() -> void:
 	var test_call: Callable = func():
@@ -113,15 +112,15 @@ func test_complementary_error_function_inverse_invalid_lt_zero() -> void:
 # --- Gamma and Log Gamma Functions ---
 func test_gamma_integer() -> void:
 	# Gamma(n) = (n-1)!
-	assert_float(StatMath.ErrorFunctions.gamma(4.0)).is_equal_approx(6.0, FLOAT_TOLERANCE) # 3!
-	assert_float(StatMath.ErrorFunctions.gamma(5.0)).is_equal_approx(24.0, FLOAT_TOLERANCE) # 4!
-	assert_float(StatMath.ErrorFunctions.gamma(1.0)).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.ErrorFunctions.gamma(4.0)).is_equal_approx(6.0, StatMath.FLOAT_TOLERANCE) # 3!
+	assert_float(StatMath.ErrorFunctions.gamma(5.0)).is_equal_approx(24.0, StatMath.FLOAT_TOLERANCE) # 4!
+	assert_float(StatMath.ErrorFunctions.gamma(1.0)).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 
 func test_gamma_half_integer() -> void:
 	# Gamma(0.5) = sqrt(PI)
-	assert_float(StatMath.ErrorFunctions.gamma(0.5)).is_equal_approx(sqrt(PI), FLOAT_TOLERANCE)
+	assert_float(StatMath.ErrorFunctions.gamma(0.5)).is_equal_approx(sqrt(PI), StatMath.FLOAT_TOLERANCE)
 	# Gamma(1.5) = 0.5 * Gamma(0.5) = 0.5 * sqrt(PI)
-	assert_float(StatMath.ErrorFunctions.gamma(1.5)).is_equal_approx(0.5 * sqrt(PI), FLOAT_TOLERANCE)
+	assert_float(StatMath.ErrorFunctions.gamma(1.5)).is_equal_approx(0.5 * sqrt(PI), StatMath.FLOAT_TOLERANCE)
 
 func test_gamma_invalid_input() -> void:
 	assert_that(is_nan(StatMath.ErrorFunctions.gamma(0.0))).is_true()
@@ -132,7 +131,7 @@ func test_log_gamma_consistency() -> void:
 	var x: float = 2.5
 	var log_gamma_val: float = StatMath.ErrorFunctions.log_gamma(x)
 	var gamma_val: float = StatMath.ErrorFunctions.gamma(x)
-	assert_float(log_gamma_val).is_equal_approx(log(gamma_val), FLOAT_TOLERANCE)
+	assert_float(log_gamma_val).is_equal_approx(log(gamma_val), StatMath.FLOAT_TOLERANCE)
 
 func test_log_gamma_invalid_input() -> void:
 	assert_that(is_nan(StatMath.ErrorFunctions.log_gamma(0.0))).is_true()

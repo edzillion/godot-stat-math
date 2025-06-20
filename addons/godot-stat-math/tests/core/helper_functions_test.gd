@@ -2,24 +2,24 @@
 class_name HelperFunctionsTest extends GdUnitTestSuite
 
 const HELPER_FUNCTIONS_TEST_DATA = preload("res://addons/godot-stat-math/tables/helper_functions_test_data.gd")
-const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
+
 
 # --- Binomial Coefficient ---
 func test_binomial_coefficient_basic() -> void:
 	var result: float = StatMath.HelperFunctions.binomial_coefficient(5, 2)
-	assert_float(result).is_equal_approx(10.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(10.0, StatMath.FLOAT_TOLERANCE)
 
 func test_binomial_coefficient_r_zero() -> void:
 	var result: float = StatMath.HelperFunctions.binomial_coefficient(5, 0)
-	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 
 func test_binomial_coefficient_r_equals_n() -> void:
 	var result: float = StatMath.HelperFunctions.binomial_coefficient(5, 5)
-	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 
 func test_binomial_coefficient_r_greater_than_n() -> void:
 	var result: float = StatMath.HelperFunctions.binomial_coefficient(3, 5)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_binomial_coefficient_invalid_n_negative() -> void:
 	var test_call: Callable = func():
@@ -34,11 +34,11 @@ func test_binomial_coefficient_invalid_r_negative() -> void:
 # --- Log Factorial ---
 func test_log_factorial_basic() -> void:
 	var result: float = StatMath.HelperFunctions.log_factorial(5)
-	assert_float(result).is_equal_approx(log(120.0), FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(log(120.0), StatMath.FLOAT_TOLERANCE)
 
 func test_log_factorial_zero() -> void:
 	var result: float = StatMath.HelperFunctions.log_factorial(0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_log_factorial_invalid_negative() -> void:
 	var test_call: Callable = func():
@@ -48,19 +48,19 @@ func test_log_factorial_invalid_negative() -> void:
 # --- Log Binomial Coefficient ---
 func test_log_binomial_coef_basic() -> void:
 	var result: float = StatMath.HelperFunctions.log_binomial_coef(5, 2)
-	assert_float(result).is_equal_approx(log(10.0), FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(log(10.0), StatMath.FLOAT_TOLERANCE)
 
 func test_log_binomial_coef_k_zero() -> void:
 	var result: float = StatMath.HelperFunctions.log_binomial_coef(5, 0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_log_binomial_coef_k_equals_n() -> void:
 	var result: float = StatMath.HelperFunctions.log_binomial_coef(5, 5)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_log_binomial_coef_k_greater_than_n() -> void:
 	var result: float = StatMath.HelperFunctions.log_binomial_coef(3, 5)
-	assert_float(result).is_equal_approx(-INF, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(-INF, StatMath.FLOAT_TOLERANCE)
 
 func test_log_binomial_coef_invalid_n_negative() -> void:
 	var test_call: Callable = func():
@@ -75,7 +75,7 @@ func test_log_binomial_coef_invalid_k_negative() -> void:
 # --- Beta Function ---
 func test_beta_function_basic() -> void:
 	var result: float = StatMath.HelperFunctions.beta_function(2.0, 3.0)
-	assert_float(result).is_equal_approx(1.0 / 12.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(1.0 / 12.0, StatMath.FLOAT_TOLERANCE)
 
 func test_beta_function_invalid_a_negative() -> void:
 	var test_call: Callable = func():
@@ -85,11 +85,11 @@ func test_beta_function_invalid_a_negative() -> void:
 # --- Incomplete Beta (placeholder) ---
 func test_incomplete_beta_x_zero() -> void:
 	var result: float = StatMath.HelperFunctions.incomplete_beta(0.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_incomplete_beta_x_one() -> void:
 	var result: float = StatMath.HelperFunctions.incomplete_beta(1.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 
 func test_incomplete_beta_invalid_a_negative() -> void:
 	var test_call: Callable = func():
@@ -108,7 +108,7 @@ func test_incomplete_beta_special_case_beta_2_2() -> void:
 	var x: float = 0.5
 	var result: float = StatMath.HelperFunctions.incomplete_beta(x, 2.0, 2.0)
 	var expected: float = x * x * (3.0 - 2.0 * x) # Expected exact formula
-	assert_float(result).is_equal_approx(expected, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.FLOAT_TOLERANCE)
 
 
 func test_incomplete_beta_special_case_beta_2_2_quarter() -> void:
@@ -116,7 +116,7 @@ func test_incomplete_beta_special_case_beta_2_2_quarter() -> void:
 	var x: float = 0.25
 	var result: float = StatMath.HelperFunctions.incomplete_beta(x, 2.0, 2.0)
 	var expected: float = x * x * (3.0 - 2.0 * x) # 0.25^2 * (3 - 2*0.25) = 0.0625 * 2.5 = 0.15625
-	assert_float(result).is_equal_approx(expected, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.FLOAT_TOLERANCE)
 
 
 func test_incomplete_beta_special_case_beta_2_2_three_quarters() -> void:
@@ -124,7 +124,7 @@ func test_incomplete_beta_special_case_beta_2_2_three_quarters() -> void:
 	var x: float = 0.75
 	var result: float = StatMath.HelperFunctions.incomplete_beta(x, 2.0, 2.0)
 	var expected: float = x * x * (3.0 - 2.0 * x) # 0.75^2 * (3 - 2*0.75) = 0.5625 * 1.5 = 0.84375
-	assert_float(result).is_equal_approx(expected, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.FLOAT_TOLERANCE)
 
 
 func test_incomplete_beta_numerical_integration_beta_3_2() -> void:
@@ -193,7 +193,7 @@ func test_incomplete_beta_invalid_b_negative() -> void:
 # --- Log Beta Function Direct ---
 func test_log_beta_function_direct_basic() -> void:
 	var result: float = StatMath.HelperFunctions.log_beta_function_direct(2.0, 3.0)
-	assert_float(result).is_equal_approx(log(1.0 / 12.0), FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(log(1.0 / 12.0), StatMath.FLOAT_TOLERANCE)
 
 func test_log_beta_function_direct_invalid_a_negative() -> void:
 	var test_call: Callable = func():
@@ -203,7 +203,7 @@ func test_log_beta_function_direct_invalid_a_negative() -> void:
 # --- Lower Incomplete Gamma Regularized (comprehensive tests) ---
 func test_lower_incomplete_gamma_regularized_z_zero() -> void:
 	var result: float = StatMath.HelperFunctions.lower_incomplete_gamma_regularized(2.0, 0.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_lower_incomplete_gamma_regularized_invalid_a_negative() -> void:
 	var test_call: Callable = func():
@@ -223,7 +223,7 @@ func test_lower_incomplete_gamma_regularized_a_equals_one() -> void:
 	var z: float = 2.0
 	var result: float = StatMath.HelperFunctions.lower_incomplete_gamma_regularized(a, z)
 	var expected: float = 1.0 - exp(-z)
-	assert_float(result).is_equal_approx(expected, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.FLOAT_TOLERANCE)
 
 
 func test_lower_incomplete_gamma_regularized_small_z() -> void:

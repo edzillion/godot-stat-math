@@ -1,9 +1,6 @@
 # res://addons/godot-stat-math/tests/core/cdf_functions_test.gd
 class_name CdfFunctionsTest extends GdUnitTestSuite
 
-const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
-# Using centralized tolerance constants from StatMath class
-# Using centralized BOUNDARY_TOLERANCE from StatMath class
 
 var simple_data: Array[float] = [1.0, 2.0, 3.0, 4.0, 5.0]
 const CDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/cdf_test_data.gd")
@@ -297,19 +294,19 @@ func test_uniform_cdf_basic_range() -> void:
 	var b: float = 5.0
 	var x: float = 3.0
 	var result: float = StatMath.CdfFunctions.uniform_cdf(x, a, b)
-	assert_float(result).is_equal_approx((x - a) / (b - a), FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx((x - a) / (b - a), StatMath.FLOAT_TOLERANCE)
 
 func test_uniform_cdf_x_below_a() -> void:
 	var result: float = StatMath.CdfFunctions.uniform_cdf(1.0, 2.0, 5.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_uniform_cdf_x_above_b() -> void:
 	var result: float = StatMath.CdfFunctions.uniform_cdf(6.0, 2.0, 5.0)
-	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 
 func test_uniform_cdf_a_equals_b() -> void:
 	var result: float = StatMath.CdfFunctions.uniform_cdf(2.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 
 func test_uniform_cdf_invalid_a_greater_than_b() -> void:
 	var test_call: Callable = func():
@@ -319,16 +316,16 @@ func test_uniform_cdf_invalid_a_greater_than_b() -> void:
 # --- Normal CDF ---
 func test_normal_cdf_standard_normal() -> void:
 	var result: float = StatMath.CdfFunctions.normal_cdf(0.0)
-	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
 
 func test_normal_cdf_mu_sigma() -> void:
 	var result: float = StatMath.CdfFunctions.normal_cdf(2.0, 2.0, 1.0)
-	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
 
 func test_normal_cdf_known_value() -> void:
 	# Value from scipy.stats.norm.cdf(1.96)
 	var result: float = StatMath.CdfFunctions.normal_cdf(1.96)
-	assert_float(result).is_equal_approx(0.9750021, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.9750021, StatMath.FLOAT_TOLERANCE)
 
 func test_normal_cdf_invalid_sigma_zero() -> void:
 	var test_call: Callable = func():
@@ -339,11 +336,11 @@ func test_normal_cdf_invalid_sigma_zero() -> void:
 func test_exponential_cdf_typical() -> void:
 	# Value from scipy.stats.expon.cdf(1.0, scale=1/2.0) -> 0.86466
 	var result: float = StatMath.CdfFunctions.exponential_cdf(1.0, 2.0)
-	assert_float(result).is_equal_approx(0.8646647, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.8646647, StatMath.FLOAT_TOLERANCE)
 
 func test_exponential_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.exponential_cdf(0.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_exponential_cdf_invalid_lambda_zero() -> void:
 	var test_call: Callable = func():
@@ -354,15 +351,15 @@ func test_exponential_cdf_invalid_lambda_zero() -> void:
 func test_beta_cdf_symmetric() -> void:
 	# For symmetric alpha=beta, CDF at 0.5 should be 0.5
 	var result: float = StatMath.CdfFunctions.beta_cdf(0.5, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
 
 func test_beta_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.beta_cdf(0.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_beta_cdf_x_one() -> void:
 	var result: float = StatMath.CdfFunctions.beta_cdf(1.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 
 func test_beta_cdf_invalid_alpha_beta() -> void:
 	var test_call: Callable = func():
@@ -373,11 +370,11 @@ func test_beta_cdf_invalid_alpha_beta() -> void:
 func test_gamma_cdf_known_value() -> void:
 	# Value from scipy.stats.gamma.cdf(2.0, a=2.0, scale=1.0) -> 0.59399415
 	var result: float = StatMath.CdfFunctions.gamma_cdf(2.0, 2.0, 1.0)
-	assert_float(result).is_equal_approx(0.59399415, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.59399415, StatMath.FLOAT_TOLERANCE)
 
 func test_gamma_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.gamma_cdf(0.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_gamma_cdf_invalid_shape_scale() -> void:
 	var test_call: Callable = func():
@@ -388,11 +385,11 @@ func test_gamma_cdf_invalid_shape_scale() -> void:
 func test_chi_square_cdf_known_value() -> void:
 	# Value from scipy.stats.chi2.cdf(3.0, df=2.0) -> 0.77687
 	var result: float = StatMath.CdfFunctions.chi_square_cdf(3.0, 2.0)
-	assert_float(result).is_equal_approx(0.7768698, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.7768698, StatMath.FLOAT_TOLERANCE)
 
 func test_chi_square_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.chi_square_cdf(0.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_chi_square_cdf_invalid_df() -> void:
 	var test_call: Callable = func():
@@ -403,11 +400,11 @@ func test_chi_square_cdf_invalid_df() -> void:
 func test_f_cdf_known_value() -> void:
 	# Value from scipy.stats.f.cdf(1.5, dfn=2.0, dfd=2.0) -> 0.598
 	var result: float = StatMath.CdfFunctions.f_cdf(1.5, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.598, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.598, StatMath.FLOAT_TOLERANCE)
 
 func test_f_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.f_cdf(0.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_f_cdf_invalid_df() -> void:
 	var test_call: Callable = func():
@@ -417,7 +414,7 @@ func test_f_cdf_invalid_df() -> void:
 # --- Student's t-Distribution CDF ---
 func test_t_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.t_cdf(0.0, 2.0)
-	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
 
 func test_t_cdf_known_value() -> void:
 	# Value from scipy.stats.t.cdf(1.0, df=10)
@@ -434,15 +431,15 @@ func test_binomial_cdf_known_value() -> void:
 	# Value from scipy.stats.binom.cdf(k=2, n=5, p=0.5)
 	# P(0) = 0.03125, P(1)=0.15625, P(2)=0.3125. Sum = 0.5
 	var result: float = StatMath.CdfFunctions.binomial_cdf(2, 5, 0.5)
-	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
 
 func test_binomial_cdf_k_negative() -> void:
 	var result: float = StatMath.CdfFunctions.binomial_cdf(-1, 5, 0.5)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_binomial_cdf_k_ge_n() -> void:
 	var result: float = StatMath.CdfFunctions.binomial_cdf(5, 5, 0.5)
-	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
 
 func test_binomial_cdf_invalid_n_negative() -> void:
 	var test_call: Callable = func():
@@ -462,11 +459,11 @@ func test_binomial_cdf_invalid_p() -> void:
 func test_poisson_cdf_known_value() -> void:
 	# Value from scipy.stats.poisson.cdf(k=2, mu=2.0) -> 0.676676416183063
 	var result: float = StatMath.CdfFunctions.poisson_cdf(2, 2.0)
-	assert_float(result).is_equal_approx(0.676676416183063, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.676676416183063, StatMath.FLOAT_TOLERANCE)
 
 func test_poisson_cdf_k_negative() -> void:
 	var result: float = StatMath.CdfFunctions.poisson_cdf(-1, 2.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_poisson_cdf_invalid_lambda_negative() -> void:
 	var test_call: Callable = func():
@@ -477,11 +474,11 @@ func test_poisson_cdf_invalid_lambda_negative() -> void:
 func test_geometric_cdf_known_value() -> void:
 	# Value from 1 - (1-p)^k = 1 - (0.5)^3 = 0.875
 	var result: float = StatMath.CdfFunctions.geometric_cdf(3, 0.5)
-	assert_float(result).is_equal_approx(0.875, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.875, StatMath.FLOAT_TOLERANCE)
 
 func test_geometric_cdf_k_less_than_1() -> void:
 	var result: float = StatMath.CdfFunctions.geometric_cdf(0, 0.5)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_geometric_cdf_invalid_p_zero() -> void:
 	var test_call: Callable = func():
@@ -497,11 +494,11 @@ func test_negative_binomial_cdf_known_value() -> void:
 	# P(5) = C(4,2)*0.5^3*0.5^2 = 6 * 0.125 * 0.25 = 0.1875
 	# Sum = 0.125 + 0.1875 + 0.1875 = 0.5
 	var result: float = StatMath.CdfFunctions.negative_binomial_cdf(5, 3, 0.5)
-	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
 
 func test_negative_binomial_cdf_k_less_than_r() -> void:
 	var result: float = StatMath.CdfFunctions.negative_binomial_cdf(2, 3, 0.5)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_negative_binomial_cdf_invalid_r() -> void:
 	var test_call: Callable = func():
@@ -516,16 +513,16 @@ func test_negative_binomial_cdf_invalid_p() -> void:
 # --- Pareto CDF ---
 func test_pareto_cdf_x_equals_scale() -> void:
 	var result: float = StatMath.CdfFunctions.pareto_cdf(2.0, 2.0, 3.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_pareto_cdf_basic_calculation() -> void:
 	# For x = 4, scale = 2, shape = 3: F(4) = 1 - (2/4)^3 = 1 - 0.125 = 0.875
 	var result: float = StatMath.CdfFunctions.pareto_cdf(4.0, 2.0, 3.0)
-	assert_float(result).is_equal_approx(0.875, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.875, StatMath.FLOAT_TOLERANCE)
 
 func test_pareto_cdf_x_below_scale() -> void:
 	var result: float = StatMath.CdfFunctions.pareto_cdf(1.0, 2.0, 3.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_pareto_cdf_large_x() -> void:
 	# For very large x, CDF should approach 1
@@ -687,11 +684,11 @@ func test_weibull_cdf_basic_calculation() -> void:
 	# For x = 2, scale = 2, shape = 2: F(2) = 1 - exp(-(2/2)^2) = 1 - exp(-1) ≈ 0.632
 	var result: float = StatMath.CdfFunctions.weibull_cdf(2.0, 2.0, 2.0)
 	var expected: float = 1.0 - exp(-1.0)
-	assert_float(result).is_equal_approx(expected, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(expected, StatMath.FLOAT_TOLERANCE)
 
 func test_weibull_cdf_x_below_zero() -> void:
 	var result: float = StatMath.CdfFunctions.weibull_cdf(-1.0, 2.0, 3.0)
-	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_weibull_cdf_exponential_case() -> void:
 	# When shape = 1, Weibull becomes exponential: F(x) = 1 - exp(-x/λ)
@@ -703,7 +700,7 @@ func test_weibull_cdf_exponential_case() -> void:
 	# For exponential, lambda_param is the rate, which is 1.0 / scale
 	var exponential_result: float = StatMath.CdfFunctions.exponential_cdf(x, 1.0 / scale)
 	
-	assert_float(weibull_result).is_equal_approx(exponential_result, FLOAT_TOLERANCE)
+	assert_float(weibull_result).is_equal_approx(exponential_result, StatMath.FLOAT_TOLERANCE)
 
 func test_weibull_cdf_monotonicity() -> void:
 	# CDF should be monotonically increasing
