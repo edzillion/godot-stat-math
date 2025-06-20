@@ -302,7 +302,7 @@ func test_lower_incomplete_gamma_regularized_zero_z_different_a() -> void:
 	
 	for a in a_values:
 		var result: float = StatMath.HelperFunctions.lower_incomplete_gamma_regularized(a, 0.0)
-		assert_float(result).is_equal_approx(0.0, 1e-10) # Should always be 0 for z=0
+		assert_float(result).is_equal_approx(0.0, StatMath.BOUNDARY_TOLERANCE) # Should always be 0 for z=0
 
 
 # --- Integration Tests for Incomplete Functions ---
@@ -371,4 +371,4 @@ func test_lower_incomplete_gamma_regularized_known_value() -> void:
 	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["lower_incomplete_gamma_regularized"]
 	var case: Dictionary = test_data[0]  # [2.5, 3.5] -> 0.77935969
 	var result: float = StatMath.HelperFunctions.lower_incomplete_gamma_regularized(case["params"][0], case["params"][1])
-	assert_float(result).is_equal_approx(case["expected"], 1e-5) 
+	assert_float(result).is_equal_approx(case["expected"], StatMath.ERF_APPROX_TOLERANCE) 

@@ -422,7 +422,7 @@ func test_t_cdf_x_zero() -> void:
 func test_t_cdf_known_value() -> void:
 	# Value from scipy.stats.t.cdf(1.0, df=10)
 	var result: float = StatMath.CdfFunctions.t_cdf(1.0, 10.0)
-	assert_float(result).is_equal_approx(0.829553, 1e-5) # Slightly lower tolerance for t-dist approximation
+	assert_float(result).is_equal_approx(0.829553, StatMath.NUMERICAL_TOLERANCE) # Slightly lower tolerance for t-dist approximation
 
 func test_t_cdf_invalid_df() -> void:
 	var test_call: Callable = func():
@@ -591,7 +591,7 @@ func test_pareto_cdf_deterministic() -> void:
 	var result1: float = StatMath.CdfFunctions.pareto_cdf(x, scale, shape)
 	var result2: float = StatMath.CdfFunctions.pareto_cdf(x, scale, shape)
 	
-	assert_float(result1).is_equal_approx(result2, 1e-15)
+	assert_float(result1).is_equal_approx(result2, StatMath.DETERMINISM_TOLERANCE)
 
 func test_pareto_cdf_invalid_scale_zero() -> void:
 	var test_call: Callable = func():
@@ -645,7 +645,7 @@ func test_pareto_cdf_loot_rarity_distribution() -> void:
 		assert_float(probabilities[i]).is_less_equal(probabilities[i + 1])
 	
 	# At minimum value, probability should be 0
-	assert_float(probabilities[0]).is_equal_approx(0.0, 1e-7)
+	assert_float(probabilities[0]).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
 
 func test_pareto_cdf_damage_resistance_calculation() -> void:
 	# Example: probability that damage dealt is below player's resistance

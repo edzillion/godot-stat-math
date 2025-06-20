@@ -218,7 +218,7 @@ func test_numerical_stability_extreme_values() -> void:
 	var large_x: float = 1e6
 	var result_large: float = StatMath.CdfFunctions.exponential_cdf(large_x, 1.0)
 	assert_bool(is_finite(result_large)).is_true()
-	assert_float(result_large).is_equal_approx(1.0, 1e-10)  # Should be very close to 1
+	assert_float(result_large).is_equal_approx(1.0, StatMath.BOUNDARY_TOLERANCE)  # Should be very close to 1
 	
 	# Test with extreme probability values
 	var result_extreme_low: float = StatMath.PpfFunctions.normal_ppf(1e-10)

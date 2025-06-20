@@ -309,7 +309,7 @@ func test_randi_uniform_invalid_min_greater_than_max() -> void:
 func test_randf_uniform_a_equals_b() -> void:
 	var val: float = 5.0
 	var result: float = StatMath.Distributions.randf_uniform(val, val)
-	assert_float(result).is_equal_approx(val, 0.00001)
+	assert_float(result).is_equal_approx(val, StatMath.ERF_APPROX_TOLERANCE)
 
 
 func test_randf_uniform_typical_case() -> void:
@@ -449,7 +449,7 @@ func test_randf_normal_default_parameters() -> void:
 func test_randf_normal_sigma_zero() -> void:
 	var mu_val: float = 5.0
 	var result: float = StatMath.Distributions.randf_normal(mu_val, 0.0)
-	assert_float(result).is_equal_approx(mu_val, 0.00001)
+	assert_float(result).is_equal_approx(mu_val, StatMath.ERF_APPROX_TOLERANCE)
 
 
 func test_randf_normal_typical_case() -> void:
@@ -560,7 +560,7 @@ func test_randf_cauchy_deterministic_with_seed() -> void:
 	StatMath.set_global_seed(seed)
 	var result2: float = StatMath.Distributions.randf_cauchy(location, scale)
 	
-	assert_float(result1).is_equal_approx(result2, 0.0000001)
+	assert_float(result1).is_equal_approx(result2, StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_randf_cauchy_multiple_calls_different_values() -> void:
@@ -805,7 +805,7 @@ func test_rng_determinism_with_set_seed() -> void:
 	# Result 1 (float from randf_normal)
 	assert_bool(results_run1[1] is float).is_true() # Result 1 (Run 1) should be a float.
 	assert_bool(results_run2[1] is float).is_true() # Result 1 (Run 2) should be a float.
-	assert_float(results_run1[1]).is_equal_approx(results_run2[1], 0.0000001) # Result 1 (randf_normal) should be deterministic.")
+	assert_float(results_run1[1]).is_equal_approx(results_run2[1], StatMath.DETERMINISM_TOLERANCE) # Result 1 (randf_normal) should be deterministic.")
 
 	# Result 2 (int from randi_poisson)
 	assert_bool(results_run1[2] is int).is_true() # Result 2 (Run 1) should be an int.
@@ -865,7 +865,7 @@ func test_randf_gamma_deterministic_with_seed() -> void:
 	StatMath.set_global_seed(seed)
 	var result2: float = StatMath.Distributions.randf_gamma(shape, scale)
 	
-	assert_float(result1).is_equal_approx(result2, 0.0000001)
+	assert_float(result1).is_equal_approx(result2, StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_randf_gamma_invalid_shape_zero() -> void:
@@ -959,7 +959,7 @@ func test_randf_beta_deterministic_with_seed() -> void:
 	StatMath.set_global_seed(seed)
 	var result2: float = StatMath.Distributions.randf_beta(alpha, beta)
 	
-	assert_float(result1).is_equal_approx(result2, 0.0000001)
+	assert_float(result1).is_equal_approx(result2, StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_randf_beta_invalid_alpha_zero() -> void:
@@ -1188,7 +1188,7 @@ func test_randf_triangular_deterministic_with_seed() -> void:
 	StatMath.set_global_seed(seed)
 	var result2: float = StatMath.Distributions.randf_triangular(min_val, max_val, mode_val)
 	
-	assert_float(result1).is_equal_approx(result2, 0.0000001)
+	assert_float(result1).is_equal_approx(result2, StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_randf_triangular_multiple_calls_different_values() -> void:
@@ -1216,7 +1216,7 @@ func test_randf_triangular_degenerate_case_equal_bounds() -> void:
 	# When min equals max, should return that value
 	var value: float = 42.0
 	var result: float = StatMath.Distributions.randf_triangular(value, value, value)
-	assert_float(result).is_equal_approx(value, 0.0000001)
+	assert_float(result).is_equal_approx(value, StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_randf_triangular_nearly_equal_bounds() -> void:
@@ -1490,7 +1490,7 @@ func test_randf_pareto_deterministic_with_seed() -> void:
 	StatMath.set_global_seed(seed)
 	var result2: float = StatMath.Distributions.randf_pareto(scale, shape)
 	
-	assert_float(result1).is_equal_approx(result2, 0.0000001)
+	assert_float(result1).is_equal_approx(result2, StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_randf_pareto_multiple_calls_different_values() -> void:
@@ -1824,7 +1824,7 @@ func test_randf_weibull_deterministic_with_seed() -> void:
 	StatMath.set_global_seed(seed)
 	var result2: float = StatMath.Distributions.randf_weibull(scale, shape)
 	
-	assert_float(result1).is_equal_approx(result2, 1e-10)
+	assert_float(result1).is_equal_approx(result2, StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_randf_weibull_multiple_calls_different_values() -> void:

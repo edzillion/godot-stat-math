@@ -708,7 +708,7 @@ func test_pdf_integration_exponential() -> void:
 		var x: float = float(i) * step_size
 		sum += StatMath.PmfPdfFunctions.exponential_pdf(x, lambda) * step_size
 	
-	assert_float(sum).is_equal_approx(1.0, 0.01)
+	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
 
 func test_pdf_integration_uniform() -> void:
 	# Test that uniform PDF integrates to 1.0 over [a, b]
@@ -736,7 +736,7 @@ func test_pdf_integration_beta() -> void:
 		var x: float = float(i) * step_size
 		sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta_param) * step_size
 	
-	assert_float(sum).is_equal_approx(1.0, 0.01)
+	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
 
 func test_pdf_integration_gamma() -> void:
 	# Test that gamma PDF integrates to 1.0 over [0, +∞)
@@ -755,7 +755,7 @@ func test_pdf_integration_gamma() -> void:
 		var x: float = float(i) * step_size
 		sum += StatMath.PmfPdfFunctions.gamma_pdf(x, k_shape, theta_scale) * step_size
 	
-	assert_float(sum).is_equal_approx(1.0, 0.02)
+	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
 
 func test_pdf_integration_weibull() -> void:
 	# Test that Weibull PDF integrates to 1.0 over [0, +∞)
@@ -771,7 +771,7 @@ func test_pdf_integration_weibull() -> void:
 		var x: float = float(i) * step_size
 		sum += StatMath.PmfPdfFunctions.weibull_pdf(x, scale_param, shape_param) * step_size
 	
-	assert_float(sum).is_equal_approx(1.0, 0.02)
+	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
 
 func test_pdf_integration_lognormal() -> void:
 	# Test that lognormal PDF integrates to 1.0 over (0, +∞)
@@ -789,7 +789,7 @@ func test_pdf_integration_lognormal() -> void:
 		var x: float = lower_bound + float(i) * step_size
 		sum += StatMath.PmfPdfFunctions.lognormal_pdf(x, mu, sigma) * step_size
 	
-	assert_float(sum).is_equal_approx(1.0, 0.05)  # Lognormal has a long tail, so higher tolerance
+	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)  # Lognormal has a long tail, so higher tolerance
 
 # --- Legacy Integration Test (parametrized) ---
 func test_pdf_integration_parametrized(distribution: StatMath.SupportedDistributions, test_parameters := [
@@ -820,4 +820,4 @@ func test_pdf_integration_parametrized(distribution: StatMath.SupportedDistribut
 				var x: float = float(i) * 0.01
 				sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta) * 0.01
 	
-	assert_float(sum).is_equal_approx(1.0, 0.01)
+	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
