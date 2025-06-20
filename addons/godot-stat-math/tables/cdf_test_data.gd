@@ -3,15 +3,37 @@
 # DO NOT EDIT MANUALLY
 
 const VALUES: Dictionary = {
+	"normal_cdf": [
+		{ "params": [1.96, 0.0, 1.0], "expected": 0.97500210 },
+		{ "params": [-1.96, 0.0, 1.0], "expected": 0.02499790 },
+		{ "params": [0.0, 2.0, 0.5], "expected": 0.00003167 },
+		{ "params": [0.0, 0.0, 1.0], "expected": 0.50000000 },
+		{ "params": [2.0, 2.0, 1.0], "expected": 0.50000000 },
+	],
 	"weibull_cdf": [
 		{ "params": [1.5, 1.0, 2.0], "expected": 0.89460078 },
 		{ "params": [2.0, 2.0, 2.0], "expected": 0.63212056 },
 		{ "params": [0.5, 1.0, 1.0], "expected": 0.39346934 },
 	],
+	"exponential_cdf": [
+		{ "params": [2.0, 0.5], "expected": 0.98168436 },
+		{ "params": [1.0, 1.0], "expected": 0.63212056 },
+		{ "params": [0.693147, 1.0], "expected": 0.49999991 },
+	],
 	"gamma_cdf": [
-		{ "params": [2.0, 2.0, 2.0], "expected": 0.26424112 },
+		{ "params": [2.0, 2.0, 1.0], "expected": 0.59399415 },
 		{ "params": [1.0, 1.0, 1.0], "expected": 0.63212056 },
-		{ "params": [3.0, 2.5, 1.5], "expected": 0.45058405 },
+		{ "params": [3.841, 1.0, 1.0], "expected": 0.97852788 },
+	],
+	"beta_cdf": [
+		{ "params": [0.5, 2.0, 2.0], "expected": 0.50000000 },
+		{ "params": [0.25, 2.0, 3.0], "expected": 0.26171875 },
+		{ "params": [0.75, 3.0, 2.0], "expected": 0.73828125 },
+	],
+	"chi_square_cdf": [
+		{ "params": [3.841, 1.0], "expected": 0.94998632 },
+		{ "params": [5.991, 2.0], "expected": 0.94998838 },
+		{ "params": [7.815, 3.0], "expected": 0.95000610 },
 	],
 	"t_cdf": [
 		{ "params": [1.0, 10.0], "expected": 0.82955343 },

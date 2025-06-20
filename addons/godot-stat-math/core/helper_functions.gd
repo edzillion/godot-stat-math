@@ -322,27 +322,35 @@ static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
 ##
 ## Implements the series expansion form of the incomplete Gamma function for better 
 ## numerical stability in the appropriate parameter range.
+## Formula: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / (a*(a+1)*...*(a+n))) for n=0 to ∞
 static func _gamma_series_expansion(a: float, z: float) -> float:
 	var max_terms: int = 200  # Increased iterations for better convergence
 	var tolerance: float = 1e-15  # Tighter tolerance
 	
-	var series_sum: float = 1.0
-	var term: float = 1.0
+	# Start with n=0 term: z^0 / a = 1/a
+	var series_sum: float = 1.0 / a
+	var term: float = 1.0 / a
 	
+	# Correct series expansion: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / (a*(a+1)*...*(a+n)))
+	# Each subsequent term: z^n / (a*(a+1)*...*(a+n))
 	for n in range(1, max_terms):
-		term *= z / (a + float(n - 1))
+		# Multiply by z and divide by (a+n) to get the next term
+		term *= z / (a + float(n))
 		series_sum += term
 		
 		# Check convergence with relative tolerance
 		if abs(term / series_sum) < tolerance:
 			break
 	
-	# More stable calculation using log space
+	# Calculate: P(a,z) = (z^a * e^(-z) / Γ(a)) * series_sum
+	# Using log space for numerical stability: log(P) = a*log(z) - z - log(Γ(a)) + log(series_sum)
 	var log_result: float = a * log(z) - z - log_gamma(a) + log(series_sum)
 	
 	# Prevent overflow/underflow
-	if log_result > 0.0:  # Result would be > 1.0
-		return 1.0
+	if log_result > 0.0:  # Result would be > 1.0 - this indicates numerical error
+		# For debugging, let's see what went wrong
+		push_warning("_gamma_series_expansion: log_result=%s > 0 for a=%s, z=%s. This indicates a numerical error." % [log_result, a, z])
+		return clamp(exp(log_result), 0.0, 1.0)  # Clamp instead of just returning 1.0
 	elif log_result < -50.0:  # Result would be essentially 0
 		return 0.0
 	

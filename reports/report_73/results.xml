@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites id="2025-06-20" name="report_73" tests="95" failures="1" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="ppf_functions_test" package="addons/godot-stat-math/tests/core" timestamp="2025-06-20T11:33:51" hostname="localhost" tests="95" failures="1" errors="1" skipped="0" flaky="0" time="5.562">
+		<testcase name="test_normal_ppf_scipy_validation_parametrized:0 (0.025, 0.0, 1.0, -1.95996398)" classname="ppf_functions_test" time="0.061">
+		</testcase>
+		<testcase name="test_normal_ppf_scipy_validation_parametrized:1 (0.5, 0.0, 1.0, 0.0)" classname="ppf_functions_test" time="0.052">
+		</testcase>
+		<testcase name="test_normal_ppf_scipy_validation_parametrized:2 (0.975, 0.0, 1.0, 1.95996398)" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_normal_ppf_scipy_validation_parametrized:3 (0.5, 10.0, 2.0, 10.0)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_normal_ppf_scipy_validation_parametrized:4 (0.84134475, 0.0, 1.0, 1.0)" classname="ppf_functions_test" time="0.036">
+		</testcase>
+		<testcase name="test_exponential_ppf_scipy_validation_parametrized:0 (0.5, 1.0, 0.69314718)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_exponential_ppf_scipy_validation_parametrized:1 (0.632121, 1.0, 1.00000120)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_exponential_ppf_scipy_validation_parametrized:2 (0.95, 2.0, 1.49786614)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_exponential_ppf_scipy_validation_parametrized:3 (0.1, 0.5, 0.21072103)" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_uniform_ppf_scipy_validation_parametrized:0 (0.25, 0.0, 4.0, 1.0)" classname="ppf_functions_test" time="0.037">
+		</testcase>
+		<testcase name="test_uniform_ppf_scipy_validation_parametrized:1 (0.5, 1.0, 5.0, 3.0)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_uniform_ppf_scipy_validation_parametrized:2 (0.75, 2.0, 6.0, 5.0)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_uniform_ppf_scipy_validation_parametrized:3 (0.0, 0.0, 1.0, 0.0)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_uniform_ppf_scipy_validation_parametrized:4 (1.0, 0.0, 1.0, 1.0)" classname="ppf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_pareto_ppf_scipy_validation_parametrized:0 (0.5, 1.0, 1.0, 2.0)" classname="ppf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_pareto_ppf_scipy_validation_parametrized:1 (0.75, 2.0, 1.0, 8.0)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_pareto_ppf_scipy_validation_parametrized:2 (0.9, 3.0, 2.0, 9.48683298)" classname="ppf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_weibull_ppf_scipy_validation_parametrized:0 (0.5, 1.0, 1.0, 0.69314718)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_weibull_ppf_scipy_validation_parametrized:1 (0.632121, 2.0, 2.0, 2.0)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_weibull_ppf_scipy_validation_parametrized:2 (0.25, 1.0, 2.0, 0.53636002)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:0 (StatMath.SupportedDistributions.NORMAL, 0.0, [0.0, 1.0])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:1 (StatMath.SupportedDistributions.NORMAL, 1.5, [0.0, 1.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:2 (StatMath.SupportedDistributions.NORMAL, -2.0, [0.0, 1.0])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:3 (StatMath.SupportedDistributions.NORMAL, 5.0, [2.0, 1.5])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:4 (StatMath.SupportedDistributions.EXPONENTIAL, 0.5, [1.0])" classname="ppf_functions_test" time="0.043">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:5 (StatMath.SupportedDistributions.EXPONENTIAL, 2.0, [0.5])" classname="ppf_functions_test" time="0.042">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:6 (StatMath.SupportedDistributions.EXPONENTIAL, 1.0, [2.0])" classname="ppf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:7 (StatMath.SupportedDistributions.EXPONENTIAL, 5.0, [0.2])" classname="ppf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:8 (StatMath.SupportedDistributions.UNIFORM, 1.5, [1.0, 4.0])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:9 (StatMath.SupportedDistributions.UNIFORM, 2.5, [0.0, 5.0])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:10 (StatMath.SupportedDistributions.UNIFORM, 3.0, [2.0, 6.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:11 (StatMath.SupportedDistributions.WEIBULL, 1.0, [1.0, 1.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:12 (StatMath.SupportedDistributions.WEIBULL, 2.0, [2.0, 2.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:13 (StatMath.SupportedDistributions.WEIBULL, 0.5, [1.5, 3.0])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:14 (StatMath.SupportedDistributions.PARETO, 2.5, [2.0, 1.5])" classname="ppf_functions_test" time="0.043">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:15 (StatMath.SupportedDistributions.PARETO, 5.0, [2.0, 1.0])" classname="ppf_functions_test" time="0.043">
+		</testcase>
+		<testcase name="test_cdf_ppf_round_trip_consistency_parametrized:16 (StatMath.SupportedDistributions.PARETO, 3.0, [2.5, 3.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:0 (StatMath.SupportedDistributions.NORMAL, 0.1, [0.0, 1.0])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:1 (StatMath.SupportedDistributions.NORMAL, 0.5, [0.0, 1.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:2 (StatMath.SupportedDistributions.NORMAL, 0.9, [0.0, 1.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:3 (StatMath.SupportedDistributions.NORMAL, 0.25, [5.0, 2.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:4 (StatMath.SupportedDistributions.EXPONENTIAL, 0.2, [1.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:5 (StatMath.SupportedDistributions.EXPONENTIAL, 0.5, [2.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:6 (StatMath.SupportedDistributions.EXPONENTIAL, 0.8, [0.5])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:7 (StatMath.SupportedDistributions.UNIFORM, 0.3, [1.0, 4.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:8 (StatMath.SupportedDistributions.UNIFORM, 0.7, [0.0, 10.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:9 (StatMath.SupportedDistributions.WEIBULL, 0.4, [1.0, 1.0])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:10 (StatMath.SupportedDistributions.WEIBULL, 0.6, [2.0, 2.0])" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:11 (StatMath.SupportedDistributions.PARETO, 0.3, [2.0, 1.0])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_cdf_round_trip_consistency_parametrized:12 (StatMath.SupportedDistributions.PARETO, 0.8, [2.0, 1.5])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:0 (StatMath.SupportedDistributions.NORMAL, [0.0, 1.0], [0.1, 0.25, 0.5, 0.75, 0.9])" classname="ppf_functions_test" time="0.042">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:1 (StatMath.SupportedDistributions.NORMAL, [2.0, 0.5], [0.05, 0.3, 0.6, 0.8, 0.95])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:2 (StatMath.SupportedDistributions.EXPONENTIAL, [1.0], [0.1, 0.3, 0.5, 0.7, 0.9])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:3 (StatMath.SupportedDistributions.EXPONENTIAL, [2.0], [0.05, 0.25, 0.5, 0.75, 0.95])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:4 (StatMath.SupportedDistributions.UNIFORM, [1.0, 5.0], [0.0, 0.25, 0.5, 0.75, 1.0])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:5 (StatMath.SupportedDistributions.UNIFORM, [0.0, 10.0], [0.1, 0.4, 0.6, 0.8, 0.99])" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:6 (StatMath.SupportedDistributions.WEIBULL, [1.0, 1.0], [0.1, 0.3, 0.5, 0.7, 0.9])" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:7 (StatMath.SupportedDistributions.WEIBULL, [2.0, 2.0], [0.05, 0.25, 0.5, 0.75, 0.95])" classname="ppf_functions_test" time="0.043">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:8 (StatMath.SupportedDistributions.PARETO, [2.0, 1.0], [0.1, 0.3, 0.5, 0.7, 0.9])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_monotonicity_parametrized:9 (StatMath.SupportedDistributions.PARETO, [2.0, 1.5], [0.05, 0.25, 0.5, 0.75, 0.95])" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:0 (StatMath.SupportedDistributions.NORMAL, &apos;p_zero&apos;, [0.0, 1.0], 0.0, &apos;negative_infinity&apos;)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:1 (StatMath.SupportedDistributions.EXPONENTIAL, &apos;p_zero&apos;, [1.0], 0.0, &apos;zero&apos;)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:2 (StatMath.SupportedDistributions.UNIFORM, &apos;p_zero&apos;, [2.0, 5.0], 0.0, &apos;lower_bound&apos;)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:3 (StatMath.SupportedDistributions.WEIBULL, &apos;p_zero&apos;, [1.0, 2.0], 0.0, &apos;zero&apos;)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:4 (StatMath.SupportedDistributions.PARETO, &apos;p_zero&apos;, [2.0, 1.5], 0.0, &apos;scale_value&apos;)" classname="ppf_functions_test" time="0.038">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:5 (StatMath.SupportedDistributions.NORMAL, &apos;p_one&apos;, [0.0, 1.0], 1.0, &apos;positive_infinity&apos;)" classname="ppf_functions_test" time="0.042">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:6 (StatMath.SupportedDistributions.EXPONENTIAL, &apos;p_one&apos;, [1.0], 1.0, &apos;positive_infinity&apos;)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:7 (StatMath.SupportedDistributions.UNIFORM, &apos;p_one&apos;, [2.0, 5.0], 1.0, &apos;upper_bound&apos;)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:8 (StatMath.SupportedDistributions.WEIBULL, &apos;p_one&apos;, [1.0, 2.0], 1.0, &apos;positive_infinity&apos;)" classname="ppf_functions_test" time="0.042">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:9 (StatMath.SupportedDistributions.PARETO, &apos;p_one&apos;, [2.0, 1.5], 1.0, &apos;positive_infinity&apos;)" classname="ppf_functions_test" time="0.042">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:10 (StatMath.SupportedDistributions.NORMAL, &apos;median&apos;, [0.0, 1.0], 0.5, &apos;zero&apos;)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:11 (StatMath.SupportedDistributions.NORMAL, &apos;median&apos;, [5.0, 2.0], 0.5, &apos;mean_value&apos;)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:12 (StatMath.SupportedDistributions.UNIFORM, &apos;median&apos;, [2.0, 8.0], 0.5, &apos;midpoint&apos;)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:13 (StatMath.SupportedDistributions.EXPONENTIAL, &apos;median&apos;, [1.0], 0.5, &apos;ln_2&apos;)" classname="ppf_functions_test" time="0.040">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:14 (StatMath.SupportedDistributions.UNIFORM, &apos;first_quartile&apos;, [0.0, 4.0], 0.25, &apos;one_quarter&apos;)" classname="ppf_functions_test" time="0.039">
+		</testcase>
+		<testcase name="test_ppf_boundary_conditions_parametrized:15 (StatMath.SupportedDistributions.UNIFORM, &apos;third_quartile&apos;, [0.0, 4.0], 0.75, &apos;three_quarters&apos;)" classname="ppf_functions_test" time="0.041">
+		</testcase>
+		<testcase name="test_ppf_parameter_validation_enhanced_parametrized:0 (StatMath.SupportedDistributions.NORMAL, &apos;p_negative&apos;, [0.0, 1.0], -0.1, &apos;Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.1&apos;)" classname="ppf_functions_test" time="0.057">
+		</testcase>
+		<testcase name="test_ppf_parameter_validation_enhanced_parametrized:1 (StatMath.SupportedDistributions.NORMAL, &apos;p_greater_than_one&apos;, [0.0, 1.0], 1.5, &apos;Probability p must be between 0.0 and 1.0 (inclusive). Received: 1.5&apos;)" classname="ppf_functions_test" time="0.055">
+		</testcase>
+		<testcase name="test_ppf_parameter_validation_enhanced_parametrized:2 (StatMath.SupportedDistributions.EXPONENTIAL, &apos;p_negative&apos;, [1.0], -0.01, &apos;Probability p must be between 0.0 and 1.0 (inclusive). Received: -0.01&apos;)" classname="ppf_functions_test" time="0.063">
+		</testcase>
+		<testcase name="test_ppf_parameter_validation_enhanced_parametrized:3 (StatMath.SupportedDistributions.UNIFORM, &apos;p_out_of_range&apos;, [1.0, 5.0], 2.0, &apos;Probability p must be between 0.0 and 1.0 (inclusive). Received: 2.0&apos;)" classname="ppf_functions_test" time="0.055">
+		</testcase>
+		<testcase name="test_ppf_parameter_validation_enhanced_parametrized:4 (StatMath.SupportedDistributions.NORMAL, &apos;sigma_zero&apos;, [0.0, 0.0], 0.5, &apos;Standard deviation sigma must be positive. Received: 0.0&apos;)" classname="ppf_functions_test" time="0.055">
+		</testcase>
+		<testcase name="test_ppf_parameter_validation_enhanced_parametrized:5 (StatMath.SupportedDistributions.NORMAL, &apos;sigma_negative&apos;, [0.0, -1.0], 0.5, &apos;Standard deviation sigma must be positive. Received: -1.0&apos;)" classname="ppf_functions_test" time="0.060">
+		</testcase>
+		<testcase name="test_ppf_parameter_validation_enhanced_parametrized:6 (StatMath.SupportedDistributions.EXPONENTIAL, &apos;lambda_zero&apos;, [0.0], 0.5, &apos;Rate lambda_param must be positive. Received: 0.0&apos;)" classname="ppf_functions_test" time="0.056">
+		</testcase>
+		<testcase name="test_ppf_parameter_validation_enhanced_parametrized:7 (StatMath.SupportedDistributions.EXPONENTIAL, &apos;lambda_negative&apos;, [-1.0], 0.5, &apos;Rate lambda_param must be positive. Received: -1.0&apos;)" classname="ppf_functions_test" time="0.055">
+		</testcase>
+		<testcase name="test_ppf_parameter_validation_enhanced_parametrized:8 (StatMath.SupportedDistributions.UNIFORM, &apos;a_greater_than_b&apos;, [5.0, 2.0], 0.5, &apos;Parameter b must be greater than or equal to a&apos;)" classname="ppf_functions_test" time="0.062">
+			<error message="ERROR: res://addons/godot-stat-math/tests/core/ppf_functions_test.gd:-1" type="ABORT">
+<![CDATA[
+Godot Runtime Error !
+	'at: push_error (core/variant/variant_utility.cpp:1098)'
+Error: 'Parameter b must be greater than or equal to a. Received a=5.0, b=2.0'
+]]>
+			</error>
+			<failure message="FAILED: res://addons/godot-stat-math/tests/core/ppf_functions_test.gd:136" type="FAILURE">
+<![CDATA[
+Expecting: push_error() is called.
+	message: 'Parameter b must be greater than or equal to a'
+	found: Parameter b must be greater than or equal to a. Received a=5.0, b=2.0
+]]>
+			</failure>
+		</testcase>
+	</testsuite>
+</testsuites>

@@ -126,6 +126,82 @@ const P_ERR: float  =  0.3275911
 
 
 # =============================================================================
+# DISTRIBUTION ENUMS
+# =============================================================================
+
+## Enumeration of all statistical distributions supported by the library.
+##
+## This enum provides type-safe distribution identification across all modules,
+## replacing string literals for better maintainability and IDE support.
+##
+## Usage Examples:
+## [codeblock]
+## # Instead of strings:
+## var sample = StatMath.Distributions.randf_from_distribution("normal", [0.0, 1.0])
+## 
+## # Use enum values:
+## var sample = StatMath.Distributions.randf_from_distribution(StatMath.SupportedDistributions.NORMAL, [0.0, 1.0])
+## [/codeblock]
+enum SupportedDistributions {
+	## Standard normal distribution and variants with arbitrary mean and variance.
+	## Parameters: [mean, standard_deviation]
+	NORMAL,
+	
+	## Exponential distribution for modeling time between events.
+	## Parameters: [rate] (lambda parameter)
+	EXPONENTIAL,
+	
+	## Uniform distribution over a continuous interval.
+	## Parameters: [min_value, max_value]
+	UNIFORM,
+	
+	## Gamma distribution with shape and scale parameters.
+	## Parameters: [shape, scale] (k and theta parameters)
+	GAMMA,
+	
+	## Beta distribution bounded between 0 and 1.
+	## Parameters: [alpha, beta] (shape parameters)
+	BETA,
+	
+	## Chi-square distribution (special case of gamma).
+	## Parameters: [degrees_of_freedom]
+	CHI_SQUARE,
+	
+	## Student's t-distribution for small sample statistics.
+	## Parameters: [degrees_of_freedom]
+	T_DISTRIBUTION,
+	
+	## F-distribution for variance ratio testing.
+	## Parameters: [degrees_of_freedom_1, degrees_of_freedom_2]
+	F_DISTRIBUTION,
+	
+	## Weibull distribution for reliability and survival analysis.
+	## Parameters: [scale, shape] (lambda and k parameters)
+	WEIBULL,
+	
+	## Pareto distribution for power-law phenomena.
+	## Parameters: [scale, shape] (minimum value and alpha parameters)
+	PARETO,
+	
+	## Binomial distribution for fixed number of trials.
+	## Parameters: [num_trials, success_probability]
+	BINOMIAL,
+	
+	## Poisson distribution for counting rare events.
+	## Parameters: [rate] (lambda parameter)
+	POISSON,
+	
+	## Geometric distribution for number of trials until first success.
+	## Parameters: [success_probability]
+	GEOMETRIC,
+	
+	## Negative binomial distribution for number of failures before r successes.
+	## Parameters: [num_successes, success_probability]
+	NEGATIVE_BINOMIAL
+}
+
+
+# =============================================================================
 # CORE FUNCTIONALITY MODULES
 # =============================================================================
 

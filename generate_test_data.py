@@ -68,17 +68,43 @@ def generate_test_data():
     
     # CDF test data
     cdf_data = {
+        "normal_cdf": [
+            # x, mu, sigma, expected
+            {"params": [1.96, 0.0, 1.0], "expected": stats.norm.cdf(1.96, 0.0, 1.0)},
+            {"params": [-1.96, 0.0, 1.0], "expected": stats.norm.cdf(-1.96, 0.0, 1.0)},
+            {"params": [0.0, 2.0, 0.5], "expected": stats.norm.cdf(0.0, 2.0, 0.5)},  # The failing case
+            {"params": [0.0, 0.0, 1.0], "expected": stats.norm.cdf(0.0, 0.0, 1.0)},  # Standard normal median
+            {"params": [2.0, 2.0, 1.0], "expected": stats.norm.cdf(2.0, 2.0, 1.0)},  # Median case
+        ],
         "weibull_cdf": [
             # x, scale_lambda, shape_k, expected (corrected parameter order)
             {"params": [1.5, 1.0, 2.0], "expected": stats.weibull_min.cdf(1.5, c=2.0, scale=1.0)},
             {"params": [2.0, 2.0, 2.0], "expected": stats.weibull_min.cdf(2.0, c=2.0, scale=2.0)},
             {"params": [0.5, 1.0, 1.0], "expected": stats.weibull_min.cdf(0.5, c=1.0, scale=1.0)},
         ],
+        "exponential_cdf": [
+            # x, scale (1/rate), expected
+            {"params": [2.0, 0.5], "expected": stats.expon.cdf(2.0, scale=0.5)},
+            {"params": [1.0, 1.0], "expected": stats.expon.cdf(1.0, scale=1.0)},
+            {"params": [0.693147, 1.0], "expected": stats.expon.cdf(0.693147, scale=1.0)},
+        ],
         "gamma_cdf": [
             # x, shape, scale, expected
-            {"params": [2.0, 2.0, 2.0], "expected": stats.gamma.cdf(2.0, a=2.0, scale=2.0)},
+            {"params": [2.0, 2.0, 1.0], "expected": stats.gamma.cdf(2.0, a=2.0, scale=1.0)},
             {"params": [1.0, 1.0, 1.0], "expected": stats.gamma.cdf(1.0, a=1.0, scale=1.0)},
-            {"params": [3.0, 2.5, 1.5], "expected": stats.gamma.cdf(3.0, a=2.5, scale=1.5)},
+            {"params": [3.841, 1.0, 1.0], "expected": stats.gamma.cdf(3.841, a=1.0, scale=1.0)},
+        ],
+        "beta_cdf": [
+            # x, alpha, beta, expected
+            {"params": [0.5, 2.0, 2.0], "expected": stats.beta.cdf(0.5, 2.0, 2.0)},
+            {"params": [0.25, 2.0, 3.0], "expected": stats.beta.cdf(0.25, 2.0, 3.0)},
+            {"params": [0.75, 3.0, 2.0], "expected": stats.beta.cdf(0.75, 3.0, 2.0)},
+        ],
+        "chi_square_cdf": [
+            # x, df, expected
+            {"params": [3.841, 1.0], "expected": stats.chi2.cdf(3.841, 1.0)},
+            {"params": [5.991, 2.0], "expected": stats.chi2.cdf(5.991, 2.0)},
+            {"params": [7.815, 3.0], "expected": stats.chi2.cdf(7.815, 3.0)},
         ],
         "t_cdf": [
             # x, df, expected
@@ -144,11 +170,51 @@ def generate_test_data():
         ],
     }
     
+    # PPF test data
+    ppf_data = {
+        "normal_ppf": [
+            # p, mu, sigma, expected
+            {"params": [0.025, 0.0, 1.0], "expected": stats.norm.ppf(0.025, 0.0, 1.0)},
+            {"params": [0.5, 0.0, 1.0], "expected": stats.norm.ppf(0.5, 0.0, 1.0)},
+            {"params": [0.975, 0.0, 1.0], "expected": stats.norm.ppf(0.975, 0.0, 1.0)},
+            {"params": [0.5, 10.0, 2.0], "expected": stats.norm.ppf(0.5, 10.0, 2.0)},
+            {"params": [0.84134475, 0.0, 1.0], "expected": stats.norm.ppf(0.84134475, 0.0, 1.0)},
+        ],
+        "exponential_ppf": [
+            # p, scale (1/rate), expected 
+            {"params": [0.5, 1.0], "expected": stats.expon.ppf(0.5, scale=1.0)},
+            {"params": [0.632121, 1.0], "expected": stats.expon.ppf(0.632121, scale=1.0)},
+            {"params": [0.95, 0.5], "expected": stats.expon.ppf(0.95, scale=0.5)},
+            {"params": [0.1, 2.0], "expected": stats.expon.ppf(0.1, scale=2.0)},
+        ],
+        "uniform_ppf": [
+            # p, a, b, expected
+            {"params": [0.25, 0.0, 4.0], "expected": stats.uniform.ppf(0.25, 0.0, 4.0)},
+            {"params": [0.5, 1.0, 5.0], "expected": stats.uniform.ppf(0.5, 1.0, 4.0)},  # b-a = 4
+            {"params": [0.75, 2.0, 6.0], "expected": stats.uniform.ppf(0.75, 2.0, 4.0)},  # b-a = 4
+            {"params": [0.0, 0.0, 1.0], "expected": stats.uniform.ppf(0.0, 0.0, 1.0)},
+            {"params": [1.0, 0.0, 1.0], "expected": stats.uniform.ppf(1.0, 0.0, 1.0)},
+        ],
+        "pareto_ppf": [
+            # p, scale, shape, expected (Note: scipy uses b=shape, scale=scale)
+            {"params": [0.5, 1.0, 1.0], "expected": stats.pareto.ppf(0.5, b=1.0, scale=1.0)},
+            {"params": [0.75, 2.0, 1.0], "expected": stats.pareto.ppf(0.75, b=1.0, scale=2.0)},
+            {"params": [0.9, 3.0, 2.0], "expected": stats.pareto.ppf(0.9, b=2.0, scale=3.0)},
+        ],
+        "weibull_ppf": [
+            # p, scale, shape, expected
+            {"params": [0.5, 1.0, 1.0], "expected": stats.weibull_min.ppf(0.5, c=1.0, scale=1.0)},
+            {"params": [0.632121, 2.0, 2.0], "expected": stats.weibull_min.ppf(0.632121, c=2.0, scale=2.0)},
+            {"params": [0.25, 1.0, 2.0], "expected": stats.weibull_min.ppf(0.25, c=2.0, scale=1.0)},
+        ],
+    }
+
     # Generate all test data files
     generate_data_file("pmf_pdf_test_data", pmf_pdf_data)
     generate_data_file("cdf_test_data", cdf_data)
     generate_data_file("error_functions_test_data", error_functions_data)
     generate_data_file("helper_functions_test_data", helper_functions_data)
+    generate_data_file("ppf_test_data", ppf_data)
 
 def generate_data_file(filename, data):
     """Generate a GDScript test data file"""

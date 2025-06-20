@@ -13,6 +13,9 @@ This document outlines the observations, suggestions, and outstanding tasks for 
    - Can be used both in tests and core functionality where appropriate
    - Remove individual test file tolerance definitions once moved
 
+**NOTE: IMPORTANT. NO MAGIC NUMBERS - generate real values to test against using generate_test_data.py**
+
+
 2. Test Data Generation: ✓
    - New pattern established using `generate_test_data.py` with scipy/numpy validation ✓
    - Stores pre-calculated test values in `/tables` directory ✓

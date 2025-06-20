@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites id="2025-06-20" name="report_66" tests="11" failures="1" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="cdf_pdf_integration_test" package="addons/godot-stat-math/tests/core" timestamp="2025-06-20T11:06:00" hostname="localhost" tests="11" failures="1" errors="0" skipped="0" flaky="0" time="0.286">
+		<testcase name="test_normal_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.019">
+		</testcase>
+		<testcase name="test_exponential_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.009">
+		</testcase>
+		<testcase name="test_uniform_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.007">
+		</testcase>
+		<testcase name="test_beta_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.014">
+		</testcase>
+		<testcase name="test_gamma_cdf_pdf_probability_consistency" classname="cdf_pdf_integration_test" time="0.008">
+		</testcase>
+		<testcase name="test_weibull_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.007">
+		</testcase>
+		<testcase name="test_cdf_monotonicity_all_distributions" classname="cdf_pdf_integration_test" time="0.015">
+		</testcase>
+		<testcase name="test_end_to_end_normal_distribution_workflow" classname="cdf_pdf_integration_test" time="0.015">
+			<failure message="FAILED: res://addons/godot-stat-math/tests/core/cdf_pdf_integration_test.gd:181" type="FAILURE">
+<![CDATA[
+Expecting:
+ '4.131820'
+ in range between
+ '7.289707' <> '9.289707'
+]]>
+			</failure>
+		</testcase>
+	</testsuite>
+</testsuites>
