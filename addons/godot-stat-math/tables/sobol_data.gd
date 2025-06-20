@@ -1,5 +1,4 @@
 # res://addons/godot-stat-math/tables/sobol_data.gd
-class_name SobolData
 
 # Joe-Kuo Sobol sequence direction numbers
 # Source: https://web.maths.unsw.edu.au/~fkuo/sobol/

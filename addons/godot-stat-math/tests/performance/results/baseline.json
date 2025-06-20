@@ -3,8 +3,8 @@
 		"confidence": "medium",
 		"dynamic_threshold_tests": 87,
 		"expected_regressions": [],
-		"generated_at": "2025-06-19T14:26:01",
-		"source_snapshots": 15,
+		"generated_at": "2025-06-20T01:26:20",
+		"source_snapshots": 16,
 		"statistical_method": "percentile_based_thresholds",
 		"threshold_parameters": {
 			"max_threshold": 0.25,
@@ -17,49 +17,49 @@
 	},
 	"tests": {
 		"basic_stats_mean_variance_calculation": {
-			"baseline_ms": 2.035,
-			"coefficient_of_variation": 0.00860783865144355,
+			"baseline_ms": 2.03,
+			"coefficient_of_variation": 0.0841121155028477,
 			"diff_percent": 0.0,
-			"result_ms": 2.035,
-			"sample_size": 15,
+			"result_ms": 2.03,
+			"sample_size": 16,
 			"status": "pass",
-			"threshold_percent": 0.12
+			"threshold_percent": 0.2
 		},
 		"basic_stats_median_absolute_deviation": {
-			"baseline_ms": 5.156,
-			"coefficient_of_variation": 0.00992601828900878,
+			"baseline_ms": 5.1685,
+			"coefficient_of_variation": 0.108403686594602,
 			"diff_percent": 0.0,
-			"result_ms": 5.156,
-			"sample_size": 15,
+			"result_ms": 5.1685,
+			"sample_size": 16,
 			"status": "pass",
-			"threshold_percent": 0.12
+			"threshold_percent": 0.2
 		},
 		"basic_stats_median_calculation": {
-			"baseline_ms": 2.168,
-			"coefficient_of_variation": 0.0138032338179042,
+			"baseline_ms": 2.195,
+			"coefficient_of_variation": 0.10176848844496,
 			"diff_percent": 0.0,
-			"result_ms": 2.168,
-			"sample_size": 15,
+			"result_ms": 2.195,
+			"sample_size": 16,
 			"status": "pass",
-			"threshold_percent": 0.12
+			"threshold_percent": 0.2
 		},
 		"basic_stats_min_max_range_calculation": {
-			"baseline_ms": 1.028,
-			"coefficient_of_variation": 0.0116403923969549,
+			"baseline_ms": 1.0335,
+			"coefficient_of_variation": 0.0914419831003113,
 			"diff_percent": 0.0,
-			"result_ms": 1.028,
-			"sample_size": 15,
+			"result_ms": 1.0335,
+			"sample_size": 16,
 			"status": "pass",
-			"threshold_percent": 0.12
+			"threshold_percent": 0.2
 		},
 		"basic_stats_sample_statistics": {
-			"baseline_ms": 1.853,
-			"coefficient_of_variation": 0.0429226482029126,
+			"baseline_ms": 1.843,
+			"coefficient_of_variation": 0.0962536194381265,
 			"diff_percent": 0.0,
-			"result_ms": 1.853,
-			"sample_size": 15,
+			"result_ms": 1.843,
+			"sample_size": 16,
 			"status": "pass",
-			"threshold_percent": 0.12
+			"threshold_percent": 0.2
 		},
 		"basic_stats_summary_statistics": {
 			"baseline_ms": 8.316,

@@ -1,6 +1,7 @@
 # addons/godot-stat-math/tests/core/helper_functions_test.gd
 class_name HelperFunctionsTest extends GdUnitTestSuite
 
+const HELPER_FUNCTIONS_TEST_DATA = preload("res://addons/godot-stat-math/tables/helper_functions_test_data.gd")
 const FLOAT_TOLERANCE: float = 1e-6
 
 # --- Binomial Coefficient ---
@@ -355,10 +356,10 @@ func test_sanitize_numeric_array_is_sorted() -> void:
 	var expected: Array[float] = [1.1, 2.2, 3.3, 4.4, 5.5]
 	assert_array(result).is_equal(expected)
 
-func test_sanitize_numeric_array_filter_non_positive() -> void:
+func test_sanitize_numeric_array_with_negative_values() -> void:
 	var input: Array[float] = [-10.0, 0.0, 1.0, 2.5, -3.0]
 	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(input)
-	var expected: Array[float] = [1.0, 2.5]
+	var expected: Array[float] = [-10.0, -3.0, 0.0, 1.0, 2.5]
 	assert_array(result).is_equal(expected)
 
 func test_sanitize_numeric_array_empty_input() -> void:
@@ -366,6 +367,8 @@ func test_sanitize_numeric_array_empty_input() -> void:
 	assert_array(result).is_empty()
 
 func test_lower_incomplete_gamma_regularized_known_value() -> void:
-	# Value from WolframAlpha: regularized_gamma_P(2.5, 3.5) approx 0.7385
-	var result: float = StatMath.HelperFunctions.lower_incomplete_gamma_regularized(2.5, 3.5)
-	assert_float(result).is_equal_approx(0.738531, 1e-5) 
+	# Using scipy-validated test data for gammainc(2.5, 3.5) -> 0.77935969
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["lower_incomplete_gamma_regularized"]
+	var case: Dictionary = test_data[0]  # [2.5, 3.5] -> 0.77935969
+	var result: float = StatMath.HelperFunctions.lower_incomplete_gamma_regularized(case["params"][0], case["params"][1])
+	assert_float(result).is_equal_approx(case["expected"], 1e-5) 

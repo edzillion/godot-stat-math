@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://wecye3y26vdb"]
+
+[ext_resource type="Script" path="res://test_weibull.gd" id="1_ku8rr"]
+
+[node name="TestWeibull" type="Node2D"]
+script = ExtResource("1_ku8rr")

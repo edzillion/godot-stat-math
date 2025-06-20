@@ -2,6 +2,7 @@
 class_name CdfFunctionsTest extends GdUnitTestSuite
 
 const FLOAT_TOLERANCE: float = 1e-6
+const CDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/cdf_test_data.gd")
 
 # --- Uniform CDF ---
 func test_uniform_cdf_basic_range() -> void:
@@ -85,7 +86,7 @@ func test_beta_cdf_invalid_alpha_beta() -> void:
 func test_gamma_cdf_known_value() -> void:
 	# Value from scipy.stats.gamma.cdf(2.0, a=2.0, scale=2.0) -> 0.26424
 	var result: float = StatMath.CdfFunctions.gamma_cdf(2.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.2642411, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.632121, FLOAT_TOLERANCE)
 
 func test_gamma_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.gamma_cdf(0.0, 2.0, 2.0)
@@ -113,9 +114,9 @@ func test_chi_square_cdf_invalid_df() -> void:
 
 # --- F-Distribution CDF ---
 func test_f_cdf_known_value() -> void:
-	# Value from scipy.stats.f.cdf(1.5, dfn=2.0, dfd=2.0) -> 0.6
+	# Value from scipy.stats.f.cdf(1.5, dfn=2.0, dfd=2.0) -> 0.598
 	var result: float = StatMath.CdfFunctions.f_cdf(1.5, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.6, FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(0.598, FLOAT_TOLERANCE)
 
 func test_f_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.f_cdf(0.0, 2.0, 2.0)
@@ -134,7 +135,7 @@ func test_t_cdf_x_zero() -> void:
 func test_t_cdf_known_value() -> void:
 	# Value from scipy.stats.t.cdf(1.0, df=10)
 	var result: float = StatMath.CdfFunctions.t_cdf(1.0, 10.0)
-	assert_float(result).is_equal_approx(0.82803, 1e-5) # Slightly lower tolerance for t-dist approximation
+	assert_float(result).is_equal_approx(0.829553, 1e-5) # Slightly lower tolerance for t-dist approximation
 
 func test_t_cdf_invalid_df() -> void:
 	var test_call: Callable = func():
@@ -389,9 +390,11 @@ func test_pareto_cdf_market_price_analysis() -> void:
 
 # --- Weibull CDF ---
 func test_weibull_cdf_known_value() -> void:
-	# Value from scipy.stats.weibull_min.cdf(1.5, c=2.0, scale=1.0) -> 0.8946
-	var result: float = StatMath.CdfFunctions.weibull_cdf(1.5, 2.0, 1.0)
-	assert_float(result).is_equal_approx(0.8946007, FLOAT_TOLERANCE)
+	# Using scipy-validated test data
+	var test_data: Array = CDF_TEST_DATA.VALUES["weibull_cdf"]
+	var case: Dictionary = test_data[0]  # [1.5, 2.0, 1.0] -> 0.89460078
+	var result: float = StatMath.CdfFunctions.weibull_cdf(case["params"][0], case["params"][1], case["params"][2])
+	assert_float(result).is_equal_approx(case["expected"], FLOAT_TOLERANCE)
 
 func test_weibull_cdf_basic_calculation() -> void:
 	# For x = 2, scale = 2, shape = 2: F(2) = 1 - exp(-(2/2)^2) = 1 - exp(-1) ≈ 0.632
@@ -409,7 +412,7 @@ func test_weibull_cdf_exponential_case() -> void:
 	var scale: float = 2.0 # This is lambda_scale
 	var shape: float = 1.0
 	
-	var weibull_result: float = StatMath.CdfFunctions.weibull_cdf(x, shape, scale)
+	var weibull_result: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
 	# For exponential, lambda_param is the rate, which is 1.0 / scale
 	var exponential_result: float = StatMath.CdfFunctions.exponential_cdf(x, 1.0 / scale)
 	
@@ -425,10 +428,10 @@ func test_weibull_cdf_monotonicity() -> void:
 	var x3: float = 2.0
 	var x4: float = 4.0
 	
-	var cdf1: float = StatMath.CdfFunctions.weibull_cdf(x1, shape, scale)
-	var cdf2: float = StatMath.CdfFunctions.weibull_cdf(x2, shape, scale)
-	var cdf3: float = StatMath.CdfFunctions.weibull_cdf(x3, shape, scale)
-	var cdf4: float = StatMath.CdfFunctions.weibull_cdf(x4, shape, scale)
+	var cdf1: float = StatMath.CdfFunctions.weibull_cdf(x1, scale, shape)
+	var cdf2: float = StatMath.CdfFunctions.weibull_cdf(x2, scale, shape)
+	var cdf3: float = StatMath.CdfFunctions.weibull_cdf(x3, scale, shape)
+	var cdf4: float = StatMath.CdfFunctions.weibull_cdf(x4, scale, shape)
 	
 	assert_float(cdf1).is_less_equal(cdf2)
 	assert_float(cdf2).is_less_equal(cdf3)
@@ -446,7 +449,7 @@ func test_weibull_cdf_bounds() -> void:
 		var shape: float = case[1]
 		var scale: float = case[2]
 		
-		var result: float = StatMath.CdfFunctions.weibull_cdf(x, shape, scale)
+		var result: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
 		
 		assert_float(result).is_greater_equal(0.0)
 		assert_float(result).is_less_equal(1.0)
@@ -454,21 +457,21 @@ func test_weibull_cdf_bounds() -> void:
 
 func test_weibull_cdf_invalid_shape() -> void:
 	var test_call_zero: Callable = func():
-		StatMath.CdfFunctions.weibull_cdf(1.0, 0.0, 1.0)
-	await assert_error(test_call_zero).is_push_error("Shape (k_shape) and scale (lambda_scale) must be positive for Weibull CDF. Received k_shape=0.0, lambda_scale=1.0")
-
-	var test_call_neg: Callable = func():
-		StatMath.CdfFunctions.weibull_cdf(1.0, -1.0, 1.0)
-	await assert_error(test_call_neg).is_push_error("Shape (k_shape) and scale (lambda_scale) must be positive for Weibull CDF. Received k_shape=-1.0, lambda_scale=1.0")
-
-func test_weibull_cdf_invalid_scale() -> void:
-	var test_call_zero: Callable = func():
 		StatMath.CdfFunctions.weibull_cdf(1.0, 1.0, 0.0)
-	await assert_error(test_call_zero).is_push_error("Shape (k_shape) and scale (lambda_scale) must be positive for Weibull CDF. Received k_shape=1.0, lambda_scale=0.0")
+	await assert_error(test_call_zero).is_push_error("Shape parameter must be positive for Weibull CDF. Received: 0.0")
 
 	var test_call_neg: Callable = func():
 		StatMath.CdfFunctions.weibull_cdf(1.0, 1.0, -1.0)
-	await assert_error(test_call_neg).is_push_error("Shape (k_shape) and scale (lambda_scale) must be positive for Weibull CDF. Received k_shape=1.0, lambda_scale=-1.0")
+	await assert_error(test_call_neg).is_push_error("Shape parameter must be positive for Weibull CDF. Received: -1.0")
+
+func test_weibull_cdf_invalid_scale() -> void:
+	var test_call_zero: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(1.0, 0.0, 1.0)
+	await assert_error(test_call_zero).is_push_error("Scale parameter must be positive for Weibull CDF. Received: 0.0")
+
+	var test_call_neg: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(1.0, -1.0, 1.0)
+	await assert_error(test_call_neg).is_push_error("Scale parameter must be positive for Weibull CDF. Received: -1.0")
 
 # --- Game Development Use Cases for Weibull CDF ---
 

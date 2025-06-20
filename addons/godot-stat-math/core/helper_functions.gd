@@ -409,8 +409,19 @@ static func sanitize_numeric_array(input_array: Array) -> Array[float]:
 	
 	for element in input_array:
 		if element is int or element is float:
-			sanitized.append(float(element))
-		# Non-numeric values (strings, nulls, objects, etc.) are silently skipped
+			var val: float = float(element)
+			# Only include finite values (exclude INF and NAN)
+			if is_finite(val):
+				sanitized.append(val)
+		elif element is String:
+			# Try to convert string to float
+			var str_val: String = element as String
+			if str_val.is_valid_float():
+				var val: float = str_val.to_float()
+				# Only include finite values (exclude INF and NAN)
+				if is_finite(val):
+					sanitized.append(val)
+		# Non-numeric values (nulls, objects, etc.) are silently skipped
 	
 	sanitized.sort()
 	return sanitized

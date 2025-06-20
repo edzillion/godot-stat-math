@@ -221,6 +221,66 @@ static func beta_pdf(x: float, alpha: float, beta_param: float) -> float:
 	return exp(log_pdf_val)
 
 
+## Calculates the PDF of a Weibull distribution: f(x; λ, k).
+##
+## Returns the probability density at [code]x[/code] for a Weibull distribution 
+## with scale parameter [code]λ[/code] and shape parameter [code]k[/code].
+## Widely used in reliability analysis, survival analysis, and failure modeling.
+##
+## Mathematical Note: [code]f(x) = (k/λ)(x/λ)^(k-1) e^(-(x/λ)^k)[/code] for [code]x ≥ 0[/code]
+static func weibull_pdf(x: float, scale_param: float, shape_param: float) -> float:
+	if not (scale_param > 0.0):
+		push_error("Scale parameter (scale_param) must be positive. Received: %s" % scale_param)
+		return NAN
+	if not (shape_param > 0.0):
+		push_error("Shape parameter (shape_param) must be positive. Received: %s" % shape_param)
+		return NAN
+	
+	if x < 0.0:
+		return 0.0
+	
+	# Handle special case at x=0
+	if x == 0.0:
+		if shape_param < 1.0:
+			return INF  # PDF approaches infinity for shape < 1
+		elif shape_param == 1.0:
+			return shape_param / scale_param  # Exponential case
+		else:  # shape_param > 1.0
+			return 0.0
+	
+	# Formula: (k/λ) * (x/λ)^(k-1) * exp(-(x/λ)^k)
+	# Using logs for numerical stability when possible
+	var x_over_lambda: float = x / scale_param
+	var log_coefficient: float = log(shape_param) - log(scale_param)
+	var log_power_term: float = (shape_param - 1.0) * log(x_over_lambda)
+	var exponential_term: float = -pow(x_over_lambda, shape_param)
+	
+	var log_pdf_val: float = log_coefficient + log_power_term + exponential_term
+	return exp(log_pdf_val)
+
+
+## Calculates the PDF of a lognormal distribution: f(x; μ, σ).
+##
+## Returns the probability density at [code]x[/code] for a lognormal distribution 
+## with location parameter [code]μ[/code] and scale parameter [code]σ[/code].
+## If X ~ Lognormal(μ, σ), then ln(X) ~ Normal(μ, σ).
+##
+## Mathematical Note: [code]f(x) = (1/(xσ√(2π))) e^(-((ln(x)-μ)²)/(2σ²))[/code] for [code]x > 0[/code]
+static func lognormal_pdf(x: float, mu: float, sigma: float) -> float:
+	if not (sigma > 0.0):
+		push_error("Standard deviation (sigma) must be positive. Received: %s" % sigma)
+		return NAN
+	
+	if x <= 0.0:
+		return 0.0  # Lognormal distribution has support (0, +∞)
+	
+	# Formula: (1/(x*σ*√(2π))) * exp(-((ln(x)-μ)²)/(2σ²))
+	# Equivalent to: Normal PDF of ln(x) divided by x
+	var ln_x: float = log(x)
+	var normal_result: float = normal_pdf(ln_x, mu, sigma)
+	return normal_result / x
+
+
 ## Calculates the PDF of a chi-squared distribution: f(x; k).
 ##
 ## Returns the probability density at [code]x[/code] for a chi-squared distribution 

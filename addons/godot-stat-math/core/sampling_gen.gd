@@ -32,6 +32,7 @@ enum SelectionStrategy {
 	SELECTION_TRACKING         ## Without replacement with memory-efficient tracking
 }
 
+const _SOBOL_DATA = preload("res://addons/godot-stat-math/tables/sobol_data.gd")
 const _SOBOL_BITS: int = 30
 const _SOBOL_MAX_VAL_FLOAT: float = float(1 << _SOBOL_BITS)
 
@@ -51,10 +52,10 @@ const MAX_POOLED_DECKS_PER_SIZE: int = 16
 
 func _init() -> void:
 	var start_time: int = Time.get_ticks_usec()
-	_ensure_sobol_vectors_initialized(SobolData.get_max_dimension())  # Initialize all available dimensions
+	_ensure_sobol_vectors_initialized(_SOBOL_DATA.get_max_dimension())  # Initialize all available dimensions
 	var end_time: int = Time.get_ticks_usec()
 	var duration_ms: float = (end_time - start_time) / 1000.0
-	print("SamplingGen: Initialized %d Sobol dimensions in %.2f ms" % [SobolData.get_max_dimension(), duration_ms])
+	print("SamplingGen: Initialized %d Sobol dimensions in %.2f ms" % [_SOBOL_DATA.get_max_dimension(), duration_ms])
 
 
 # --- MEMORY POOL MANAGEMENT ---
@@ -145,11 +146,11 @@ static func _generate_direction_vectors_for_dimension(dimension: int) -> void:
 				direction_vectors[j] = 0
 	else:
 		# Use authoritative Joe-Kuo direction numbers from SobolData
-		if not SobolData.has_dimension(dimension):
+		if not _SOBOL_DATA.has_dimension(dimension):
 			printerr("SamplingGen: No direction numbers available for dimension ", dimension)
 			return
 		
-		var direction_numbers: Array = SobolData.get_direction_numbers(dimension)
+		var direction_numbers: Array = _SOBOL_DATA.get_direction_numbers(dimension)
 		if direction_numbers.is_empty():
 			printerr("SamplingGen: Empty direction numbers for dimension ", dimension)
 			return
@@ -1033,8 +1034,8 @@ static func _get_sobol_1d_integers(ndraws: int, dimension_index: int, starting_i
 		return integers
 	integers.resize(ndraws)
 	
-	if dimension_index < 0 or dimension_index > SobolData.get_max_dimension():
-		printerr("Sobol: Invalid dimension_index: ", dimension_index, " (max supported: ", SobolData.get_max_dimension(), ")")
+	if dimension_index < 0 or dimension_index > _SOBOL_DATA.get_max_dimension():
+		printerr("Sobol: Invalid dimension_index: ", dimension_index, " (max supported: ", _SOBOL_DATA.get_max_dimension(), ")")
 		for i in range(ndraws): integers[i] = -1 # Signal error
 		return integers
 

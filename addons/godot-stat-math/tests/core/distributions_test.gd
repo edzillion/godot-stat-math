@@ -463,7 +463,7 @@ func test_randf_normal_negative_mu() -> void:
 func test_randf_normal_invalid_sigma_negative() -> void:
 	var test_invalid_input: Callable = func():
 		StatMath.Distributions.randf_normal(0.0, -1.0)
-	await assert_error(test_invalid_input).is_push_error("Standard deviation (sigma) must be non-negative. Received: -1.0")
+	await assert_error(test_invalid_input).is_push_error("Standard deviation (sigma) must be positive. Received: -1.0")
 
 
 func test_randf_normal_statistical_properties() -> void:

@@ -59,7 +59,10 @@ static func erfc(x: float) -> float:
 static func erf_inv(x: float) -> float:
 	if x == 0.0:
 		return 0.0
-	if abs(x) >= 1.0:
+	if abs(x) > 1.0:
+		push_error("Input y for erfinv must be in the range [-1, 1]. Received: %s" % x)
+		return NAN
+	if abs(x) == 1.0:
 		return INF if x > 0 else -INF
 	
 	# Initial approximation using rational approximation
@@ -151,6 +154,13 @@ static func erf_inv(x: float) -> float:
 ## Mathematical Note: [code]erfc_inv(1) = 0[/code], [code]erfc_inv(0)[/code] approaches [code]∞[/code], 
 ## [code]erfc_inv(2)[/code] approaches [code]-∞[/code]
 static func erfc_inv(x: float) -> float:
+	if x < 0.0 or x > 2.0:
+		push_error("Input y for erfcinv must be in the range [0, 2]. Received: %s" % x)
+		return NAN
+	if x == 0.0:
+		return INF
+	if x == 2.0:
+		return -INF
 	return erf_inv(1.0 - x)
 
 
