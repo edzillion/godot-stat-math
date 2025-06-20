@@ -1,7 +1,11 @@
 # addons/godot-stat-math/tests/core/basic_stats_test.gd
 class_name BasicStatsTest extends GdUnitTestSuite
 
-const FLOAT_TOLERANCE: float = 1e-7
+const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
+const HIGH_PRECISION_TOLERANCE: float = 1e-9
+
+# Import test data for Phase 3 advanced tests
+const BASIC_STATS_TEST_DATA = preload("res://addons/godot-stat-math/tables/basic_stats_test_data.gd")
 
 # Test data sets
 var simple_data: Array[float] = [1.0, 2.0, 3.0, 4.0, 5.0]
@@ -318,3 +322,311 @@ func test_standard_deviation_enhanced_decimal_precision() -> void:
 	var expected_std: float = sqrt(variance_result)
 	
 	assert_float(result).is_equal_approx(expected_std, 1e-9) 
+
+# =============================================================================
+# PHASE 3 ADVANCED TESTS - NON-NORMAL DISTRIBUTIONS & NUMERICAL STABILITY
+# =============================================================================
+
+# --- Phase 3 Task 1: Non-Normal Distribution Tests ---
+
+func test_right_skewed_data_behavior() -> void:
+	# Test that our functions handle right-skewed data correctly (common in game analytics)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["right_skewed_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	# Test all basic statistics with scipy-validated expected values
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.sample_variance(data)).is_equal_approx(test_data["expected_sample_variance"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.sample_standard_deviation(data)).is_equal_approx(test_data["expected_sample_std"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.range_spread(data)).is_equal_approx(test_data["expected_range"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.minimum(data)).is_equal_approx(test_data["expected_min"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.maximum(data)).is_equal_approx(test_data["expected_max"], FLOAT_TOLERANCE)
+	
+	# For skewed data, median should be more robust than mean
+	# In right-skewed data, mean > median (pulled by outliers)
+	assert_that(StatMath.BasicStats.mean(data) > StatMath.BasicStats.median(sorted_data)).is_true()
+
+func test_left_skewed_data_behavior() -> void:
+	# Test left-skewed data (rare high scores concentrated at upper end)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["left_skewed_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.sample_variance(data)).is_equal_approx(test_data["expected_sample_variance"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.sample_standard_deviation(data)).is_equal_approx(test_data["expected_sample_std"], FLOAT_TOLERANCE)
+	
+	# For left-skewed data, mean < median (pulled down by outliers)
+	assert_that(StatMath.BasicStats.mean(data) < StatMath.BasicStats.median(sorted_data)).is_true()
+
+func test_heavy_tailed_data_robustness() -> void:
+	# Test heavy-tailed data (damage spikes, network latency) - emphasizes MAD vs StdDev
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["heavy_tailed_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], FLOAT_TOLERANCE)
+	
+	# MAD should be more robust to outliers than standard deviation
+	var mad: float = StatMath.BasicStats.median_absolute_deviation(sorted_data)
+	var std_dev: float = StatMath.BasicStats.standard_deviation(data)
+	
+	# With heavy tails, MAD should be significantly smaller than std dev
+	assert_that(mad < std_dev).is_true()
+	
+	# Extreme values should not cause overflow
+	assert_that(not is_inf(std_dev)).is_true()
+	assert_that(not is_nan(std_dev)).is_true()
+
+func test_bimodal_data_characteristics() -> void:
+	# Test bimodal data (two distinct player skill groups)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], FLOAT_TOLERANCE)
+	
+	# For this specific bimodal distribution, mean and median should be equal (symmetric)
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(StatMath.BasicStats.median(sorted_data), FLOAT_TOLERANCE)
+
+func test_power_law_data_handling() -> void:
+	# Test power-law distributed data (common in gaming analytics)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["power_law_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], FLOAT_TOLERANCE)
+	
+	# Power-law data: mean > median due to heavy right tail
+	assert_that(StatMath.BasicStats.mean(data) > StatMath.BasicStats.median(sorted_data)).is_true()
+
+# --- Phase 3 Task 2: Numerical Stability Tests ---
+
+func test_very_large_numbers_stability() -> void:
+	# Test numerical stability with very large numbers
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["very_large_numbers"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	# All calculations should remain stable, no overflow/underflow
+	var mean_result: float = StatMath.BasicStats.mean(data)
+	var variance_result: float = StatMath.BasicStats.variance(data)
+	var std_result: float = StatMath.BasicStats.standard_deviation(data)
+	
+	assert_float(mean_result).is_equal_approx(test_data["expected_mean"], FLOAT_TOLERANCE)
+	assert_float(variance_result).is_equal_approx(test_data["expected_variance"], FLOAT_TOLERANCE)
+	assert_float(std_result).is_equal_approx(test_data["expected_std"], FLOAT_TOLERANCE)
+	
+	# Verify no overflow conditions
+	assert_that(not is_inf(mean_result)).is_true()
+	assert_that(not is_inf(variance_result)).is_true()
+	assert_that(not is_inf(std_result)).is_true()
+	assert_that(not is_nan(variance_result)).is_true()
+
+func test_very_small_numbers_precision() -> void:
+	# Test precision preservation with very small numbers
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["very_small_numbers"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], HIGH_PRECISION_TOLERANCE)
+	
+	# Verify no underflow to zero when it shouldn't
+	assert_that(StatMath.BasicStats.variance(data) > 0.0).is_true()
+
+func test_mixed_magnitude_data_robustness() -> void:
+	# Test with data spanning many orders of magnitude
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["mixed_magnitude_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	# Should handle extreme range without precision loss
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], FLOAT_TOLERANCE)
+	
+	# Extreme range should not cause computational issues
+	var range_result: float = StatMath.BasicStats.range_spread(data)
+	assert_that(not is_inf(range_result)).is_true()
+	assert_that(not is_nan(range_result)).is_true()
+
+func test_close_numbers_precision_stability() -> void:
+	# Test precision with very close numbers
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["close_numbers"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	# Should preserve precision even with tiny differences
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], HIGH_PRECISION_TOLERANCE)
+	
+	# Variance should be positive (not rounded to zero) for distinct values
+	assert_that(StatMath.BasicStats.variance(data) > 0.0).is_true()
+
+func test_identical_values_numerical_stability() -> void:
+	# Test numerical stability with identical values
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["identical_values"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	# All variance measures should be exactly zero
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.sample_variance(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.sample_standard_deviation(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.range_spread(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	
+	# Mean should equal the identical value
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], FLOAT_TOLERANCE)
+
+# --- Phase 3 Task 3: Integer vs Float Input Consistency Tests ---
+
+func test_integer_like_float_precision() -> void:
+	# Test that integer-like floats (game scores) maintain precision
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["integer_like_floats"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	# Should produce exact results for integer-like inputs
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], FLOAT_TOLERANCE)
+	
+	# No precision artifacts should appear in calculations
+	var mean_result: float = StatMath.BasicStats.mean(data)
+	assert_that(mean_result == 2000.0).is_true()  # Exact equality for this case
+
+func test_mixed_integer_float_consistency() -> void:
+	# Test consistency between pure integer-like data and mixed precision
+	var integer_like: Array[float] = [100.0, 200.0, 300.0, 400.0, 500.0]
+	var mixed_precision: Array[float] = [100.0, 200.5, 300.0, 400.5, 500.0]
+	
+	# Integer-like data should produce clean results
+	var int_mean: float = StatMath.BasicStats.mean(integer_like)
+	var int_variance: float = StatMath.BasicStats.variance(integer_like)
+	
+	assert_float(int_mean).is_equal_approx(300.0, FLOAT_TOLERANCE)
+	assert_that(int_variance == 20000.0).is_true()  # Should be exact
+	
+	# Mixed precision should handle gracefully
+	var mixed_mean: float = StatMath.BasicStats.mean(mixed_precision)
+	var mixed_variance: float = StatMath.BasicStats.variance(mixed_precision)
+	
+	assert_that(not is_nan(mixed_mean)).is_true()
+	assert_that(not is_nan(mixed_variance)).is_true()
+	assert_that(mixed_mean > int_mean).is_true()  # Slightly higher due to .5 values
+
+# --- Phase 3 Task 4: Enhanced Single-Element Edge Case Tests ---
+
+func test_single_element_comprehensive_zero() -> void:
+	# Comprehensive test for single zero element
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_zero"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	# All basic statistics should handle single zero correctly
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.range_spread(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.minimum(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.maximum(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	
+	# All percentiles should return the single value
+	assert_float(StatMath.BasicStats.percentile(sorted_data, 0.0)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.percentile(sorted_data, 25.0)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.percentile(sorted_data, 50.0)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.percentile(sorted_data, 75.0)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.percentile(sorted_data, 100.0)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+
+func test_single_element_comprehensive_negative() -> void:
+	# Comprehensive test for single negative element
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(-42.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(-42.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.range_spread(data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.minimum(data)).is_equal_approx(-42.0, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.maximum(data)).is_equal_approx(-42.0, FLOAT_TOLERANCE)
+	
+	# Percentiles should all return the single negative value
+	assert_float(StatMath.BasicStats.percentile(sorted_data, 50.0)).is_equal_approx(-42.0, FLOAT_TOLERANCE)
+
+func test_single_element_extreme_values() -> void:
+	# Test single element with extreme values
+	var large_test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_large"]
+	var large_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(large_test_data["data"])
+	var large_sorted: Array[float] = StatMath.HelperFunctions.convert_to_float_array(large_test_data["sorted_data"])
+	
+	var small_test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_small"]
+	var small_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(small_test_data["data"])
+	var small_sorted: Array[float] = StatMath.HelperFunctions.convert_to_float_array(small_test_data["sorted_data"])
+	
+	# Large single element
+	assert_float(StatMath.BasicStats.mean(large_data)).is_equal_approx(1e10, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(large_sorted)).is_equal_approx(1e10, FLOAT_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(large_data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	
+	# Small single element  
+	assert_float(StatMath.BasicStats.mean(small_data)).is_equal_approx(1e-10, HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(small_sorted)).is_equal_approx(1e-10, HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(small_data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	
+	# No computational issues with extreme single values
+	assert_that(not is_inf(StatMath.BasicStats.mean(large_data))).is_true()
+	assert_that(not is_nan(StatMath.BasicStats.mean(large_data))).is_true()
+	assert_that(not is_nan(StatMath.BasicStats.mean(small_data))).is_true()
+
+func test_single_element_summary_statistics_consistency() -> void:
+	# Test that summary statistics work correctly for single elements
+	var test_data: Array[float] = [123.456]
+	var summary: Dictionary = StatMath.BasicStats.summary_statistics(test_data)
+	
+	# All statistics should be consistent for single element
+	assert_float(summary["mean"]).is_equal_approx(123.456, FLOAT_TOLERANCE)
+	assert_float(summary["median"]).is_equal_approx(123.456, FLOAT_TOLERANCE)
+	assert_float(summary["variance"]).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(summary["standard_deviation"]).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(summary["median_absolute_deviation"]).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(summary["range"]).is_equal_approx(0.0, FLOAT_TOLERANCE)
+	assert_float(summary["minimum"]).is_equal_approx(123.456, FLOAT_TOLERANCE)
+	assert_float(summary["maximum"]).is_equal_approx(123.456, FLOAT_TOLERANCE)
+	assert_int(summary["count"]).is_equal(1)
+	
+	# Sample variance and std dev should error appropriately for single element
+	var test_call_sample_var: Callable = func():
+		StatMath.BasicStats.sample_variance(test_data)
+	await assert_error(test_call_sample_var).is_push_error("Cannot calculate sample variance with fewer than 2 data points. Received size: 1")
+	
+	var test_call_sample_std: Callable = func():
+		StatMath.BasicStats.sample_standard_deviation(test_data)
+	await assert_error(test_call_sample_std).is_push_error("Cannot calculate sample standard deviation with fewer than 2 data points. Received size: 1") 

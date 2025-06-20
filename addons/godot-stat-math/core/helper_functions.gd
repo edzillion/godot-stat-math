@@ -433,3 +433,20 @@ static func sanitize_numeric_array(input_array: Array) -> Array[float]:
 	
 	sanitized.sort()
 	return sanitized
+
+
+## Converts a generic Array to a typed Array[float].
+##
+## Essential helper for converting test data arrays (which are generic Array types) 
+## to the typed Array[float] required by StatMath functions. Each element is explicitly 
+## cast to float to ensure type safety.
+##
+## Use this when working with data from external sources like test data files or 
+## JSON imports that produce generic arrays.
+static func convert_to_float_array(input_array: Array) -> Array[float]:
+	var converted: Array[float] = []
+	
+	for element in input_array:
+		converted.append(float(element))
+	
+	return converted

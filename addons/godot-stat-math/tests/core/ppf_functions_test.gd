@@ -6,7 +6,7 @@ class_name PpfFunctionsTest extends GdUnitTestSuite
 # =============================================================================
 
 ## Tolerance for floating point comparisons in PPF calculations  
-const FLOAT_TOLERANCE: float = 1e-6
+const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
 
 ## Tolerance for scipy validation comparisons
 const SCIPY_TOLERANCE: float = 2e-6

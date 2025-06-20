@@ -1,7 +1,7 @@
 # addons/godot-stat-math/tests/core/cdf_functions_test.gd
 class_name CdfFunctionsTest extends GdUnitTestSuite
 
-const FLOAT_TOLERANCE: float = 1e-7
+const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
 const SCIPY_TOLERANCE: float = 1e-5  # Tolerance for scipy-validated values
 const BOUNDARY_TOLERANCE: float = 1e-10  # Tolerance for boundary conditions
 
@@ -59,19 +59,19 @@ func test_cdf_scipy_validation_parametrized(distribution: String, x: float, para
 # =============================================================================
 
 ## Tests that all CDF functions are monotonically non-decreasing
-func test_cdf_monotonicity_parametrized(distribution: String, params: Array, test_points: Array[float], test_parameters := [
-	["normal", [0.0, 1.0], [-3.0, -1.0, 0.0, 1.0, 3.0]],
-	["normal", [2.0, 0.5], [1.0, 1.5, 2.0, 2.5, 3.0]],
-	["exponential", [1.0], [0.0, 0.5, 1.0, 2.0, 5.0]],
-	["exponential", [2.0], [0.0, 0.25, 0.5, 1.0, 2.5]],
-	["uniform", [1.0, 4.0], [0.5, 1.0, 2.0, 3.0, 4.0, 4.5]],
-	["gamma", [2.0, 1.0], [0.0, 0.5, 1.0, 2.0, 4.0]],
-	["beta", [2.0, 3.0], [0.0, 0.2, 0.5, 0.8, 1.0]],
-	["chi_square", [2.0], [0.0, 1.0, 2.0, 5.0, 10.0]],
-	["t", [5.0], [-3.0, -1.0, 0.0, 1.0, 3.0]],
-	["f", [2.0, 3.0], [0.0, 0.5, 1.0, 2.0, 5.0]],
-	["weibull", [1.0, 2.0], [0.0, 0.5, 1.0, 1.5, 2.0]],
-	["pareto", [1.0, 2.0], [0.5, 1.0, 1.5, 2.0, 3.0]]
+func test_cdf_monotonicity_parametrized(distribution: StatMath.SupportedDistributions, params: Array, test_points: Array[float], test_parameters := [
+	[StatMath.SupportedDistributions.NORMAL, [0.0, 1.0], [-3.0, -1.0, 0.0, 1.0, 3.0]],
+	[StatMath.SupportedDistributions.NORMAL, [2.0, 0.5], [1.0, 1.5, 2.0, 2.5, 3.0]],
+	[StatMath.SupportedDistributions.EXPONENTIAL, [1.0], [0.0, 0.5, 1.0, 2.0, 5.0]],
+	[StatMath.SupportedDistributions.EXPONENTIAL, [2.0], [0.0, 0.25, 0.5, 1.0, 2.5]],
+	[StatMath.SupportedDistributions.UNIFORM, [1.0, 4.0], [0.5, 1.0, 2.0, 3.0, 4.0, 4.5]],
+	[StatMath.SupportedDistributions.GAMMA, [2.0, 1.0], [0.0, 0.5, 1.0, 2.0, 4.0]],
+	[StatMath.SupportedDistributions.BETA, [2.0, 3.0], [0.0, 0.2, 0.5, 0.8, 1.0]],
+	[StatMath.SupportedDistributions.CHI_SQUARE, [2.0], [0.0, 1.0, 2.0, 5.0, 10.0]],
+	[StatMath.SupportedDistributions.T_DISTRIBUTION, [5.0], [-3.0, -1.0, 0.0, 1.0, 3.0]],
+	[StatMath.SupportedDistributions.F_DISTRIBUTION, [2.0, 3.0], [0.0, 0.5, 1.0, 2.0, 5.0]],
+	[StatMath.SupportedDistributions.WEIBULL, [1.0, 2.0], [0.0, 0.5, 1.0, 1.5, 2.0]],
+	[StatMath.SupportedDistributions.PARETO, [1.0, 2.0], [0.5, 1.0, 1.5, 2.0, 3.0]]
 	]) -> void:
 	var prev_cdf: float = -1.0
 	
@@ -227,41 +227,69 @@ func test_cdf_parameter_validation_enhanced_parametrized(distribution: String, v
 # HELPER FUNCTIONS FOR PHASE 3 TESTING
 # =============================================================================
 
-## Enhanced helper function to get CDF values for all supported distributions
-func _get_cdf_value(distribution: String, x: float, params: Array) -> float:
-	match distribution:
-		"normal":
+## Enhanced helper function to get CDF values for all supported distributions  
+func _get_cdf_value(distribution: Variant, x: float, params: Array) -> float:
+	# Handle both string and enum inputs during transition
+	var dist_enum: StatMath.SupportedDistributions
+	if distribution is String:
+		dist_enum = _string_to_enum(distribution)
+	else:
+		dist_enum = distribution
+	
+	match dist_enum:
+		StatMath.SupportedDistributions.NORMAL:
 			return StatMath.CdfFunctions.normal_cdf(x, params[0], params[1])
-		"exponential":
+		StatMath.SupportedDistributions.EXPONENTIAL:
 			# Convert from scale parameter to rate parameter: λ = 1/scale
 			return StatMath.CdfFunctions.exponential_cdf(x, 1.0 / params[0])
-		"uniform":
+		StatMath.SupportedDistributions.UNIFORM:
 			return StatMath.CdfFunctions.uniform_cdf(x, params[0], params[1])
-		"beta":
+		StatMath.SupportedDistributions.BETA:
 			return StatMath.CdfFunctions.beta_cdf(x, params[0], params[1])
-		"gamma":
+		StatMath.SupportedDistributions.GAMMA:
 			return StatMath.CdfFunctions.gamma_cdf(x, params[0], params[1])
-		"weibull":
+		StatMath.SupportedDistributions.WEIBULL:
 			return StatMath.CdfFunctions.weibull_cdf(x, params[0], params[1])
-		"pareto":
+		StatMath.SupportedDistributions.PARETO:
 			return StatMath.CdfFunctions.pareto_cdf(x, params[0], params[1])
-		"chi_square":
+		StatMath.SupportedDistributions.CHI_SQUARE:
 			return StatMath.CdfFunctions.chi_square_cdf(x, params[0])
-		"t":
+		StatMath.SupportedDistributions.T_DISTRIBUTION:
 			return StatMath.CdfFunctions.t_cdf(x, params[0])
-		"f":
+		StatMath.SupportedDistributions.F_DISTRIBUTION:
 			return StatMath.CdfFunctions.f_cdf(x, params[0], params[1])
-		"binomial":
+		StatMath.SupportedDistributions.BINOMIAL:
 			return StatMath.CdfFunctions.binomial_cdf(int(x), int(params[0]), params[1])
-		"poisson":
+		StatMath.SupportedDistributions.POISSON:
 			return StatMath.CdfFunctions.poisson_cdf(int(x), params[0])
-		"geometric":
+		StatMath.SupportedDistributions.GEOMETRIC:
 			return StatMath.CdfFunctions.geometric_cdf(int(x), params[0])
-		"negative_binomial":
-			return StatMath.CdfFunctions.negative_binomial_cdf(10, int(params[0]), params[1])
+		StatMath.SupportedDistributions.NEGATIVE_BINOMIAL:
+			return StatMath.CdfFunctions.negative_binomial_cdf(int(x), int(params[0]), params[1])
+		_:
+			push_error("Unknown distribution enum: " + str(dist_enum))
+			return NAN
+
+## Helper function to convert string distribution names to enum values
+func _string_to_enum(distribution: String) -> StatMath.SupportedDistributions:
+	match distribution:
+		"normal": return StatMath.SupportedDistributions.NORMAL
+		"exponential": return StatMath.SupportedDistributions.EXPONENTIAL
+		"uniform": return StatMath.SupportedDistributions.UNIFORM
+		"beta": return StatMath.SupportedDistributions.BETA
+		"gamma": return StatMath.SupportedDistributions.GAMMA
+		"weibull": return StatMath.SupportedDistributions.WEIBULL
+		"pareto": return StatMath.SupportedDistributions.PARETO
+		"chi_square": return StatMath.SupportedDistributions.CHI_SQUARE
+		"t": return StatMath.SupportedDistributions.T_DISTRIBUTION
+		"f": return StatMath.SupportedDistributions.F_DISTRIBUTION
+		"binomial": return StatMath.SupportedDistributions.BINOMIAL
+		"poisson": return StatMath.SupportedDistributions.POISSON
+		"geometric": return StatMath.SupportedDistributions.GEOMETRIC
+		"negative_binomial": return StatMath.SupportedDistributions.NEGATIVE_BINOMIAL
 		_:
 			push_error("Unknown distribution: " + distribution)
-			return NAN
+			return StatMath.SupportedDistributions.NORMAL  # Fallback value
 
 # --- Uniform CDF ---
 func test_uniform_cdf_basic_range() -> void:

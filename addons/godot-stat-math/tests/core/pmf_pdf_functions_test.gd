@@ -445,21 +445,21 @@ func test_chi_squared_pdf_non_negative(x: float, test_parameters := [
 		assert_float(result).is_greater_equal(0.0)
 
 # Test numerical stability for extreme values
-func test_pdf_numerical_stability(x: float, distribution: String, test_parameters := [
-	[100.0, "normal"],
-	[100.0, "exponential"], 
-	[100.0, "gamma"],
-	[1000.0, "normal"],
-	[1000.0, "exponential"],
+func test_pdf_numerical_stability(x: float, distribution: StatMath.SupportedDistributions, test_parameters := [
+	[100.0, StatMath.SupportedDistributions.NORMAL],
+	[100.0, StatMath.SupportedDistributions.EXPONENTIAL], 
+	[100.0, StatMath.SupportedDistributions.GAMMA],
+	[1000.0, StatMath.SupportedDistributions.NORMAL],
+	[1000.0, StatMath.SupportedDistributions.EXPONENTIAL],
 ]) -> void:
 	var result: float
 	
 	match distribution:
-		"normal":
+		StatMath.SupportedDistributions.NORMAL:
 			result = StatMath.PmfPdfFunctions.normal_pdf(x, 0.0, 1.0)
-		"exponential":
+		StatMath.SupportedDistributions.EXPONENTIAL:
 			result = StatMath.PmfPdfFunctions.exponential_pdf(x, 1.0)
-		"gamma":
+		StatMath.SupportedDistributions.GAMMA:
 			result = StatMath.PmfPdfFunctions.gamma_pdf(x, 2.0, 1.0)
 	
 	# Should be very small but finite
@@ -467,27 +467,27 @@ func test_pdf_numerical_stability(x: float, distribution: String, test_parameter
 	assert_float(result).is_greater_equal(0.0)
 
 # Test PDF integration approximation (total probability ≈ 1)
-func test_pdf_integration_approximation(distribution: String, test_parameters := [
-	["normal"],
-	["exponential"],
-	["beta"],
+func test_pdf_integration_approximation(distribution: StatMath.SupportedDistributions, test_parameters := [
+	[StatMath.SupportedDistributions.NORMAL],
+	[StatMath.SupportedDistributions.EXPONENTIAL],
+	[StatMath.SupportedDistributions.BETA],
 ]) -> void:
 	var sum: float = 0.0
 	var dx: float = 0.01
 	
 	match distribution:
-		"normal":
+		StatMath.SupportedDistributions.NORMAL:
 			# Normal distribution (from -4σ to 4σ)
 			for i in range(-400, 401):
 				var x: float = float(i) * dx
 				sum += StatMath.PmfPdfFunctions.normal_pdf(x) * dx
-		"exponential":
+		StatMath.SupportedDistributions.EXPONENTIAL:
 			# Exponential distribution (from 0 to 10/λ)
 			var lambda: float = 1.0
 			for i in range(0, 1001):
 				var x: float = float(i) * dx
 				sum += StatMath.PmfPdfFunctions.exponential_pdf(x, lambda) * dx
-		"beta":
+		StatMath.SupportedDistributions.BETA:
 			# Beta distribution (from 0 to 1)
 			var alpha: float = 2.0
 			var beta: float = 2.0
@@ -792,27 +792,27 @@ func test_pdf_integration_lognormal() -> void:
 	assert_float(sum).is_equal_approx(1.0, 0.05)  # Lognormal has a long tail, so higher tolerance
 
 # --- Legacy Integration Test (parametrized) ---
-func test_pdf_integration_parametrized(distribution: String, test_parameters := [
-	["normal"],
-	["exponential"], 
-	["beta"],
+func test_pdf_integration_parametrized(distribution: StatMath.SupportedDistributions, test_parameters := [
+	[StatMath.SupportedDistributions.NORMAL],
+	[StatMath.SupportedDistributions.EXPONENTIAL], 
+	[StatMath.SupportedDistributions.BETA],
 ]) -> void:
 	var sum: float = 0.0
 	var dx: float = 0.01
 	
 	match distribution:
-		"normal":
+		StatMath.SupportedDistributions.NORMAL:
 			# Normal distribution (from -10 to 10)
 			for i in range(-1000, 1001):
 				var x: float = float(i) * dx
 				sum += StatMath.PmfPdfFunctions.normal_pdf(x) * dx
-		"exponential":
+		StatMath.SupportedDistributions.EXPONENTIAL:
 			# Exponential distribution (from 0 to 10/λ)
 			var lambda: float = 1.0
 			for i in range(0, 1001):
 				var x: float = float(i) * dx
 				sum += StatMath.PmfPdfFunctions.exponential_pdf(x, lambda) * dx
-		"beta":
+		StatMath.SupportedDistributions.BETA:
 			# Beta distribution (from 0 to 1)
 			var alpha: float = 2.0
 			var beta: float = 2.0

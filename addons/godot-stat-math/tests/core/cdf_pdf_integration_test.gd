@@ -12,7 +12,7 @@ class_name CdfPdfIntegrationTest extends GdUnitTestSuite
 
 const PROBABILITY_TOLERANCE: float = 1e-6  # For probability calculations
 const DERIVATIVE_TOLERANCE: float = 1e-3  # For numerical derivative tests
-const FLOAT_TOLERANCE: float = 1e-7
+const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
 
 # =============================================================================
 # CDF ↔ PDF DERIVATIVE RELATIONSHIP TESTS
@@ -122,12 +122,12 @@ func test_weibull_cdf_pdf_derivative_relationship() -> void:
 ## Tests that CDFs are monotonically increasing for all continuous distributions
 func test_cdf_monotonicity_all_distributions() -> void:
 	var distributions: Array[Dictionary] = [
-		{"name": "normal", "params": [0.0, 1.0], "points": [-3.0, -1.0, 0.0, 1.0, 3.0]},
-		{"name": "exponential", "params": [1.0], "points": [0.1, 0.5, 1.0, 2.0, 5.0]},
-		{"name": "uniform", "params": [1.0, 4.0], "points": [1.0, 1.5, 2.5, 3.5, 4.0]},
-		{"name": "beta", "params": [2.0, 3.0], "points": [0.0, 0.25, 0.5, 0.75, 1.0]},
-		{"name": "gamma", "params": [2.0, 1.5], "points": [0.1, 1.0, 2.0, 4.0, 6.0]},
-		{"name": "weibull", "params": [2.0, 2.0], "points": [0.1, 1.0, 2.0, 3.0, 4.0]}
+		{"name": StatMath.SupportedDistributions.NORMAL, "params": [0.0, 1.0], "points": [-3.0, -1.0, 0.0, 1.0, 3.0]},
+		{"name": StatMath.SupportedDistributions.EXPONENTIAL, "params": [1.0], "points": [0.1, 0.5, 1.0, 2.0, 5.0]},
+		{"name": StatMath.SupportedDistributions.UNIFORM, "params": [1.0, 4.0], "points": [1.0, 1.5, 2.5, 3.5, 4.0]},
+		{"name": StatMath.SupportedDistributions.BETA, "params": [2.0, 3.0], "points": [0.0, 0.25, 0.5, 0.75, 1.0]},
+		{"name": StatMath.SupportedDistributions.GAMMA, "params": [2.0, 1.5], "points": [0.1, 1.0, 2.0, 4.0, 6.0]},
+		{"name": StatMath.SupportedDistributions.WEIBULL, "params": [2.0, 2.0], "points": [0.1, 1.0, 2.0, 3.0, 4.0]}
 	]
 	
 	for dist in distributions:
@@ -185,13 +185,13 @@ func test_end_to_end_normal_distribution_workflow() -> void:
 func test_cross_function_probability_consistency() -> void:
 	# Test that CDF, PDF, and PPF are mathematically consistent
 	var distributions: Array[Dictionary] = [
-		{"name": "normal", "cdf_params": [1.5, 0.0, 1.0], "pdf_params": [1.5, 0.0, 1.0], "ppf_params": [0.0, 1.0]},
-		{"name": "exponential", "cdf_params": [2.0, 1.0], "pdf_params": [2.0, 1.0], "ppf_params": [1.0]},
-		{"name": "uniform", "cdf_params": [2.5, 1.0, 4.0], "pdf_params": [2.5, 1.0, 4.0], "ppf_params": [1.0, 4.0]}
+		{"name": StatMath.SupportedDistributions.NORMAL, "cdf_params": [1.5, 0.0, 1.0], "pdf_params": [1.5, 0.0, 1.0], "ppf_params": [0.0, 1.0]},
+		{"name": StatMath.SupportedDistributions.EXPONENTIAL, "cdf_params": [2.0, 1.0], "pdf_params": [2.0, 1.0], "ppf_params": [1.0]},
+		{"name": StatMath.SupportedDistributions.UNIFORM, "cdf_params": [2.5, 1.0, 4.0], "pdf_params": [2.5, 1.0, 4.0], "ppf_params": [1.0, 4.0]}
 	]
 	
 	for dist in distributions:
-		var name: String = dist["name"]
+		var name: StatMath.SupportedDistributions = dist["name"]
 		
 		# Calculate CDF value
 		var cdf_val: float = _get_cdf_value(name, dist["cdf_params"][0], dist["cdf_params"].slice(1))
@@ -245,33 +245,60 @@ func test_distribution_boundary_behavior() -> void:
 # =============================================================================
 
 ## Helper function to get CDF values for different distributions
-func _get_cdf_value(distribution: String, x: float, params: Array) -> float:
-	match distribution:
-		"normal":
+func _get_cdf_value(distribution: Variant, x: float, params: Array) -> float:
+	# Handle both string and enum inputs during transition
+	var dist_enum: StatMath.SupportedDistributions
+	if distribution is String:
+		dist_enum = _string_to_enum(distribution)
+	else:
+		dist_enum = distribution
+	
+	match dist_enum:
+		StatMath.SupportedDistributions.NORMAL:
 			return StatMath.CdfFunctions.normal_cdf(x, params[0], params[1])
-		"exponential":
+		StatMath.SupportedDistributions.EXPONENTIAL:
 			return StatMath.CdfFunctions.exponential_cdf(x, params[0])
-		"uniform":
+		StatMath.SupportedDistributions.UNIFORM:
 			return StatMath.CdfFunctions.uniform_cdf(x, params[0], params[1])
-		"beta":
+		StatMath.SupportedDistributions.BETA:
 			return StatMath.CdfFunctions.beta_cdf(x, params[0], params[1])
-		"gamma":
+		StatMath.SupportedDistributions.GAMMA:
 			return StatMath.CdfFunctions.gamma_cdf(x, params[0], params[1])
-		"weibull":
+		StatMath.SupportedDistributions.WEIBULL:
 			return StatMath.CdfFunctions.weibull_cdf(x, params[0], params[1])
 		_:
-			push_error("Unknown distribution: " + distribution)
+			push_error("Unknown distribution enum: " + str(dist_enum))
 			return NAN
 
-## Helper function to get PPF values for different distributions
-func _get_ppf_value(distribution: String, p: float, params: Array) -> float:
+## Helper function to convert string distribution names to enum values
+func _string_to_enum(distribution: String) -> StatMath.SupportedDistributions:
 	match distribution:
-		"normal":
+		"normal": return StatMath.SupportedDistributions.NORMAL
+		"exponential": return StatMath.SupportedDistributions.EXPONENTIAL
+		"uniform": return StatMath.SupportedDistributions.UNIFORM
+		"beta": return StatMath.SupportedDistributions.BETA
+		"gamma": return StatMath.SupportedDistributions.GAMMA
+		"weibull": return StatMath.SupportedDistributions.WEIBULL
+		_:
+			push_error("Unknown distribution: " + distribution)
+			return StatMath.SupportedDistributions.NORMAL
+
+## Helper function to get PPF values for different distributions
+func _get_ppf_value(distribution: Variant, p: float, params: Array) -> float:
+	# Handle both string and enum inputs during transition
+	var dist_enum: StatMath.SupportedDistributions
+	if distribution is String:
+		dist_enum = _string_to_enum(distribution)
+	else:
+		dist_enum = distribution
+	
+	match dist_enum:
+		StatMath.SupportedDistributions.NORMAL:
 			return StatMath.PpfFunctions.normal_ppf(p, params[0], params[1])
-		"exponential":
+		StatMath.SupportedDistributions.EXPONENTIAL:
 			return StatMath.PpfFunctions.exponential_ppf(p, params[0])
-		"uniform":
+		StatMath.SupportedDistributions.UNIFORM:
 			return StatMath.PpfFunctions.uniform_ppf(p, params[0], params[1])
 		_:
-			push_error("PPF not implemented for distribution: " + distribution)
+			push_error("PPF not implemented for distribution: " + str(dist_enum))
 			return NAN 

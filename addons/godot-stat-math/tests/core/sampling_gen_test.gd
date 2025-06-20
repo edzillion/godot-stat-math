@@ -14,7 +14,15 @@ func after_test() -> void:
 	pass
 
 
-# --- UNIFIED GENERATE_SAMPLES INTERFACE TESTS ---
+# =============================================================================
+# TOLERANCE CONSTANTS
+# =============================================================================
+
+const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
+
+# =============================================================================
+# UNIFIED INTERFACE TESTS (generate_samples)
+# =============================================================================
 
 func test_generate_samples_unified_interface_dimensions() -> void:
 	var n_draws: int = 5
@@ -22,7 +30,7 @@ func test_generate_samples_unified_interface_dimensions() -> void:
 	# Test 1D generation
 	var samples_1d: Variant = StatMath.SamplingGen.generate_samples(n_draws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL)
 	assert_bool(samples_1d is Array[float]).is_true()
-	var typed_samples_1d: Array[float] = samples_1d as Array[float]
+	var typed_samples_1d: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_1d)
 	assert_int(typed_samples_1d.size()).is_equal(n_draws)
 	
 	# Test 2D generation  
@@ -52,14 +60,14 @@ func test_generate_samples_unified_interface_starting_index() -> void:
 		n_draws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL, 3
 	)
 	
-	var typed_start_0: Array[float] = samples_start_0 as Array[float]
-	var typed_start_3: Array[float] = samples_start_3 as Array[float]
+	var typed_start_0: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_0)
+	var typed_start_3: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_3)
 	
 	# Get first 6 samples to verify starting_index works correctly
 	var first_6: Variant = StatMath.SamplingGen.generate_samples(
 		6, 1, StatMath.SamplingGen.SamplingMethod.SOBOL, 0
 	)
-	var typed_first_6: Array[float] = first_6 as Array[float]
+	var typed_first_6: Array[float] = StatMath.HelperFunctions.convert_to_float_array(first_6)
 	
 	# samples_start_3 should equal elements [3,4,5] from first_6
 	for i in range(n_draws):
@@ -72,7 +80,7 @@ func test_generate_samples_unified_interface_edge_cases() -> void:
 	var zero_2d: Variant = StatMath.SamplingGen.generate_samples(0, 2) 
 	var zero_nd: Variant = StatMath.SamplingGen.generate_samples(0, 5)
 	
-	assert_int((zero_1d as Array[float]).size()).is_equal(0)
+	assert_int(StatMath.HelperFunctions.convert_to_float_array(zero_1d).size()).is_equal(0)
 	assert_int((zero_2d as Array[Vector2]).size()).is_equal(0)
 	assert_int((zero_nd as Array).size()).is_equal(0)
 	
@@ -364,7 +372,7 @@ func test_coordinated_sampling_performance_comparison() -> void:
 func test_generate_samples_1d_random_basic() -> void:
 	var ndraws: int = 10
 	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_samples: Array[float] = samples as Array[float]
+	var typed_samples: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples)
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)
 	for sample_val in typed_samples:
@@ -374,19 +382,19 @@ func test_generate_samples_1d_random_basic() -> void:
 func test_generate_samples_1d_edge_cases() -> void:
 	# Zero draws
 	var zero_samples: Variant = StatMath.SamplingGen.generate_samples(0, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_zero: Array[float] = zero_samples as Array[float]
+	var typed_zero: Array[float] = StatMath.HelperFunctions.convert_to_float_array(zero_samples)
 	assert_int(typed_zero.size()).is_equal(0)
 	
 	# Negative draws
 	var negative_samples: Variant = StatMath.SamplingGen.generate_samples(-5, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_negative: Array[float] = negative_samples as Array[float]
+	var typed_negative: Array[float] = StatMath.HelperFunctions.convert_to_float_array(negative_samples)
 	assert_int(typed_negative.size()).is_equal(0)
 
 
 func test_generate_samples_1d_sobol_deterministic() -> void:
 	var ndraws: int = 5
 	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL)
-	var typed_samples: Array[float] = samples as Array[float]
+	var typed_samples: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples)
 	var expected_sobol: Array[float] = [0.0, 0.5, 0.75, 0.25, 0.375]
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)
@@ -397,7 +405,7 @@ func test_generate_samples_1d_sobol_deterministic() -> void:
 func test_generate_samples_1d_halton_deterministic() -> void:
 	var ndraws: int = 5
 	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.HALTON)
-	var typed_samples: Array[float] = samples as Array[float]
+	var typed_samples: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples)
 	var expected_halton: Array[float] = [0.5, 0.25, 0.75, 0.125, 0.625]
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)
@@ -413,8 +421,8 @@ func test_generate_samples_1d_seeded_reproducibility() -> void:
 	var sobol_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, 0, seed)
 	var sobol_2: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, 0, seed)
 	
-	var typed_sobol_1: Array[float] = sobol_1 as Array[float]
-	var typed_sobol_2: Array[float] = sobol_2 as Array[float]
+	var typed_sobol_1: Array[float] = StatMath.HelperFunctions.convert_to_float_array(sobol_1)
+	var typed_sobol_2: Array[float] = StatMath.HelperFunctions.convert_to_float_array(sobol_2)
 	
 	assert_int(typed_sobol_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
@@ -424,8 +432,8 @@ func test_generate_samples_1d_seeded_reproducibility() -> void:
 	var lhs_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 0, seed)
 	var lhs_2: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 0, seed)
 	
-	var typed_lhs_1: Array[float] = lhs_1 as Array[float]
-	var typed_lhs_2: Array[float] = lhs_2 as Array[float]
+	var typed_lhs_1: Array[float] = StatMath.HelperFunctions.convert_to_float_array(lhs_1)
+	var typed_lhs_2: Array[float] = StatMath.HelperFunctions.convert_to_float_array(lhs_2)
 	
 	assert_int(typed_lhs_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
@@ -435,7 +443,7 @@ func test_generate_samples_1d_seeded_reproducibility() -> void:
 func test_generate_samples_1d_latin_hypercube_stratification() -> void:
 	var ndraws: int = 20
 	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 0, 123)
-	var typed_samples: Array[float] = samples as Array[float]
+	var typed_samples: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples)
 	
 	var sorted_samples: Array[float] = typed_samples.duplicate()
 	sorted_samples.sort()
@@ -806,11 +814,11 @@ func test_global_rng_determinism() -> void:
 	# Test continuous sampling determinism
 	StatMath.set_global_seed(test_seed)
 	var continuous_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_continuous_1: Array[float] = continuous_1 as Array[float]
+	var typed_continuous_1: Array[float] = StatMath.HelperFunctions.convert_to_float_array(continuous_1)
 	
 	StatMath.set_global_seed(test_seed)
 	var continuous_2: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_continuous_2: Array[float] = continuous_2 as Array[float]
+	var typed_continuous_2: Array[float] = StatMath.HelperFunctions.convert_to_float_array(continuous_2)
 	
 	assert_int(typed_continuous_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
@@ -840,7 +848,7 @@ func test_starting_index_sobol_sequence_continuity() -> void:
 	var full_sequence: Variant = StatMath.SamplingGen.generate_samples(
 		total_draws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL
 	)
-	var typed_full_sequence: Array[float] = full_sequence as Array[float]
+	var typed_full_sequence: Array[float] = StatMath.HelperFunctions.convert_to_float_array(full_sequence)
 	
 	# Generate in two parts using starting_index
 	var part1: Variant = StatMath.SamplingGen.generate_samples(
@@ -854,7 +862,7 @@ func test_starting_index_sobol_sequence_continuity() -> void:
 	var part2_explicit: Variant = StatMath.SamplingGen.generate_samples(
 		second_half, 1, StatMath.SamplingGen.SamplingMethod.SOBOL, first_half
 	)
-	var part2_typed: Array[float] = part2_explicit as Array[float]
+	var part2_typed: Array[float] = StatMath.HelperFunctions.convert_to_float_array(part2_explicit)
 	
 	# part2_explicit should match the second half of full_sequence
 	for i in range(second_half):
