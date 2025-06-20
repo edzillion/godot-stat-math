@@ -1,7 +1,7 @@
-# Threshold Constants Cleanup Plan
+# Magic Numbers Cleanup Plan
 
 ## Overview
-This plan addresses the systematic replacement of hardcoded tolerance values in test files with appropriate StatMath constants, improving code maintainability and consistency.
+This plan addresses the systematic replacement of hardcoded values in test files with appropriate StatMath constants, improving code maintainability and consistency.
 
 ## Problem Statement
 Test files throughout the codebase contain hardcoded tolerance values (e.g., `1e-6`, `0.001`) in `is_equal_approx()` calls. These should be replaced with standardized StatMath constants to:
