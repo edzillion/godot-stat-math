@@ -99,6 +99,71 @@ const EPSILON: float = 1.0e-9
 ## Mathematical Note: [code]10^-7[/code] provides robust floating point comparison for statistical calculations
 const FLOAT_TOLERANCE: float = 1.0e-7
 
+## High precision tolerance for algorithms requiring extra precision.
+##
+## Mathematical Note: [code]10^-9[/code] used for high-precision statistical calculations
+const HIGH_PRECISION_TOLERANCE: float = 1.0e-9
+
+## Error function approximation tolerance for iterative algorithms.
+##
+## Mathematical Note: [code]10^-5[/code] accounts for precision limitations in error function approximations
+const ERF_APPROX_TOLERANCE: float = 1.0e-5
+
+## Numerical differentiation step size for derivative approximations.
+##
+## Mathematical Note: [code]10^-6[/code] provides optimal balance between accuracy and numerical stability
+const NUMERICAL_DIFFERENTIATION_H: float = 1.0e-6
+
+## Tolerance for statistical sample mean calculations.
+##
+## Mathematical Note: [code]10^-6[/code] appropriate for probability density integrations
+const SAMPLE_MEAN_TOLERANCE: float = 1.0e-6
+
+## Deterministic sampling tolerance for quasi-random sequences.
+##
+## Mathematical Note: [code]10^-7[/code] ensures reproducibility in deterministic sampling methods
+const SAMPLING_DETERMINISM_TOLERANCE: float = 1.0e-7
+
+## Inverse function (PPF) calculation tolerance for quantile computations.
+##
+## Mathematical Note: [code]2×10^-6[/code] appropriate for Newton-Raphson and binary search PPF algorithms  
+const INVERSE_FUNCTION_TOLERANCE: float = 2.0e-6
+
+## Numerical algorithm tolerance for iterative approximations.
+##
+## Mathematical Note: [code]10^-5[/code] balances accuracy with convergence speed
+const NUMERICAL_TOLERANCE: float = 1.0e-5
+
+## CDF-PPF consistency tolerance for round-trip validation.
+##
+## Mathematical Note: `10^-5` ensures inverse function consistency
+const CDF_PPF_CONSISTENCY_TOLERANCE: float = 1.0e-5
+
+## Derivative tolerance for CDF-PDF relationship validation.
+##
+## Mathematical Note: `10^-3` accounts for numerical differentiation errors
+const DERIVATIVE_TOLERANCE: float = 1.0e-3
+
+## Probability calculation tolerance for statistical tests.
+##
+## Mathematical Note: [code]10^-6[/code] suitable for probability mass/density calculations
+const PROBABILITY_TOLERANCE: float = 1.0e-6
+
+## Special mathematical values tolerance (ln(2), π, z-scores, etc.).
+##
+## Mathematical Note: [code]2×10^-6[/code] appropriate for well-known mathematical constants and statistical tables
+const SPECIAL_VALUES_TOLERANCE: float = 2.0e-6
+
+## Boundary condition tolerance for extreme probability values.
+##
+## Mathematical Note: [code]10^-10[/code] for testing probability bounds (0, 1) and distribution limits
+const BOUNDARY_TOLERANCE: float = 1.0e-10
+
+## Tolerance for asymptotic approximations and convergence tests.
+##
+## Mathematical Note: [code]10^-2[/code] for large-parameter approximations (e.g., t-distribution → normal)
+const ASYMPTOTIC_TOLERANCE: float = 1.0e-2
+
 ## Lanczos approximation parameter for Gamma function calculations.
 ##
 ## Mathematical Note: [code]g = 7.5[/code] provides optimal accuracy for the Lanczos method

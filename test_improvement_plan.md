@@ -128,3 +128,104 @@ The Godot Stat Math project has achieved:
 The library is mathematically sound, thoroughly tested, and ready for production use. 🚀
 
 **The Galorxians don't stand a chance!** 👾
+
+---
+
+## 🚨 **SECOND PASS - COMPREHENSIVE REVIEW** 🚨
+
+**Overview:** A comprehensive manual review of all test suites in `/addons/godot-stat-math/tests/core` has revealed systemic issues that compromise our "Zero Tolerance for Magic Numbers" policy. While the test suites are functional, they do not consistently adhere to the established data-driven testing patterns. This second pass will rectify these discrepancies.
+
+**Key Observation:** The assertion `NO MAGIC NUMBERS` in the previous assessment was inaccurate. Numerous tests rely on hardcoded inline data and magic number tolerances.
+
+### **Second Pass - Outstanding Tasks**
+
+#### **Phase 1: Code Standards & Consistency** ✅ **COMPLETE**
+- [✅] **Task 1: Centralize Tolerances:**
+  - [✅] Move `HIGH_PRECISION_TOLERANCE` from `basic_stats_test.gd` to `StatMath`.
+  - [✅] Create and centralize named constants for special tolerances in `error_functions_test.gd` (e.g., `ERF_APPROX_TOLERANCE`).
+  - [✅] Create and centralize named constants for configuration in `cdf_pdf_integration_test.gd` (e.g., `NUMERICAL_DIFFERENTIATION_H`, `SAMPLE_MEAN_TOLERANCE`).
+  - [✅] Create and centralize `SAMPLING_DETERMINISM_TOLERANCE` in `sampling_gen_test.gd`.
+  - [✅] Centralize `SCIPY_TOLERANCE`, `NUMERICAL_TOLERANCE`, and `CDF_PPF_CONSISTENCY_TOLERANCE` from `ppf_functions_test.gd`.
+  - [✅] Centralize all magic number tolerances from `pmf_pdf_functions_test.gd` into named constants.
+- [✅] **Task 2: Centralize Helper Functions:**
+  - [✅] Move local helper functions (`_assert_unique_indices`, `_assert_valid_indices`) from `sampling_gen_test.gd` to `StatMath.HelperFunctions`.
+  - [✅] Move local helper functions (`_get_cdf_value`, `_get_ppf_value`) from `ppf_functions_test.gd` to `StatMath.HelperFunctions`.
+  - [✅] Move local helper functions (`_get_cdf_value`, `_string_to_enum`) from `cdf_functions_test.gd` to `StatMath.HelperFunctions`.
+- [✅] **Task 3: Correct File Headers:**
+  - [✅] Update all test files in `/tests/core` to use the standard `res://...` file path comment at the top.
+
+**✅ PHASE 1 NOT COMPLETE: Phase Z below lists the outstanding issues.**
+
+#### **Phase 2: Data-Driven Refactoring (Eliminate Magic Numbers)**
+- [ ] **Task 4: Refactor `basic_stats_test.gd`:**
+  - [ ] Create `basic_stats_test_data.gd` if needed, or extend the existing one.
+  - [ ] Convert all tests with hardcoded data (percentile, high-precision, IQR, etc.) to be data-driven.
+  - [ ] Consolidate redundant tests into unified, data-driven tests.
+  - [ ] Remove the `_ready()` function and set up data within individual tests.
+- [ ] **Task 5: Refactor `error_functions_test.gd`:**
+  - [ ] Refactor all data-driven tests to iterate through the *entire* loaded dataset, not just a single element.
+  - [ ] Migrate all hardcoded inputs and expected results (e.g., for `gamma`) into `error_functions_test_data.gd`.
+- [ ] **Task 6: Refactor `ppf_functions_test.gd`:**
+  - [ ] Create `ppf_test_data.gd`.
+  - [ ] Migrate all hardcoded parametrized test data into the new data file.
+  - [ ] Refactor all tests to load and use the data from the table.
+  - [ ] Replace hardcoded `ln(2)` value with a call to `log(2.0)`.
+- [ ] **Task 7: Refactor `helper_functions_test.gd`:**
+  - [ ] Ensure `helper_functions_test_data.gd` is comprehensive.
+  - [ ] Refactor all tests to be fully data-driven, removing all hardcoded inputs and expected values.
+- [ ] **Task 8: Refactor `cdf_functions_test.gd`:**
+  - [ ] Consolidate all "basic" tests into the existing data-driven parametrized tests.
+  - [ ] Migrate all hardcoded test cases from function signatures into `cdf_test_data.gd`.
+- [ ] **Task 9: Refactor `pmf_pdf_functions_test.gd`:**
+  - [ ] Create `pmf_pdf_test_data.gd`.
+  - [ ] Merge basic tests into parametrized tests.
+  - [ ] Migrate all hardcoded test data into the new data table.
+  - [ ] Replace magic numbers in the integration test with named constants.
+- [ ] **Task 10: Refactor `sampling_gen_test.gd`:**
+    - [ ] Create `sampling_test_data.gd`.
+    - [ ] Move hardcoded sequence data (Sobol, Halton) into the new data table.
+- [ ] **Task 11: Refactor `cdf_pdf_integration_test.gd`:**
+    - [ ] Migrate test case data to a dedicated data table.
+    - [ ] Add comments explaining statistical tolerance choices.
+
+#### **Phase Z: Magic Number Audit (Comprehensive Review)**
+- [ ] **Task 12: Centralize and Eliminate All Hardcoded Constants**
+  - The following magic numbers and local constants were identified during a comprehensive manual review. They must be replaced with new or existing named constants from the central `StatMath` class to ensure consistency and maintainability.
+
+  - **`basic_stats_test.gd`**
+    - **Local Constant:** `const HIGH_PRECISION_TOLERANCE: float = 1e-9`. This should be removed and `StatMath.HIGH_PRECISION_TOLERANCE` used directly.
+    - **Hardcoded Value:** `1e-4` is used in `test_percentile_interpolation`. This should be replaced by a new centralized constant like `StatMath.INTERPOLATION_TOLERANCE`.
+
+  - **`cdf_functions_test.gd`**
+    - **Hardcoded Value:** An implicit tolerance of `1e-6` is used in `test_normal_cdf_symmetry_around_mean`.
+    - **Hardcoded Value:** A tolerance of `1e-5` is used repeatedly for SciPy comparison tests (e.g., `test_student_t_cdf_matches_scipy`, `test_f_distribution_cdf_matches_scipy`). This should be a new centralized constant.
+    - **Hardcoded Value:** `1e-15` and `1e-7` are used in `test_determinism_and_rarity` for bounds checking. These should be replaced by `StatMath.BOUNDARY_TOLERANCE` or a similar specific constant.
+
+  - **`cdf_pdf_integration_test.gd`**
+    - **Local Constants:** `SAMPLING_TOLERANCE`, `INVERSE_CONSISTENCY_TOLERANCE`, `STABILITY_TOLERANCE` should all be moved to `StatMath`.
+    - **Hardcoded Value:** A default value of `1.0` is used as a `tolerance_factor`. This should be a named constant.
+
+  - **`distributions_test.gd`**
+    - **Hardcoded Value:** `4.0` is used as a statistical multiplier for calculating test tolerances. This should be a named constant (e.g., `STATISTICAL_TEST_STD_DEV_MULTIPLIER`).
+    - **Hardcoded Value:** Various tolerances are used for mean/variance validation: `0.15` (hypergeometric), `0.2` and `0.5` (negative binomial), `0.1` (beta), `0.2` (erlang). These should be standardized or centralized.
+    - **Magic Inputs:** `1e-17` and `0.001` are used in stress tests and should be named constants.
+
+  - **`error_functions_test.gd`**
+    - **Hardcoded Value:** `2e-2` is used as a tolerance for the `erf_inv` approximation test. This should be a named constant.
+    - **Hardcoded Value:** `1e-7` is used in `test_inverse_error_function_newton_against_scipy` and `test_gamma_function_integer_and_half_integer`. This should be replaced with `StatMath.FLOAT_TOLERANCE`.
+
+  - **`helper_functions_test.gd`**
+    - **Hardcoded Value:** `1e-3` is used for numerical integration tests. This should be a named constant.
+    - **Hardcoded Value:** `1e-4` is used for symmetry validation in `test_is_symmetric_around_zero`.
+    - **Hardcoded Value:** `1e-7` is used in `test_find_root_newton_raphson_basic`. This should be `StatMath.FLOAT_TOLERANCE`.
+
+  - **`pmf_pdf_functions_test.gd`**
+    - **Hardcoded Value:** `1e-5` is used repeatedly for SciPy comparison tests. This should be a new centralized constant.
+    - **Hardcoded Value:** `0.01` is used for numerical integration tests and is inconsistent with other tests. It should be standardized.
+
+  - **`ppf_functions_test.gd`**
+    - **Local Constants:** `SCIPY_TOLERANCE`, `NUMERICAL_TOLERANCE`, and `CDF_PPF_CONSISTENCY_TOLERANCE` are defined locally and should be centralized in `StatMath`.
+    - **Hardcoded Value:** `2e-6` is used as a tolerance in `test_special_value_ln2` and `test_special_z_score_values`. This should be replaced by `StatMath.SPECIAL_VALUES_TOLERANCE`.
+
+  - **`sampling_gen_test.gd`**
+    - **Local Constants:** `DETERMINISM_TOLERANCE` and `INTERFACE_TOLERANCE` are defined locally and should be centralized in `StatMath`.

@@ -1,4 +1,4 @@
-# addons/godot-stat-math/tests/core/basic_stats_test.gd
+# res://addons/godot-stat-math/tests/core/basic_stats_test.gd
 class_name BasicStatsTest extends GdUnitTestSuite
 
 const FLOAT_TOLERANCE: float = StatMath.FLOAT_TOLERANCE
@@ -89,7 +89,7 @@ func test_median_enhanced_decimal_precision() -> void:
 	# Sorted: [1.123456789, 1.555555555, 1.777777777, 1.999999999, 2.444444444, 2.666666666, 2.987654321]
 	# Median should be 1.999999999 (middle element)
 	var result: float = StatMath.BasicStats.median(high_precision_data)
-	assert_float(result).is_equal_approx(1.999999999, 1e-9)
+	assert_float(result).is_equal_approx(1.999999999, HIGH_PRECISION_TOLERANCE)
 
 func test_median_with_repeated_decimal_values() -> void:
 	# Test median with repeated decimal values
@@ -265,11 +265,11 @@ func test_percentile_enhanced_decimal_precision() -> void:
 	high_precision_data.sort()
 	
 	# Test various percentiles with high precision
-	assert_float(StatMath.BasicStats.percentile(high_precision_data, 0.0)).is_equal_approx(1.123456789, 1e-9)
-	assert_float(StatMath.BasicStats.percentile(high_precision_data, 100.0)).is_equal_approx(2.987654321, 1e-9)
+	assert_float(StatMath.BasicStats.percentile(high_precision_data, 0.0)).is_equal_approx(1.123456789, StatMath.HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.percentile(high_precision_data, 100.0)).is_equal_approx(2.987654321, StatMath.HIGH_PRECISION_TOLERANCE)
 	
 	# Test 50th percentile (median)
-	assert_float(StatMath.BasicStats.percentile(high_precision_data, 50.0)).is_equal_approx(1.999999999, 1e-9)
+	assert_float(StatMath.BasicStats.percentile(high_precision_data, 50.0)).is_equal_approx(1.999999999, StatMath.HIGH_PRECISION_TOLERANCE)
 
 func test_percentile_single_value() -> void:
 	var result: float = StatMath.BasicStats.percentile(single_value, 50.0)
@@ -298,7 +298,7 @@ func test_mean_enhanced_decimal_precision() -> void:
 	]
 	var expected_mean: float = (1.123456789 + 2.987654321 + 1.555555555 + 2.444444444 + 1.777777777) / 5.0
 	var result: float = StatMath.BasicStats.mean(high_precision_data)
-	assert_float(result).is_equal_approx(expected_mean, 1e-9)
+	assert_float(result).is_equal_approx(expected_mean, StatMath.HIGH_PRECISION_TOLERANCE)
 
 func test_variance_enhanced_decimal_precision() -> void:
 	# Test variance with high-precision decimal data
@@ -312,7 +312,7 @@ func test_variance_enhanced_decimal_precision() -> void:
 		expected_variance += (value - mean_val) * (value - mean_val)
 	expected_variance /= high_precision_data.size()
 	
-	assert_float(result).is_equal_approx(expected_variance, 1e-9)
+	assert_float(result).is_equal_approx(expected_variance, StatMath.HIGH_PRECISION_TOLERANCE)
 
 func test_standard_deviation_enhanced_decimal_precision() -> void:
 	# Test standard deviation with repeating decimal pattern
@@ -321,7 +321,7 @@ func test_standard_deviation_enhanced_decimal_precision() -> void:
 	var variance_result: float = StatMath.BasicStats.variance(repeating_decimals)
 	var expected_std: float = sqrt(variance_result)
 	
-	assert_float(result).is_equal_approx(expected_std, 1e-9) 
+	assert_float(result).is_equal_approx(expected_std, StatMath.HIGH_PRECISION_TOLERANCE) 
 
 # =============================================================================
 # PHASE 3 ADVANCED TESTS - NON-NORMAL DISTRIBUTIONS & NUMERICAL STABILITY
@@ -445,10 +445,10 @@ func test_very_small_numbers_precision() -> void:
 	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
 	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
 	
-	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], HIGH_PRECISION_TOLERANCE)
-	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], HIGH_PRECISION_TOLERANCE)
-	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], HIGH_PRECISION_TOLERANCE)
-	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], StatMath.HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], StatMath.HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], StatMath.HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], StatMath.HIGH_PRECISION_TOLERANCE)
 	
 	# Verify no underflow to zero when it shouldn't
 	assert_that(StatMath.BasicStats.variance(data) > 0.0).is_true()
@@ -477,10 +477,10 @@ func test_close_numbers_precision_stability() -> void:
 	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
 	
 	# Should preserve precision even with tiny differences
-	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], HIGH_PRECISION_TOLERANCE)
-	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], HIGH_PRECISION_TOLERANCE)
-	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], HIGH_PRECISION_TOLERANCE)
-	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.mean(data)).is_equal_approx(test_data["expected_mean"], StatMath.HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(sorted_data)).is_equal_approx(test_data["expected_median"], StatMath.HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.variance(data)).is_equal_approx(test_data["expected_variance"], StatMath.HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.standard_deviation(data)).is_equal_approx(test_data["expected_std"], StatMath.HIGH_PRECISION_TOLERANCE)
 	
 	# Variance should be positive (not rounded to zero) for distinct values
 	assert_that(StatMath.BasicStats.variance(data) > 0.0).is_true()
@@ -597,8 +597,8 @@ func test_single_element_extreme_values() -> void:
 	assert_float(StatMath.BasicStats.variance(large_data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
 	
 	# Small single element  
-	assert_float(StatMath.BasicStats.mean(small_data)).is_equal_approx(1e-10, HIGH_PRECISION_TOLERANCE)
-	assert_float(StatMath.BasicStats.median(small_sorted)).is_equal_approx(1e-10, HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.mean(small_data)).is_equal_approx(1e-10, StatMath.HIGH_PRECISION_TOLERANCE)
+	assert_float(StatMath.BasicStats.median(small_sorted)).is_equal_approx(1e-10, StatMath.HIGH_PRECISION_TOLERANCE)
 	assert_float(StatMath.BasicStats.variance(small_data)).is_equal_approx(0.0, FLOAT_TOLERANCE)
 	
 	# No computational issues with extreme single values
