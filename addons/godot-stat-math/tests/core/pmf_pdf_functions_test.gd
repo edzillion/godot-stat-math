@@ -678,3 +678,146 @@ func test_lognormal_pdf_invalid_parameters() -> void:
 	var result2: float = StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, 0.0)
 	assert_bool(is_nan(result1)).is_true()
 	assert_bool(is_nan(result2)).is_true()
+
+# --- PDF Integration Property Tests ---
+# These tests verify that probability density functions integrate to approximately 1.0
+
+func test_pdf_integration_normal() -> void:
+	# Test that normal PDF integrates to 1.0 over appropriate range
+	# Using ±4σ covers 99.99% of the distribution
+	var sigma: float = 1.0
+	var integration_range: float = 4.0 * sigma
+	var step_size: float = integration_range / 1000.0  # 1000 steps for numerical integration
+	var sum: float = 0.0
+	
+	for i in range(-1000, 1001):
+		var x: float = float(i) * step_size
+		sum += StatMath.PmfPdfFunctions.normal_pdf(x, 0.0, sigma) * step_size
+	
+	assert_float(sum).is_equal_approx(1.0, 0.01)  # 1% tolerance for numerical integration
+
+func test_pdf_integration_exponential() -> void:
+	# Test that exponential PDF integrates to 1.0 over [0, +∞)
+	# Using upper bound of 10/λ captures 99.995% of the distribution
+	var lambda: float = 1.0
+	var upper_bound: float = 10.0 / lambda
+	var step_size: float = upper_bound / 1000.0
+	var sum: float = 0.0
+	
+	for i in range(0, 1001):
+		var x: float = float(i) * step_size
+		sum += StatMath.PmfPdfFunctions.exponential_pdf(x, lambda) * step_size
+	
+	assert_float(sum).is_equal_approx(1.0, 0.01)
+
+func test_pdf_integration_uniform() -> void:
+	# Test that uniform PDF integrates to 1.0 over [a, b]
+	var a: float = 1.0
+	var b: float = 4.0
+	var num_steps: int = 1000
+	var step_size: float = (b - a) / float(num_steps)
+	var sum: float = 0.0
+	
+	# Use midpoint rule for more accurate integration
+	for i in range(num_steps):
+		var x: float = a + (float(i) + 0.5) * step_size
+		sum += StatMath.PmfPdfFunctions.uniform_pdf(x, a, b) * step_size
+	
+	assert_float(sum).is_equal_approx(1.0, 0.001)  # Uniform should be very precise
+
+func test_pdf_integration_beta() -> void:
+	# Test that beta PDF integrates to 1.0 over [0, 1]
+	var alpha: float = 2.0
+	var beta_param: float = 2.0
+	var step_size: float = 0.001  # Integration from 0 to 1 with small steps
+	var sum: float = 0.0
+	
+	for i in range(1, 1000):  # Skip 0 and 1 to avoid boundary issues
+		var x: float = float(i) * step_size
+		sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta_param) * step_size
+	
+	assert_float(sum).is_equal_approx(1.0, 0.01)
+
+func test_pdf_integration_gamma() -> void:
+	# Test that gamma PDF integrates to 1.0 over [0, +∞)
+	# Using upper bound that captures 99.9% of the distribution
+	var k_shape: float = 2.0
+	var theta_scale: float = 1.0
+	# For Gamma(k, θ), mean = kθ, std = √(kθ²)
+	# Using mean + 6*std as upper bound captures >99.9%
+	var mean: float = k_shape * theta_scale
+	var std_dev: float = sqrt(k_shape) * theta_scale
+	var upper_bound: float = mean + 6.0 * std_dev
+	var step_size: float = upper_bound / 1000.0
+	var sum: float = 0.0
+	
+	for i in range(1, 1001):  # Skip 0 to avoid boundary issues
+		var x: float = float(i) * step_size
+		sum += StatMath.PmfPdfFunctions.gamma_pdf(x, k_shape, theta_scale) * step_size
+	
+	assert_float(sum).is_equal_approx(1.0, 0.02)
+
+func test_pdf_integration_weibull() -> void:
+	# Test that Weibull PDF integrates to 1.0 over [0, +∞)
+	var scale_param: float = 2.0
+	var shape_param: float = 2.0
+	# For Weibull, using 99.9% quantile as upper bound
+	# Approximate 99.9% quantile: λ * (-ln(0.001))^(1/k)
+	var upper_bound: float = scale_param * pow(-log(0.001), 1.0 / shape_param)
+	var step_size: float = upper_bound / 1000.0
+	var sum: float = 0.0
+	
+	for i in range(1, 1001):  # Skip 0 to avoid boundary issues for shape < 1
+		var x: float = float(i) * step_size
+		sum += StatMath.PmfPdfFunctions.weibull_pdf(x, scale_param, shape_param) * step_size
+	
+	assert_float(sum).is_equal_approx(1.0, 0.02)
+
+func test_pdf_integration_lognormal() -> void:
+	# Test that lognormal PDF integrates to 1.0 over (0, +∞)
+	var mu: float = 0.0
+	var sigma: float = 1.0
+	# For lognormal, using quantiles to determine integration bounds
+	# Approximate 0.1% to 99.9% quantiles cover most of the distribution
+	var lower_bound: float = exp(mu - 3.0 * sigma)  # Approximate 0.1% quantile
+	var upper_bound: float = exp(mu + 3.0 * sigma)  # Approximate 99.9% quantile
+	var num_steps: int = 1000
+	var step_size: float = (upper_bound - lower_bound) / float(num_steps)
+	var sum: float = 0.0
+	
+	for i in range(1, num_steps):
+		var x: float = lower_bound + float(i) * step_size
+		sum += StatMath.PmfPdfFunctions.lognormal_pdf(x, mu, sigma) * step_size
+	
+	assert_float(sum).is_equal_approx(1.0, 0.05)  # Lognormal has a long tail, so higher tolerance
+
+# --- Legacy Integration Test (parametrized) ---
+func test_pdf_integration_parametrized(distribution: String, test_parameters := [
+	["normal"],
+	["exponential"], 
+	["beta"],
+]) -> void:
+	var sum: float = 0.0
+	var dx: float = 0.01
+	
+	match distribution:
+		"normal":
+			# Normal distribution (from -10 to 10)
+			for i in range(-1000, 1001):
+				var x: float = float(i) * dx
+				sum += StatMath.PmfPdfFunctions.normal_pdf(x) * dx
+		"exponential":
+			# Exponential distribution (from 0 to 10/λ)
+			var lambda: float = 1.0
+			for i in range(0, 1001):
+				var x: float = float(i) * dx
+				sum += StatMath.PmfPdfFunctions.exponential_pdf(x, lambda) * dx
+		"beta":
+			# Beta distribution (from 0 to 1)
+			var alpha: float = 2.0
+			var beta: float = 2.0
+			for i in range(0, 101):
+				var x: float = float(i) * 0.01
+				sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta) * 0.01
+	
+	assert_float(sum).is_equal_approx(1.0, 0.01)

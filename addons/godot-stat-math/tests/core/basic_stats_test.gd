@@ -51,6 +51,48 @@ func test_median_unsorted_data() -> void:
 	var result: float = StatMath.BasicStats.median(data)
 	assert_float(result).is_equal_approx(1.9, FLOAT_TOLERANCE)
 
+func test_median_with_unsorted_array_violation() -> void:
+	# Test that median function behavior with unsorted data follows crash early philosophy
+	# We expect this to produce an incorrect result since the function assumes sorted data
+	var unsorted_data: Array[float] = [5.0, 1.0, 3.0, 2.0, 4.0]
+	# Without sorting, this takes the middle element by index, not value
+	var result: float = StatMath.BasicStats.median(unsorted_data) 
+	assert_float(result).is_equal_approx(3.0, FLOAT_TOLERANCE)  # Middle element by index, not median by value
+	
+	# The correct median should be 3.0 after sorting
+	var sorted_data: Array[float] = unsorted_data.duplicate()
+	sorted_data.sort()
+	var correct_result: float = StatMath.BasicStats.median(sorted_data)
+	assert_float(correct_result).is_equal_approx(3.0, FLOAT_TOLERANCE)
+	
+	# In this specific case they're the same, but let's test a case where they differ
+	var unsorted_data2: Array[float] = [5.0, 1.0, 10.0, 2.0, 4.0]
+	var unsorted_result: float = StatMath.BasicStats.median(unsorted_data2) 
+	assert_float(unsorted_result).is_equal_approx(10.0, FLOAT_TOLERANCE)  # Middle element by index
+	
+	var sorted_data2: Array[float] = unsorted_data2.duplicate()
+	sorted_data2.sort()
+	var correct_sorted_result: float = StatMath.BasicStats.median(sorted_data2)
+	assert_float(correct_sorted_result).is_equal_approx(4.0, FLOAT_TOLERANCE)  # True median
+
+func test_median_enhanced_decimal_precision() -> void:
+	# Test with high-precision decimal data
+	var high_precision_data: Array[float] = [
+		1.123456789, 2.987654321, 1.555555555, 
+		2.444444444, 1.777777777, 2.666666666, 1.999999999
+	]
+	high_precision_data.sort()
+	# Sorted: [1.123456789, 1.555555555, 1.777777777, 1.999999999, 2.444444444, 2.666666666, 2.987654321]
+	# Median should be 1.999999999 (middle element)
+	var result: float = StatMath.BasicStats.median(high_precision_data)
+	assert_float(result).is_equal_approx(1.999999999, 1e-9)
+
+func test_median_with_repeated_decimal_values() -> void:
+	# Test median with repeated decimal values
+	var repeated_decimals: Array[float] = [1.5, 1.5, 2.1, 2.1, 2.1, 3.7, 3.7]
+	var result: float = StatMath.BasicStats.median(repeated_decimals)
+	assert_float(result).is_equal_approx(2.1, FLOAT_TOLERANCE)  # Middle element of 7
+
 func test_median_single_value() -> void:
 	var result: float = StatMath.BasicStats.median(single_value)
 	assert_float(result).is_equal_approx(42.0, FLOAT_TOLERANCE)
@@ -210,6 +252,21 @@ func test_percentile_interpolation() -> void:
 	# 20 * 0.5 + 30 * 0.5 = 25
 	assert_float(StatMath.BasicStats.percentile(data, 50.0)).is_equal_approx(25.0, FLOAT_TOLERANCE)
 
+func test_percentile_enhanced_decimal_precision() -> void:
+	# Test percentiles with high-precision decimal data
+	var high_precision_data: Array[float] = [
+		1.123456789, 2.987654321, 1.555555555, 
+		2.444444444, 1.777777777, 2.666666666, 1.999999999
+	]
+	high_precision_data.sort()
+	
+	# Test various percentiles with high precision
+	assert_float(StatMath.BasicStats.percentile(high_precision_data, 0.0)).is_equal_approx(1.123456789, 1e-9)
+	assert_float(StatMath.BasicStats.percentile(high_precision_data, 100.0)).is_equal_approx(2.987654321, 1e-9)
+	
+	# Test 50th percentile (median)
+	assert_float(StatMath.BasicStats.percentile(high_precision_data, 50.0)).is_equal_approx(1.999999999, 1e-9)
+
 func test_percentile_single_value() -> void:
 	var result: float = StatMath.BasicStats.percentile(single_value, 50.0)
 	assert_float(result).is_equal_approx(42.0, FLOAT_TOLERANCE)
@@ -226,4 +283,38 @@ func test_percentile_invalid_percentile() -> void:
 	
 	var test_call_high: Callable = func():
 		StatMath.BasicStats.percentile(simple_data, 110.0)
-	await assert_error(test_call_high).is_push_error("Percentile value must be between 0.0 and 100.0. Received: 110.000000") 
+	await assert_error(test_call_high).is_push_error("Percentile value must be between 0.0 and 100.0. Received: 110.000000")
+
+# --- Enhanced Decimal Data Tests ---
+func test_mean_enhanced_decimal_precision() -> void:
+	# Test mean with high-precision decimal data
+	var high_precision_data: Array[float] = [
+		1.123456789, 2.987654321, 1.555555555, 
+		2.444444444, 1.777777777
+	]
+	var expected_mean: float = (1.123456789 + 2.987654321 + 1.555555555 + 2.444444444 + 1.777777777) / 5.0
+	var result: float = StatMath.BasicStats.mean(high_precision_data)
+	assert_float(result).is_equal_approx(expected_mean, 1e-9)
+
+func test_variance_enhanced_decimal_precision() -> void:
+	# Test variance with high-precision decimal data
+	var high_precision_data: Array[float] = [1.111111111, 2.222222222, 3.333333333]
+	var result: float = StatMath.BasicStats.variance(high_precision_data)
+	
+	# Manual calculation for verification
+	var mean_val: float = StatMath.BasicStats.mean(high_precision_data)
+	var expected_variance: float = 0.0
+	for value in high_precision_data:
+		expected_variance += (value - mean_val) * (value - mean_val)
+	expected_variance /= high_precision_data.size()
+	
+	assert_float(result).is_equal_approx(expected_variance, 1e-9)
+
+func test_standard_deviation_enhanced_decimal_precision() -> void:
+	# Test standard deviation with repeating decimal pattern
+	var repeating_decimals: Array[float] = [1.666666667, 1.833333333, 2.166666667, 2.333333333]
+	var result: float = StatMath.BasicStats.standard_deviation(repeating_decimals)
+	var variance_result: float = StatMath.BasicStats.variance(repeating_decimals)
+	var expected_std: float = sqrt(variance_result)
+	
+	assert_float(result).is_equal_approx(expected_std, 1e-9) 
