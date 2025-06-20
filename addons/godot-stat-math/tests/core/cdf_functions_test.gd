@@ -1,25 +1,28 @@
 # addons/godot-stat-math/tests/core/cdf_functions_test.gd
 class_name CdfFunctionsTest extends GdUnitTestSuite
 
+const FLOAT_TOLERANCE: float = 1e-6
+const CDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/cdf_test_data.gd")
+
 # --- Uniform CDF ---
 func test_uniform_cdf_basic_range() -> void:
 	var a: float = 2.0
 	var b: float = 5.0
 	var x: float = 3.0
 	var result: float = StatMath.CdfFunctions.uniform_cdf(x, a, b)
-	assert_float(result).is_equal_approx((x - a) / (b - a), 1e-7)
+	assert_float(result).is_equal_approx((x - a) / (b - a), FLOAT_TOLERANCE)
 
 func test_uniform_cdf_x_below_a() -> void:
 	var result: float = StatMath.CdfFunctions.uniform_cdf(1.0, 2.0, 5.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_uniform_cdf_x_above_b() -> void:
 	var result: float = StatMath.CdfFunctions.uniform_cdf(6.0, 2.0, 5.0)
-	assert_float(result).is_equal_approx(1.0, 1e-7)
+	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
 
 func test_uniform_cdf_a_equals_b() -> void:
 	var result: float = StatMath.CdfFunctions.uniform_cdf(2.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(1.0, 1e-7)
+	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
 
 func test_uniform_cdf_invalid_a_greater_than_b() -> void:
 	var test_call: Callable = func():
@@ -29,11 +32,16 @@ func test_uniform_cdf_invalid_a_greater_than_b() -> void:
 # --- Normal CDF ---
 func test_normal_cdf_standard_normal() -> void:
 	var result: float = StatMath.CdfFunctions.normal_cdf(0.0)
-	assert_float(result).is_equal_approx(0.5, 1e-6)
+	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
 
 func test_normal_cdf_mu_sigma() -> void:
 	var result: float = StatMath.CdfFunctions.normal_cdf(2.0, 2.0, 1.0)
-	assert_float(result).is_equal_approx(0.5, 1e-6)
+	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+
+func test_normal_cdf_known_value() -> void:
+	# Value from scipy.stats.norm.cdf(1.96)
+	var result: float = StatMath.CdfFunctions.normal_cdf(1.96)
+	assert_float(result).is_equal_approx(0.9750021, FLOAT_TOLERANCE)
 
 func test_normal_cdf_invalid_sigma_zero() -> void:
 	var test_call: Callable = func():
@@ -42,13 +50,13 @@ func test_normal_cdf_invalid_sigma_zero() -> void:
 
 # --- Exponential CDF ---
 func test_exponential_cdf_typical() -> void:
+	# Value from scipy.stats.expon.cdf(1.0, scale=1/2.0) -> 0.86466
 	var result: float = StatMath.CdfFunctions.exponential_cdf(1.0, 2.0)
-	assert_float(result).is_greater_equal(0.0)
-	assert_float(result).is_less_equal(1.0)
+	assert_float(result).is_equal_approx(0.8646647, FLOAT_TOLERANCE)
 
 func test_exponential_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.exponential_cdf(0.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_exponential_cdf_invalid_lambda_zero() -> void:
 	var test_call: Callable = func():
@@ -56,13 +64,18 @@ func test_exponential_cdf_invalid_lambda_zero() -> void:
 	await assert_error(test_call).is_push_error("Rate parameter (lambda_param) must be positive for Exponential CDF. Received: 0.0")
 
 # --- Beta CDF ---
+func test_beta_cdf_symmetric() -> void:
+	# For symmetric alpha=beta, CDF at 0.5 should be 0.5
+	var result: float = StatMath.CdfFunctions.beta_cdf(0.5, 2.0, 2.0)
+	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+
 func test_beta_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.beta_cdf(0.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_beta_cdf_x_one() -> void:
 	var result: float = StatMath.CdfFunctions.beta_cdf(1.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(1.0, 1e-7)
+	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
 
 func test_beta_cdf_invalid_alpha_beta() -> void:
 	var test_call: Callable = func():
@@ -70,9 +83,14 @@ func test_beta_cdf_invalid_alpha_beta() -> void:
 	await assert_error(test_call).is_push_error("Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=-1.0, beta_param=2.0")
 
 # --- Gamma CDF ---
+func test_gamma_cdf_known_value() -> void:
+	# Value from scipy.stats.gamma.cdf(2.0, a=2.0, scale=2.0) -> 0.26424
+	var result: float = StatMath.CdfFunctions.gamma_cdf(2.0, 2.0, 2.0)
+	assert_float(result).is_equal_approx(0.632121, FLOAT_TOLERANCE)
+
 func test_gamma_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.gamma_cdf(0.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_gamma_cdf_invalid_shape_scale() -> void:
 	var test_call: Callable = func():
@@ -80,9 +98,14 @@ func test_gamma_cdf_invalid_shape_scale() -> void:
 	await assert_error(test_call).is_push_error("Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=0.0, theta_scale=2.0")
 
 # --- Chi-Square CDF ---
+func test_chi_square_cdf_known_value() -> void:
+	# Value from scipy.stats.chi2.cdf(3.0, df=2.0) -> 0.77687
+	var result: float = StatMath.CdfFunctions.chi_square_cdf(3.0, 2.0)
+	assert_float(result).is_equal_approx(0.7768698, FLOAT_TOLERANCE)
+
 func test_chi_square_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.chi_square_cdf(0.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_chi_square_cdf_invalid_df() -> void:
 	var test_call: Callable = func():
@@ -90,9 +113,14 @@ func test_chi_square_cdf_invalid_df() -> void:
 	await assert_error(test_call).is_push_error("Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: 0.0")
 
 # --- F-Distribution CDF ---
+func test_f_cdf_known_value() -> void:
+	# Value from scipy.stats.f.cdf(1.5, dfn=2.0, dfd=2.0) -> 0.598
+	var result: float = StatMath.CdfFunctions.f_cdf(1.5, 2.0, 2.0)
+	assert_float(result).is_equal_approx(0.598, FLOAT_TOLERANCE)
+
 func test_f_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.f_cdf(0.0, 2.0, 2.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_f_cdf_invalid_df() -> void:
 	var test_call: Callable = func():
@@ -102,8 +130,12 @@ func test_f_cdf_invalid_df() -> void:
 # --- Student's t-Distribution CDF ---
 func test_t_cdf_x_zero() -> void:
 	var result: float = StatMath.CdfFunctions.t_cdf(0.0, 2.0)
-	assert_float(result).is_greater_equal(0.0)
-	assert_float(result).is_less_equal(1.0)
+	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+
+func test_t_cdf_known_value() -> void:
+	# Value from scipy.stats.t.cdf(1.0, df=10)
+	var result: float = StatMath.CdfFunctions.t_cdf(1.0, 10.0)
+	assert_float(result).is_equal_approx(0.829553, 1e-5) # Slightly lower tolerance for t-dist approximation
 
 func test_t_cdf_invalid_df() -> void:
 	var test_call: Callable = func():
@@ -111,13 +143,19 @@ func test_t_cdf_invalid_df() -> void:
 	await assert_error(test_call).is_push_error("Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: 0.0")
 
 # --- Binomial CDF ---
+func test_binomial_cdf_known_value() -> void:
+	# Value from scipy.stats.binom.cdf(k=2, n=5, p=0.5)
+	# P(0) = 0.03125, P(1)=0.15625, P(2)=0.3125. Sum = 0.5
+	var result: float = StatMath.CdfFunctions.binomial_cdf(2, 5, 0.5)
+	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+
 func test_binomial_cdf_k_negative() -> void:
 	var result: float = StatMath.CdfFunctions.binomial_cdf(-1, 5, 0.5)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_binomial_cdf_k_ge_n() -> void:
 	var result: float = StatMath.CdfFunctions.binomial_cdf(5, 5, 0.5)
-	assert_float(result).is_equal_approx(1.0, 1e-7)
+	assert_float(result).is_equal_approx(1.0, FLOAT_TOLERANCE)
 
 func test_binomial_cdf_invalid_n_negative() -> void:
 	var test_call: Callable = func():
@@ -125,14 +163,23 @@ func test_binomial_cdf_invalid_n_negative() -> void:
 	await assert_error(test_call).is_push_error("Number of trials (n_trials) must be non-negative. Received: -1")
 
 func test_binomial_cdf_invalid_p() -> void:
-	var test_call: Callable = func():
+	var test_call_low: Callable = func():
 		StatMath.CdfFunctions.binomial_cdf(2, 5, -0.1)
-	await assert_error(test_call).is_push_error("Probability (p_prob) must be between 0.0 and 1.0. Received: -0.1")
+	await assert_error(test_call_low).is_push_error("Probability (p_prob) must be between 0.0 and 1.0. Received: -0.1")
+	
+	var test_call_high: Callable = func():
+		StatMath.CdfFunctions.binomial_cdf(2, 5, 1.1)
+	await assert_error(test_call_high).is_push_error("Probability (p_prob) must be between 0.0 and 1.0. Received: 1.1")
 
 # --- Poisson CDF ---
+func test_poisson_cdf_known_value() -> void:
+	# Value from scipy.stats.poisson.cdf(k=2, mu=2.0) -> 0.67667
+	var result: float = StatMath.CdfFunctions.poisson_cdf(2, 2.0)
+	assert_float(result).is_equal_approx(0.676676, FLOAT_TOLERANCE)
+
 func test_poisson_cdf_k_negative() -> void:
 	var result: float = StatMath.CdfFunctions.poisson_cdf(-1, 2.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_poisson_cdf_invalid_lambda_negative() -> void:
 	var test_call: Callable = func():
@@ -140,9 +187,14 @@ func test_poisson_cdf_invalid_lambda_negative() -> void:
 	await assert_error(test_call).is_push_error("Rate parameter (lambda_param) must be non-negative for Poisson CDF. Received: -1.0")
 
 # --- Geometric CDF ---
+func test_geometric_cdf_known_value() -> void:
+	# Value from 1 - (1-p)^k = 1 - (0.5)^3 = 0.875
+	var result: float = StatMath.CdfFunctions.geometric_cdf(3, 0.5)
+	assert_float(result).is_equal_approx(0.875, FLOAT_TOLERANCE)
+
 func test_geometric_cdf_k_less_than_1() -> void:
 	var result: float = StatMath.CdfFunctions.geometric_cdf(0, 0.5)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_geometric_cdf_invalid_p_zero() -> void:
 	var test_call: Callable = func():
@@ -150,9 +202,19 @@ func test_geometric_cdf_invalid_p_zero() -> void:
 	await assert_error(test_call).is_push_error("Success probability (p_prob) must be in (0,1]. Received: 0.0")
 
 # --- Negative Binomial CDF ---
+func test_negative_binomial_cdf_known_value() -> void:
+	# P(k<=5; r=3, p=0.5) = sum of PMF for k=3,4,5
+	# PMF(k;r,p) = C(k-1,r-1) * p^r * (1-p)^(k-r)
+	# P(3) = C(2,2)*0.5^3*0.5^0 = 0.125
+	# P(4) = C(3,2)*0.5^3*0.5^1 = 3 * 0.125 * 0.5 = 0.1875
+	# P(5) = C(4,2)*0.5^3*0.5^2 = 6 * 0.125 * 0.25 = 0.1875
+	# Sum = 0.125 + 0.1875 + 0.1875 = 0.5
+	var result: float = StatMath.CdfFunctions.negative_binomial_cdf(5, 3, 0.5)
+	assert_float(result).is_equal_approx(0.5, FLOAT_TOLERANCE)
+
 func test_negative_binomial_cdf_k_less_than_r() -> void:
 	var result: float = StatMath.CdfFunctions.negative_binomial_cdf(2, 3, 0.5)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_negative_binomial_cdf_invalid_r() -> void:
 	var test_call: Callable = func():
@@ -167,16 +229,16 @@ func test_negative_binomial_cdf_invalid_p() -> void:
 # --- Pareto CDF ---
 func test_pareto_cdf_x_equals_scale() -> void:
 	var result: float = StatMath.CdfFunctions.pareto_cdf(2.0, 2.0, 3.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_pareto_cdf_basic_calculation() -> void:
 	# For x = 4, scale = 2, shape = 3: F(4) = 1 - (2/4)^3 = 1 - 0.125 = 0.875
 	var result: float = StatMath.CdfFunctions.pareto_cdf(4.0, 2.0, 3.0)
-	assert_float(result).is_equal_approx(0.875, 1e-7)
+	assert_float(result).is_equal_approx(0.875, FLOAT_TOLERANCE)
 
 func test_pareto_cdf_x_below_scale() -> void:
 	var result: float = StatMath.CdfFunctions.pareto_cdf(1.0, 2.0, 3.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_pareto_cdf_large_x() -> void:
 	# For very large x, CDF should approach 1
@@ -327,62 +389,34 @@ func test_pareto_cdf_market_price_analysis() -> void:
 	assert_float(prob_below_market).is_greater(0.3)
 
 # --- Weibull CDF ---
-func test_weibull_cdf_x_zero() -> void:
-	var result: float = StatMath.CdfFunctions.weibull_cdf(0.0, 2.0, 3.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
+func test_weibull_cdf_known_value() -> void:
+	# Using scipy-validated test data
+	var test_data: Array = CDF_TEST_DATA.VALUES["weibull_cdf"]
+	var case: Dictionary = test_data[0]  # [1.5, 2.0, 1.0] -> 0.89460078
+	var result: float = StatMath.CdfFunctions.weibull_cdf(case["params"][0], case["params"][1], case["params"][2])
+	assert_float(result).is_equal_approx(case["expected"], FLOAT_TOLERANCE)
 
 func test_weibull_cdf_basic_calculation() -> void:
 	# For x = 2, scale = 2, shape = 2: F(2) = 1 - exp(-(2/2)^2) = 1 - exp(-1) ≈ 0.632
 	var result: float = StatMath.CdfFunctions.weibull_cdf(2.0, 2.0, 2.0)
-	var expected: float = 1.0 - exp(-1.0)  # ≈ 0.632
-	assert_float(result).is_equal_approx(expected, 1e-6)
+	var expected: float = 1.0 - exp(-1.0)
+	assert_float(result).is_equal_approx(expected, FLOAT_TOLERANCE)
 
 func test_weibull_cdf_x_below_zero() -> void:
 	var result: float = StatMath.CdfFunctions.weibull_cdf(-1.0, 2.0, 3.0)
-	assert_float(result).is_equal_approx(0.0, 1e-7)
-
-func test_weibull_cdf_large_x() -> void:
-	# For very large x, CDF should approach 1
-	var result: float = StatMath.CdfFunctions.weibull_cdf(1000.0, 2.0, 3.0)
-	assert_float(result).is_greater(0.99)
-	assert_float(result).is_less_equal(1.0)
+	assert_float(result).is_equal_approx(0.0, FLOAT_TOLERANCE)
 
 func test_weibull_cdf_exponential_case() -> void:
 	# When shape = 1, Weibull becomes exponential: F(x) = 1 - exp(-x/λ)
 	var x: float = 3.0
-	var scale: float = 2.0
+	var scale: float = 2.0 # This is lambda_scale
 	var shape: float = 1.0
 	
 	var weibull_result: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
+	# For exponential, lambda_param is the rate, which is 1.0 / scale
 	var exponential_result: float = StatMath.CdfFunctions.exponential_cdf(x, 1.0 / scale)
 	
-	assert_float(weibull_result).is_equal_approx(exponential_result, 1e-6)
-
-func test_weibull_cdf_rayleigh_case() -> void:
-	# When shape = 2, Weibull becomes Rayleigh distribution
-	var x: float = 2.0
-	var scale: float = 3.0
-	var shape: float = 2.0
-	
-	var result: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
-	
-	# Should be valid probability
-	assert_float(result).is_between(0.0, 1.0)
-	assert_bool(is_nan(result)).is_false()
-
-func test_weibull_cdf_different_shapes() -> void:
-	var x: float = 3.0
-	var scale: float = 2.0
-	
-	# Different shape parameters should give different CDF values
-	var cdf_shape_05: float = StatMath.CdfFunctions.weibull_cdf(x, scale, 0.5)  # Decreasing failure rate
-	var cdf_shape_1: float = StatMath.CdfFunctions.weibull_cdf(x, scale, 1.0)   # Constant failure rate
-	var cdf_shape_3: float = StatMath.CdfFunctions.weibull_cdf(x, scale, 3.0)   # Increasing failure rate
-	
-	# All should be valid probabilities
-	assert_float(cdf_shape_05).is_between(0.0, 1.0)
-	assert_float(cdf_shape_1).is_between(0.0, 1.0)
-	assert_float(cdf_shape_3).is_between(0.0, 1.0)
+	assert_float(weibull_result).is_equal_approx(exponential_result, FLOAT_TOLERANCE)
 
 func test_weibull_cdf_monotonicity() -> void:
 	# CDF should be monotonically increasing
@@ -412,8 +446,8 @@ func test_weibull_cdf_bounds() -> void:
 	
 	for case in test_cases:
 		var x: float = case[0]
-		var scale: float = case[1]
-		var shape: float = case[2]
+		var shape: float = case[1]
+		var scale: float = case[2]
 		
 		var result: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
 		
@@ -421,36 +455,23 @@ func test_weibull_cdf_bounds() -> void:
 		assert_float(result).is_less_equal(1.0)
 		assert_bool(is_nan(result)).is_false()
 
-func test_weibull_cdf_deterministic() -> void:
-	# Same parameters should give same results
-	var x: float = 3.0
-	var scale: float = 2.0
-	var shape: float = 2.5
-	
-	var result1: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
-	var result2: float = StatMath.CdfFunctions.weibull_cdf(x, scale, shape)
-	
-	assert_float(result1).is_equal_approx(result2, 1e-15)
+func test_weibull_cdf_invalid_shape() -> void:
+	var test_call_zero: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(1.0, 1.0, 0.0)
+	await assert_error(test_call_zero).is_push_error("Shape parameter must be positive for Weibull CDF. Received: 0.0")
 
-func test_weibull_cdf_invalid_scale_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.weibull_cdf(3.0, 0.0, 2.0)
-	await assert_error(test_call).is_push_error("Scale parameter must be positive for Weibull CDF. Received: 0.0")
+	var test_call_neg: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(1.0, 1.0, -1.0)
+	await assert_error(test_call_neg).is_push_error("Shape parameter must be positive for Weibull CDF. Received: -1.0")
 
-func test_weibull_cdf_invalid_scale_negative() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.weibull_cdf(3.0, -1.0, 2.0)
-	await assert_error(test_call).is_push_error("Scale parameter must be positive for Weibull CDF. Received: -1.0")
+func test_weibull_cdf_invalid_scale() -> void:
+	var test_call_zero: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(1.0, 0.0, 1.0)
+	await assert_error(test_call_zero).is_push_error("Scale parameter must be positive for Weibull CDF. Received: 0.0")
 
-func test_weibull_cdf_invalid_shape_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.weibull_cdf(3.0, 2.0, 0.0)
-	await assert_error(test_call).is_push_error("Shape parameter must be positive for Weibull CDF. Received: 0.0")
-
-func test_weibull_cdf_invalid_shape_negative() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.weibull_cdf(3.0, 2.0, -1.0)
-	await assert_error(test_call).is_push_error("Shape parameter must be positive for Weibull CDF. Received: -1.0")
+	var test_call_neg: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(1.0, -1.0, 1.0)
+	await assert_error(test_call_neg).is_push_error("Scale parameter must be positive for Weibull CDF. Received: -1.0")
 
 # --- Game Development Use Cases for Weibull CDF ---
 

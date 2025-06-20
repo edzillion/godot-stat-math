@@ -1,0 +1,82 @@
+{
+	"meta": {
+		"generated_at": "2025-06-20T01:26:22",
+		"total_tests": 8
+	},
+	"module": "HelperFunctions",
+	"tests": {
+		"helper_functions_beta_function": {
+			"baseline_ms": 1.354,
+			"coefficient_of_variation": 0.0123372230885363,
+			"diff_percent": -27.0310192023634,
+			"result_ms": 0.988,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		},
+		"helper_functions_binomial_coefficient": {
+			"baseline_ms": 0.603,
+			"coefficient_of_variation": 0.00483650806555087,
+			"diff_percent": -38.4742951907131,
+			"result_ms": 0.371,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		},
+		"helper_functions_gamma_function": {
+			"baseline_ms": 0.429,
+			"coefficient_of_variation": 0.0103616213216185,
+			"diff_percent": -31.7016317016317,
+			"result_ms": 0.293,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.15
+		},
+		"helper_functions_incomplete_beta_function": {
+			"baseline_ms": 9.18,
+			"coefficient_of_variation": 0.0116189376396019,
+			"diff_percent": -37.7342047930283,
+			"result_ms": 5.716,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		},
+		"helper_functions_log_binomial_coef": {
+			"baseline_ms": 0.824,
+			"coefficient_of_variation": 0.0179288227477067,
+			"diff_percent": -12.7427184466019,
+			"result_ms": 0.719,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		},
+		"helper_functions_log_factorial": {
+			"baseline_ms": 0.791,
+			"coefficient_of_variation": 0.00869834375217501,
+			"diff_percent": -11.6308470290771,
+			"result_ms": 0.699,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		},
+		"helper_functions_log_gamma": {
+			"baseline_ms": 0.436,
+			"coefficient_of_variation": 0.0307834887087122,
+			"diff_percent": -30.9633027522936,
+			"result_ms": 0.301,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.15
+		},
+		"helper_functions_sanitize_numeric_array": {
+			"baseline_ms": 0.678,
+			"coefficient_of_variation": 0.0162734925741377,
+			"diff_percent": -30.3834808259587,
+			"result_ms": 0.472,
+			"sample_size": 15.0,
+			"status": "pass",
+			"threshold_percent": 0.12
+		}
+	},
+	"timestamp": "2025-06-20_01-26-20"
+}

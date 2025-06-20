@@ -1,27 +1,107 @@
 # res://addons/godot-stat-math/stat_math.gd
 extends Node
 
-# --- Configuration for Random Number Generation ---
+## StatMath - Comprehensive Statistical Functions Library
+##
+## This is the main autoload singleton that provides access to all statistical functions
+## and mathematical utilities. All core functionality is organized into specialized modules
+## that can be accessed through this central interface.
+##
+## Usage Examples:
+## [codeblock]
+## # Generate random numbers from distributions
+## var normal_sample = StatMath.Distributions.randf_normal(0.0, 1.0)
+## var poisson_sample = StatMath.Distributions.randi_poisson(3.5)
+## 
+## # Calculate statistical measures
+## var data = [1.0, 2.0, 3.0, 4.0, 5.0]
+## var mean = StatMath.BasicStats.mean(data)
+## var variance = StatMath.BasicStats.variance(data)
+## 
+## # Use distribution functions
+## var cdf_value = StatMath.CdfFunctions.normal_cdf(1.96, 0.0, 1.0)
+## var quantile = StatMath.PpfFunctions.normal_ppf(0.975, 0.0, 1.0)
+## 
+## # Advanced sampling
+## var samples = StatMath.SamplingGen.generate_samples(100, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)
+## [/codeblock]
+##
+## Module Organization:
+## • [code]BasicStats[/code] - Descriptive statistics (mean, variance, quantiles, etc.)
+## • [code]Distributions[/code] - Random number generation from various distributions
+## • [code]CdfFunctions[/code] - Cumulative distribution functions
+## • [code]PpfFunctions[/code] - Inverse CDF/quantile functions
+## • [code]PmfPdfFunctions[/code] - Probability mass/density functions
+## • [code]ErrorFunctions[/code] - Error functions and special mathematical functions
+## • [code]HelperFunctions[/code] - Core mathematical utilities
+## • [code]SamplingGen[/code] - Advanced sampling and quasi-random sequences
+
+
+# =============================================================================
+# CONFIGURATION AND RANDOM NUMBER GENERATION
+# =============================================================================
+
+## Project setting name for global random seed configuration.
 const GODOT_STAT_MATH_SEED_VARIABLE_NAME: StringName = &"godot_stat_math_seed"
-const _default_seed: int = 0 # Default seed if no global override is found
+
+## Default seed value when no global seed is specified (0 means random).
+const _default_seed: int = 0
+
+## Internal RandomNumberGenerator instance for statistical functions.
 var _rng: RandomNumberGenerator = null
 
-# --- Core Mathematical & Numerical Constants ---
-# Represents a very large integer, for integer-returning functions where infinity is theoretical.
+
+# =============================================================================
+# MATHEMATICAL AND NUMERICAL CONSTANTS
+# =============================================================================
+
+## First 100 prime numbers for use in statistical algorithms.
+##
+## Mathematical Note: Used primarily in Halton sequence generation and other quasi-random methods.
+const PRIMES: Array[int] = [
+	2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71,
+	73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151,
+	157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233,
+	239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317,
+	331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419,
+	421, 431, 433, 439, 443, 449, 457, 461, 463, 467, 479, 487, 491, 499, 503,
+	509, 521, 523, 541, 547, 557, 563, 569, 571, 577, 587, 593, 599, 601
+]
+
+## Represents a very large integer for functions where infinity is theoretical.
+##
+## Used by discrete distribution functions when theoretical result would be infinite.
+## Mathematical Note: [code]2^31 - 1[/code] (maximum 32-bit signed integer)
 const INT_MAX_REPRESENTING_INF := 2147483647
 
-# Represents the maximum value for a 64-bit signed integer.
-const INT64_MAX_VAL: int = 9223372036854775807 # (1 << 63) - 1
+## Maximum value for a 64-bit signed integer.
+##
+## Mathematical Note: [code]2^63 - 1 = 9,223,372,036,854,775,807[/code]
+const INT64_MAX_VAL: int = 9223372036854775807
 
-# Smallest positive float x such that 1.0 + x != 1.0. Machine epsilon.
+## Machine epsilon - smallest positive float x such that [code]1.0 + x ≠ 1.0[/code].
+##
+## Mathematical Note: Double precision floating point machine epsilon [code]≈ 2.22 × 10^-16[/code]
 const FLOAT_EPSILON: float = 2.220446049250313e-16
 
-# Constants for iterative approximations (from helper_functions.gd)
-const MAX_ITERATIONS: int = 200  # Max iterations for series/continued fractions
-const EPSILON: float = 1.0e-9 # Small epsilon for convergence checks & float comparisons
+## Maximum iterations for iterative approximations and series calculations.
+##
+## Used by convergence algorithms in special functions and numerical methods.
+const MAX_ITERATIONS: int = 200
 
-# Constants for Lanczos approximation of the Gamma function (from helper_functions.gd)
+## Small epsilon for convergence checks and floating point comparisons.
+##
+## Mathematical Note: [code]10^-9[/code] provides good balance between precision and numerical stability
+const EPSILON: float = 1.0e-9
+
+## Lanczos approximation parameter for Gamma function calculations.
+##
+## Mathematical Note: [code]g = 7.5[/code] provides optimal accuracy for the Lanczos method
 const LANCZOS_G: float = 7.5
+
+## Lanczos coefficients for high-precision Gamma function approximation.
+##
+## Mathematical Note: Coefficients optimized for [code]g = 7.5[/code] providing ~15 decimal digits accuracy
 const LANCZOS_P: Array[float] = [
 	0.99999999999980993,
 	676.5203681218851,
@@ -34,7 +114,9 @@ const LANCZOS_P: Array[float] = [
 	1.5056327351493116e-7
 ]
 
-# Constants for Abramowitz and Stegun approximation of erf(x) (from error_functions.gd)
+## Abramowitz and Stegun approximation coefficients for error function.
+##
+## Mathematical Note: Coefficients for maximum error [code]< 1.5 × 10^-7[/code] in [code]erf(x)[/code] approximation
 const A1_ERR: float =  0.254829592
 const A2_ERR: float = -0.284496736
 const A3_ERR: float =  1.421413741
@@ -42,38 +124,67 @@ const A4_ERR: float = -1.453152027
 const A5_ERR: float =  1.061405429
 const P_ERR: float  =  0.3275911
 
-# --- Preload Core Functionality Scripts ---
-# These can be accessed via StatMath.ModuleName.function_name()
-# e.g., StatMath.Distributions.randi_bernoulli(0.5)
-# or constants via StatMath.CONSTANT_NAME, e.g. StatMath.EPSILON
-const Distributions = preload("res://addons/godot-stat-math/core/distributions.gd")
-const CdfFunctions = preload("res://addons/godot-stat-math/core/cdf_functions.gd")
-const PmfPdfFunctions = preload("res://addons/godot-stat-math/core/pmf_pdf_functions.gd")
-const PpfFunctions = preload("res://addons/godot-stat-math/core/ppf_functions.gd")
-const ErrorFunctions = preload("res://addons/godot-stat-math/core/error_functions.gd")
-const HelperFunctions = preload("res://addons/godot-stat-math/core/helper_functions.gd")
-const SamplingGen = preload("res://addons/godot-stat-math/core/sampling_gen.gd")
+
+# =============================================================================
+# CORE FUNCTIONALITY MODULES
+# =============================================================================
+
+## Core statistical functions module - descriptive statistics and data analysis.
 const BasicStats = preload("res://addons/godot-stat-math/core/basic_stats.gd")
 
+## Random number generation module - samples from various statistical distributions.
+const Distributions = preload("res://addons/godot-stat-math/core/distributions.gd")
+
+## Cumulative distribution functions module - probability calculations.
+const CdfFunctions = preload("res://addons/godot-stat-math/core/cdf_functions.gd")
+
+## Probability mass and density functions module - discrete and continuous distributions.
+const PmfPdfFunctions = preload("res://addons/godot-stat-math/core/pmf_pdf_functions.gd")
+
+## Inverse CDF/quantile functions module - percentile calculations.
+const PpfFunctions = preload("res://addons/godot-stat-math/core/ppf_functions.gd")
+
+## Error functions and special mathematical functions module.
+const ErrorFunctions = preload("res://addons/godot-stat-math/core/error_functions.gd")
+
+## Mathematical helper utilities module - combinatorics, special functions, preprocessing.
+const HelperFunctions = preload("res://addons/godot-stat-math/core/helper_functions.gd")
+
+## Advanced sampling and quasi-random sequences module - Monte Carlo methods.
+const SamplingGen = preload("res://addons/godot-stat-math/core/sampling_gen.gd")
+
+
+# =============================================================================
+# INITIALIZATION AND LIFECYCLE
+# =============================================================================
+
+## Initializes the StatMath addon and sets up the random number generator.
+##
+## Automatically called when the addon is loaded as an autoload singleton.
+## Reads the global seed configuration and initializes the RNG system.
 func _ready() -> void:
 	_initialize_rng()
 	print("StatMath addon loaded and ready. RNG initialized. Access functions via StatMath.ModuleName.function_name() and constants via StatMath.CONSTANT_NAME.")
 
-# No wrapper functions are needed here.
-# All functions are accessed directly through the preloaded modules, e.g.:
-# var x = StatMath.Distributions.randf_normal(0.0, 1.0)
-# var p = StatMath.CdfFunctions.normal_cdf(x, 0.0, 1.0)
-# var k_val = StatMath.HelperFunctions.binomial_coefficient(10, 3)
-# var eps = StatMath.EPSILON
 
-# --- RNG Management ---
+# =============================================================================
+# RANDOM NUMBER GENERATOR MANAGEMENT
+# =============================================================================
 
-# Helper to create and seed the RNG instance.
+## Creates and seeds the internal RandomNumberGenerator instance.
+##
+## If [code]seed_val[/code] is 0, Godot will automatically choose a random seed.
+## The actual seed used can be read from [code]_rng.seed[/code] after initialization.
 func _create_and_seed_rng(seed_val: int) -> void:
 	_rng = RandomNumberGenerator.new()
-	_rng.seed = seed_val # If seed_val is 0, Godot's RNG will pick a random seed.
+	_rng.seed = seed_val
 	# The actual seed used (randomized if input was 0) can be read from _rng.seed after this.
 
+
+## Initializes the RNG system using global project settings.
+##
+## Checks for the project setting [code]godot_stat_math_seed[/code] to determine
+## the seed value. Creates the setting with default value if it doesn't exist.
 func _initialize_rng() -> void:
 	var global_seed_value: Variant = ProjectSettings.get_setting(GODOT_STAT_MATH_SEED_VARIABLE_NAME, _default_seed)
 	var seed_to_use: int
@@ -95,9 +206,14 @@ func _initialize_rng() -> void:
 	# Ensure the project setting is actually created if it was defaulted, so user knows it's available.
 	if not ProjectSettings.has_setting(GODOT_STAT_MATH_SEED_VARIABLE_NAME):
 		ProjectSettings.set_setting(GODOT_STAT_MATH_SEED_VARIABLE_NAME, _default_seed)
-		# ProjectSettings.save() # Not strictly necessary for it to be readable by get_setting in same session, but good for persistence if user wants to see it in project.godot
 
-# Returns the addon's RandomNumberGenerator instance.
+
+## Returns the addon's RandomNumberGenerator instance.
+##
+## This RNG is used by all statistical functions that require randomness.
+## Provides consistent seeding and reproducible results across the addon.
+##
+## Mathematical Note: All statistical sampling uses this centralized RNG for reproducibility
 func get_rng() -> RandomNumberGenerator:
 	# _initialize_rng should have been called in _ready, so _rng should not be null.
 	# However, as a safeguard if StatMath is used before _ready (e.g. tool script or early access):
@@ -106,8 +222,13 @@ func get_rng() -> RandomNumberGenerator:
 		_initialize_rng()
 	return _rng
 
-# Allows changing the global seed of the addon's RandomNumberGenerator instance.
-# This will create a new RNG instance.
+
+## Changes the global seed and recreates the RandomNumberGenerator.
+##
+## This affects all subsequent random number generation throughout the addon.
+## Useful for creating reproducible statistical simulations and tests.
+##
+## Mathematical Note: Changing seed allows reproducible statistical experiments
 func set_global_seed(new_seed: int) -> void:
 	_create_and_seed_rng(new_seed)
 	print("StatMath: RNG (re)created and seed explicitly set. Effective seed: %d" % _rng.seed)
