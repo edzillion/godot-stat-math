@@ -193,5 +193,3 @@ func test_seed_changes_affect_all_modules() -> void:
 	# Should be identical
 	assert_float(dist_val1).is_equal_approx(dist_val2, StatMath.DETERMINISM_TOLERANCE)
 	assert_int(uniform_val1).is_equal(uniform_val2)
-
-
