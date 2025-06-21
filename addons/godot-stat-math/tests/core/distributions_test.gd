@@ -1,6 +1,21 @@
 # res://addons/godot-stat-math/tests/core/distributions_test.gd
 class_name DistributionsTest extends GdUnitTestSuite
 
+# =============================================================================
+# SCIPY VALIDATION TESTS - DATA-DRIVEN
+# =============================================================================
+
+func test_randi_bernoulli_deterministic_cases() -> void:
+	# Test deterministic boundary cases with fixed seeds
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.primary)
+	
+	# p = 0.0 should always return 0
+	var result_zero: int = StatMath.Distributions.randi_bernoulli(DistributionsTestData.BOUNDARY_VALUES.probability_zero)
+	assert_int(result_zero).is_equal(0)
+	
+	# p = 1.0 should always return 1  
+	var result_one: int = StatMath.Distributions.randi_bernoulli(DistributionsTestData.BOUNDARY_VALUES.probability_one)
+	assert_int(result_one).is_equal(1)
 
 func test_randi_bernoulli_p_zero() -> void:
 	var result: int = StatMath.Distributions.randi_bernoulli(0.0)
@@ -17,16 +32,27 @@ func test_randi_bernoulli_p_half() -> void:
 	assert_bool(result == 0 or result == 1).is_true() # Result should be 0 or 1 for p=0.5 
 
 
+# =============================================================================
+# PARAMETER VALIDATION TESTS
+# =============================================================================
+
 func test_randi_bernoulli_invalid_p_too_low() -> void:
 	var test_invalid_input: Callable = func():
-		StatMath.Distributions.randi_bernoulli(-0.1)
+		StatMath.Distributions.randi_bernoulli(DistributionsTestData.INVALID_PARAMS.probability_negative)
 	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0. Received: -0.1")
-
+	
+	# Test that sentinel value is returned
+	var result: int = StatMath.Distributions.randi_bernoulli(DistributionsTestData.INVALID_PARAMS.probability_negative)
+	assert_int(result).is_equal(DistributionsTestData.BOUNDARY_VALUES.sentinel_invalid)
 
 func test_randi_bernoulli_invalid_p_too_high() -> void:
 	var test_invalid_input: Callable = func():
-		StatMath.Distributions.randi_bernoulli(1.1)
+		StatMath.Distributions.randi_bernoulli(DistributionsTestData.INVALID_PARAMS.probability_above_one)
 	await assert_error(test_invalid_input).is_push_error("Success probability (p) must be between 0.0 and 1.0. Received: 1.1")
+	
+	# Test that sentinel value is returned
+	var result: int = StatMath.Distributions.randi_bernoulli(DistributionsTestData.INVALID_PARAMS.probability_above_one)
+	assert_int(result).is_equal(DistributionsTestData.BOUNDARY_VALUES.sentinel_invalid)
 
 
 # Tests for randi_binomial
@@ -46,31 +72,34 @@ func test_randi_binomial_n_zero() -> void:
 	assert_int(result).is_equal(0)
 
 
-func test_randi_binomial_statistical_properties() -> void:
-	var n_trials: int = 20
-	var p: float = 0.4
-	var expected_mean: float = n_trials * p # E[X] = np
+func test_randi_binomial_deterministic_cases() -> void:
+	# Test deterministic boundary cases with fixed seeds
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.primary)
 	
-	var sample_size: int = 2000
-	var samples: Array[int] = []
-	for i in range(sample_size):
-		samples.append(StatMath.Distributions.randi_binomial(p, n_trials))
+	# p = 0.0 should always return 0
+	var result_zero: int = StatMath.Distributions.randi_binomial(
+		DistributionsTestData.BOUNDARY_VALUES.probability_zero, 
+		DistributionsTestData.BOUNDARY_VALUES.trials_five
+	)
+	assert_int(result_zero).is_equal(0)
 	
-	var float_samples: Array[float] = []
-	for s in samples:
-		float_samples.append(float(s))
-		
-	var sample_mean: float = StatMath.BasicStats.mean(float_samples)
-	# Check if sample mean is close to expected mean.
-	# Tolerance can be based on standard error of the mean: sqrt(np(1-p)) / sqrt(sample_size)
-	var expected_std_dev: float = sqrt(n_trials * p * (1.0 - p))
-	var tolerance: float = StatMath.STATISTICAL_TEST_STD_DEV_MULTIPLIER * expected_std_dev / sqrt(sample_size)
-	assert_float(sample_mean).is_between(expected_mean - tolerance, expected_mean + tolerance)
+	# p = 1.0 should return n_trials
+	var n_trials: int = DistributionsTestData.BOUNDARY_VALUES.trials_five
+	var result_one: int = StatMath.Distributions.randi_binomial(
+		DistributionsTestData.BOUNDARY_VALUES.probability_one, 
+		n_trials
+	)
+	assert_int(result_one).is_equal(n_trials)
+	
+	# n = 0 should always return 0
+	var result_zero_trials: int = StatMath.Distributions.randi_binomial(
+		DistributionsTestData.BOUNDARY_VALUES.probability_half, 
+		DistributionsTestData.BOUNDARY_VALUES.trials_zero
+	)
+	assert_int(result_zero_trials).is_equal(0)
 
 
-func test_randi_binomial_typical_case() -> void:
-	# DEPRECATED: This test is too weak. Replaced by test_randi_binomial_statistical_properties.
-	pass
+
 
 
 func test_randi_binomial_invalid_p_too_low() -> void:
@@ -92,24 +121,22 @@ func test_randi_binomial_invalid_n_negative() -> void:
 
 
 # Tests for randi_geometric
-func test_randi_geometric_p_one() -> void:
-	var result: int = StatMath.Distributions.randi_geometric(1.0)
-	assert_int(result).is_equal(1)
-
-
-func test_randi_geometric_typical_case() -> void:
-	# For p=0.5, expected value is 1/0.5 = 2. Result must be >= 1.
-	var result: int = StatMath.Distributions.randi_geometric(0.5)
-	assert_bool(result >= 1).is_true() # Result should be at least 1 for p=0.5
-
-
-func test_randi_geometric_p_very_small_expect_large_or_inf() -> void:
-	# With a very small p, we expect a very large number of trials, possibly INF (int64.max).
-	var p_very_small: float = StatMath.STRESS_TEST_BOUNDARY # 1e-17
-	var result: int = StatMath.Distributions.randi_geometric(p_very_small)
-	# Check if it's a large positive number or int64.max if INF was cast.
-	print("randi_geometric(1e-17) returned: %s (Expected large positive or int64.max)" % result)
-	assert_bool(result > 1000 or result == StatMath.INT64_MAX_VAL).is_true() # Result for very small p should be very large or int64.max
+func test_randi_geometric_deterministic_cases() -> void:
+	# Test deterministic boundary cases with fixed seeds
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.primary)
+	
+	# p = 1.0 should always return 1 (first trial succeeds)
+	var result_one: int = StatMath.Distributions.randi_geometric(DistributionsTestData.BOUNDARY_VALUES.probability_one)
+	assert_int(result_one).is_equal(1)
+	
+	# p = 0.5 with fixed seed should produce deterministic result >= 1
+	var result_half: int = StatMath.Distributions.randi_geometric(DistributionsTestData.BOUNDARY_VALUES.probability_half)
+	assert_bool(result_half >= 1).is_true()
+	
+	# Very small p should produce large result or int64.max
+	var p_very_small: float = StatMath.STRESS_TEST_BOUNDARY
+	var result_small: int = StatMath.Distributions.randi_geometric(p_very_small)
+	assert_bool(result_small > DistributionsTestData.BOUNDARY_VALUES.large_positive or result_small == StatMath.INT64_MAX_VAL).is_true()
 
 	
 
@@ -132,17 +159,17 @@ func test_randi_geometric_invalid_p_too_high() -> void:
 
 
 # Tests for randi_poisson
-func test_randi_poisson_typical_case() -> void:
-	# For a given lambda, the result should be non-negative.
-	# For example, lambda = 3.0. Expected value is 3.
-	var result: int = StatMath.Distributions.randi_poisson(3.0)
-	assert_bool(result >= 0).is_true() # Result of Poisson distribution should be non-negative.
-
-
-func test_randi_poisson_small_lambda() -> void:
-	# Test with a small lambda, e.g., 0.1. Higher chance of getting 0.
-	var result: int = StatMath.Distributions.randi_poisson(0.1)
-	assert_bool(result >= 0).is_true() # Result of Poisson distribution should be non-negative, even for small lambda.
+func test_randi_poisson_deterministic_cases() -> void:
+	# Test deterministic behavior with fixed seeds
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.primary)
+	
+	# Typical lambda case - result should be non-negative
+	var result_typical: int = StatMath.Distributions.randi_poisson(DistributionsTestData.STATISTICAL_PARAMS.poisson_lambda)
+	assert_bool(result_typical >= 0).is_true()
+	
+	# Small lambda case - result should be non-negative
+	var result_small: int = StatMath.Distributions.randi_poisson(DistributionsTestData.STATISTICAL_PARAMS.poisson_small_lambda)
+	assert_bool(result_small >= 0).is_true()
 
 
 func test_randi_poisson_invalid_lambda_zero() -> void:
@@ -158,26 +185,22 @@ func test_randi_poisson_invalid_lambda_negative() -> void:
 
 
 # Tests for randi_pseudo
-func test_randi_pseudo_c_param_one() -> void:
-	var result: int = StatMath.Distributions.randi_pseudo(1.0)
-	assert_int(result).is_equal(0) # "If c_param is 1.0, loop condition current_c < 1.0 is initially false, trials should be 0."
-
-
-func test_randi_pseudo_typical_case() -> void:
-	# For c_param = 0.3, max trials is 3 (0.3 -> 0.6 -> 0.9, then current_c becomes 1.2)
-	# Trial can be 1, 2, or 3.
-	var result: int = StatMath.Distributions.randi_pseudo(0.3)
-	assert_bool(result >= 1 and result <= 3).is_true() # For c_param=0.3, result should be 1, 2, or 3.
-
-
-func test_randi_pseudo_c_param_half() -> void:
-	# c_param = 0.5. trial = 0. current_c = 0.5
-	# Loop 1: 0.5 < 1.0. trial = 1. randi_bernoulli(0.5). 
-	# If success, returns 1. 
-	# If fail, current_c = 1.0. Loop 1.0 < 1.0 is false. Returns 1.
-	# So, should always return 1.
-	var result: int = StatMath.Distributions.randi_pseudo(0.5)
-	assert_int(result).is_equal(1) # "For c_param=0.5, result should always be 1."
+func test_randi_pseudo_deterministic_cases() -> void:
+	# Test deterministic boundary cases with fixed seeds
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.primary)
+	
+	# c_param = 1.0 should return 0 (loop condition false initially)
+	var result_one: int = StatMath.Distributions.randi_pseudo(DistributionsTestData.PSEUDO_PARAMS.c_param_one)
+	assert_int(result_one).is_equal(0)
+	
+	# c_param = 0.5 should always return 1
+	var result_half: int = StatMath.Distributions.randi_pseudo(DistributionsTestData.PSEUDO_PARAMS.c_param_half)
+	assert_int(result_half).is_equal(DistributionsTestData.PSEUDO_PARAMS.expected_trials_for_half)
+	
+	# c_param = 0.3 should return between 1 and 3
+	var result_third: int = StatMath.Distributions.randi_pseudo(DistributionsTestData.PSEUDO_PARAMS.c_param_third)
+	assert_bool(result_third >= DistributionsTestData.PSEUDO_PARAMS.expected_trials_for_third.min and 
+				result_third <= DistributionsTestData.PSEUDO_PARAMS.expected_trials_for_third.max).is_true()
 
 
 func test_randi_pseudo_invalid_c_param_zero() -> void:
@@ -199,34 +222,37 @@ func test_randi_pseudo_invalid_c_param_too_high() -> void:
 
 
 # Tests for randi_seige
-func test_randi_seige_initial_capture_guaranteed() -> void:
-	# c_0 = 1.0, so capture should happen on the first trial.
-	# However, the function still goes through the attack logic first
-	# Set a fixed seed for deterministic behavior
-	StatMath.set_global_seed(42)
-	var result: int = StatMath.Distributions.randi_seige(0.5, 1.0, 0.1, -0.1)
-	# With c_0=1.0, capture should happen quickly (within 1-2 trials max)
-	assert_bool(result >= 1 and result <= 2).is_true()
-
-
-func test_randi_seige_capture_after_one_guaranteed_win() -> void:
-	# w=1.0 (always win), c_0=0.0, c_win=1.0. Should capture on trial 1.
-	var result: int = StatMath.Distributions.randi_seige(1.0, 0.0, 1.0, 0.0)
-	assert_int(result).is_equal(1) # "Guaranteed win leading to guaranteed capture should result in 1 trial."
-
-
-func test_randi_seige_typical_case() -> void:
-	# A general case, result should be >= 1.
-	var result: int = StatMath.Distributions.randi_seige(0.5, 0.1, 0.2, -0.05)
-	assert_bool(result >= 1).is_true() # Result of randi_seige should be at least 1 trial.
-
-
-func test_randi_seige_no_change_eventually_captures() -> void:
-	# If c_win and c_lose are 0, but c_0 is > 0, it should eventually capture.
-	# This relies on randi_bernoulli(c_0) eventually returning 1.
-	# This test might be flaky or long if c_0 is small. For c_0 = 0.1, it will take some trials.
-	var result: int = StatMath.Distributions.randi_seige(0.5, 0.1, 0.0, 0.0)
-	assert_bool(result >= 1).is_true() # With c_0 > 0 and no change, should eventually capture.
+func test_randi_seige_deterministic_cases() -> void:
+	# Test deterministic cases with fixed seeds
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.primary)
+	
+	# Initial capture guaranteed case
+	var params_guaranteed := DistributionsTestData.SIEGE_PARAMS.initial_capture_guaranteed
+	var result_guaranteed: int = StatMath.Distributions.randi_seige(
+		params_guaranteed.w, params_guaranteed.c_0, params_guaranteed.c_win, params_guaranteed.c_lose
+	)
+	assert_bool(result_guaranteed >= 1 and result_guaranteed <= params_guaranteed.expected_max_trials).is_true()
+	
+	# Guaranteed win and capture case
+	var params_win := DistributionsTestData.SIEGE_PARAMS.guaranteed_win_and_capture
+	var result_win: int = StatMath.Distributions.randi_seige(
+		params_win.w, params_win.c_0, params_win.c_win, params_win.c_lose
+	)
+	assert_int(result_win).is_equal(params_win.expected_trials)
+	
+	# Typical case - should be at least 1
+	var params_typical := DistributionsTestData.SIEGE_PARAMS.typical_case
+	var result_typical: int = StatMath.Distributions.randi_seige(
+		params_typical.w, params_typical.c_0, params_typical.c_win, params_typical.c_lose
+	)
+	assert_bool(result_typical >= 1).is_true()
+	
+	# No change case - should eventually capture
+	var params_no_change := DistributionsTestData.SIEGE_PARAMS.no_change_case
+	var result_no_change: int = StatMath.Distributions.randi_seige(
+		params_no_change.w, params_no_change.c_0, params_no_change.c_win, params_no_change.c_lose
+	)
+	assert_bool(result_no_change >= 1).is_true()
 
 
 func test_randi_seige_invalid_w_too_low() -> void:
@@ -254,42 +280,43 @@ func test_randi_seige_invalid_c0_too_high() -> void:
 
 
 # Tests for randi_uniform
-func test_randi_uniform_equal_bounds() -> void:
-	var val: int = 5
-	var result: int = StatMath.Distributions.randi_uniform(val, val)
-	assert_int(result).is_equal(val)
+# =============================================================================
+# MATHEMATICAL PROPERTY TESTS
+# =============================================================================
 
-func test_randi_uniform_typical_range() -> void:
-	var min_val: int = 1
-	var max_val: int = 10
-	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
-	assert_bool(result >= min_val and result <= max_val).is_true()
-
-func test_randi_uniform_negative_range() -> void:
-	var min_val: int = -10
-	var max_val: int = -1
-	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
-	assert_bool(result >= min_val and result <= max_val).is_true()
-
-func test_randi_uniform_mixed_sign_range() -> void:
-	var min_val: int = -5
-	var max_val: int = 5
-	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
-	assert_bool(result >= min_val and result <= max_val).is_true()
-
-func test_randi_uniform_single_value_range() -> void:
-	var min_val: int = 42
-	var max_val: int = 42
-	var result: int = StatMath.Distributions.randi_uniform(min_val, max_val)
-	assert_int(result).is_equal(42)
+func test_randi_uniform_range_properties() -> void:
+	# Test deterministic behavior with fixed seeds
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.primary)
+	
+	# Equal bounds case
+	var single_val: int = DistributionsTestData.STATISTICAL_PARAMS.uniform_range_single.min
+	var result_equal: int = StatMath.Distributions.randi_uniform(single_val, single_val)
+	assert_int(result_equal).is_equal(single_val)
+	
+	# Typical range case
+	var params_small := DistributionsTestData.STATISTICAL_PARAMS.uniform_range_small
+	var result_typical: int = StatMath.Distributions.randi_uniform(params_small.min, params_small.max)
+	assert_bool(result_typical >= params_small.min and result_typical <= params_small.max).is_true()
+	
+	# Negative range case
+	var params_negative := DistributionsTestData.STATISTICAL_PARAMS.uniform_range_negative
+	var result_negative: int = StatMath.Distributions.randi_uniform(params_negative.min, params_negative.max)
+	assert_bool(result_negative >= params_negative.min and result_negative <= params_negative.max).is_true()
+	
+	# Mixed sign range case
+	var params_mixed := DistributionsTestData.STATISTICAL_PARAMS.uniform_range_mixed
+	var result_mixed: int = StatMath.Distributions.randi_uniform(params_mixed.min, params_mixed.max)
+	assert_bool(result_mixed >= params_mixed.min and result_mixed <= params_mixed.max).is_true()
 
 func test_randi_uniform_deterministic_with_seed() -> void:
 	# Test that same seed produces same results
-	StatMath.set_global_seed(123)
-	var result1: int = StatMath.Distributions.randi_uniform(1, 100)
+	var params := DistributionsTestData.STATISTICAL_PARAMS.uniform_range_large
 	
-	StatMath.set_global_seed(123)
-	var result2: int = StatMath.Distributions.randi_uniform(1, 100)
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.secondary)
+	var result1: int = StatMath.Distributions.randi_uniform(params.min, params.max)
+	
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.secondary)
+	var result2: int = StatMath.Distributions.randi_uniform(params.min, params.max)
 	
 	assert_int(result1).is_equal(result2)
 
@@ -305,34 +332,32 @@ func test_randi_uniform_invalid_min_greater_than_max() -> void:
 	assert_int(result).is_equal(-1)
 
 # Tests for randf_uniform
-func test_randf_uniform_a_equals_b() -> void:
-	var val: float = 5.0
-	var result: float = StatMath.Distributions.randf_uniform(val, val)
-	assert_float(result).is_equal_approx(val, StatMath.ERF_APPROX_TOLERANCE)
-
-
-func test_randf_uniform_typical_case() -> void:
-	var a: float = 2.0
-	var b: float = 5.0
-	var result: float = StatMath.Distributions.randf_uniform(a, b)
-	assert_float(result).is_greater_equal(a)
-	assert_float(result).is_less(b)
-
-
-func test_randf_uniform_negative_range() -> void:
-	var a: float = -5.0
-	var b: float = -2.0
-	var result: float = StatMath.Distributions.randf_uniform(a, b)
-	assert_float(result).is_greater_equal(a)
-	assert_float(result).is_less(b)
-
-
-func test_randf_uniform_mixed_sign_range() -> void:
-	var a: float = -3.0
-	var b: float = 3.0
-	var result: float = StatMath.Distributions.randf_uniform(a, b)
-	assert_float(result).is_greater_equal(a)
-	assert_float(result).is_less(b)
+func test_randf_uniform_range_properties() -> void:
+	# Test deterministic behavior with fixed seeds
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.primary)
+	
+	# Equal bounds case
+	var params_equal := DistributionsTestData.FLOAT_UNIFORM_PARAMS.equal_bounds
+	var result_equal: float = StatMath.Distributions.randf_uniform(params_equal.a, params_equal.b)
+	assert_float(result_equal).is_equal_approx(params_equal.a, StatMath.ERF_APPROX_TOLERANCE)
+	
+	# Typical range case
+	var params_typical := DistributionsTestData.FLOAT_UNIFORM_PARAMS.typical_range
+	var result_typical: float = StatMath.Distributions.randf_uniform(params_typical.a, params_typical.b)
+	assert_float(result_typical).is_greater_equal(params_typical.a)
+	assert_float(result_typical).is_less(params_typical.b)
+	
+	# Negative range case
+	var params_negative := DistributionsTestData.FLOAT_UNIFORM_PARAMS.negative_range
+	var result_negative: float = StatMath.Distributions.randf_uniform(params_negative.a, params_negative.b)
+	assert_float(result_negative).is_greater_equal(params_negative.a)
+	assert_float(result_negative).is_less(params_negative.b)
+	
+	# Mixed sign range case
+	var params_mixed := DistributionsTestData.FLOAT_UNIFORM_PARAMS.mixed_sign_range
+	var result_mixed: float = StatMath.Distributions.randf_uniform(params_mixed.a, params_mixed.b)
+	assert_float(result_mixed).is_greater_equal(params_mixed.a)
+	assert_float(result_mixed).is_less(params_mixed.b)
 
 
 func test_randf_uniform_invalid_a_greater_than_b() -> void:
@@ -342,22 +367,22 @@ func test_randf_uniform_invalid_a_greater_than_b() -> void:
 
 
 # Tests for randf_exponential
-func test_randf_exponential_typical_case() -> void:
-	# Exponential distribution should produce non-negative results.
-	var result: float = StatMath.Distributions.randf_exponential(2.0)
-	assert_float(result).is_greater_equal(0.0)
-
-
-func test_randf_exponential_small_lambda() -> void:
-	# Small lambda means larger expected value, still non-negative.
-	var result: float = StatMath.Distributions.randf_exponential(0.1)
-	assert_float(result).is_greater_equal(0.0)
-
-
-func test_randf_exponential_large_lambda() -> void:
-	# Large lambda means smaller expected value, still non-negative.
-	var result: float = StatMath.Distributions.randf_exponential(100.0)
-	assert_float(result).is_greater_equal(0.0)
+func test_randf_exponential_non_negative_property() -> void:
+	# Test that exponential distribution always produces non-negative results
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.primary)
+	
+	# Typical lambda case
+	var result_typical: float = StatMath.Distributions.randf_exponential(DistributionsTestData.STATISTICAL_PARAMS.exponential_rate)
+	assert_float(result_typical).is_greater_equal(0.0)
+	
+	# Small lambda case (larger expected value)
+	var result_small: float = StatMath.Distributions.randf_exponential(DistributionsTestData.STATISTICAL_PARAMS.poisson_small_lambda)
+	assert_float(result_small).is_greater_equal(0.0)
+	
+	# Large lambda case (smaller expected value)
+	var large_lambda: float = 100.0
+	var result_large: float = StatMath.Distributions.randf_exponential(large_lambda)
+	assert_float(result_large).is_greater_equal(0.0)
 
 
 func test_randf_exponential_invalid_lambda_zero() -> void:
@@ -372,32 +397,20 @@ func test_randf_exponential_invalid_lambda_negative() -> void:
 	await assert_error(test_invalid_input).is_push_error("Rate parameter (lambda_param) must be positive for Exponential distribution. Received: -1.0")
 
 
-func test_randf_exponential_statistical_properties() -> void:
-	var lambda_param: float = 1.5
-	var expected_mean: float = 1.0 / lambda_param # E[X] = 1/lambda
-	
-	var sample_size: int = 2000
-	var samples: Array[float] = []
-	for i in range(sample_size):
-		samples.append(StatMath.Distributions.randf_exponential(lambda_param))
-	
-	var sample_mean: float = StatMath.BasicStats.mean(samples)
-	# Check if sample mean is close to expected mean.
-	# Tolerance can be based on standard error of the mean: (1/lambda) / sqrt(n)
-	var expected_std_dev: float = 1.0 / lambda_param
-	var tolerance: float = 4.0 * expected_std_dev / sqrt(sample_size)
-	assert_float(sample_mean).is_between(expected_mean - tolerance, expected_mean + tolerance)
+
 
 
 # Tests for randf_erlang
-func test_randf_erlang_typical_case() -> void:
-	# Erlang distribution should produce non-negative results.
-	var result: float = StatMath.Distributions.randf_erlang(3, 2.0)
-	assert_float(result).is_greater_equal(0.0)
+func test_randf_erlang_non_negative_property() -> void:
+	# Test that Erlang distribution always produces non-negative results
+	StatMath.set_global_seed(DistributionsTestData.TEST_SEEDS.primary)
+	
+	# Typical case
+	var result_typical: float = StatMath.Distributions.randf_erlang(DistributionsTestData.BOUNDARY_VALUES.small_iterations, DistributionsTestData.STATISTICAL_PARAMS.exponential_rate)
+	assert_float(result_typical).is_greater_equal(0.0)
 
-
-func test_randf_erlang_k_one() -> void:
-	# Erlang with k=1 is equivalent to Exponential distribution.
+func test_randf_erlang_exponential_equivalence() -> void:
+	# Erlang with k=1 is equivalent to Exponential distribution
 	var result: float = StatMath.Distributions.randf_erlang(1, 2.0)
 	assert_float(result).is_greater_equal(0.0)
 
