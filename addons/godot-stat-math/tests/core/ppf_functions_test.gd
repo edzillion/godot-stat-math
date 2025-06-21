@@ -43,8 +43,10 @@ func test_weibull_ppf_scipy_validation() -> void:
 		assert_float(result).is_equal_approx(case["expected"], StatMath.INVERSE_FUNCTION_TOLERANCE)
 
 # =============================================================================
-# CDF-PPF CONSISTENCY TESTS - DIRECT FUNCTION CALLS
+# MATHEMATICAL PROPERTY TESTS
 # =============================================================================
+
+# --- CDF-PPF Consistency Tests ---
 
 ## Tests that CDF and PPF are inverse functions - Normal Distribution
 func test_normal_cdf_ppf_round_trip_consistency() -> void:
@@ -116,9 +118,7 @@ func test_exponential_ppf_cdf_round_trip_consistency() -> void:
 		var cdf_result: float = StatMath.CdfFunctions.exponential_cdf(ppf_value, case["lambda"])
 		assert_float(cdf_result).is_equal_approx(case["p"], StatMath.CDF_PPF_CONSISTENCY_TOLERANCE)
 
-# =============================================================================
-# MONOTONICITY TESTS - DIRECT FUNCTION CALLS
-# =============================================================================
+# --- Monotonicity Tests ---
 
 ## Tests that PPF functions are monotonically increasing - Normal Distribution
 func test_normal_ppf_monotonicity() -> void:
@@ -145,9 +145,7 @@ func test_exponential_ppf_monotonicity() -> void:
 		assert_bool(is_finite(current_ppf)).is_true()
 		prev_ppf = current_ppf
 
-# =============================================================================
-# BOUNDARY CONDITIONS TESTS - DIRECT FUNCTION CALLS
-# =============================================================================
+# --- Boundary Conditions Tests ---
 
 ## Tests PPF behavior at probability boundaries - Normal Distribution
 func test_normal_ppf_boundary_conditions() -> void:
@@ -215,9 +213,7 @@ func test_exponential_ppf_parameter_validation() -> void:
 		StatMath.PpfFunctions.exponential_ppf(0.5, -1.0)
 	await assert_error(test_lambda_negative).is_push_error("Rate lambda_param must be positive. Received: -1.0")
 
-# =============================================================================
-# SPECIAL MATHEMATICAL RELATIONSHIPS
-# =============================================================================
+# --- Special Mathematical Relationships ---
 
 ## Tests special mathematical relationships - Exponential Weibull Equivalence
 func test_exponential_weibull_equivalence() -> void:

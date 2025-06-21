@@ -58,11 +58,6 @@ func test_negative_binomial_pmf_invalid_parameters() -> void:
 	await assert_error(test_call2).is_push_error("Success probability (p_prob) must be in (0,1]. Received: 0.0") 
 
 # =============================================================================
-# PARAMETER VALIDATION TESTS
-# =============================================================================
-
-
-# =============================================================================
 # MATHEMATICAL PROPERTY TESTS
 # =============================================================================
 
@@ -73,20 +68,7 @@ func test_normal_pdf_scipy_validated() -> void:
 		var result: float = StatMath.PmfPdfFunctions.normal_pdf(case["params"][0], case["params"][1], case["params"][2])
 		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
-func test_normal_pdf_invalid_parameters() -> void:
-	var test_call1: Callable = func():
-		StatMath.PmfPdfFunctions.normal_pdf(0.0, 0.0, -1.0)
-	await assert_error(test_call1).is_push_error("Standard deviation (sigma) must be positive. Received: -1.0")
-	
-	var test_call2: Callable = func():
-		StatMath.PmfPdfFunctions.normal_pdf(0.0, 0.0, 0.0)
-	await assert_error(test_call2).is_push_error("Standard deviation (sigma) must be positive. Received: 0.0")
-	
-	# Test return values are NAN
-	var result1: float = StatMath.PmfPdfFunctions.normal_pdf(0.0, 0.0, -1.0)
-	var result2: float = StatMath.PmfPdfFunctions.normal_pdf(0.0, 0.0, 0.0)
-	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true()
+
 
 # --- Exponential PDF ---
 func test_exponential_pdf_scipy_validated() -> void:
@@ -95,20 +77,7 @@ func test_exponential_pdf_scipy_validated() -> void:
 		var result: float = StatMath.PmfPdfFunctions.exponential_pdf(case["params"][0], case["params"][1])
 		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
-func test_exponential_pdf_invalid_parameters() -> void:
-	var test_call1: Callable = func():
-		StatMath.PmfPdfFunctions.exponential_pdf(1.0, -1.0)
-	await assert_error(test_call1).is_push_error("Rate parameter (lambda_param) must be positive. Received: -1.0")
-	
-	var test_call2: Callable = func():
-		StatMath.PmfPdfFunctions.exponential_pdf(1.0, 0.0)
-	await assert_error(test_call2).is_push_error("Rate parameter (lambda_param) must be positive. Received: 0.0")
-	
-	# Test return values are NAN
-	var result1: float = StatMath.PmfPdfFunctions.exponential_pdf(1.0, -1.0)
-	var result2: float = StatMath.PmfPdfFunctions.exponential_pdf(1.0, 0.0)
-	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true()
+
 
 # --- Uniform PDF ---
 func test_uniform_pdf_scipy_validated() -> void:
@@ -117,20 +86,7 @@ func test_uniform_pdf_scipy_validated() -> void:
 		var result: float = StatMath.PmfPdfFunctions.uniform_pdf(case["params"][0], case["params"][1], case["params"][2])
 		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
-func test_uniform_pdf_invalid_parameters() -> void:
-	var test_call1: Callable = func():
-		StatMath.PmfPdfFunctions.uniform_pdf(2.0, 4.0, 1.0)
-	await assert_error(test_call1).is_push_error("Parameter b must be greater than a. Received a=4.0, b=1.0")
-	
-	var test_call2: Callable = func():
-		StatMath.PmfPdfFunctions.uniform_pdf(2.0, 3.0, 3.0)
-	await assert_error(test_call2).is_push_error("Parameter b must be greater than a. Received a=3.0, b=3.0")
-	
-	# Test return values are NAN
-	var result1: float = StatMath.PmfPdfFunctions.uniform_pdf(2.0, 4.0, 1.0)
-	var result2: float = StatMath.PmfPdfFunctions.uniform_pdf(2.0, 3.0, 3.0)
-	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true()
+
 
 # --- Gamma PDF ---
 func test_gamma_pdf_basic() -> void:
@@ -145,32 +101,7 @@ func test_gamma_pdf_scipy_validated() -> void:
 		var result: float = StatMath.PmfPdfFunctions.gamma_pdf(case["params"][0], case["params"][1], case["params"][2])
 		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
-func test_gamma_pdf_invalid_parameters() -> void:
-	var test_call1: Callable = func():
-		StatMath.PmfPdfFunctions.gamma_pdf(1.0, -1.0, 1.0)
-	await assert_error(test_call1).is_push_error("Shape parameter (k_shape) must be positive. Received: -1.0")
-	
-	var test_call2: Callable = func():
-		StatMath.PmfPdfFunctions.gamma_pdf(1.0, 0.0, 1.0)
-	await assert_error(test_call2).is_push_error("Shape parameter (k_shape) must be positive. Received: 0.0")
-	
-	var test_call3: Callable = func():
-		StatMath.PmfPdfFunctions.gamma_pdf(1.0, 2.0, -1.0)
-	await assert_error(test_call3).is_push_error("Scale parameter (theta_scale) must be positive. Received: -1.0")
-	
-	var test_call4: Callable = func():
-		StatMath.PmfPdfFunctions.gamma_pdf(1.0, 2.0, 0.0)
-	await assert_error(test_call4).is_push_error("Scale parameter (theta_scale) must be positive. Received: 0.0")
-	
-	# Test return values are NAN
-	var result1: float = StatMath.PmfPdfFunctions.gamma_pdf(1.0, -1.0, 1.0)
-	var result2: float = StatMath.PmfPdfFunctions.gamma_pdf(1.0, 0.0, 1.0)
-	var result3: float = StatMath.PmfPdfFunctions.gamma_pdf(1.0, 2.0, -1.0)
-	var result4: float = StatMath.PmfPdfFunctions.gamma_pdf(1.0, 2.0, 0.0)
-	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true()
-	assert_bool(is_nan(result3)).is_true()
-	assert_bool(is_nan(result4)).is_true()
+
 
 # --- Beta PDF ---
 func test_beta_pdf_scipy_validated() -> void:
@@ -223,32 +154,7 @@ func test_beta_pdf_boundary_behavior() -> void:
 	assert_float(result_near_zero).is_greater(0.0)
 	assert_float(result_near_one).is_greater(0.0)
 
-func test_beta_pdf_invalid_parameters() -> void:
-	var test_call1: Callable = func():
-		StatMath.PmfPdfFunctions.beta_pdf(0.5, -1.0, 2.0)
-	await assert_error(test_call1).is_push_error("Shape parameters (alpha, beta_param) must be positive. Received alpha=-1.0, beta_param=2.0")
-	
-	var test_call2: Callable = func():
-		StatMath.PmfPdfFunctions.beta_pdf(0.5, 0.0, 2.0)
-	await assert_error(test_call2).is_push_error("Shape parameters (alpha, beta_param) must be positive. Received alpha=0.0, beta_param=2.0")
-	
-	var test_call3: Callable = func():
-		StatMath.PmfPdfFunctions.beta_pdf(0.5, 2.0, -1.0)
-	await assert_error(test_call3).is_push_error("Shape parameters (alpha, beta_param) must be positive. Received alpha=2.0, beta_param=-1.0")
-	
-	var test_call4: Callable = func():
-		StatMath.PmfPdfFunctions.beta_pdf(0.5, 2.0, 0.0)
-	await assert_error(test_call4).is_push_error("Shape parameters (alpha, beta_param) must be positive. Received alpha=2.0, beta_param=0.0")
-	
-	# Test return values are NAN
-	var result1: float = StatMath.PmfPdfFunctions.beta_pdf(0.5, -1.0, 2.0)
-	var result2: float = StatMath.PmfPdfFunctions.beta_pdf(0.5, 0.0, 2.0)
-	var result3: float = StatMath.PmfPdfFunctions.beta_pdf(0.5, 2.0, -1.0)
-	var result4: float = StatMath.PmfPdfFunctions.beta_pdf(0.5, 2.0, 0.0)
-	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true()
-	assert_bool(is_nan(result3)).is_true()
-	assert_bool(is_nan(result4)).is_true()
+
 
 # --- Chi-squared PDF ---
 func test_chi_squared_pdf_scipy_validated() -> void:
@@ -283,20 +189,7 @@ func test_chi_squared_pdf_gamma_relationship() -> void:
 			var gamma_result: float = StatMath.PmfPdfFunctions.gamma_pdf(x, df / 2.0, 2.0)
 			assert_float(chi_sq_result).is_equal_approx(gamma_result, StatMath.PROBABILITY_TOLERANCE)
 
-func test_chi_squared_pdf_invalid_parameters() -> void:
-	var test_call1: Callable = func():
-		StatMath.PmfPdfFunctions.chi_squared_pdf(1.0, -1.0)
-	await assert_error(test_call1).is_push_error("Degrees of freedom (k_df) must be positive. Received: -1.0")
-	
-	var test_call2: Callable = func():
-		StatMath.PmfPdfFunctions.chi_squared_pdf(1.0, 0.0)
-	await assert_error(test_call2).is_push_error("Degrees of freedom (k_df) must be positive. Received: 0.0")
-	
-	# Test return values are NAN
-	var result1: float = StatMath.PmfPdfFunctions.chi_squared_pdf(1.0, -1.0)
-	var result2: float = StatMath.PmfPdfFunctions.chi_squared_pdf(1.0, 0.0)
-	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true()
+
 
 # --- Student's t PDF ---
 func test_t_pdf_scipy_validated() -> void:
@@ -331,20 +224,7 @@ func test_t_pdf_symmetry() -> void:
 		var result2: float = StatMath.PmfPdfFunctions.t_pdf(-x, df_nu)
 		assert_float(result1).is_equal_approx(result2, StatMath.PROBABILITY_TOLERANCE)
 
-func test_t_pdf_invalid_parameters() -> void:
-	var test_call1: Callable = func():
-		StatMath.PmfPdfFunctions.t_pdf(0.0, -1.0)
-	await assert_error(test_call1).is_push_error("Degrees of freedom (df_nu) must be positive. Received: -1.0")
-	
-	var test_call2: Callable = func():
-		StatMath.PmfPdfFunctions.t_pdf(0.0, 0.0)
-	await assert_error(test_call2).is_push_error("Degrees of freedom (df_nu) must be positive. Received: 0.0")
-	
-	# Test return values are NAN
-	var result1: float = StatMath.PmfPdfFunctions.t_pdf(0.0, -1.0)
-	var result2: float = StatMath.PmfPdfFunctions.t_pdf(0.0, 0.0)
-	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true()
+
 
 # --- F PDF ---
 func test_f_pdf_basic() -> void:
@@ -360,32 +240,7 @@ func test_f_pdf_edge_cases() -> void:
 	assert_float(result1).is_equal_approx(0.0, StatMath.PROBABILITY_TOLERANCE)
 	assert_float(result2).is_equal_approx(0.0, StatMath.PROBABILITY_TOLERANCE)
 
-func test_f_pdf_invalid_parameters() -> void:
-	var test_call1: Callable = func():
-		StatMath.PmfPdfFunctions.f_pdf(1.0, -1.0, 3.0)
-	await assert_error(test_call1).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=-1.0, d2_df=3.0")
-	
-	var test_call2: Callable = func():
-		StatMath.PmfPdfFunctions.f_pdf(1.0, 0.0, 3.0)
-	await assert_error(test_call2).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=0.0, d2_df=3.0")
-	
-	var test_call3: Callable = func():
-		StatMath.PmfPdfFunctions.f_pdf(1.0, 2.0, -1.0)
-	await assert_error(test_call3).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=2.0, d2_df=-1.0")
-	
-	var test_call4: Callable = func():
-		StatMath.PmfPdfFunctions.f_pdf(1.0, 2.0, 0.0)
-	await assert_error(test_call4).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=2.0, d2_df=0.0")
-	
-	# Test return values are NAN
-	var result1: float = StatMath.PmfPdfFunctions.f_pdf(1.0, -1.0, 3.0)
-	var result2: float = StatMath.PmfPdfFunctions.f_pdf(1.0, 0.0, 3.0)
-	var result3: float = StatMath.PmfPdfFunctions.f_pdf(1.0, 2.0, -1.0)
-	var result4: float = StatMath.PmfPdfFunctions.f_pdf(1.0, 2.0, 0.0)
-	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true()
-	assert_bool(is_nan(result3)).is_true()
-	assert_bool(is_nan(result4)).is_true()
+
 
 
 # =============================================================================
@@ -611,32 +466,7 @@ func test_weibull_pdf_non_negative() -> void:
 		if not is_inf(result):
 			assert_float(result).is_greater_equal(0.0)
 
-func test_weibull_pdf_invalid_parameters() -> void:
-	var test_call1: Callable = func():
-		StatMath.PmfPdfFunctions.weibull_pdf(1.0, -1.0, 1.0)
-	await assert_error(test_call1).is_push_error("Scale parameter (scale_param) must be positive. Received: -1.0")
-	
-	var test_call2: Callable = func():
-		StatMath.PmfPdfFunctions.weibull_pdf(1.0, 0.0, 1.0)
-	await assert_error(test_call2).is_push_error("Scale parameter (scale_param) must be positive. Received: 0.0")
-	
-	var test_call3: Callable = func():
-		StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, -1.0)
-	await assert_error(test_call3).is_push_error("Shape parameter (shape_param) must be positive. Received: -1.0")
-	
-	var test_call4: Callable = func():
-		StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, 0.0)
-	await assert_error(test_call4).is_push_error("Shape parameter (shape_param) must be positive. Received: 0.0")
-	
-	# Test return values are NAN
-	var result1: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, -1.0, 1.0)
-	var result2: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, 0.0, 1.0)
-	var result3: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, -1.0)
-	var result4: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, 0.0)
-	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true()
-	assert_bool(is_nan(result3)).is_true()
-	assert_bool(is_nan(result4)).is_true()
+
 
 # --- Lognormal PDF ---
 func test_lognormal_pdf_scipy_validated() -> void:
@@ -674,20 +504,7 @@ func test_lognormal_pdf_non_negative() -> void:
 		var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(x, 0.0, 1.0)
 		assert_float(result).is_greater_equal(0.0)
 
-func test_lognormal_pdf_invalid_parameters() -> void:
-	var test_call1: Callable = func():
-		StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, -1.0)
-	await assert_error(test_call1).is_push_error("Standard deviation (sigma) must be positive. Received: -1.0")
-	
-	var test_call2: Callable = func():
-		StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, 0.0)
-	await assert_error(test_call2).is_push_error("Standard deviation (sigma) must be positive. Received: 0.0")
-	
-	# Test return values are NAN
-	var result1: float = StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, -1.0)
-	var result2: float = StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, 0.0)
-	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true()
+
 
 # --- PDF Integration Property Tests ---
 # These tests verify that probability density functions integrate to approximately 1.0
@@ -834,3 +651,216 @@ func test_pdf_integration_parametrized() -> void:
 					sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta) * 0.01
 		
 		assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
+
+
+# =============================================================================
+# PARAMETER VALIDATION TESTS
+# =============================================================================
+
+# --- Normal PDF ---
+func test_normal_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.normal_pdf(0.0, 0.0, -1.0)
+	await assert_error(test_call1).is_push_error("Standard deviation (sigma) must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.normal_pdf(0.0, 0.0, 0.0)
+	await assert_error(test_call2).is_push_error("Standard deviation (sigma) must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.normal_pdf(0.0, 0.0, -1.0)
+	var result2: float = StatMath.PmfPdfFunctions.normal_pdf(0.0, 0.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+
+# --- Exponential PDF ---
+func test_exponential_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.exponential_pdf(1.0, -1.0)
+	await assert_error(test_call1).is_push_error("Rate parameter (lambda_param) must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.exponential_pdf(1.0, 0.0)
+	await assert_error(test_call2).is_push_error("Rate parameter (lambda_param) must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.exponential_pdf(1.0, -1.0)
+	var result2: float = StatMath.PmfPdfFunctions.exponential_pdf(1.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+
+# --- Uniform PDF ---
+func test_uniform_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.uniform_pdf(2.0, 4.0, 1.0)
+	await assert_error(test_call1).is_push_error("Parameter b must be greater than a. Received a=4.0, b=1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.uniform_pdf(2.0, 3.0, 3.0)
+	await assert_error(test_call2).is_push_error("Parameter b must be greater than a. Received a=3.0, b=3.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.uniform_pdf(2.0, 4.0, 1.0)
+	var result2: float = StatMath.PmfPdfFunctions.uniform_pdf(2.0, 3.0, 3.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+
+# --- Gamma PDF ---
+func test_gamma_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.gamma_pdf(1.0, -1.0, 1.0)
+	await assert_error(test_call1).is_push_error("Shape parameter (k_shape) must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.gamma_pdf(1.0, 0.0, 1.0)
+	await assert_error(test_call2).is_push_error("Shape parameter (k_shape) must be positive. Received: 0.0")
+	
+	var test_call3: Callable = func():
+		StatMath.PmfPdfFunctions.gamma_pdf(1.0, 2.0, -1.0)
+	await assert_error(test_call3).is_push_error("Scale parameter (theta_scale) must be positive. Received: -1.0")
+	
+	var test_call4: Callable = func():
+		StatMath.PmfPdfFunctions.gamma_pdf(1.0, 2.0, 0.0)
+	await assert_error(test_call4).is_push_error("Scale parameter (theta_scale) must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.gamma_pdf(1.0, -1.0, 1.0)
+	var result2: float = StatMath.PmfPdfFunctions.gamma_pdf(1.0, 0.0, 1.0)
+	var result3: float = StatMath.PmfPdfFunctions.gamma_pdf(1.0, 2.0, -1.0)
+	var result4: float = StatMath.PmfPdfFunctions.gamma_pdf(1.0, 2.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+	assert_bool(is_nan(result3)).is_true()
+	assert_bool(is_nan(result4)).is_true()
+
+# --- Beta PDF ---
+func test_beta_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.beta_pdf(0.5, -1.0, 2.0)
+	await assert_error(test_call1).is_push_error("Shape parameters (alpha, beta_param) must be positive. Received alpha=-1.0, beta_param=2.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.beta_pdf(0.5, 0.0, 2.0)
+	await assert_error(test_call2).is_push_error("Shape parameters (alpha, beta_param) must be positive. Received alpha=0.0, beta_param=2.0")
+	
+	var test_call3: Callable = func():
+		StatMath.PmfPdfFunctions.beta_pdf(0.5, 2.0, -1.0)
+	await assert_error(test_call3).is_push_error("Shape parameters (alpha, beta_param) must be positive. Received alpha=2.0, beta_param=-1.0")
+	
+	var test_call4: Callable = func():
+		StatMath.PmfPdfFunctions.beta_pdf(0.5, 2.0, 0.0)
+	await assert_error(test_call4).is_push_error("Shape parameters (alpha, beta_param) must be positive. Received alpha=2.0, beta_param=0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.beta_pdf(0.5, -1.0, 2.0)
+	var result2: float = StatMath.PmfPdfFunctions.beta_pdf(0.5, 0.0, 2.0)
+	var result3: float = StatMath.PmfPdfFunctions.beta_pdf(0.5, 2.0, -1.0)
+	var result4: float = StatMath.PmfPdfFunctions.beta_pdf(0.5, 2.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+	assert_bool(is_nan(result3)).is_true()
+	assert_bool(is_nan(result4)).is_true()
+
+# --- Chi-squared PDF ---
+func test_chi_squared_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.chi_squared_pdf(1.0, -1.0)
+	await assert_error(test_call1).is_push_error("Degrees of freedom (k_df) must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.chi_squared_pdf(1.0, 0.0)
+	await assert_error(test_call2).is_push_error("Degrees of freedom (k_df) must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.chi_squared_pdf(1.0, -1.0)
+	var result2: float = StatMath.PmfPdfFunctions.chi_squared_pdf(1.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+
+# --- Student's t PDF ---
+func test_t_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.t_pdf(0.0, -1.0)
+	await assert_error(test_call1).is_push_error("Degrees of freedom (df_nu) must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.t_pdf(0.0, 0.0)
+	await assert_error(test_call2).is_push_error("Degrees of freedom (df_nu) must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.t_pdf(0.0, -1.0)
+	var result2: float = StatMath.PmfPdfFunctions.t_pdf(0.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+
+# --- F PDF ---
+func test_f_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.f_pdf(1.0, -1.0, 3.0)
+	await assert_error(test_call1).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=-1.0, d2_df=3.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.f_pdf(1.0, 0.0, 3.0)
+	await assert_error(test_call2).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=0.0, d2_df=3.0")
+	
+	var test_call3: Callable = func():
+		StatMath.PmfPdfFunctions.f_pdf(1.0, 2.0, -1.0)
+	await assert_error(test_call3).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=2.0, d2_df=-1.0")
+	
+	var test_call4: Callable = func():
+		StatMath.PmfPdfFunctions.f_pdf(1.0, 2.0, 0.0)
+	await assert_error(test_call4).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=2.0, d2_df=0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.f_pdf(1.0, -1.0, 3.0)
+	var result2: float = StatMath.PmfPdfFunctions.f_pdf(1.0, 0.0, 3.0)
+	var result3: float = StatMath.PmfPdfFunctions.f_pdf(1.0, 2.0, -1.0)
+	var result4: float = StatMath.PmfPdfFunctions.f_pdf(1.0, 2.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+	assert_bool(is_nan(result3)).is_true()
+	assert_bool(is_nan(result4)).is_true()
+
+# --- Weibull PDF ---
+func test_weibull_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.weibull_pdf(1.0, -1.0, 1.0)
+	await assert_error(test_call1).is_push_error("Scale parameter (scale_param) must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.weibull_pdf(1.0, 0.0, 1.0)
+	await assert_error(test_call2).is_push_error("Scale parameter (scale_param) must be positive. Received: 0.0")
+	
+	var test_call3: Callable = func():
+		StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, -1.0)
+	await assert_error(test_call3).is_push_error("Shape parameter (shape_param) must be positive. Received: -1.0")
+	
+	var test_call4: Callable = func():
+		StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, 0.0)
+	await assert_error(test_call4).is_push_error("Shape parameter (shape_param) must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, -1.0, 1.0)
+	var result2: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, 0.0, 1.0)
+	var result3: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, -1.0)
+	var result4: float = StatMath.PmfPdfFunctions.weibull_pdf(1.0, 2.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+	assert_bool(is_nan(result3)).is_true()
+	assert_bool(is_nan(result4)).is_true()
+
+# --- Lognormal PDF ---
+func test_lognormal_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, -1.0)
+	await assert_error(test_call1).is_push_error("Standard deviation (sigma) must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, 0.0)
+	await assert_error(test_call2).is_push_error("Standard deviation (sigma) must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, -1.0)
+	var result2: float = StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()

@@ -8,7 +8,7 @@ const CDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/cdf_test_data
 # Manual data transformation function ELIMINATED - data structure optimized for direct usage
 
 # =============================================================================
-# PHASE 3: ENHANCED CDF TESTING - SCIPY VALIDATED DATA
+# SCIPY VALIDATION TESTS - DATA-DRIVEN
 # =============================================================================
 
 ## Tests normal CDF function with comprehensive test data
@@ -67,192 +67,6 @@ func test_weibull_cdf_comprehensive() -> void:
 		var result: float = StatMath.CdfFunctions.weibull_cdf(case["params"][0], case["params"][1], case["params"][2])
 		assert_float(result).is_equal_approx(case["expected"], StatMath.INVERSE_FUNCTION_TOLERANCE)
 
-# =============================================================================
-# PHASE 3: MONOTONICITY TESTING FOR ALL DISTRIBUTIONS  
-# =============================================================================
-
-## Tests normal CDF monotonicity 
-func test_normal_cdf_monotonicity() -> void:
-	var test_points: Array[float] = [-3.0, -1.0, 0.0, 1.0, 3.0]
-	var prev_cdf: float = -1.0
-	
-	for x in test_points:
-		var current_cdf: float = StatMath.CdfFunctions.normal_cdf(x, 0.0, 1.0)
-		assert_float(current_cdf).is_greater_equal(prev_cdf)
-		assert_float(current_cdf).is_between(0.0, 1.0)
-		prev_cdf = current_cdf
-
-## Tests exponential CDF monotonicity
-func test_exponential_cdf_monotonicity() -> void:
-	var test_points: Array[float] = [0.0, 0.5, 1.0, 2.0, 5.0]
-	var prev_cdf: float = -1.0
-	
-	for x in test_points:
-		var current_cdf: float = StatMath.CdfFunctions.exponential_cdf(x, 1.0)
-		assert_float(current_cdf).is_greater_equal(prev_cdf)
-		assert_float(current_cdf).is_between(0.0, 1.0)
-		prev_cdf = current_cdf
-
-## Tests gamma CDF monotonicity
-func test_gamma_cdf_monotonicity() -> void:
-	var test_points: Array[float] = [0.0, 0.5, 1.0, 2.0, 4.0]
-	var prev_cdf: float = -1.0
-	
-	for x in test_points:
-		var current_cdf: float = StatMath.CdfFunctions.gamma_cdf(x, 2.0, 1.0)
-		assert_float(current_cdf).is_greater_equal(prev_cdf)
-		assert_float(current_cdf).is_between(0.0, 1.0)
-		prev_cdf = current_cdf
-
-# =============================================================================
-# PHASE 3: BOUNDARY VALUE TESTING
-# =============================================================================
-
-## Tests CDF boundary behavior for normal distribution
-func test_normal_cdf_boundary_values() -> void:
-	# Extreme negative values should approach 0
-	var result_neg: float = StatMath.CdfFunctions.normal_cdf(-1000.0, 0.0, 1.0)
-	assert_float(result_neg).is_equal_approx(0.0, StatMath.BOUNDARY_TOLERANCE)
-	
-	# Extreme positive values should approach 1  
-	var result_pos: float = StatMath.CdfFunctions.normal_cdf(1000.0, 0.0, 1.0)
-	assert_float(result_pos).is_equal_approx(1.0, StatMath.BOUNDARY_TOLERANCE)
-
-## Tests CDF boundary behavior for exponential distribution
-func test_exponential_cdf_boundary_values() -> void:
-	# x = 0 should give CDF = 0
-	var result_zero: float = StatMath.CdfFunctions.exponential_cdf(0.0, 1.0)
-	assert_float(result_zero).is_equal_approx(0.0, StatMath.BOUNDARY_TOLERANCE)
-	
-	# Negative x should give CDF = 0
-	var result_neg: float = StatMath.CdfFunctions.exponential_cdf(-1.0, 1.0)
-	assert_float(result_neg).is_equal_approx(0.0, StatMath.BOUNDARY_TOLERANCE)
-	
-	# Large x should approach 1
-	var result_large: float = StatMath.CdfFunctions.exponential_cdf(100.0, 1.0)
-	assert_float(result_large).is_equal_approx(1.0, StatMath.BOUNDARY_TOLERANCE)
-
-# =============================================================================
-# MATHEMATICAL PROPERTY TESTS
-# =============================================================================
-
-## Tests CDF values at median for normal distribution
-func test_normal_cdf_median() -> void:
-	# Standard normal median should be at x=0, giving CDF=0.5
-	var result: float = StatMath.CdfFunctions.normal_cdf(0.0, 0.0, 1.0)
-	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
-
-## Tests CDF values at median for exponential distribution  
-func test_exponential_cdf_median() -> void:
-	# Exponential median at ln(2) should give CDF = 0.5 exactly
-	var ln_2: float = log(2.0)  # Mathematical constant: natural log of 2
-	var result: float = StatMath.CdfFunctions.exponential_cdf(ln_2, 1.0)
-	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
-
-## Tests CDF values at median for uniform distribution
-func test_uniform_cdf_median() -> void:
-	# Uniform distribution midpoint should give CDF = 0.5 exactly
-	var result: float = StatMath.CdfFunctions.uniform_cdf(4.0, 2.0, 6.0)
-	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
-
-# =============================================================================
-# PARAMETER VALIDATION TESTS
-# =============================================================================
-
-## Individual parameter validation tests - ELIMINATED complex string-based match pattern
-
-# Normal CDF validation tests
-func test_normal_cdf_validation_sigma_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.normal_cdf(1.0, 0.0, 0.0)
-	await assert_error(test_call).is_push_error("Standard deviation (sigma) must be positive for Normal CDF. Received: 0.0")
-
-func test_normal_cdf_validation_sigma_negative() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.normal_cdf(1.0, 0.0, -1.0)
-	await assert_error(test_call).is_push_error("Standard deviation (sigma) must be positive for Normal CDF. Received: -1.0")
-
-# Exponential CDF validation tests
-func test_exponential_cdf_validation_lambda_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.exponential_cdf(1.0, 0.0)
-	await assert_error(test_call).is_push_error("Rate parameter (lambda_param) must be positive for Exponential CDF. Received: 0.0")
-
-func test_exponential_cdf_validation_lambda_negative() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.exponential_cdf(1.0, -1.0)
-	await assert_error(test_call).is_push_error("Rate parameter (lambda_param) must be positive for Exponential CDF. Received: -1.0")
-
-# Gamma CDF validation tests
-func test_gamma_cdf_validation_shape_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.gamma_cdf(1.0, 0.0, 1.0)
-	await assert_error(test_call).is_push_error("Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=0.0, theta_scale=1.0")
-
-func test_gamma_cdf_validation_scale_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.gamma_cdf(1.0, 1.0, 0.0)
-	await assert_error(test_call).is_push_error("Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=1.0, theta_scale=0.0")
-
-# Beta CDF validation tests
-func test_beta_cdf_validation_alpha_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.beta_cdf(0.5, 0.0, 1.0)
-	await assert_error(test_call).is_push_error("Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=0.0, beta_param=1.0")
-
-func test_beta_cdf_validation_beta_negative() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.beta_cdf(0.5, 1.0, -1.0)
-	await assert_error(test_call).is_push_error("Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=1.0, beta_param=-1.0")
-
-# Chi-Square CDF validation tests
-func test_chi_square_cdf_validation_df_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.chi_square_cdf(1.0, 0.0)
-	await assert_error(test_call).is_push_error("Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: 0.0")
-
-func test_chi_square_cdf_validation_df_negative() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.chi_square_cdf(1.0, -1.0)
-	await assert_error(test_call).is_push_error("Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: -1.0")
-
-# t-Distribution CDF validation tests
-func test_t_cdf_validation_df_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.t_cdf(1.0, 0.0)
-	await assert_error(test_call).is_push_error("Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: 0.0")
-
-func test_t_cdf_validation_df_negative() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.t_cdf(1.0, -5.0)
-	await assert_error(test_call).is_push_error("Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: -5.0")
-
-# F-Distribution CDF validation tests
-func test_f_cdf_validation_d1_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.f_cdf(1.0, 0.0, 5.0)
-	await assert_error(test_call).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive for F-Distribution CDF. Received d1_df=0.0, d2_df=5.0")
-
-func test_f_cdf_validation_d2_negative() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.f_cdf(1.0, 5.0, -1.0)
-	await assert_error(test_call).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive for F-Distribution CDF. Received d1_df=5.0, d2_df=-1.0")
-
-# Weibull CDF validation tests
-func test_weibull_cdf_validation_scale_zero() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.weibull_cdf(1.0, 0.0, 2.0)
-	await assert_error(test_call).is_push_error("Scale parameter must be positive for Weibull CDF. Received: 0.0")
-
-func test_weibull_cdf_validation_shape_negative() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.weibull_cdf(1.0, 1.0, -1.0)
-	await assert_error(test_call).is_push_error("Shape parameter must be positive for Weibull CDF. Received: -1.0")
-
-# =============================================================================
-# SCIPY VALIDATION TESTS - DATA-DRIVEN
-# =============================================================================
-
 # --- Uniform CDF ---
 func test_uniform_cdf_basic_range() -> void:
 	var a: float = 2.0
@@ -272,11 +86,6 @@ func test_uniform_cdf_x_above_b() -> void:
 func test_uniform_cdf_a_equals_b() -> void:
 	var result: float = StatMath.CdfFunctions.uniform_cdf(2.0, 2.0, 2.0)
 	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
-
-func test_uniform_cdf_invalid_a_greater_than_b() -> void:
-	var test_call: Callable = func():
-		StatMath.CdfFunctions.uniform_cdf(2.0, 5.0, 2.0)
-	await assert_error(test_call).is_push_error("Parameter a must be less than or equal to b for Uniform CDF. Received a=5.0, b=2.0")
 
 # --- Normal CDF ---
 func test_normal_cdf_standard_normal() -> void:

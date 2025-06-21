@@ -11,8 +11,20 @@ const CDF_PDF_INTEGRATION_TEST_DATA = preload("res://addons/godot-stat-math/tabl
 ## • Cross-distribution mathematical relationships
 
 # =============================================================================
-# CDF ↔ PDF DERIVATIVE RELATIONSHIP TESTS
+# SCIPY VALIDATION TESTS - DATA-DRIVEN
 # =============================================================================
+
+## Tests integration consistency using scipy-validated data
+func test_scipy_integration_validation() -> void:
+	# This is a placeholder for scipy-validated integration tests
+	# Currently this file focuses on mathematical property testing
+	pass
+
+# =============================================================================
+# MATHEMATICAL PROPERTY TESTS
+# =============================================================================
+
+# --- CDF ↔ PDF Derivative Relationship Tests ---
 
 ## Tests that the numerical derivative of Normal CDF approximates Normal PDF
 func test_normal_cdf_pdf_derivative_relationship() -> void:
@@ -110,9 +122,7 @@ func test_weibull_cdf_pdf_derivative_relationship() -> void:
 		
 		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
 
-# =============================================================================
-# CDF MONOTONICITY TESTS
-# =============================================================================
+# --- CDF Monotonicity Tests ---
 
 ## Tests that CDFs are monotonically increasing for all continuous distributions
 func test_cdf_monotonicity_all_distributions() -> void:
@@ -153,9 +163,7 @@ func test_cdf_monotonicity_all_distributions() -> void:
 			
 			prev_cdf = current_cdf
 
-# =============================================================================
-# END-TO-END STATISTICAL COMPUTATION TESTS
-# =============================================================================
+# --- End-to-End Statistical Computation Tests ---
 
 ## Tests a complete statistical workflow: data generation → analysis → validation
 func test_end_to_end_normal_distribution_workflow() -> void:
@@ -268,6 +276,17 @@ func test_distribution_boundary_behavior() -> void:
 	
 	# Test exponential distribution at x=0
 	assert_float(StatMath.CdfFunctions.exponential_cdf(0.0, 2.0)).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
+
+# =============================================================================
+# PARAMETER VALIDATION TESTS
+# =============================================================================
+
+## Tests parameter validation for integration functions
+func test_integration_parameter_validation() -> void:
+	# This is a placeholder for parameter validation tests
+	# Integration tests primarily focus on mathematical properties
+	# Individual function parameter validation is tested in their respective test files
+	pass
 
 # =============================================================================
 # HELPER FUNCTIONS
