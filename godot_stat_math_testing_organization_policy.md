@@ -61,39 +61,81 @@ Each file must include the appropriate section header:
 - Three files created with proper separation of concerns
 - Original file backed up as `.backup`
 
-### Phase 2: Systematic Rollout
+### Phase 2: Systematic Rollout ✅ **COMPLETE!**
 Apply this pattern to remaining test modules:
-- basic_stats
+- ✅ basic_stats (completed)
+- ✅ helper_functions (completed)
+- ✅ pmf_pdf_functions (completed)
+- ✅ ppf_functions (completed)
+- ✅ sampling_gen (completed) 
 - cdf_functions  
-- pmf_pdf_functions
-- ppf_functions
 - error_functions
-- helper_functions
 - cdf_pdf_integration
-- sampling_gen
+
+**Critical Requirements:**
+1. **Preserve Original Files**: Leave the original monolithic test file completely untouched for reference purposes during and after migration
+2. **Create Migration Checklist**: Document every test function's migration path with verification tracking
 
 ### Phase 3: Legacy Cleanup
 - Remove original monolithic test files after validation
 - Update test runner configurations
 - Update documentation references
 
+## Migration Checklist Process
+
+### Mandatory Verification Workflow
+Each module migration **MUST** include a comprehensive checklist document that tracks:
+
+1. **Test Function Inventory**: Complete list of all test functions from the original file
+2. **Category Assignment**: Clear identification of which specialized file each test belongs to  
+3. **Migration Tracking**: Verification checkboxes for each test's successful relocation
+4. **Line Number References**: Specific line numbers in reorganized files for verification
+5. **Final Validation**: Confirmation that test counts match and all tests pass
+
+### Sample Checklist Format
+```markdown
+# [Module] Test Migration Checklist
+
+## Original File: `[module]_test.gd` (X tests)
+
+## SCIPY VALIDATION TESTS (X tests)
+- [x] `test_function_name` ✓ Line X
+
+## MATHEMATICAL PROPERTY TESTS (X tests)  
+- [x] `test_function_name` ✓ Line X
+
+## PARAMETER VALIDATION TESTS (X tests)
+- [x] `test_function_name` ✓ Line X
+
+## VERIFICATION STATUS
+- **Successfully migrated tests:** X/X ✅
+- **ALL TESTS PASSING:** X/X ✅
+```
+
+This process ensures **100% accountability** for every test function during migration.
+
 ## Quality Assurance
 
 ### Pre-Migration Checklist
+- [ ] **Create comprehensive test function inventory**: List all test functions from original file by section
+- [ ] **Create migration tracking checklist**: Document where each test will be moved with verification tracking
 - [ ] Create module folder: `tests/core/[module_name]/`
 - [ ] Extract SCIPY VALIDATION TESTS to `scipy_validation_test.gd`
 - [ ] Extract MATHEMATICAL PROPERTY TESTS to `mathematical_property_test.gd`
 - [ ] Extract PARAMETER VALIDATION TESTS to `parameter_validation_test.gd`
-- [ ] Create backup of original file: `[original_file].backup`
+- [ ] **Preserve original file**: Leave original test file completely untouched for reference
 - [ ] Verify all test functions are properly categorized
 - [ ] Run tests to ensure no functionality is lost
 
 ### Post-Migration Validation
+- [ ] **Verify migration checklist completion**: Confirm all original tests are accounted for in new structure
+- [ ] **Cross-reference test counts**: Original file test count = sum of reorganized file test counts
 - [ ] All tests pass in new structure
 - [ ] No duplicate test functions across files
 - [ ] Proper class names and file headers
 - [ ] Section headers are correct
 - [ ] Test coverage is maintained
+- [ ] **Document verification results**: Update migration checklist with final pass/fail status
 
 ## Exception Handling
 

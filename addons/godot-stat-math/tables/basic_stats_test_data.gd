@@ -15,6 +15,7 @@ const VALUES: Dictionary = {
 		"expected_range": 99.000000000000,
 		"expected_min": 1.000000000000,
 		"expected_max": 100.000000000000,
+		"expected_mad": 1.450000000000,
 	},
 	"left_skewed_data": {
 		"data": [0.1, 1.0, 5.0, 8.0, 9.0, 9.2, 9.5, 9.7, 9.8, 9.9],
@@ -28,6 +29,7 @@ const VALUES: Dictionary = {
 		"expected_range": 9.800000000000,
 		"expected_min": 0.100000000000,
 		"expected_max": 9.900000000000,
+		"expected_mad": 0.750000000000,
 	},
 	"heavy_tailed_data": {
 		"data": [1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 25.0, 1.6, 1.7, 150.0],
@@ -41,6 +43,7 @@ const VALUES: Dictionary = {
 		"expected_range": 149.000000000000,
 		"expected_min": 1.000000000000,
 		"expected_max": 150.000000000000,
+		"expected_mad": 0.250000000000,
 	},
 	"bimodal_data": {
 		"data": [1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0],
@@ -54,6 +57,7 @@ const VALUES: Dictionary = {
 		"expected_range": 8.000000000000,
 		"expected_min": 1.000000000000,
 		"expected_max": 9.000000000000,
+		"expected_mad": 3.000000000000,
 	},
 	"power_law_data": {
 		"data": [1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0],

@@ -27,6 +27,7 @@ def generate_basic_stats_test_data():
             "expected_range": 100.0 - 1.0,
             "expected_min": 1.0,
             "expected_max": 100.0,
+            "expected_mad": stats.median_abs_deviation([1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 5.0, 10.0, 25.0, 100.0]),
         },
         
         # Left-skewed data (rare high scores with many lower scores)
@@ -42,6 +43,7 @@ def generate_basic_stats_test_data():
             "expected_range": 9.9 - 0.1,
             "expected_min": 0.1,
             "expected_max": 9.9,
+            "expected_mad": stats.median_abs_deviation([0.1, 1.0, 5.0, 8.0, 9.0, 9.2, 9.5, 9.7, 9.8, 9.9]),
         },
         
         # Heavy-tailed data (damage spikes, network latency)
@@ -57,6 +59,7 @@ def generate_basic_stats_test_data():
             "expected_range": 150.0 - 1.0,
             "expected_min": 1.0,
             "expected_max": 150.0,
+            "expected_mad": stats.median_abs_deviation([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 25.0, 150.0]),
         },
         
         # Bimodal data (two distinct player skill groups)
@@ -72,6 +75,7 @@ def generate_basic_stats_test_data():
             "expected_range": 9.0 - 1.0,
             "expected_min": 1.0,
             "expected_max": 9.0,
+            "expected_mad": stats.median_abs_deviation([1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0]),
         },
         
         # Power-law data (common in gaming analytics)

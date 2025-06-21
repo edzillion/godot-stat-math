@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites id="2025-06-21" name="report_7" tests="7" failures="1" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/sampling_gen" timestamp="2025-06-21T16:39:14" hostname="localhost" tests="7" failures="1" errors="0" skipped="0" flaky="0" time="0.312">
+		<testcase name="test_sample_indices_parameter_validation" classname="parameter_validation_test" time="0.063">
+		</testcase>
+		<testcase name="test_sample_indices_edge_cases" classname="parameter_validation_test" time="0.009">
+		</testcase>
+		<testcase name="test_large_scale_sampling" classname="parameter_validation_test" time="0.021">
+		</testcase>
+		<testcase name="test_threading_performance_basic" classname="parameter_validation_test" time="0.008">
+		</testcase>
+		<testcase name="test_global_rng_determinism" classname="parameter_validation_test" time="0.024">
+		</testcase>
+		<testcase name="test_sampling_invalid_parameters" classname="parameter_validation_test" time="0.042">
+			<failure message="FAILED: res://addons/godot-stat-math/tests/core/sampling_gen/parameter_validation_test.gd:125" type="FAILURE">
+<![CDATA[
+Expecting: push_error() is called.
+	message: 'n_draws must be non-negative. Received: -1'
+	found: no errors
+]]>
+			</failure>
+		</testcase>
+	</testsuite>
+</testsuites>
