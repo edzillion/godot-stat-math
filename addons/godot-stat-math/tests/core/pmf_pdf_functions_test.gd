@@ -393,105 +393,110 @@ func test_f_pdf_invalid_parameters() -> void:
 # =============================================================================
 
 # Test that Gamma PDF reduces to Exponential when shape=1
-func test_gamma_pdf_exponential_special_case(x: float, test_parameters := [
-	[0.5],
-	[1.0],
-	[2.0],
-	[3.0],
-]) -> void:
+func test_gamma_pdf_exponential_special_case() -> void:
+	var x_values: Array[float] = [0.5, 1.0, 2.0, 3.0]
 	var scale: float = 2.0  # theta
 	var rate: float = 1.0 / scale  # lambda = 1/theta
 	
-	if x > 0:
-		var gamma_result: float = StatMath.PmfPdfFunctions.gamma_pdf(x, 1.0, scale)
-		var exp_result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, rate)
-		assert_float(gamma_result).is_equal_approx(exp_result, StatMath.PROBABILITY_TOLERANCE)
+	for x in x_values:
+		if x > 0:
+			var gamma_result: float = StatMath.PmfPdfFunctions.gamma_pdf(x, 1.0, scale)
+			var exp_result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, rate)
+			assert_float(gamma_result).is_equal_approx(exp_result, StatMath.PROBABILITY_TOLERANCE)
 
 # Test PDF properties - all PDFs should be non-negative
-func test_normal_pdf_non_negative(x: float, test_parameters := [
-	[-2.0], [-1.0], [0.0], [1.0], [2.0], [5.0],
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.normal_pdf(x, 0.0, 1.0)
-	assert_float(result).is_greater_equal(0.0)
-
-func test_exponential_pdf_non_negative(x: float, test_parameters := [
-	[-2.0], [-1.0], [0.0], [1.0], [2.0], [5.0],
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, 1.0)
-	assert_float(result).is_greater_equal(0.0)
-
-func test_uniform_pdf_non_negative(x: float, test_parameters := [
-	[-2.0], [-1.0], [0.0], [1.0], [2.0], [5.0],
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.uniform_pdf(x, -1.0, 3.0)
-	assert_float(result).is_greater_equal(0.0)
-
-func test_beta_pdf_non_negative(x: float, test_parameters := [
-	[0.1], [0.3], [0.5], [0.7], [0.9],
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.beta_pdf(x, 2.0, 2.0)
-	if not is_nan(result):
+func test_normal_pdf_non_negative() -> void:
+	var x_values: Array[float] = [-2.0, -1.0, 0.0, 1.0, 2.0, 5.0]
+	for x in x_values:
+		var result: float = StatMath.PmfPdfFunctions.normal_pdf(x, 0.0, 1.0)
 		assert_float(result).is_greater_equal(0.0)
 
-func test_chi_squared_pdf_non_negative(x: float, test_parameters := [
-	[-2.0], [-1.0], [0.0], [1.0], [2.0], [5.0],
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.chi_squared_pdf(x, 2.0)
-	if not is_nan(result):
+func test_exponential_pdf_non_negative() -> void:
+	var x_values: Array[float] = [-2.0, -1.0, 0.0, 1.0, 2.0, 5.0]
+	for x in x_values:
+		var result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, 1.0)
 		assert_float(result).is_greater_equal(0.0)
+
+func test_uniform_pdf_non_negative() -> void:
+	var x_values: Array[float] = [-2.0, -1.0, 0.0, 1.0, 2.0, 5.0]
+	for x in x_values:
+		var result: float = StatMath.PmfPdfFunctions.uniform_pdf(x, -1.0, 3.0)
+		assert_float(result).is_greater_equal(0.0)
+
+func test_beta_pdf_non_negative() -> void:
+	var x_values: Array[float] = [0.1, 0.3, 0.5, 0.7, 0.9]
+	for x in x_values:
+		var result: float = StatMath.PmfPdfFunctions.beta_pdf(x, 2.0, 2.0)
+		if not is_nan(result):
+			assert_float(result).is_greater_equal(0.0)
+
+func test_chi_squared_pdf_non_negative() -> void:
+	var x_values: Array[float] = [-2.0, -1.0, 0.0, 1.0, 2.0, 5.0]
+	for x in x_values:
+		var result: float = StatMath.PmfPdfFunctions.chi_squared_pdf(x, 2.0)
+		if not is_nan(result):
+			assert_float(result).is_greater_equal(0.0)
 
 # Test numerical stability for extreme values
-func test_pdf_numerical_stability(x: float, distribution: StatMath.SupportedDistributions, test_parameters := [
-	[100.0, StatMath.SupportedDistributions.NORMAL],
-	[100.0, StatMath.SupportedDistributions.EXPONENTIAL], 
-	[100.0, StatMath.SupportedDistributions.GAMMA],
-	[1000.0, StatMath.SupportedDistributions.NORMAL],
-	[1000.0, StatMath.SupportedDistributions.EXPONENTIAL],
-]) -> void:
-	var result: float
+func test_pdf_numerical_stability() -> void:
+	var test_cases: Array = [
+		{"x": 100.0, "distribution": StatMath.SupportedDistributions.NORMAL},
+		{"x": 100.0, "distribution": StatMath.SupportedDistributions.EXPONENTIAL},
+		{"x": 100.0, "distribution": StatMath.SupportedDistributions.GAMMA},
+		{"x": 1000.0, "distribution": StatMath.SupportedDistributions.NORMAL},
+		{"x": 1000.0, "distribution": StatMath.SupportedDistributions.EXPONENTIAL},
+	]
 	
-	match distribution:
-		StatMath.SupportedDistributions.NORMAL:
-			result = StatMath.PmfPdfFunctions.normal_pdf(x, 0.0, 1.0)
-		StatMath.SupportedDistributions.EXPONENTIAL:
-			result = StatMath.PmfPdfFunctions.exponential_pdf(x, 1.0)
-		StatMath.SupportedDistributions.GAMMA:
-			result = StatMath.PmfPdfFunctions.gamma_pdf(x, 2.0, 1.0)
-	
-	# Should be very small but finite
-	assert_bool(is_finite(result)).is_true()
-	assert_float(result).is_greater_equal(0.0)
+	for case in test_cases:
+		var result: float
+		var x: float = case["x"]
+		var distribution: StatMath.SupportedDistributions = case["distribution"]
+		
+		match distribution:
+			StatMath.SupportedDistributions.NORMAL:
+				result = StatMath.PmfPdfFunctions.normal_pdf(x, 0.0, 1.0)
+			StatMath.SupportedDistributions.EXPONENTIAL:
+				result = StatMath.PmfPdfFunctions.exponential_pdf(x, 1.0)
+			StatMath.SupportedDistributions.GAMMA:
+				result = StatMath.PmfPdfFunctions.gamma_pdf(x, 2.0, 1.0)
+		
+		# Should be very small but finite
+		assert_bool(is_finite(result)).is_true()
+		assert_float(result).is_greater_equal(0.0)
 
 # Test PDF integration approximation (total probability ≈ 1)
-func test_pdf_integration_approximation(distribution: StatMath.SupportedDistributions, test_parameters := [
-	[StatMath.SupportedDistributions.NORMAL],
-	[StatMath.SupportedDistributions.EXPONENTIAL],
-	[StatMath.SupportedDistributions.BETA],
-]) -> void:
-	var sum: float = 0.0
-	var dx: float = 0.01
+func test_pdf_integration_approximation() -> void:
+	var distributions: Array[StatMath.SupportedDistributions] = [
+		StatMath.SupportedDistributions.NORMAL,
+		StatMath.SupportedDistributions.EXPONENTIAL,
+		StatMath.SupportedDistributions.BETA,
+	]
 	
-	match distribution:
-		StatMath.SupportedDistributions.NORMAL:
-			# Normal distribution (from -4σ to 4σ)
-			for i in range(-400, 401):
-				var x: float = float(i) * dx
-				sum += StatMath.PmfPdfFunctions.normal_pdf(x) * dx
-		StatMath.SupportedDistributions.EXPONENTIAL:
-			# Exponential distribution (from 0 to 10/λ)
-			var lambda: float = 1.0
-			for i in range(0, 1001):
-				var x: float = float(i) * dx
-				sum += StatMath.PmfPdfFunctions.exponential_pdf(x, lambda) * dx
-		StatMath.SupportedDistributions.BETA:
-			# Beta distribution (from 0 to 1)
-			var alpha: float = 2.0
-			var beta: float = 2.0
-			for i in range(0, 101):
-				var x: float = float(i) * 0.01
-				sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta) * 0.01
+	for distribution in distributions:
+		var sum: float = 0.0
+		var dx: float = 0.01
+		
+		match distribution:
+			StatMath.SupportedDistributions.NORMAL:
+				# Normal distribution (from -4σ to 4σ)
+				for i in range(-400, 401):
+					var x: float = float(i) * dx
+					sum += StatMath.PmfPdfFunctions.normal_pdf(x) * dx
+			StatMath.SupportedDistributions.EXPONENTIAL:
+				# Exponential distribution (from 0 to 10/λ)
+				var lambda: float = 1.0
+				for i in range(0, 1001):
+					var x: float = float(i) * dx
+					sum += StatMath.PmfPdfFunctions.exponential_pdf(x, lambda) * dx
+			StatMath.SupportedDistributions.BETA:
+				# Beta distribution (from 0 to 1)
+				var alpha: float = 2.0
+				var beta: float = 2.0
+				for i in range(0, 101):
+					var x: float = float(i) * 0.01
+					sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta) * 0.01
 
-	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
+		assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
 
 # --- Weibull PDF ---
 func test_weibull_pdf_scipy_validated() -> void:
@@ -500,44 +505,47 @@ func test_weibull_pdf_scipy_validated() -> void:
 		var result: float = StatMath.PmfPdfFunctions.weibull_pdf(case["params"][0], case["params"][1], case["params"][2])
 		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
-func test_weibull_pdf_edge_cases(x: float, scale_param: float, shape_param: float, expected: float, test_parameters := [
-	[0.0, 1.0, 2.0, 0.0],    # At x=0 for shape > 1
-	[-1.0, 1.0, 2.0, 0.0],   # Negative x
-	[0.0, 1.0, 0.5, INF],    # At x=0 for shape < 1 (should be infinity)
-	[0.0, 1.0, 1.0, 1.0],    # At x=0 for shape = 1 (exponential case)
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale_param, shape_param)
-	if expected == INF:
-		assert_bool(is_inf(result)).is_true()
-	else:
-		assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
+func test_weibull_pdf_edge_cases() -> void:
+	var test_cases: Array = [
+		{"x": 0.0, "scale": 1.0, "shape": 2.0, "expected": 0.0},    # At x=0 for shape > 1
+		{"x": -1.0, "scale": 1.0, "shape": 2.0, "expected": 0.0},   # Negative x
+		{"x": 0.0, "scale": 1.0, "shape": 0.5, "expected": INF},    # At x=0 for shape < 1 (should be infinity)
+		{"x": 0.0, "scale": 1.0, "shape": 1.0, "expected": 1.0},    # At x=0 for shape = 1 (exponential case)
+	]
+	
+	for case in test_cases:
+		var result: float = StatMath.PmfPdfFunctions.weibull_pdf(case["x"], case["scale"], case["shape"])
+		if case["expected"] == INF:
+			assert_bool(is_inf(result)).is_true()
+		else:
+			assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
-func test_weibull_pdf_exponential_special_case(x: float, test_parameters := [
-	[0.5], [1.0], [2.0], [3.0],
-]) -> void:
+func test_weibull_pdf_exponential_special_case() -> void:
 	# When shape=1, Weibull becomes exponential
+	var x_values: Array[float] = [0.5, 1.0, 2.0, 3.0]
 	var scale: float = 2.0
 	var shape: float = 1.0
 	var rate: float = 1.0 / scale
 	
-	if x >= 0:
-		var weibull_result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
-		var exp_result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, rate)
-		assert_float(weibull_result).is_equal_approx(exp_result, StatMath.PROBABILITY_TOLERANCE)
+	for x in x_values:
+		if x >= 0:
+			var weibull_result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
+			var exp_result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, rate)
+			assert_float(weibull_result).is_equal_approx(exp_result, StatMath.PROBABILITY_TOLERANCE)
 
-func test_weibull_pdf_rayleigh_special_case(x: float, test_parameters := [
-	[0.5], [1.0], [1.5], [2.0],
-]) -> void:
+func test_weibull_pdf_rayleigh_special_case() -> void:
 	# When shape=2, Weibull becomes Rayleigh distribution
+	var x_values: Array[float] = [0.5, 1.0, 1.5, 2.0]
 	var scale: float = 2.0
 	var shape: float = 2.0
 	
-	if x >= 0:
-		var weibull_result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
-		# Rayleigh PDF: f(x) = (x/σ²) * exp(-(x²)/(2σ²)) where σ = scale/sqrt(2)
-		var sigma: float = scale / sqrt(2.0)
-		var rayleigh_expected: float = (x / (sigma * sigma)) * exp(-(x * x) / (2.0 * sigma * sigma))
-		assert_float(weibull_result).is_equal_approx(rayleigh_expected, StatMath.PROBABILITY_TOLERANCE)
+	for x in x_values:
+		if x >= 0:
+			var weibull_result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale, shape)
+			# Rayleigh PDF: f(x) = (x/σ²) * exp(-(x²)/(2σ²)) where σ = scale/sqrt(2)
+			var sigma: float = scale / sqrt(2.0)
+			var rayleigh_expected: float = (x / (sigma * sigma)) * exp(-(x * x) / (2.0 * sigma * sigma))
+			assert_float(weibull_result).is_equal_approx(rayleigh_expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_weibull_pdf_monotonicity() -> void:
 	# For different shape parameters, test monotonic behavior
@@ -564,23 +572,26 @@ func test_weibull_pdf_monotonicity() -> void:
 	assert_float(pdf_small).is_less(pdf_mode)  # Increases to mode
 	assert_float(pdf_mode).is_greater(pdf_large)  # Decreases after mode
 
-func test_weibull_pdf_boundary_conditions(x: float, scale_param: float, shape_param: float, test_parameters := [
-	[0.0, 1.0, 0.5],  # x=0, shape<1 (infinity)
-	[0.0, 1.0, 1.0],  # x=0, shape=1 (finite)
-	[0.0, 1.0, 2.0],  # x=0, shape>1 (zero)
-	[1000.0, 1.0, 2.0],  # Large x (should approach 0)
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale_param, shape_param)
+func test_weibull_pdf_boundary_conditions() -> void:
+	var test_cases: Array = [
+		{"x": 0.0, "scale": 1.0, "shape": 0.5},  # x=0, shape<1 (infinity)
+		{"x": 0.0, "scale": 1.0, "shape": 1.0},  # x=0, shape=1 (finite)
+		{"x": 0.0, "scale": 1.0, "shape": 2.0},  # x=0, shape>1 (zero)
+		{"x": 1000.0, "scale": 1.0, "shape": 2.0},  # Large x (should approach 0)
+	]
 	
-	if x == 0.0:
-		if shape_param < 1.0:
-			assert_bool(is_inf(result)).is_true()
-		elif shape_param == 1.0:
-			assert_float(result).is_equal_approx(1.0 / scale_param, StatMath.PROBABILITY_TOLERANCE)
-		else:  # shape_param > 1.0
-			assert_float(result).is_equal_approx(0.0, StatMath.PROBABILITY_TOLERANCE)
-	elif x == 1000.0:
-		assert_float(result).is_less(StatMath.BOUNDARY_TOLERANCE)  # Should be very small
+	for case in test_cases:
+		var result: float = StatMath.PmfPdfFunctions.weibull_pdf(case["x"], case["scale"], case["shape"])
+		
+		if case["x"] == 0.0:
+			if case["shape"] < 1.0:
+				assert_bool(is_inf(result)).is_true()
+			elif case["shape"] == 1.0:
+				assert_float(result).is_equal_approx(1.0 / case["scale"], StatMath.PROBABILITY_TOLERANCE)
+			else:  # shape > 1.0
+				assert_float(result).is_equal_approx(0.0, StatMath.PROBABILITY_TOLERANCE)
+		elif case["x"] == 1000.0:
+			assert_float(result).is_less(StatMath.BOUNDARY_TOLERANCE)  # Should be very small
 
 func test_weibull_pdf_deterministic_behavior() -> void:
 	# Same inputs should always give same outputs
@@ -593,12 +604,12 @@ func test_weibull_pdf_deterministic_behavior() -> void:
 	
 	assert_float(result1).is_equal_approx(result2, StatMath.HIGH_PRECISION_TOLERANCE)
 
-func test_weibull_pdf_non_negative(x: float, test_parameters := [
-	[-2.0], [-1.0], [0.0], [1.0], [2.0], [5.0],
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, 1.0, 2.0)
-	if not is_inf(result):
-		assert_float(result).is_greater_equal(0.0)
+func test_weibull_pdf_non_negative() -> void:
+	var x_values: Array[float] = [-2.0, -1.0, 0.0, 1.0, 2.0, 5.0]
+	for x in x_values:
+		var result: float = StatMath.PmfPdfFunctions.weibull_pdf(x, 1.0, 2.0)
+		if not is_inf(result):
+			assert_float(result).is_greater_equal(0.0)
 
 func test_weibull_pdf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -634,12 +645,15 @@ func test_lognormal_pdf_scipy_validated() -> void:
 		var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(case["params"][0], case["params"][1], case["params"][2])
 		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
-func test_lognormal_pdf_edge_cases(x: float, mu: float, sigma: float, expected: float, test_parameters := [
-	[0.0, 0.0, 1.0, 0.0],    # At x=0
-	[-1.0, 0.0, 1.0, 0.0],   # Negative x
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(x, mu, sigma)
-	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
+func test_lognormal_pdf_edge_cases() -> void:
+	var test_cases: Array = [
+		{"x": 0.0, "mu": 0.0, "sigma": 1.0, "expected": 0.0},    # At x=0
+		{"x": -1.0, "mu": 0.0, "sigma": 1.0, "expected": 0.0},   # Negative x
+	]
+	
+	for case in test_cases:
+		var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(case["x"], case["mu"], case["sigma"])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
 func test_lognormal_pdf_relationship_to_normal() -> void:
 	# If X ~ Lognormal(μ, σ), then ln(X) ~ Normal(μ, σ)
@@ -654,11 +668,11 @@ func test_lognormal_pdf_relationship_to_normal() -> void:
 	var expected: float = normal_result / x
 	assert_float(lognormal_result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
-func test_lognormal_pdf_non_negative(x: float, test_parameters := [
-	[-2.0], [-1.0], [0.0], [1.0], [2.0], [5.0],
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(x, 0.0, 1.0)
-	assert_float(result).is_greater_equal(0.0)
+func test_lognormal_pdf_non_negative() -> void:
+	var x_values: Array[float] = [-2.0, -1.0, 0.0, 1.0, 2.0, 5.0]
+	for x in x_values:
+		var result: float = StatMath.PmfPdfFunctions.lognormal_pdf(x, 0.0, 1.0)
+		assert_float(result).is_greater_equal(0.0)
 
 func test_lognormal_pdf_invalid_parameters() -> void:
 	var test_call1: Callable = func():
@@ -787,33 +801,36 @@ func test_pdf_integration_lognormal() -> void:
 	
 	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)  # Lognormal has a long tail, so higher tolerance
 
-# --- Legacy Integration Test (parametrized) ---
-func test_pdf_integration_parametrized(distribution: StatMath.SupportedDistributions, test_parameters := [
-	[StatMath.SupportedDistributions.NORMAL],
-	[StatMath.SupportedDistributions.EXPONENTIAL], 
-	[StatMath.SupportedDistributions.BETA],
-]) -> void:
-	var sum: float = 0.0
-	var dx: float = 0.01
+# --- Legacy Integration Test (converted to array-based) ---
+func test_pdf_integration_parametrized() -> void:
+	var distributions: Array[StatMath.SupportedDistributions] = [
+		StatMath.SupportedDistributions.NORMAL,
+		StatMath.SupportedDistributions.EXPONENTIAL, 
+		StatMath.SupportedDistributions.BETA,
+	]
 	
-	match distribution:
-		StatMath.SupportedDistributions.NORMAL:
-			# Normal distribution (from -10 to 10)
-			for i in range(-1000, 1001):
-				var x: float = float(i) * dx
-				sum += StatMath.PmfPdfFunctions.normal_pdf(x) * dx
-		StatMath.SupportedDistributions.EXPONENTIAL:
-			# Exponential distribution (from 0 to 10/λ)
-			var lambda: float = 1.0
-			for i in range(0, 1001):
-				var x: float = float(i) * dx
-				sum += StatMath.PmfPdfFunctions.exponential_pdf(x, lambda) * dx
-		StatMath.SupportedDistributions.BETA:
-			# Beta distribution (from 0 to 1)
-			var alpha: float = 2.0
-			var beta: float = 2.0
-			for i in range(0, 101):
-				var x: float = float(i) * 0.01
-				sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta) * 0.01
-	
-	assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
+	for distribution in distributions:
+		var sum: float = 0.0
+		var dx: float = 0.01
+		
+		match distribution:
+			StatMath.SupportedDistributions.NORMAL:
+				# Normal distribution (from -10 to 10)
+				for i in range(-1000, 1001):
+					var x: float = float(i) * dx
+					sum += StatMath.PmfPdfFunctions.normal_pdf(x) * dx
+			StatMath.SupportedDistributions.EXPONENTIAL:
+				# Exponential distribution (from 0 to 10/λ)
+				var lambda: float = 1.0
+				for i in range(0, 1001):
+					var x: float = float(i) * dx
+					sum += StatMath.PmfPdfFunctions.exponential_pdf(x, lambda) * dx
+			StatMath.SupportedDistributions.BETA:
+				# Beta distribution (from 0 to 1)
+				var alpha: float = 2.0
+				var beta: float = 2.0
+				for i in range(0, 101):
+					var x: float = float(i) * 0.01
+					sum += StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta) * 0.01
+		
+		assert_float(sum).is_equal_approx(1.0, StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
