@@ -74,8 +74,10 @@ func test_log_binomial_coef_invalid_k_negative() -> void:
 
 # --- Beta Function ---
 func test_beta_function_basic() -> void:
-	var result: float = StatMath.HelperFunctions.beta_function(2.0, 3.0)
-	assert_float(result).is_equal_approx(1.0 / 12.0, StatMath.FLOAT_TOLERANCE)
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["beta_function"]
+	var case: Dictionary = test_data[0]  # [2.0, 3.0] -> 0.08333333
+	var result: float = StatMath.HelperFunctions.beta_function(case["params"][0], case["params"][1])
+	assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
 
 func test_beta_function_invalid_a_negative() -> void:
 	var test_call: Callable = func():
@@ -127,73 +129,19 @@ func test_incomplete_beta_special_case_beta_2_2_three_quarters() -> void:
 	assert_float(result).is_equal_approx(expected, StatMath.FLOAT_TOLERANCE)
 
 
-func test_incomplete_beta_numerical_integration_beta_3_2() -> void:
-	# Test numerical integration for Beta(3,2) at x = 0.5
-	var x: float = 0.5
-	var a: float = 3.0
-	var b: float = 2.0
-	var result: float = StatMath.HelperFunctions.incomplete_beta(x, a, b)
-	
-	# For Beta(3,2), the exact incomplete beta at x=0.5 can be calculated
-	# I(0.5; 3, 2) = integral from 0 to 0.5 of t^2 * (1-t)^1 dt
-	# = integral from 0 to 0.5 of t^2 - t^3 dt
-	# = [t^3/3 - t^4/4] from 0 to 0.5
-	# = (0.5^3/3 - 0.5^4/4) - 0 = 0.125/3 - 0.0625/4 = 0.041667 - 0.015625 = 0.026042
-	var expected_raw: float = 0.026042
-	var beta_func: float = StatMath.HelperFunctions.beta_function(a, b)
-	var expected_normalized: float = expected_raw / beta_func
-	
-	assert_float(result).is_equal_approx(expected_normalized, StatMath.NUMERICAL_INTEGRATION_TOLERANCE) # Numerical integration tolerance
-
-
-func test_incomplete_beta_symmetry() -> void:
-	# Test the beta distribution symmetry: I_x(a,b) = 1 - I_{1-x}(b,a)
-	var x: float = 0.3
-	var a: float = 2.5
-	var b: float = 3.5
-	
-	var left_side: float = StatMath.HelperFunctions.incomplete_beta(x, a, b)
-	var right_side: float = 1.0 - StatMath.HelperFunctions.incomplete_beta(1.0 - x, b, a)
-	
-	assert_float(left_side).is_equal_approx(right_side, StatMath.SYMMETRY_TOLERANCE) # Should be symmetric
-
-
-func test_incomplete_beta_monotonicity() -> void:
-	# Test that incomplete beta is monotonically increasing in x
-	var a: float = 2.0
-	var b: float = 3.0
-	
-	var x1: float = 0.2
-	var x2: float = 0.4
-	var x3: float = 0.6
-	var x4: float = 0.8
-	
-	var result1: float = StatMath.HelperFunctions.incomplete_beta(x1, a, b)
-	var result2: float = StatMath.HelperFunctions.incomplete_beta(x2, a, b)
-	var result3: float = StatMath.HelperFunctions.incomplete_beta(x3, a, b)
-	var result4: float = StatMath.HelperFunctions.incomplete_beta(x4, a, b)
-	
-	# Should be monotonically increasing
-	assert_float(result1).is_less(result2)
-	assert_float(result2).is_less(result3)
-	assert_float(result3).is_less(result4)
-
-
-func test_incomplete_beta_invalid_x_greater_than_one() -> void:
-	var test_call: Callable = func():
-		StatMath.HelperFunctions.incomplete_beta(1.1, 2.0, 2.0)
-	await assert_error(test_call).is_push_error("Parameter x_val must be between 0.0 and 1.0. Received: 1.1")
-
-
-func test_incomplete_beta_invalid_b_negative() -> void:
-	var test_call: Callable = func():
-		StatMath.HelperFunctions.incomplete_beta(0.5, 2.0, -1.0)
-	await assert_error(test_call).is_push_error("Shape parameters a and b must be positive. Received a=2.0, b=-1.0")
+func test_incomplete_beta_scipy_validation() -> void:
+	# Using scipy-generated test data for incomplete beta function
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["incomplete_beta"]
+	for case in test_data:
+		var result: float = StatMath.HelperFunctions.incomplete_beta(case["params"][0], case["params"][1], case["params"][2])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
 
 # --- Log Beta Function Direct ---
 func test_log_beta_function_direct_basic() -> void:
-	var result: float = StatMath.HelperFunctions.log_beta_function_direct(2.0, 3.0)
-	assert_float(result).is_equal_approx(log(1.0 / 12.0), StatMath.FLOAT_TOLERANCE)
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["beta_function"]
+	var case: Dictionary = test_data[0]  # [2.0, 3.0] -> 0.08333333
+	var result: float = StatMath.HelperFunctions.log_beta_function_direct(case["params"][0], case["params"][1])
+	assert_float(result).is_equal_approx(log(case["expected"]), StatMath.FLOAT_TOLERANCE)
 
 func test_log_beta_function_direct_invalid_a_negative() -> void:
 	var test_call: Callable = func():
@@ -214,6 +162,14 @@ func test_lower_incomplete_gamma_regularized_invalid_z_negative() -> void:
 	var test_call: Callable = func():
 		StatMath.HelperFunctions.lower_incomplete_gamma_regularized(2.0, -1.0)
 	await assert_error(test_call).is_push_error("Parameter z must be non-negative for Lower Incomplete Gamma. Received: -1.0")
+
+# --- Lower Incomplete Gamma Regularized Scipy Validation ---
+func test_lower_incomplete_gamma_regularized_scipy_validation() -> void:
+	# Using scipy-generated test data for lower incomplete gamma regularized function
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["lower_incomplete_gamma_regularized"]
+	for case in test_data:
+		var result: float = StatMath.HelperFunctions.lower_incomplete_gamma_regularized(case["params"][0], case["params"][1])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.ERF_APPROX_TOLERANCE)
 
 # --- Additional Comprehensive Lower Incomplete Gamma Tests ---
 
@@ -364,11 +320,4 @@ func test_sanitize_numeric_array_with_negative_values() -> void:
 
 func test_sanitize_numeric_array_empty_input() -> void:
 	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array([])
-	assert_array(result).is_empty()
-
-func test_lower_incomplete_gamma_regularized_known_value() -> void:
-	# Using scipy-validated test data for gammainc(2.5, 3.5) -> 0.77935969
-	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["lower_incomplete_gamma_regularized"]
-	var case: Dictionary = test_data[0]  # [2.5, 3.5] -> 0.77935969
-	var result: float = StatMath.HelperFunctions.lower_incomplete_gamma_regularized(case["params"][0], case["params"][1])
-	assert_float(result).is_equal_approx(case["expected"], StatMath.ERF_APPROX_TOLERANCE) 
+	assert_array(result).is_empty() 

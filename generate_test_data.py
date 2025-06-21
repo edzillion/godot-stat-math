@@ -330,53 +330,59 @@ def generate_test_data():
         ],
     }
     
-    # CDF test data - Optimized for direct test consumption
-    # Format: [distribution_name, x_value, distribution_params, expected_result]
-    # This eliminates the need for _build_cdf_test_parameters() transformation
+    # CDF test data - Organized by distribution for direct test consumption
+    # Format: {"params": [params...], "expected": result} to match other test data patterns
     cdf_data = {
-        "scipy_validation_tests": [
-            # Normal CDF tests: ["normal", x, [mu, sigma], expected]
-            ["normal", 1.96, [0.0, 1.0], stats.norm.cdf(1.96, 0.0, 1.0)],
-            ["normal", -1.96, [0.0, 1.0], stats.norm.cdf(-1.96, 0.0, 1.0)],
-            ["normal", 0.0, [2.0, 0.5], stats.norm.cdf(0.0, 2.0, 0.5)],
-            ["normal", 0.0, [0.0, 1.0], stats.norm.cdf(0.0, 0.0, 1.0)],
-            ["normal", 2.0, [2.0, 1.0], stats.norm.cdf(2.0, 2.0, 1.0)],
-            
-            # Exponential CDF tests: ["exponential", x, [scale], expected]
-            ["exponential", 2.0, [0.5], stats.expon.cdf(2.0, scale=0.5)],
-            ["exponential", 1.0, [1.0], stats.expon.cdf(1.0, scale=1.0)],
-            ["exponential", 0.693147, [1.0], stats.expon.cdf(0.693147, scale=1.0)],
-            
-            # Gamma CDF tests: ["gamma", x, [shape, scale], expected]
-            ["gamma", 2.0, [2.0, 1.0], stats.gamma.cdf(2.0, a=2.0, scale=1.0)],
-            ["gamma", 1.0, [1.0, 1.0], stats.gamma.cdf(1.0, a=1.0, scale=1.0)],
-            ["gamma", 3.841, [1.0, 1.0], stats.gamma.cdf(3.841, a=1.0, scale=1.0)],
-            
-            # Beta CDF tests: ["beta", x, [alpha, beta], expected]
-            ["beta", 0.5, [2.0, 2.0], stats.beta.cdf(0.5, 2.0, 2.0)],
-            ["beta", 0.25, [2.0, 3.0], stats.beta.cdf(0.25, 2.0, 3.0)],
-            ["beta", 0.75, [3.0, 2.0], stats.beta.cdf(0.75, 3.0, 2.0)],
-            
-            # Chi-square CDF tests: ["chi_square", x, [df], expected]
-            ["chi_square", 3.841, [1.0], stats.chi2.cdf(3.841, 1.0)],
-            ["chi_square", 5.991, [2.0], stats.chi2.cdf(5.991, 2.0)],
-            ["chi_square", 7.815, [3.0], stats.chi2.cdf(7.815, 3.0)],
-            
-            # Weibull CDF tests: ["weibull", x, [scale, shape], expected]
-            ["weibull", 1.5, [1.0, 2.0], stats.weibull_min.cdf(1.5, c=2.0, scale=1.0)],
-            ["weibull", 2.0, [2.0, 2.0], stats.weibull_min.cdf(2.0, c=2.0, scale=2.0)],
-            ["weibull", 0.5, [1.0, 1.0], stats.weibull_min.cdf(0.5, c=1.0, scale=1.0)],
-            
-            # t-distribution CDF tests: ["t", x, [df], expected]
-            ["t", 1.0, [10.0], stats.t.cdf(1.0, 10.0)],
-            ["t", 0.0, [5.0], stats.t.cdf(0.0, 5.0)],
-            ["t", 2.0, [3.0], stats.t.cdf(2.0, 3.0)],
-            
-            # F-distribution CDF tests: ["f", x, [dfn, dfd], expected]
-            ["f", 1.5, [2.0, 2.0], stats.f.cdf(1.5, 2.0, 2.0)],
-            ["f", 2.0, [5.0, 10.0], stats.f.cdf(2.0, 5.0, 10.0)],
-            ["f", 0.8, [3.0, 7.0], stats.f.cdf(0.8, 3.0, 7.0)],
-        ]
+        "normal_cdf": [
+            # Standard normal tests
+            {"params": [1.96, 0.0, 1.0], "expected": stats.norm.cdf(1.96, 0.0, 1.0)},
+            {"params": [-1.96, 0.0, 1.0], "expected": stats.norm.cdf(-1.96, 0.0, 1.0)},
+            {"params": [0.0, 0.0, 1.0], "expected": stats.norm.cdf(0.0, 0.0, 1.0)},
+            {"params": [2.0, 2.0, 1.0], "expected": stats.norm.cdf(2.0, 2.0, 1.0)},
+            {"params": [0.0, 2.0, 0.5], "expected": stats.norm.cdf(0.0, 2.0, 0.5)},
+        ],
+        "exponential_cdf": [
+            # StatMath expects rate parameter (lambda), scipy uses scale=1/lambda
+            {"params": [2.0, 2.0], "expected": stats.expon.cdf(2.0, scale=1.0/2.0)},
+            {"params": [1.0, 1.0], "expected": stats.expon.cdf(1.0, scale=1.0/1.0)},
+            {"params": [0.693147, 1.0], "expected": stats.expon.cdf(0.693147, scale=1.0/1.0)},
+        ],
+        "gamma_cdf": [
+            # x, shape (k), scale (theta)
+            {"params": [2.0, 2.0, 1.0], "expected": stats.gamma.cdf(2.0, a=2.0, scale=1.0)},
+            {"params": [1.0, 1.0, 1.0], "expected": stats.gamma.cdf(1.0, a=1.0, scale=1.0)},
+            {"params": [3.841, 1.0, 1.0], "expected": stats.gamma.cdf(3.841, a=1.0, scale=1.0)},
+        ],
+        "beta_cdf": [
+            # x, alpha, beta
+            {"params": [0.5, 2.0, 2.0], "expected": stats.beta.cdf(0.5, 2.0, 2.0)},
+            {"params": [0.25, 2.0, 3.0], "expected": stats.beta.cdf(0.25, 2.0, 3.0)},
+            {"params": [0.75, 3.0, 2.0], "expected": stats.beta.cdf(0.75, 3.0, 2.0)},
+        ],
+        "chi_square_cdf": [
+            # x, degrees of freedom
+            {"params": [3.841, 1.0], "expected": stats.chi2.cdf(3.841, 1.0)},
+            {"params": [5.991, 2.0], "expected": stats.chi2.cdf(5.991, 2.0)},
+            {"params": [7.815, 3.0], "expected": stats.chi2.cdf(7.815, 3.0)},
+        ],
+        "weibull_cdf": [
+            # x, scale (lambda), shape (k)
+            {"params": [1.5, 1.0, 2.0], "expected": stats.weibull_min.cdf(1.5, c=2.0, scale=1.0)},
+            {"params": [2.0, 2.0, 2.0], "expected": stats.weibull_min.cdf(2.0, c=2.0, scale=2.0)},
+            {"params": [0.5, 1.0, 1.0], "expected": stats.weibull_min.cdf(0.5, c=1.0, scale=1.0)},
+        ],
+        "t_cdf": [
+            # x, degrees of freedom
+            {"params": [1.0, 10.0], "expected": stats.t.cdf(1.0, 10.0)},
+            {"params": [0.0, 5.0], "expected": stats.t.cdf(0.0, 5.0)},
+            {"params": [2.0, 3.0], "expected": stats.t.cdf(2.0, 3.0)},
+        ],
+        "f_cdf": [
+            # x, dfn, dfd
+            {"params": [1.5, 2.0, 2.0], "expected": stats.f.cdf(1.5, 2.0, 2.0)},
+            {"params": [2.0, 5.0, 10.0], "expected": stats.f.cdf(2.0, 5.0, 10.0)},
+            {"params": [0.8, 3.0, 7.0], "expected": stats.f.cdf(0.8, 3.0, 7.0)},
+        ],
     }
     
     # Error function test data
@@ -493,17 +499,10 @@ def generate_data_file(filename, data):
     for func_name, test_cases in data.items():
         content.append(f'\t"{func_name}": [')
         for case in test_cases:
-            # Handle new CDF format: [distribution, x, params, expected]
-            if filename == "cdf_test_data" and isinstance(case, list) and len(case) == 4:
-                distribution, x_val, params, expected = case
-                params_str = ", ".join(str(p) for p in params)
-                expected_val = f'{expected:.8f}'
-                content.append(f'\t\t["{distribution}", {x_val}, [{params_str}], {expected_val}],')
-            else:
-                # Handle old format: {"params": [...], "expected": ...}
-                params_str = ", ".join(map(str, case["params"]))
-                expected_val = f'{case["expected"]:.8f}'
-                content.append(f'\t\t{{ "params": [{params_str}], "expected": {expected_val} }},')
+            # Standard format: {"params": [...], "expected": ...}
+            params_str = ", ".join(map(str, case["params"]))
+            expected_val = f'{case["expected"]:.8f}'
+            content.append(f'\t\t{{ "params": [{params_str}], "expected": {expected_val} }},')
         content.append("\t],")
     
     content.append("}")

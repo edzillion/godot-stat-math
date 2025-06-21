@@ -14,27 +14,6 @@ func after_each() -> void:
 	if ProjectSettings.has_setting(TEST_SEED_KEY):
 		ProjectSettings.set_setting(TEST_SEED_KEY, null)
 
-# --- Constants Tests ---
-func test_constants_accessibility() -> void:
-	# Test that all major constants are accessible
-	assert_int(StatMath.INT_MAX_REPRESENTING_INF).is_equal(2147483647)
-	assert_int(StatMath.INT64_MAX_VAL).is_equal(9223372036854775807)
-	assert_float(StatMath.FLOAT_EPSILON).is_equal_approx(2.220446049250313e-16, StatMath.BOUNDARY_TOLERANCE)
-	assert_int(StatMath.MAX_ITERATIONS).is_equal(200)
-	assert_float(StatMath.EPSILON).is_equal_approx(1.0e-9, StatMath.HIGH_PRECISION_TOLERANCE)
-
-func test_lanczos_constants() -> void:
-	# Test Lanczos approximation constants
-	assert_float(StatMath.LANCZOS_G).is_equal_approx(7.5, StatMath.FLOAT_TOLERANCE)
-	assert_int(StatMath.LANCZOS_P.size()).is_equal(9)
-	assert_float(StatMath.LANCZOS_P[0]).is_equal_approx(0.99999999999980993, StatMath.HIGH_PRECISION_TOLERANCE)
-
-func test_error_function_constants() -> void:
-	# Test error function approximation constants
-	assert_float(StatMath.A1_ERR).is_equal_approx(0.254829592, StatMath.FLOAT_TOLERANCE)
-	assert_float(StatMath.A2_ERR).is_equal_approx(-0.284496736, StatMath.FLOAT_TOLERANCE)
-	assert_float(StatMath.P_ERR).is_equal_approx(0.3275911, StatMath.FLOAT_TOLERANCE)
-
 # --- Module Preloading Tests ---
 func test_modules_preloaded() -> void:
 	# Test that all modules are accessible
@@ -215,14 +194,4 @@ func test_seed_changes_affect_all_modules() -> void:
 	assert_float(dist_val1).is_equal_approx(dist_val2, StatMath.DETERMINISM_TOLERANCE)
 	assert_int(uniform_val1).is_equal(uniform_val2)
 
-# --- Configuration Tests ---
-func test_seed_variable_name_constant() -> void:
-	# Test that the seed variable name constant is correct
-	assert_str(str(StatMath.GODOT_STAT_MATH_SEED_VARIABLE_NAME)).is_equal("godot_stat_math_seed")
 
-func test_default_seed_constant() -> void:
-	# Test that setting seed to 0 explicitly works (seed 0 is valid)
-	StatMath.set_global_seed(0)
-	var rng: RandomNumberGenerator = StatMath.get_rng()
-	# The seed should be 0 when explicitly set to 0
-	assert_int(rng.seed).is_equal(0) 

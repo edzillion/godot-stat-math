@@ -1,6 +1,8 @@
 # res://addons/godot-stat-math/tests/core/cdf_pdf_integration_test.gd
 class_name CdfPdfIntegrationTest extends GdUnitTestSuite
 
+const CDF_PDF_INTEGRATION_TEST_DATA = preload("res://addons/godot-stat-math/tables/cdf_pdf_integration_test_data.gd")
+
 ## This test suite verifies integration and end-to-end statistical workflows:
 ## • CDF and PDF consistency through probability calculations
 ## • CDFs should be monotonically increasing  
@@ -14,34 +16,33 @@ class_name CdfPdfIntegrationTest extends GdUnitTestSuite
 
 ## Tests that the numerical derivative of Normal CDF approximates Normal PDF
 func test_normal_cdf_pdf_derivative_relationship() -> void:
-	var test_points: Array[float] = [-2.0, -1.0, 0.0, 1.0, 2.0]
-	var mu: float = 0.0
-	var sigma: float = 1.0
+	var test_points: Array = CDF_PDF_INTEGRATION_TEST_DATA.DERIVATIVE_TEST_POINTS[StatMath.SupportedDistributions.NORMAL]
+	var params: Dictionary = CDF_PDF_INTEGRATION_TEST_DATA.DISTRIBUTION_PARAMETERS["normal_standard"]
 	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
 	for x in test_points:
 		# Calculate numerical derivative: d/dx CDF(x) ≈ (CDF(x+h) - CDF(x-h)) / (2h)
-		var cdf_plus: float = StatMath.CdfFunctions.normal_cdf(x + h, mu, sigma)
-		var cdf_minus: float = StatMath.CdfFunctions.normal_cdf(x - h, mu, sigma)
+		var cdf_plus: float = StatMath.CdfFunctions.normal_cdf(x + h, params["mu"], params["sigma"])
+		var cdf_minus: float = StatMath.CdfFunctions.normal_cdf(x - h, params["mu"], params["sigma"])
 		var numerical_derivative: float = (cdf_plus - cdf_minus) / (2.0 * h)
 		
 		# Calculate actual PDF value
-		var pdf_value: float = StatMath.PmfPdfFunctions.normal_pdf(x, mu, sigma)
+		var pdf_value: float = StatMath.PmfPdfFunctions.normal_pdf(x, params["mu"], params["sigma"])
 		
 		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
 
 ## Tests that the numerical derivative of Exponential CDF approximates Exponential PDF
 func test_exponential_cdf_pdf_derivative_relationship() -> void:
-	var test_points: Array[float] = [0.1, 0.5, 1.0, 2.0, 5.0]  # Avoid x=0 for stability
-	var lambda_param: float = 2.0
+	var test_points: Array = CDF_PDF_INTEGRATION_TEST_DATA.DERIVATIVE_TEST_POINTS[StatMath.SupportedDistributions.EXPONENTIAL]
+	var params: Dictionary = CDF_PDF_INTEGRATION_TEST_DATA.DISTRIBUTION_PARAMETERS["exponential_rate_2"]
 	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
 	for x in test_points:
-		var cdf_plus: float = StatMath.CdfFunctions.exponential_cdf(x + h, lambda_param)
-		var cdf_minus: float = StatMath.CdfFunctions.exponential_cdf(x - h, lambda_param)
+		var cdf_plus: float = StatMath.CdfFunctions.exponential_cdf(x + h, params["lambda_param"])
+		var cdf_minus: float = StatMath.CdfFunctions.exponential_cdf(x - h, params["lambda_param"])
 		var numerical_derivative: float = (cdf_plus - cdf_minus) / (2.0 * h)
 		
-		var pdf_value: float = StatMath.PmfPdfFunctions.exponential_pdf(x, lambda_param)
+		var pdf_value: float = StatMath.PmfPdfFunctions.exponential_pdf(x, params["lambda_param"])
 		
 		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
 
@@ -115,14 +116,7 @@ func test_weibull_cdf_pdf_derivative_relationship() -> void:
 
 ## Tests that CDFs are monotonically increasing for all continuous distributions
 func test_cdf_monotonicity_all_distributions() -> void:
-	var distributions: Array[Dictionary] = [
-		{"name": StatMath.SupportedDistributions.NORMAL, "params": [0.0, 1.0], "points": [-3.0, -1.0, 0.0, 1.0, 3.0]},
-		{"name": StatMath.SupportedDistributions.EXPONENTIAL, "params": [1.0], "points": [0.1, 0.5, 1.0, 2.0, 5.0]},
-		{"name": StatMath.SupportedDistributions.UNIFORM, "params": [1.0, 4.0], "points": [1.0, 1.5, 2.5, 3.5, 4.0]},
-		{"name": StatMath.SupportedDistributions.BETA, "params": [2.0, 3.0], "points": [0.0, 0.25, 0.5, 0.75, 1.0]},
-		{"name": StatMath.SupportedDistributions.GAMMA, "params": [2.0, 1.5], "points": [0.1, 1.0, 2.0, 4.0, 6.0]},
-		{"name": StatMath.SupportedDistributions.WEIBULL, "params": [2.0, 2.0], "points": [0.1, 1.0, 2.0, 3.0, 4.0]}
-	]
+	var distributions: Array[Dictionary] = CDF_PDF_INTEGRATION_TEST_DATA.MONOTONICITY_TEST_DATA
 	
 	for dist in distributions:
 		var points: Array = dist["points"]
@@ -130,7 +124,25 @@ func test_cdf_monotonicity_all_distributions() -> void:
 		
 		for i in range(points.size()):
 			var x: float = points[i]
-			var current_cdf: float = _get_cdf_value(dist["name"], x, dist["params"])
+			var current_cdf: float
+			
+			# Direct function calls instead of terrible abstraction
+			match dist["name"]:
+				StatMath.SupportedDistributions.NORMAL:
+					current_cdf = StatMath.CdfFunctions.normal_cdf(x, dist["params"][0], dist["params"][1])
+				StatMath.SupportedDistributions.EXPONENTIAL:
+					current_cdf = StatMath.CdfFunctions.exponential_cdf(x, dist["params"][0])
+				StatMath.SupportedDistributions.UNIFORM:
+					current_cdf = StatMath.CdfFunctions.uniform_cdf(x, dist["params"][0], dist["params"][1])
+				StatMath.SupportedDistributions.BETA:
+					current_cdf = StatMath.CdfFunctions.beta_cdf(x, dist["params"][0], dist["params"][1])
+				StatMath.SupportedDistributions.GAMMA:
+					current_cdf = StatMath.CdfFunctions.gamma_cdf(x, dist["params"][0], dist["params"][1])
+				StatMath.SupportedDistributions.WEIBULL:
+					current_cdf = StatMath.CdfFunctions.weibull_cdf(x, dist["params"][0], dist["params"][1])
+				_:
+					push_error("Unknown distribution: " + str(dist["name"]))
+					current_cdf = NAN
 			
 			# CDF should be monotonically non-decreasing
 			assert_float(current_cdf).is_greater_equal(prev_cdf)
@@ -148,13 +160,14 @@ func test_cdf_monotonicity_all_distributions() -> void:
 ## Tests a complete statistical workflow: data generation → analysis → validation
 func test_end_to_end_normal_distribution_workflow() -> void:
 	# Generate sample from normal distribution using our Distributions module
-	var sample_size: int = 1000
-	var mu: float = 5.0
-	var sigma: float = 2.0
+	var workflow_params: Dictionary = CDF_PDF_INTEGRATION_TEST_DATA.WORKFLOW_TEST_PARAMETERS
+	var sample_size: int = workflow_params["sample_size"]
+	var mu: float = workflow_params["normal_params"]["mu"]
+	var sigma: float = workflow_params["normal_params"]["sigma"]
 	var samples: Array[float] = []
 	
 	# Use a fixed seed for reproducible testing
-	StatMath.set_global_seed(12345)
+	StatMath.set_global_seed(workflow_params["test_seed"])
 	
 	for i in range(sample_size):
 		samples.append(StatMath.Distributions.randf_normal(mu, sigma))
@@ -170,8 +183,8 @@ func test_end_to_end_normal_distribution_workflow() -> void:
 	
 	# Test that our CDF/PDF functions work with sample data
 	samples.sort()  # Sort the array before calculating percentile
-	var percentile_95: float = StatMath.BasicStats.percentile(samples, 95.0)
-	var theoretical_95: float = StatMath.PpfFunctions.normal_ppf(0.95, mu, sigma)
+	var percentile_95: float = StatMath.BasicStats.percentile(samples, workflow_params["percentile_value"])
+	var theoretical_95: float = StatMath.PpfFunctions.normal_ppf(workflow_params["percentile_value"] / 100.0, mu, sigma)
 	
 	assert_float(percentile_95).is_equal_approx(theoretical_95, StatMath.DEFAULT_TOLERANCE_FACTOR)  # Within tolerance factor - increased tolerance for sampling variation
 
@@ -187,11 +200,33 @@ func test_cross_function_probability_consistency() -> void:
 	for dist in distributions:
 		var name: StatMath.SupportedDistributions = dist["name"]
 		
-		# Calculate CDF value
-		var cdf_val: float = _get_cdf_value(name, dist["cdf_params"][0], dist["cdf_params"].slice(1))
+		# Calculate CDF value directly
+		var cdf_val: float
+		var x_val: float = dist["cdf_params"][0]
 		
-		# Calculate corresponding PPF value (should return original x)
-		var ppf_val: float = _get_ppf_value(name, cdf_val, dist["ppf_params"])
+		match name:
+			StatMath.SupportedDistributions.NORMAL:
+				cdf_val = StatMath.CdfFunctions.normal_cdf(x_val, dist["cdf_params"][1], dist["cdf_params"][2])
+			StatMath.SupportedDistributions.EXPONENTIAL:
+				cdf_val = StatMath.CdfFunctions.exponential_cdf(x_val, dist["cdf_params"][1])
+			StatMath.SupportedDistributions.UNIFORM:
+				cdf_val = StatMath.CdfFunctions.uniform_cdf(x_val, dist["cdf_params"][1], dist["cdf_params"][2])
+			_:
+				push_error("Unknown distribution: " + str(name))
+				cdf_val = NAN
+		
+		# Calculate corresponding PPF value directly
+		var ppf_val: float
+		match name:
+			StatMath.SupportedDistributions.NORMAL:
+				ppf_val = StatMath.PpfFunctions.normal_ppf(cdf_val, dist["ppf_params"][0], dist["ppf_params"][1])
+			StatMath.SupportedDistributions.EXPONENTIAL:
+				ppf_val = StatMath.PpfFunctions.exponential_ppf(cdf_val, dist["ppf_params"][0])
+			StatMath.SupportedDistributions.UNIFORM:
+				ppf_val = StatMath.PpfFunctions.uniform_ppf(cdf_val, dist["ppf_params"][0], dist["ppf_params"][1])
+			_:
+				push_error("PPF not implemented for distribution: " + str(name))
+				ppf_val = NAN
 		
 		# PPF(CDF(x)) should equal x
 		assert_float(ppf_val).is_equal_approx(dist["cdf_params"][0], StatMath.INVERSE_CONSISTENCY_TOLERANCE)
@@ -238,61 +273,4 @@ func test_distribution_boundary_behavior() -> void:
 # HELPER FUNCTIONS
 # =============================================================================
 
-## Helper function to get CDF values for different distributions
-func _get_cdf_value(distribution: Variant, x: float, params: Array) -> float:
-	# Handle both string and enum inputs during transition
-	var dist_enum: StatMath.SupportedDistributions
-	if distribution is String:
-		dist_enum = _string_to_enum(distribution)
-	else:
-		dist_enum = distribution
-	
-	match dist_enum:
-		StatMath.SupportedDistributions.NORMAL:
-			return StatMath.CdfFunctions.normal_cdf(x, params[0], params[1])
-		StatMath.SupportedDistributions.EXPONENTIAL:
-			return StatMath.CdfFunctions.exponential_cdf(x, params[0])
-		StatMath.SupportedDistributions.UNIFORM:
-			return StatMath.CdfFunctions.uniform_cdf(x, params[0], params[1])
-		StatMath.SupportedDistributions.BETA:
-			return StatMath.CdfFunctions.beta_cdf(x, params[0], params[1])
-		StatMath.SupportedDistributions.GAMMA:
-			return StatMath.CdfFunctions.gamma_cdf(x, params[0], params[1])
-		StatMath.SupportedDistributions.WEIBULL:
-			return StatMath.CdfFunctions.weibull_cdf(x, params[0], params[1])
-		_:
-			push_error("Unknown distribution enum: " + str(dist_enum))
-			return NAN
-
-## Helper function to convert string distribution names to enum values
-func _string_to_enum(distribution: String) -> StatMath.SupportedDistributions:
-	match distribution:
-		"normal": return StatMath.SupportedDistributions.NORMAL
-		"exponential": return StatMath.SupportedDistributions.EXPONENTIAL
-		"uniform": return StatMath.SupportedDistributions.UNIFORM
-		"beta": return StatMath.SupportedDistributions.BETA
-		"gamma": return StatMath.SupportedDistributions.GAMMA
-		"weibull": return StatMath.SupportedDistributions.WEIBULL
-		_:
-			push_error("Unknown distribution: " + distribution)
-			return StatMath.SupportedDistributions.NORMAL
-
-## Helper function to get PPF values for different distributions
-func _get_ppf_value(distribution: Variant, p: float, params: Array) -> float:
-	# Handle both string and enum inputs during transition
-	var dist_enum: StatMath.SupportedDistributions
-	if distribution is String:
-		dist_enum = _string_to_enum(distribution)
-	else:
-		dist_enum = distribution
-	
-	match dist_enum:
-		StatMath.SupportedDistributions.NORMAL:
-			return StatMath.PpfFunctions.normal_ppf(p, params[0], params[1])
-		StatMath.SupportedDistributions.EXPONENTIAL:
-			return StatMath.PpfFunctions.exponential_ppf(p, params[0])
-		StatMath.SupportedDistributions.UNIFORM:
-			return StatMath.PpfFunctions.uniform_ppf(p, params[0], params[1])
-		_:
-			push_error("PPF not implemented for distribution: " + str(dist_enum))
-			return NAN 
+# TERRIBLE ABSTRACTION LAYERS ELIMINATED - USE DIRECT FUNCTION CALLS 

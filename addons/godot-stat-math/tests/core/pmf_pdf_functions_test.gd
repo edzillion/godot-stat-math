@@ -6,8 +6,10 @@ const PMF_PDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/pmf_pdf_t
 
 # --- Binomial PMF ---
 func test_binomial_pmf_basic() -> void:
+	# Using calculated scipy reference value instead of hardcoded
 	var result: float = StatMath.PmfPdfFunctions.binomial_pmf(2, 5, 0.5)
-	assert_float(result).is_equal_approx(0.3125, StatMath.PROBABILITY_TOLERANCE) # C(5,2) * 0.5^2 * 0.5^3 = 10 * 0.25 * 0.125 = 0.3125
+	var expected: float = 0.31250000  # scipy.stats.binom.pmf(2, 5, 0.5)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 
 func test_binomial_pmf_edge_cases(k: int, n: int, p: float, expected: float, test_parameters := [
@@ -38,7 +40,8 @@ func test_binomial_pmf_invalid_parameters() -> void:
 # --- Poisson PMF ---
 func test_poisson_pmf_basic() -> void:
 	var result: float = StatMath.PmfPdfFunctions.poisson_pmf(2, 3.0)
-	assert_float(result).is_equal_approx(0.2240418, StatMath.PROBABILITY_TOLERANCE) # (3^2 * e^-3) / 2! = 9 * e^-3 / 2
+	var expected: float = 0.22404181  # scipy.stats.poisson.pmf(2, 3.0)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_poisson_pmf_edge_cases(k: int, lambda_param: float, expected: float, test_parameters := [
 	[0, 3.0, exp(-3.0)],  # k = 0
@@ -56,7 +59,8 @@ func test_poisson_pmf_invalid_parameters() -> void:
 # --- Negative Binomial PMF ---
 func test_negative_binomial_pmf_basic() -> void:
 	var result: float = StatMath.PmfPdfFunctions.negative_binomial_pmf(5, 2, 0.5)
-	assert_float(result).is_equal_approx(0.125, StatMath.PROBABILITY_TOLERANCE) # C(4,1) * 0.5^2 * 0.5^3 = 4 * 0.25 * 0.125 = 0.125
+	var expected: float = 0.12500000  # scipy.stats.nbinom.pmf(5-2, 2, 0.5) = nbinom.pmf(3, 2, 0.5)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_negative_binomial_pmf_edge_cases(k: int, r: int, p: float, expected: float, test_parameters := [
 	[2, 2, 0.5, 0.25],  # k = r
@@ -82,10 +86,10 @@ func test_negative_binomial_pmf_invalid_parameters() -> void:
 
 # --- Normal PDF ---
 func test_normal_pdf_parametrized(x: float, mu: float, sigma: float, expected: float, test_parameters := [
-	[0.0, 0.0, 1.0, 1.0 / sqrt(2.0 * PI)],  # Standard normal at mean
-	[1.0, 0.0, 1.0, (1.0 / sqrt(2.0 * PI)) * exp(-0.5)],  # One std dev from mean
-	[2.0, 2.0, 1.0, 1.0 / sqrt(2.0 * PI)],  # Different mean, at mean
-	[5.0, 3.0, 2.0, (1.0 / (2.0 * sqrt(2.0 * PI))) * exp(-0.5)],  # Custom parameters: (x-mu)/sigma = 1, so exp(-0.5*1^2) = exp(-0.5)
+	[0.0, 0.0, 1.0, 0.39894228],  # Standard normal at mean - scipy.stats.norm.pdf(0.0, 0.0, 1.0)
+	[1.0, 0.0, 1.0, 0.24197072],  # One std dev from mean - scipy.stats.norm.pdf(1.0, 0.0, 1.0)  
+	[2.0, 2.0, 1.0, 0.39894228],  # Different mean, at mean - scipy.stats.norm.pdf(2.0, 2.0, 1.0)
+	[5.0, 3.0, 2.0, 0.12098536],  # Custom parameters - scipy.stats.norm.pdf(5.0, 3.0, 2.0)
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.normal_pdf(x, mu, sigma)
 	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
@@ -107,11 +111,11 @@ func test_normal_pdf_invalid_parameters() -> void:
 
 # --- Exponential PDF ---
 func test_exponential_pdf_parametrized(x: float, lambda_param: float, expected: float, test_parameters := [
-	[0.0, 1.0, 1.0],  # At x=0
-	[1.0, 1.0, exp(-1.0)],  # At x=1, lambda=1
-	[0.0, 2.0, 2.0],  # At x=0, lambda=2
-	[2.0, 0.5, 0.5 * exp(-1.0)],  # At x=2, lambda=0.5
-	[-1.0, 1.0, 0.0],  # Negative x should return 0
+	[0.0, 1.0, 1.00000000],  # At x=0 - scipy.stats.expon.pdf(0.0, scale=1.0)
+	[1.0, 1.0, 0.36787944],  # At x=1, lambda=1 - scipy.stats.expon.pdf(1.0, scale=1.0)
+	[0.0, 2.0, 2.00000000],  # At x=0, lambda=2 - scipy.stats.expon.pdf(0.0, scale=0.5)
+	[2.0, 0.5, 0.18393972],  # At x=2, lambda=0.5 - scipy.stats.expon.pdf(2.0, scale=2.0)
+	[-1.0, 1.0, 0.00000000],  # Negative x should return 0
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.exponential_pdf(x, lambda_param)
 	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
@@ -133,12 +137,12 @@ func test_exponential_pdf_invalid_parameters() -> void:
 
 # --- Uniform PDF ---
 func test_uniform_pdf_parametrized(x: float, a: float, b: float, expected: float, test_parameters := [
-	[2.5, 1.0, 4.0, 1.0/3.0],  # Middle of range
-	[1.0, 1.0, 4.0, 1.0/3.0],  # At lower boundary
-	[4.0, 1.0, 4.0, 1.0/3.0],  # At upper boundary
-	[0.5, 1.0, 4.0, 0.0],  # Outside range (below)
-	[4.5, 1.0, 4.0, 0.0],  # Outside range (above)
-	[0.0, -2.0, 2.0, 0.25],  # Symmetric around 0
+	[2.5, 1.0, 4.0, 0.33333333],  # Middle of range - scipy.stats.uniform.pdf(2.5, 1.0, 3.0)
+	[1.0, 1.0, 4.0, 0.33333333],  # At lower boundary - scipy.stats.uniform.pdf(1.0, 1.0, 3.0)
+	[4.0, 1.0, 4.0, 0.33333333],  # At upper boundary - scipy.stats.uniform.pdf(4.0, 1.0, 3.0)
+	[0.5, 1.0, 4.0, 0.00000000],  # Outside range (below)
+	[4.5, 1.0, 4.0, 0.00000000],  # Outside range (above)
+	[0.0, -2.0, 2.0, 0.25000000],  # Symmetric around 0 - scipy.stats.uniform.pdf(0.0, -2.0, 4.0)
 ]) -> void:
 	var result: float = StatMath.PmfPdfFunctions.uniform_pdf(x, a, b)
 	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
@@ -160,9 +164,10 @@ func test_uniform_pdf_invalid_parameters() -> void:
 
 # --- Gamma PDF ---
 func test_gamma_pdf_basic() -> void:
-	# For Gamma(2, 1), PDF at x=1 is e^(-1) = exp(-1)
+	# For Gamma(2, 1), PDF at x=1 - scipy.stats.gamma.pdf(1.0, 2.0, scale=1.0)
 	var result: float = StatMath.PmfPdfFunctions.gamma_pdf(1.0, 2.0, 1.0)
-	assert_float(result).is_equal_approx(exp(-1.0), StatMath.PROBABILITY_TOLERANCE)
+	var expected: float = 0.36787944  # scipy.stats.gamma.pdf(1.0, 2.0, scale=1.0)
+	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
 
 func test_gamma_pdf_edge_cases(x: float, k_shape: float, theta_scale: float, expected: float, test_parameters := [
 	[0.0, 2.0, 1.0, 0.0],   # At x=0
