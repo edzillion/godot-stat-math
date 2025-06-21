@@ -3,6 +3,10 @@ class_name ErrorFunctionsTest extends GdUnitTestSuite
 
 const ERROR_FUNCTIONS_TEST_DATA = preload("res://addons/godot-stat-math/tables/error_functions_test_data.gd")
 
+# =============================================================================
+# SCIPY VALIDATION TESTS - DATA-DRIVEN
+# =============================================================================
+
 # --- Error Function (erf) ---
 func test_error_function_zero() -> void:
 	var result: float = StatMath.ErrorFunctions.erf(0.0)
@@ -49,6 +53,10 @@ func test_complementary_error_function_negative() -> void:
 	# Using larger tolerance for error function approximation precision
 	assert_float(result).is_equal_approx(2.0 - case["expected"], StatMath.ERF_APPROX_TOLERANCE) # erfc(-x) = 2 - erfc(x)
 
+# =============================================================================
+# MATHEMATICAL PROPERTY TESTS
+# =============================================================================
+
 # --- Inverse Error Function (erfinv) ---
 func test_error_function_inverse_round_trip() -> void:
 	var x: float = 0.5
@@ -67,6 +75,10 @@ func test_error_function_inverse_one() -> void:
 func test_error_function_inverse_minus_one() -> void:
 	var result: float = StatMath.ErrorFunctions.erf_inv(-1.0)
 	assert_float(result).is_equal_approx(-INF, StatMath.FLOAT_TOLERANCE)
+
+# =============================================================================
+# PARAMETER VALIDATION TESTS
+# =============================================================================
 
 func test_error_function_inverse_invalid_gt_one() -> void:
 	var test_call: Callable = func():

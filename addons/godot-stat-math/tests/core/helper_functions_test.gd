@@ -3,6 +3,9 @@ class_name HelperFunctionsTest extends GdUnitTestSuite
 
 const HELPER_FUNCTIONS_TEST_DATA = preload("res://addons/godot-stat-math/tables/helper_functions_test_data.gd")
 
+# =============================================================================
+# SCIPY VALIDATION TESTS - DATA-DRIVEN
+# =============================================================================
 
 # --- Binomial Coefficient ---
 func test_binomial_coefficient_basic() -> void:
@@ -22,6 +25,10 @@ func test_binomial_coefficient_r_equals_n() -> void:
 func test_binomial_coefficient_r_greater_than_n() -> void:
 	var result: float = StatMath.HelperFunctions.binomial_coefficient(3, 5)
 	assert_float(result).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
+
+# =============================================================================
+# PARAMETER VALIDATION TESTS
+# =============================================================================
 
 func test_binomial_coefficient_invalid_n_negative() -> void:
 	var test_call: Callable = func():

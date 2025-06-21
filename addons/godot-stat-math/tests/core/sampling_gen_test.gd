@@ -2,7 +2,7 @@
 class_name SamplingGenTest extends GdUnitTestSuite
 
 # =============================================================================
-# UNIFIED INTERFACE TESTS (generate_samples)
+# SCIPY VALIDATION TESTS - DATA-DRIVEN
 # =============================================================================
 
 func test_generate_samples_unified_interface_dimensions() -> void:

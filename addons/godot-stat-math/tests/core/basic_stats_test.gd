@@ -30,6 +30,10 @@ func test_mean_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.mean([])
 	await assert_error(test_call).is_push_error("Cannot calculate mean of empty array.")
+	
+	# Test sentinel return value
+	var result: float = StatMath.BasicStats.mean([])
+	assert_bool(is_nan(result)).is_true()
 
 # --- Median Tests ---
 func test_median_odd_count() -> void:
@@ -106,6 +110,10 @@ func test_median_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.median([])
 	await assert_error(test_call).is_push_error("Cannot calculate median of empty array.")
+	
+	# Test sentinel return value
+	var result: float = StatMath.BasicStats.median([])
+	assert_bool(is_nan(result)).is_true()
 
 # --- Variance Tests ---
 func test_variance_bimodal_data() -> void:
@@ -124,6 +132,10 @@ func test_variance_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.variance([])
 	await assert_error(test_call).is_push_error("Cannot calculate variance of empty array.")
+	
+	# Test sentinel return value
+	var result: float = StatMath.BasicStats.variance([])
+	assert_bool(is_nan(result)).is_true()
 
 # --- Standard Deviation Tests ---
 func test_standard_deviation_bimodal_data() -> void:
@@ -142,6 +154,10 @@ func test_standard_deviation_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.standard_deviation([])
 	await assert_error(test_call).is_push_error("Cannot calculate standard deviation of empty array.")
+	
+	# Test sentinel return value
+	var result: float = StatMath.BasicStats.standard_deviation([])
+	assert_bool(is_nan(result)).is_true()
 
 # --- Sample Variance Tests ---
 func test_sample_variance_bimodal_data() -> void:
@@ -182,8 +198,12 @@ func test_median_absolute_deviation_bimodal_data() -> void:
 	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
 	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
 	var result: float = StatMath.BasicStats.median_absolute_deviation(sorted_data)
-	# Using bimodal data: [1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0], median=5.0, MAD should be calculated
-	assert_float(result).is_greater_equal(0.0)  # Basic sanity check since we don't have expected MAD in data
+	# Calculated MAD for bimodal data [1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0]:
+	# Median = 5.0, Absolute deviations = [4.0, 3.5, 3.0, 2.5, 2.0, 2.0, 2.5, 3.0, 3.5, 4.0]
+	# Sorted abs devs = [2.0, 2.0, 2.5, 2.5, 3.0, 3.0, 3.5, 3.5, 4.0, 4.0]
+	# MAD = median([2.0, 2.0, 2.5, 2.5, 3.0, 3.0, 3.5, 3.5, 4.0, 4.0]) = (3.0 + 3.0) / 2 = 3.0
+	var expected_mad: float = 3.0
+	assert_float(result).is_equal_approx(expected_mad, StatMath.FLOAT_TOLERANCE)
 
 func test_median_absolute_deviation_single_value() -> void:
 	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
@@ -362,7 +382,7 @@ func test_standard_deviation_enhanced_decimal_precision() -> void:
 	assert_float(result).is_equal_approx(expected_std, StatMath.HIGH_PRECISION_TOLERANCE) 
 
 # =============================================================================
-# PHASE 3 ADVANCED TESTS - NON-NORMAL DISTRIBUTIONS & NUMERICAL STABILITY
+# MATHEMATICAL PROPERTY TESTS
 # =============================================================================
 
 # --- Phase 3 Task 1: Non-Normal Distribution Tests ---

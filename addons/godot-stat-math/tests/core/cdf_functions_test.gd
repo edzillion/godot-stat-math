@@ -133,29 +133,30 @@ func test_exponential_cdf_boundary_values() -> void:
 	assert_float(result_large).is_equal_approx(1.0, StatMath.BOUNDARY_TOLERANCE)
 
 # =============================================================================
-# PHASE 3: SPECIAL VALUES AND QUANTILES
+# MATHEMATICAL PROPERTY TESTS
 # =============================================================================
 
 ## Tests CDF values at median for normal distribution
 func test_normal_cdf_median() -> void:
 	# Standard normal median should be at x=0, giving CDF=0.5
 	var result: float = StatMath.CdfFunctions.normal_cdf(0.0, 0.0, 1.0)
-	assert_float(result).is_between(0.49, 0.51)
+	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
 
 ## Tests CDF values at median for exponential distribution  
 func test_exponential_cdf_median() -> void:
-	# Exponential median at ln(2) should give CDF ≈ 0.5
-	var result: float = StatMath.CdfFunctions.exponential_cdf(0.693147, 1.0)
-	assert_float(result).is_between(0.49, 0.51)
+	# Exponential median at ln(2) should give CDF = 0.5 exactly
+	var ln_2: float = log(2.0)  # Mathematical constant: natural log of 2
+	var result: float = StatMath.CdfFunctions.exponential_cdf(ln_2, 1.0)
+	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
 
 ## Tests CDF values at median for uniform distribution
 func test_uniform_cdf_median() -> void:
-	# Uniform distribution midpoint should give CDF = 0.5
+	# Uniform distribution midpoint should give CDF = 0.5 exactly
 	var result: float = StatMath.CdfFunctions.uniform_cdf(4.0, 2.0, 6.0)
-	assert_float(result).is_between(0.49, 0.51)
+	assert_float(result).is_equal_approx(0.5, StatMath.FLOAT_TOLERANCE)
 
 # =============================================================================
-# PHASE 3: PARAMETER VALIDATION ENHANCEMENT
+# PARAMETER VALIDATION TESTS
 # =============================================================================
 
 ## Individual parameter validation tests - ELIMINATED complex string-based match pattern
@@ -249,7 +250,7 @@ func test_weibull_cdf_validation_shape_negative() -> void:
 	await assert_error(test_call).is_push_error("Shape parameter must be positive for Weibull CDF. Received: -1.0")
 
 # =============================================================================
-# DIRECT CDF FUNCTION CALLS - NO ABSTRACTION LAYERS
+# SCIPY VALIDATION TESTS - DATA-DRIVEN
 # =============================================================================
 
 # --- Uniform CDF ---
