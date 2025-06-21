@@ -275,6 +275,59 @@ def generate_test_data():
     
     # PMF/PDF test data
     pmf_pdf_data = {
+        "binomial_pmf": [
+            # k, n, p, expected
+            {"params": [2, 5, 0.5], "expected": stats.binom.pmf(2, 5, 0.5)},
+            {"params": [0, 5, 0.5], "expected": stats.binom.pmf(0, 5, 0.5)},
+            {"params": [5, 5, 0.5], "expected": stats.binom.pmf(5, 5, 0.5)},
+            {"params": [6, 5, 0.5], "expected": stats.binom.pmf(6, 5, 0.5)},  # k > n
+            {"params": [0, 5, 0.0], "expected": stats.binom.pmf(0, 5, 0.0)},  # p = 0
+            {"params": [5, 5, 1.0], "expected": stats.binom.pmf(5, 5, 1.0)},  # p = 1
+        ],
+        "poisson_pmf": [
+            # k, lambda, expected
+            {"params": [2, 3.0], "expected": stats.poisson.pmf(2, 3.0)},
+            {"params": [0, 3.0], "expected": stats.poisson.pmf(0, 3.0)},
+            {"params": [0, 0.0], "expected": stats.poisson.pmf(0, 0.0)},
+            {"params": [-1, 3.0], "expected": 0.0},  # k < 0 should return 0
+        ],
+        "negative_binomial_pmf": [
+            # k, r, p, expected (using Godot convention: total trials needed)
+            {"params": [5, 2, 0.5], "expected": stats.nbinom.pmf(5-2, 2, 0.5)},  # 3 failures before 2 successes
+            {"params": [2, 2, 0.5], "expected": stats.nbinom.pmf(2-2, 2, 0.5)},  # k = r
+            {"params": [1, 2, 0.5], "expected": 0.0},  # k < r should return 0
+            {"params": [2, 2, 1.0], "expected": stats.nbinom.pmf(2-2, 2, 1.0)},  # p = 1
+        ],
+        "normal_pdf": [
+            # x, mu, sigma, expected
+            {"params": [0.0, 0.0, 1.0], "expected": stats.norm.pdf(0.0, 0.0, 1.0)},
+            {"params": [1.0, 0.0, 1.0], "expected": stats.norm.pdf(1.0, 0.0, 1.0)},
+            {"params": [2.0, 2.0, 1.0], "expected": stats.norm.pdf(2.0, 2.0, 1.0)},
+            {"params": [5.0, 3.0, 2.0], "expected": stats.norm.pdf(5.0, 3.0, 2.0)},
+        ],
+        "exponential_pdf": [
+            # x, lambda, expected (Note: scipy uses scale=1/lambda)
+            {"params": [0.0, 1.0], "expected": stats.expon.pdf(0.0, scale=1.0)},
+            {"params": [1.0, 1.0], "expected": stats.expon.pdf(1.0, scale=1.0)},
+            {"params": [0.0, 2.0], "expected": stats.expon.pdf(0.0, scale=0.5)},
+            {"params": [2.0, 0.5], "expected": stats.expon.pdf(2.0, scale=2.0)},
+            {"params": [-1.0, 1.0], "expected": 0.0},  # Negative x should return 0
+        ],
+        "uniform_pdf": [
+            # x, a, b, expected
+            {"params": [2.5, 1.0, 4.0], "expected": stats.uniform.pdf(2.5, 1.0, 3.0)},  # scipy uses (loc, scale)
+            {"params": [1.0, 1.0, 4.0], "expected": stats.uniform.pdf(1.0, 1.0, 3.0)},
+            {"params": [4.0, 1.0, 4.0], "expected": stats.uniform.pdf(4.0, 1.0, 3.0)},
+            {"params": [0.5, 1.0, 4.0], "expected": 0.0},  # Outside range (below)
+            {"params": [4.5, 1.0, 4.0], "expected": 0.0},  # Outside range (above)
+            {"params": [0.0, -2.0, 2.0], "expected": stats.uniform.pdf(0.0, -2.0, 4.0)},
+        ],
+        "gamma_pdf": [
+            # x, k_shape, theta_scale, expected
+            {"params": [1.0, 2.0, 1.0], "expected": stats.gamma.pdf(1.0, 2.0, scale=1.0)},
+            {"params": [0.0, 2.0, 1.0], "expected": stats.gamma.pdf(0.0, 2.0, scale=1.0)},
+            {"params": [-1.0, 2.0, 1.0], "expected": 0.0},  # Negative x should return 0
+        ],
         "geometric_pmf": [
             # k, p, expected
             {"params": [2, 0.5], "expected": stats.geom.pmf(2, 0.5)},
@@ -411,10 +464,41 @@ def generate_test_data():
             {"params": [1.5], "expected": special.erfcinv(1.5)},
             {"params": [0.2], "expected": special.erfcinv(0.2)},
         ],
+        "gamma_integer": [
+            # x, expected - Gamma(n) = (n-1)! for integer n
+            {"params": [1.0], "expected": special.gamma(1.0)},  # 0! = 1
+            {"params": [4.0], "expected": special.gamma(4.0)},  # 3! = 6  
+            {"params": [5.0], "expected": special.gamma(5.0)},  # 4! = 24
+        ],
+        "gamma_half_integer": [
+            # x, expected - Gamma(n+0.5) involving sqrt(PI)
+            {"params": [0.5], "expected": special.gamma(0.5)},   # sqrt(PI)
+            {"params": [1.5], "expected": special.gamma(1.5)},   # 0.5 * sqrt(PI)
+            {"params": [2.5], "expected": special.gamma(2.5)},   # 1.5 * 0.5 * sqrt(PI)
+        ],
     }
     
     # Helper function test data
     helper_functions_data = {
+        "binomial_coefficient": [
+            # n, r, expected
+            {"params": [5, 2], "expected": special.comb(5, 2, exact=True)},  # 10
+            {"params": [10, 3], "expected": special.comb(10, 3, exact=True)},  # 120
+            {"params": [7, 0], "expected": special.comb(7, 0, exact=True)},  # 1
+            {"params": [6, 6], "expected": special.comb(6, 6, exact=True)},  # 1
+        ],
+        "log_factorial": [
+            # n, expected
+            {"params": [0], "expected": special.gammaln(1)},  # log(0!) = log(1) = 0
+            {"params": [5], "expected": special.gammaln(6)},  # log(5!) = log(Gamma(6))
+            {"params": [10], "expected": special.gammaln(11)},  # log(10!) = log(Gamma(11))
+        ],
+        "log_binomial_coef": [
+            # n, k, expected
+            {"params": [5, 2], "expected": np.log(special.comb(5, 2, exact=True))},  # log(10)
+            {"params": [10, 3], "expected": np.log(special.comb(10, 3, exact=True))},  # log(120)
+            {"params": [7, 0], "expected": np.log(special.comb(7, 0, exact=True))},  # log(1) = 0
+        ],
         "lower_incomplete_gamma_regularized": [
             # a, z, expected
             {"params": [2.5, 3.5], "expected": special.gammainc(2.5, 3.5)},
@@ -485,7 +569,7 @@ def generate_test_data():
     generate_basic_stats_test_data()
 
 def generate_data_file(filename, data):
-    """Generate a GDScript test data file"""
+    """Generate a GDScript test data file with scipy function call documentation"""
     output_path = os.path.join("addons", "godot-stat-math", "tables", f"{filename}.gd")
     
     content = [
@@ -496,8 +580,61 @@ def generate_data_file(filename, data):
         "const VALUES: Dictionary = {",
     ]
 
+    # Map function names to their scipy call documentation
+    scipy_calls = {
+        # Error functions
+        "erf": "special.erf(x)",
+        "erfc": "special.erfc(x)", 
+        "erf_inv": "special.erfinv(y)",
+        "erfc_inv": "special.erfcinv(y)",
+        "gamma_integer": "special.gamma(x)",
+        "gamma_half_integer": "special.gamma(x)",
+        
+        # Helper functions
+        "binomial_coefficient": "special.comb(n, r, exact=True)",
+        "log_factorial": "special.gammaln(n+1)",
+        "log_binomial_coef": "np.log(special.comb(n, k, exact=True))",
+        "lower_incomplete_gamma_regularized": "special.gammainc(a, z)",
+        "incomplete_beta": "special.betainc(a, b, x)",
+        "beta_function": "special.beta(a, b)",
+        
+        # CDF functions
+        "normal_cdf": "stats.norm.cdf(x, mu, sigma)",
+        "exponential_cdf": "stats.expon.cdf(x, scale=1.0/lambda)",
+        "gamma_cdf": "stats.gamma.cdf(x, a=shape, scale=scale)",
+        "beta_cdf": "stats.beta.cdf(x, alpha, beta)",
+        "chi_square_cdf": "stats.chi2.cdf(x, df)",
+        "weibull_cdf": "stats.weibull_min.cdf(x, c=shape, scale=scale)",
+        "t_cdf": "stats.t.cdf(x, df)",
+        "f_cdf": "stats.f.cdf(x, dfn, dfd)",
+        
+        # PPF functions
+        "normal_ppf": "stats.norm.ppf(p, mu, sigma)",
+        "exponential_ppf": "stats.expon.ppf(p, scale=1.0/lambda)",
+        "uniform_ppf": "stats.uniform.ppf(p, a, b-a)",
+        "pareto_ppf": "stats.pareto.ppf(p, b=shape, scale=scale)",
+        "weibull_ppf": "stats.weibull_min.ppf(p, c=shape, scale=scale)",
+        
+        # PMF/PDF functions
+        "binomial_pmf": "stats.binom.pmf(k, n, p)",
+        "poisson_pmf": "stats.poisson.pmf(k, lambda)",
+        "negative_binomial_pmf": "stats.nbinom.pmf(k-r, r, p)",
+        "normal_pdf": "stats.norm.pdf(x, mu, sigma)",
+        "exponential_pdf": "stats.expon.pdf(x, scale=1/lambda)",
+        "uniform_pdf": "stats.uniform.pdf(x, a, b-a)",
+        "gamma_pdf": "stats.gamma.pdf(x, shape, scale=scale)",
+        "geometric_pmf": "stats.geom.pmf(k, p)",
+        "lognormal_pdf": "stats.lognorm.pdf(x, s=sigma, scale=exp(mu))",
+        "weibull_pdf": "stats.weibull_min.pdf(x, c=shape, scale=scale)",
+        "f_pdf": "stats.f.pdf(x, dfn, dfd)",
+        "students_t_pdf": "stats.t.pdf(x, df)",
+        "beta_pdf": "stats.beta.pdf(x, alpha, beta)",
+        "chi_squared_pdf": "stats.chi2.pdf(x, df)",
+    }
+
     for func_name, test_cases in data.items():
-        content.append(f'\t"{func_name}": [')
+        scipy_call = scipy_calls.get(func_name, "# scipy function call not documented")
+        content.append(f'\t"{func_name}": [  # Generated using: {scipy_call}')
         for case in test_cases:
             # Standard format: {"params": [...], "expected": ...}
             params_str = ", ".join(map(str, case["params"]))

@@ -5,22 +5,11 @@ const PMF_PDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/pmf_pdf_t
 
 
 # --- Binomial PMF ---
-func test_binomial_pmf_basic() -> void:
-	# Using calculated scipy reference value instead of hardcoded
-	var result: float = StatMath.PmfPdfFunctions.binomial_pmf(2, 5, 0.5)
-	var expected: float = 0.31250000  # scipy.stats.binom.pmf(2, 5, 0.5)
-	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
-
-
-func test_binomial_pmf_edge_cases(k: int, n: int, p: float, expected: float, test_parameters := [
-	[0, 5, 0.5, 0.03125],  # k = 0
-	[5, 5, 0.5, 0.03125],  # k = n
-	[6, 5, 0.5, 0.0],      # k > n
-	[0, 5, 0.0, 1.0],      # p = 0
-	[5, 5, 1.0, 1.0],      # p = 1
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.binomial_pmf(k, n, p)
-	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
+func test_binomial_pmf_scipy_validated() -> void:
+	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["binomial_pmf"]
+	for case in test_data:
+		var result: float = StatMath.PmfPdfFunctions.binomial_pmf(case["params"][0], case["params"][1], case["params"][2])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
 
 func test_binomial_pmf_invalid_parameters() -> void:
@@ -38,18 +27,11 @@ func test_binomial_pmf_invalid_parameters() -> void:
 
 
 # --- Poisson PMF ---
-func test_poisson_pmf_basic() -> void:
-	var result: float = StatMath.PmfPdfFunctions.poisson_pmf(2, 3.0)
-	var expected: float = 0.22404181  # scipy.stats.poisson.pmf(2, 3.0)
-	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
-
-func test_poisson_pmf_edge_cases(k: int, lambda_param: float, expected: float, test_parameters := [
-	[0, 3.0, exp(-3.0)],  # k = 0
-	[0, 0.0, 1.0],        # lambda = 0
-	[-1, 3.0, 0.0],       # k < 0
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.poisson_pmf(k, lambda_param)
-	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
+func test_poisson_pmf_scipy_validated() -> void:
+	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["poisson_pmf"]
+	for case in test_data:
+		var result: float = StatMath.PmfPdfFunctions.poisson_pmf(case["params"][0], case["params"][1])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
 func test_poisson_pmf_invalid_parameters() -> void:
 	var test_call: Callable = func():
@@ -57,18 +39,11 @@ func test_poisson_pmf_invalid_parameters() -> void:
 	await assert_error(test_call).is_push_error("Rate parameter (lambda_param) must be non-negative. Received: -1.0")
 
 # --- Negative Binomial PMF ---
-func test_negative_binomial_pmf_basic() -> void:
-	var result: float = StatMath.PmfPdfFunctions.negative_binomial_pmf(5, 2, 0.5)
-	var expected: float = 0.12500000  # scipy.stats.nbinom.pmf(5-2, 2, 0.5) = nbinom.pmf(3, 2, 0.5)
-	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
-
-func test_negative_binomial_pmf_edge_cases(k: int, r: int, p: float, expected: float, test_parameters := [
-	[2, 2, 0.5, 0.25],  # k = r
-	[1, 2, 0.5, 0.0],   # k < r
-	[2, 2, 1.0, 1.0],   # p = 1
-]) -> void:
-	var result: float = StatMath.PmfPdfFunctions.negative_binomial_pmf(k, r, p)
-	assert_float(result).is_equal_approx(expected, StatMath.PROBABILITY_TOLERANCE)
+func test_negative_binomial_pmf_scipy_validated() -> void:
+	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["negative_binomial_pmf"]
+	for case in test_data:
+		var result: float = StatMath.PmfPdfFunctions.negative_binomial_pmf(case["params"][0], case["params"][1], case["params"][2])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
 
 func test_negative_binomial_pmf_invalid_parameters() -> void:
 	var test_call1: Callable = func():

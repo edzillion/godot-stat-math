@@ -111,16 +111,18 @@ func test_complementary_error_function_inverse_invalid_lt_zero() -> void:
 
 # --- Gamma and Log Gamma Functions ---
 func test_gamma_integer() -> void:
-	# Gamma(n) = (n-1)!
-	assert_float(StatMath.ErrorFunctions.gamma(4.0)).is_equal_approx(6.0, StatMath.FLOAT_TOLERANCE) # 3!
-	assert_float(StatMath.ErrorFunctions.gamma(5.0)).is_equal_approx(24.0, StatMath.FLOAT_TOLERANCE) # 4!
-	assert_float(StatMath.ErrorFunctions.gamma(1.0)).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
+	# Using scipy-generated test data for gamma function integer values
+	var test_data: Array = ERROR_FUNCTIONS_TEST_DATA.VALUES["gamma_integer"]
+	for case in test_data:
+		var result: float = StatMath.ErrorFunctions.gamma(case["params"][0])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
 
 func test_gamma_half_integer() -> void:
-	# Gamma(0.5) = sqrt(PI)
-	assert_float(StatMath.ErrorFunctions.gamma(0.5)).is_equal_approx(sqrt(PI), StatMath.FLOAT_TOLERANCE)
-	# Gamma(1.5) = 0.5 * Gamma(0.5) = 0.5 * sqrt(PI)
-	assert_float(StatMath.ErrorFunctions.gamma(1.5)).is_equal_approx(0.5 * sqrt(PI), StatMath.FLOAT_TOLERANCE)
+	# Using scipy-generated test data for gamma function half-integer values
+	var test_data: Array = ERROR_FUNCTIONS_TEST_DATA.VALUES["gamma_half_integer"]
+	for case in test_data:
+		var result: float = StatMath.ErrorFunctions.gamma(case["params"][0])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
 
 func test_gamma_invalid_input() -> void:
 	assert_that(is_nan(StatMath.ErrorFunctions.gamma(0.0))).is_true()

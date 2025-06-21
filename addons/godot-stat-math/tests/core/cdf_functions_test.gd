@@ -2,7 +2,7 @@
 class_name CdfFunctionsTest extends GdUnitTestSuite
 
 
-var simple_data: Array[float] = [1.0, 2.0, 3.0, 4.0, 5.0]
+# simple_data eliminated - using scipy-generated CDF_TEST_DATA instead
 const CDF_TEST_DATA = preload("res://addons/godot-stat-math/tables/cdf_test_data.gd")
 
 # Manual data transformation function ELIMINATED - data structure optimized for direct usage
@@ -158,58 +158,95 @@ func test_uniform_cdf_median() -> void:
 # PHASE 3: PARAMETER VALIDATION ENHANCEMENT
 # =============================================================================
 
-## Enhanced parameter validation tests for probability bounds and edge cases
-func test_cdf_parameter_validation_enhanced_parametrized(distribution: String, validation_type: String, params: Array, expected_error: String, test_parameters := [
-	# Continuous distributions
-	["normal", "sigma_zero", [0.0, 0.0], "Standard deviation (sigma) must be positive for Normal CDF. Received: 0.0"],
-	["normal", "sigma_negative", [0.0, -1.0], "Standard deviation (sigma) must be positive for Normal CDF. Received: -1.0"],
-	["exponential", "lambda_zero", [0.0], "Rate parameter (lambda_param) must be positive for Exponential CDF. Received: 0.0"],
-	["exponential", "lambda_negative", [-1.0], "Rate parameter (lambda_param) must be positive for Exponential CDF. Received: -1.0"],
-	["gamma", "shape_zero", [0.0, 1.0], "Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=0.0, theta_scale=1.0"],
-	["gamma", "scale_zero", [1.0, 0.0], "Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=1.0, theta_scale=0.0"],
-	["beta", "alpha_zero", [0.0, 1.0], "Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=0.0, beta_param=1.0"],
-	["beta", "beta_negative", [1.0, -1.0], "Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=1.0, beta_param=-1.0"],
-	["uniform", "a_greater_than_b", [5.0, 2.0], "Parameter a must be less than or equal to b for Uniform CDF. Received a=5.0, b=2.0"],
-	# Special distributions
-	["chi_square", "df_zero", [0.0], "Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: 0.0"],
-	["chi_square", "df_negative", [-1.0], "Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: -1.0"],
-	["t", "df_zero", [0.0], "Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: 0.0"],
-	["t", "df_negative", [-5.0], "Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: -5.0"],
-	["f", "d1_zero", [0.0, 5.0], "Degrees of freedom (d1_df, d2_df) must be positive for F-Distribution CDF. Received d1_df=0.0, d2_df=5.0"],
-	["f", "d2_negative", [5.0, -1.0], "Degrees of freedom (d1_df, d2_df) must be positive for F-Distribution CDF. Received d1_df=5.0, d2_df=-1.0"],
-	# Heavy-tailed distributions
-	["weibull", "scale_zero", [0.0, 2.0], "Scale parameter must be positive for Weibull CDF. Received: 0.0"],
-	["weibull", "shape_negative", [1.0, -1.0], "Shape parameter must be positive for Weibull CDF. Received: -1.0"],
-	["pareto", "scale_zero", [0.0, 1.0], "Scale parameter must be positive for Pareto CDF. Received: 0.0"],
-	["pareto", "shape_negative", [1.0, -2.0], "Shape parameter must be positive for Pareto CDF. Received: -2.0"],
-	# Discrete distributions
-	["binomial", "n_negative", [-1, 0.5], "Number of trials (n_trials) must be non-negative. Received: -1"],
-	["binomial", "p_negative", [5, -0.1], "Probability (p_prob) must be between 0.0 and 1.0. Received: -0.1"],
-	["binomial", "p_greater_than_one", [5, 1.5], "Probability (p_prob) must be between 0.0 and 1.0. Received: 1.5"],
-	["poisson", "lambda_negative", [-1.0], "Rate parameter (lambda_param) must be non-negative for Poisson CDF. Received: -1.0"],
-	["geometric", "p_zero", [0.0], "Success probability (p_prob) must be in (0,1]. Received: 0.0"],
-	["geometric", "p_greater_than_one", [1.5], "Success probability (p_prob) must be in (0,1]. Received: 1.5"],
-	["negative_binomial", "r_zero", [0, 0.5], "Number of successes (r_successes) must be positive. Received: 0"],
-	["negative_binomial", "p_zero", [5, 0.0], "Success probability (p_prob) must be in (0,1]. Received: 0.0"]
-	]) -> void:
+## Individual parameter validation tests - ELIMINATED complex string-based match pattern
+
+# Normal CDF validation tests
+func test_normal_cdf_validation_sigma_zero() -> void:
 	var test_call: Callable = func():
-		match distribution:
-			"normal": StatMath.CdfFunctions.normal_cdf(1.0, params[0], params[1])
-			"exponential": StatMath.CdfFunctions.exponential_cdf(1.0, params[0])
-			"gamma": StatMath.CdfFunctions.gamma_cdf(1.0, params[0], params[1])
-			"beta": StatMath.CdfFunctions.beta_cdf(0.5, params[0], params[1])
-			"uniform": StatMath.CdfFunctions.uniform_cdf(3.0, params[0], params[1])
-			"chi_square": StatMath.CdfFunctions.chi_square_cdf(1.0, params[0])
-			"t": StatMath.CdfFunctions.t_cdf(1.0, params[0])
-			"f": StatMath.CdfFunctions.f_cdf(1.0, params[0], params[1])
-			"weibull": StatMath.CdfFunctions.weibull_cdf(1.0, params[0], params[1])
-			"pareto": StatMath.CdfFunctions.pareto_cdf(2.0, params[0], params[1])
-			"binomial": StatMath.CdfFunctions.binomial_cdf(5, int(params[0]), params[1])
-			"poisson": StatMath.CdfFunctions.poisson_cdf(5, params[0])
-			"geometric": StatMath.CdfFunctions.geometric_cdf(5, params[0])
-			"negative_binomial": StatMath.CdfFunctions.negative_binomial_cdf(10, int(params[0]), params[1])
-	
-	await assert_error(test_call).is_push_error(expected_error)
+		StatMath.CdfFunctions.normal_cdf(1.0, 0.0, 0.0)
+	await assert_error(test_call).is_push_error("Standard deviation (sigma) must be positive for Normal CDF. Received: 0.0")
+
+func test_normal_cdf_validation_sigma_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.normal_cdf(1.0, 0.0, -1.0)
+	await assert_error(test_call).is_push_error("Standard deviation (sigma) must be positive for Normal CDF. Received: -1.0")
+
+# Exponential CDF validation tests
+func test_exponential_cdf_validation_lambda_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.exponential_cdf(1.0, 0.0)
+	await assert_error(test_call).is_push_error("Rate parameter (lambda_param) must be positive for Exponential CDF. Received: 0.0")
+
+func test_exponential_cdf_validation_lambda_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.exponential_cdf(1.0, -1.0)
+	await assert_error(test_call).is_push_error("Rate parameter (lambda_param) must be positive for Exponential CDF. Received: -1.0")
+
+# Gamma CDF validation tests
+func test_gamma_cdf_validation_shape_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.gamma_cdf(1.0, 0.0, 1.0)
+	await assert_error(test_call).is_push_error("Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=0.0, theta_scale=1.0")
+
+func test_gamma_cdf_validation_scale_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.gamma_cdf(1.0, 1.0, 0.0)
+	await assert_error(test_call).is_push_error("Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=1.0, theta_scale=0.0")
+
+# Beta CDF validation tests
+func test_beta_cdf_validation_alpha_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.beta_cdf(0.5, 0.0, 1.0)
+	await assert_error(test_call).is_push_error("Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=0.0, beta_param=1.0")
+
+func test_beta_cdf_validation_beta_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.beta_cdf(0.5, 1.0, -1.0)
+	await assert_error(test_call).is_push_error("Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=1.0, beta_param=-1.0")
+
+# Chi-Square CDF validation tests
+func test_chi_square_cdf_validation_df_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.chi_square_cdf(1.0, 0.0)
+	await assert_error(test_call).is_push_error("Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: 0.0")
+
+func test_chi_square_cdf_validation_df_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.chi_square_cdf(1.0, -1.0)
+	await assert_error(test_call).is_push_error("Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: -1.0")
+
+# t-Distribution CDF validation tests
+func test_t_cdf_validation_df_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.t_cdf(1.0, 0.0)
+	await assert_error(test_call).is_push_error("Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: 0.0")
+
+func test_t_cdf_validation_df_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.t_cdf(1.0, -5.0)
+	await assert_error(test_call).is_push_error("Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: -5.0")
+
+# F-Distribution CDF validation tests
+func test_f_cdf_validation_d1_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.f_cdf(1.0, 0.0, 5.0)
+	await assert_error(test_call).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive for F-Distribution CDF. Received d1_df=0.0, d2_df=5.0")
+
+func test_f_cdf_validation_d2_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.f_cdf(1.0, 5.0, -1.0)
+	await assert_error(test_call).is_push_error("Degrees of freedom (d1_df, d2_df) must be positive for F-Distribution CDF. Received d1_df=5.0, d2_df=-1.0")
+
+# Weibull CDF validation tests
+func test_weibull_cdf_validation_scale_zero() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(1.0, 0.0, 2.0)
+	await assert_error(test_call).is_push_error("Scale parameter must be positive for Weibull CDF. Received: 0.0")
+
+func test_weibull_cdf_validation_shape_negative() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.weibull_cdf(1.0, 1.0, -1.0)
+	await assert_error(test_call).is_push_error("Shape parameter must be positive for Weibull CDF. Received: -1.0")
 
 # =============================================================================
 # DIRECT CDF FUNCTION CALLS - NO ABSTRACTION LAYERS

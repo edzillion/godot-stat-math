@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites id="2025-06-21" name="report_10" tests="157" failures="0" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="pmf_pdf_functions_test" package="addons/godot-stat-math/tests/core" timestamp="2025-06-21T09:08:02" hostname="localhost" tests="157" failures="0" errors="0" skipped="0" flaky="0" time="10.425">
+		<testcase name="test_binomial_pmf_scipy_validated" classname="pmf_pdf_functions_test" time="0.021">
+		</testcase>
+		<testcase name="test_binomial_pmf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.063">
+		</testcase>
+		<testcase name="test_poisson_pmf_basic" classname="pmf_pdf_functions_test" time="0.014">
+		</testcase>
+		<testcase name="test_poisson_pmf_edge_cases:0 (0, 3.0, exp(-3.0))" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_poisson_pmf_edge_cases:1 (0, 0.0, 1.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_poisson_pmf_edge_cases:2 (-1, 3.0, 0.0)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_poisson_pmf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.021">
+		</testcase>
+		<testcase name="test_negative_binomial_pmf_basic" classname="pmf_pdf_functions_test" time="0.007">
+		</testcase>
+		<testcase name="test_negative_binomial_pmf_edge_cases:0 (2, 2, 0.5, 0.25)" classname="pmf_pdf_functions_test" time="0.063">
+		</testcase>
+		<testcase name="test_negative_binomial_pmf_edge_cases:1 (1, 2, 0.5, 0.0)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_negative_binomial_pmf_edge_cases:2 (2, 2, 1.0, 1.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_negative_binomial_pmf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_normal_pdf_parametrized:0 (0.0, 0.0, 1.0, 0.39894228)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_normal_pdf_parametrized:1 (1.0, 0.0, 1.0, 0.24197072)" classname="pmf_pdf_functions_test" time="0.062">
+		</testcase>
+		<testcase name="test_normal_pdf_parametrized:2 (2.0, 2.0, 1.0, 0.39894228)" classname="pmf_pdf_functions_test" time="0.054">
+		</testcase>
+		<testcase name="test_normal_pdf_parametrized:3 (5.0, 3.0, 2.0, 0.12098536)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_normal_pdf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.051">
+		</testcase>
+		<testcase name="test_exponential_pdf_parametrized:0 (0.0, 1.0, 1.00000000)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_exponential_pdf_parametrized:1 (1.0, 1.0, 0.36787944)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_exponential_pdf_parametrized:2 (0.0, 2.0, 2.00000000)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_exponential_pdf_parametrized:3 (2.0, 0.5, 0.18393972)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_exponential_pdf_parametrized:4 (-1.0, 1.0, 0.00000000)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_exponential_pdf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.043">
+		</testcase>
+		<testcase name="test_uniform_pdf_parametrized:0 (2.5, 1.0, 4.0, 0.33333333)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_uniform_pdf_parametrized:1 (1.0, 1.0, 4.0, 0.33333333)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_uniform_pdf_parametrized:2 (4.0, 1.0, 4.0, 0.33333333)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_uniform_pdf_parametrized:3 (0.5, 1.0, 4.0, 0.00000000)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_uniform_pdf_parametrized:4 (4.5, 1.0, 4.0, 0.00000000)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_uniform_pdf_parametrized:5 (0.0, -2.0, 2.0, 0.25000000)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_uniform_pdf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.043">
+		</testcase>
+		<testcase name="test_gamma_pdf_basic" classname="pmf_pdf_functions_test" time="0.006">
+		</testcase>
+		<testcase name="test_gamma_pdf_edge_cases:0 (0.0, 2.0, 1.0, 0.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_gamma_pdf_edge_cases:1 (-1.0, 2.0, 1.0, 0.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_gamma_pdf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.085">
+		</testcase>
+		<testcase name="test_beta_pdf_scipy_validated" classname="pmf_pdf_functions_test" time="0.007">
+		</testcase>
+		<testcase name="test_beta_pdf_uniform_special_case:0 (0.2)" classname="pmf_pdf_functions_test" time="0.062">
+		</testcase>
+		<testcase name="test_beta_pdf_uniform_special_case:1 (0.4)" classname="pmf_pdf_functions_test" time="0.068">
+		</testcase>
+		<testcase name="test_beta_pdf_uniform_special_case:2 (0.6)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_beta_pdf_uniform_special_case:3 (0.8)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_beta_pdf_outside_range:0 (-0.1, 2.0, 2.0, 0.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_beta_pdf_outside_range:1 (1.1, 2.0, 2.0, 0.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_beta_pdf_symmetry:0 (0.3, 2.0, 2.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_beta_pdf_symmetry:1 (0.2, 3.0, 3.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_beta_pdf_symmetry:2 (0.4, 1.5, 1.5)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_beta_pdf_boundary_behavior" classname="pmf_pdf_functions_test" time="0.021">
+		</testcase>
+		<testcase name="test_beta_pdf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.091">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_scipy_validated" classname="pmf_pdf_functions_test" time="0.015">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_edge_cases:0 (0.0, 2.0, 0.0)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_edge_cases:1 (-1.0, 2.0, 0.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_exponential_relationship:0 (1.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_exponential_relationship:1 (1.5)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_exponential_relationship:2 (2.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_exponential_relationship:3 (3.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_exponential_relationship:4 (5.0)" classname="pmf_pdf_functions_test" time="0.045">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_gamma_relationship:0 (1.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_gamma_relationship:1 (2.0)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_gamma_relationship:2 (5.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_t_pdf_scipy_validated" classname="pmf_pdf_functions_test" time="0.015">
+		</testcase>
+		<testcase name="test_t_pdf_special_cases:0 (0.0, 1000.0, 1.0 / sqrt(2.0 * PI), StatMath.ASYMPTOTIC_TOLERANCE)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_t_pdf_special_cases:1 (0.0, 1.0, 1.0 / PI, StatMath.PROBABILITY_TOLERANCE)" classname="pmf_pdf_functions_test" time="0.063">
+		</testcase>
+		<testcase name="test_t_pdf_symmetry:0 (1.0, 5.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_t_pdf_symmetry:1 (2.0, 3.0)" classname="pmf_pdf_functions_test" time="0.061">
+		</testcase>
+		<testcase name="test_t_pdf_symmetry:2 (0.5, 10.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_t_pdf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.056">
+		</testcase>
+		<testcase name="test_f_pdf_basic" classname="pmf_pdf_functions_test" time="0.015">
+		</testcase>
+		<testcase name="test_f_pdf_edge_cases:0 (0.0, 2.0, 3.0, 0.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_f_pdf_edge_cases:1 (-1.0, 2.0, 3.0, 0.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_f_pdf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.085">
+		</testcase>
+		<testcase name="test_gamma_pdf_exponential_special_case:0 (0.5)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_gamma_pdf_exponential_special_case:1 (1.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_gamma_pdf_exponential_special_case:2 (2.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_gamma_pdf_exponential_special_case:3 (3.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_normal_pdf_non_negative:0 (-2.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_normal_pdf_non_negative:1 (-1.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_normal_pdf_non_negative:2 (0.0)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_normal_pdf_non_negative:3 (1.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_normal_pdf_non_negative:4 (2.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_normal_pdf_non_negative:5 (5.0)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_exponential_pdf_non_negative:0 (-2.0)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_exponential_pdf_non_negative:1 (-1.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_exponential_pdf_non_negative:2 (0.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_exponential_pdf_non_negative:3 (1.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_exponential_pdf_non_negative:4 (2.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_exponential_pdf_non_negative:5 (5.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_uniform_pdf_non_negative:0 (-2.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_uniform_pdf_non_negative:1 (-1.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_uniform_pdf_non_negative:2 (0.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_uniform_pdf_non_negative:3 (1.0)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_uniform_pdf_non_negative:4 (2.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_uniform_pdf_non_negative:5 (5.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_beta_pdf_non_negative:0 (0.1)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_beta_pdf_non_negative:1 (0.3)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_beta_pdf_non_negative:2 (0.5)" classname="pmf_pdf_functions_test" time="0.045">
+		</testcase>
+		<testcase name="test_beta_pdf_non_negative:3 (0.7)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_beta_pdf_non_negative:4 (0.9)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_non_negative:0 (-2.0)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_non_negative:1 (-1.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_non_negative:2 (0.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_non_negative:3 (1.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_non_negative:4 (2.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_non_negative:5 (5.0)" classname="pmf_pdf_functions_test" time="0.062">
+		</testcase>
+		<testcase name="test_pdf_numerical_stability:0 (100.0, StatMath.SupportedDistributions.NORMAL)" classname="pmf_pdf_functions_test" time="0.051">
+		</testcase>
+		<testcase name="test_pdf_numerical_stability:1 (100.0, StatMath.SupportedDistributions.EXPONENTIAL)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_pdf_numerical_stability:2 (100.0, StatMath.SupportedDistributions.GAMMA)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_pdf_numerical_stability:3 (1000.0, StatMath.SupportedDistributions.NORMAL)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_pdf_numerical_stability:4 (1000.0, StatMath.SupportedDistributions.EXPONENTIAL)" classname="pmf_pdf_functions_test" time="0.053">
+		</testcase>
+		<testcase name="test_pdf_integration_approximation:0 (StatMath.SupportedDistributions.NORMAL)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_pdf_integration_approximation:1 (StatMath.SupportedDistributions.EXPONENTIAL)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_pdf_integration_approximation:2 (StatMath.SupportedDistributions.BETA)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_weibull_pdf_scipy_validated" classname="pmf_pdf_functions_test" time="0.020">
+		</testcase>
+		<testcase name="test_weibull_pdf_edge_cases:0 (0.0, 1.0, 2.0, 0.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_weibull_pdf_edge_cases:1 (-1.0, 1.0, 2.0, 0.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_weibull_pdf_edge_cases:2 (0.0, 1.0, 0.5, INF)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_weibull_pdf_edge_cases:3 (0.0, 1.0, 1.0, 1.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_weibull_pdf_exponential_special_case:0 (0.5)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_weibull_pdf_exponential_special_case:1 (1.0)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_weibull_pdf_exponential_special_case:2 (2.0)" classname="pmf_pdf_functions_test" time="0.053">
+		</testcase>
+		<testcase name="test_weibull_pdf_exponential_special_case:3 (3.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_weibull_pdf_rayleigh_special_case:0 (0.5)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_weibull_pdf_rayleigh_special_case:1 (1.0)" classname="pmf_pdf_functions_test" time="0.050">
+		</testcase>
+		<testcase name="test_weibull_pdf_rayleigh_special_case:2 (1.5)" classname="pmf_pdf_functions_test" time="0.051">
+		</testcase>
+		<testcase name="test_weibull_pdf_rayleigh_special_case:3 (2.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_weibull_pdf_monotonicity" classname="pmf_pdf_functions_test" time="0.021">
+		</testcase>
+		<testcase name="test_weibull_pdf_boundary_conditions:0 (0.0, 1.0, 0.5)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_weibull_pdf_boundary_conditions:1 (0.0, 1.0, 1.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_weibull_pdf_boundary_conditions:2 (0.0, 1.0, 2.0)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_weibull_pdf_boundary_conditions:3 (1000.0, 1.0, 2.0)" classname="pmf_pdf_functions_test" time="0.046">
+		</testcase>
+		<testcase name="test_weibull_pdf_deterministic_behavior" classname="pmf_pdf_functions_test" time="0.029">
+		</testcase>
+		<testcase name="test_weibull_pdf_non_negative:0 (-2.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_weibull_pdf_non_negative:1 (-1.0)" classname="pmf_pdf_functions_test" time="0.070">
+		</testcase>
+		<testcase name="test_weibull_pdf_non_negative:2 (0.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_weibull_pdf_non_negative:3 (1.0)" classname="pmf_pdf_functions_test" time="0.048">
+		</testcase>
+		<testcase name="test_weibull_pdf_non_negative:4 (2.0)" classname="pmf_pdf_functions_test" time="0.052">
+		</testcase>
+		<testcase name="test_weibull_pdf_non_negative:5 (5.0)" classname="pmf_pdf_functions_test" time="0.069">
+		</testcase>
+		<testcase name="test_weibull_pdf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.079">
+		</testcase>
+		<testcase name="test_lognormal_pdf_scipy_validated" classname="pmf_pdf_functions_test" time="0.016">
+		</testcase>
+		<testcase name="test_lognormal_pdf_edge_cases:0 (0.0, 0.0, 1.0, 0.0)" classname="pmf_pdf_functions_test" time="0.052">
+		</testcase>
+		<testcase name="test_lognormal_pdf_edge_cases:1 (-1.0, 0.0, 1.0, 0.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_lognormal_pdf_relationship_to_normal" classname="pmf_pdf_functions_test" time="0.021">
+		</testcase>
+		<testcase name="test_lognormal_pdf_non_negative:0 (-2.0)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+		<testcase name="test_lognormal_pdf_non_negative:1 (-1.0)" classname="pmf_pdf_functions_test" time="0.055">
+		</testcase>
+		<testcase name="test_lognormal_pdf_non_negative:2 (0.0)" classname="pmf_pdf_functions_test" time="0.051">
+		</testcase>
+		<testcase name="test_lognormal_pdf_non_negative:3 (1.0)" classname="pmf_pdf_functions_test" time="0.047">
+		</testcase>
+		<testcase name="test_lognormal_pdf_non_negative:4 (2.0)" classname="pmf_pdf_functions_test" time="0.051">
+		</testcase>
+		<testcase name="test_lognormal_pdf_non_negative:5 (5.0)" classname="pmf_pdf_functions_test" time="0.053">
+		</testcase>
+		<testcase name="test_lognormal_pdf_invalid_parameters" classname="pmf_pdf_functions_test" time="0.052">
+		</testcase>
+		<testcase name="test_pdf_integration_normal" classname="pmf_pdf_functions_test" time="0.017">
+		</testcase>
+		<testcase name="test_pdf_integration_exponential" classname="pmf_pdf_functions_test" time="0.009">
+		</testcase>
+		<testcase name="test_pdf_integration_uniform" classname="pmf_pdf_functions_test" time="0.016">
+		</testcase>
+		<testcase name="test_pdf_integration_beta" classname="pmf_pdf_functions_test" time="0.011">
+		</testcase>
+		<testcase name="test_pdf_integration_gamma" classname="pmf_pdf_functions_test" time="0.010">
+		</testcase>
+		<testcase name="test_pdf_integration_weibull" classname="pmf_pdf_functions_test" time="0.008">
+		</testcase>
+		<testcase name="test_pdf_integration_lognormal" classname="pmf_pdf_functions_test" time="0.009">
+		</testcase>
+		<testcase name="test_pdf_integration_parametrized:0 (StatMath.SupportedDistributions.NORMAL)" classname="pmf_pdf_functions_test" time="0.065">
+		</testcase>
+		<testcase name="test_pdf_integration_parametrized:1 (StatMath.SupportedDistributions.EXPONENTIAL)" classname="pmf_pdf_functions_test" time="0.052">
+		</testcase>
+		<testcase name="test_pdf_integration_parametrized:2 (StatMath.SupportedDistributions.BETA)" classname="pmf_pdf_functions_test" time="0.049">
+		</testcase>
+	</testsuite>
+</testsuites>

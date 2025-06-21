@@ -6,8 +6,10 @@ const HELPER_FUNCTIONS_TEST_DATA = preload("res://addons/godot-stat-math/tables/
 
 # --- Binomial Coefficient ---
 func test_binomial_coefficient_basic() -> void:
-	var result: float = StatMath.HelperFunctions.binomial_coefficient(5, 2)
-	assert_float(result).is_equal_approx(10.0, StatMath.FLOAT_TOLERANCE)
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["binomial_coefficient"]
+	var case: Dictionary = test_data[0]  # [5, 2] -> 10.0
+	var result: float = StatMath.HelperFunctions.binomial_coefficient(case["params"][0], case["params"][1])
+	assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
 
 func test_binomial_coefficient_r_zero() -> void:
 	var result: float = StatMath.HelperFunctions.binomial_coefficient(5, 0)
@@ -33,8 +35,10 @@ func test_binomial_coefficient_invalid_r_negative() -> void:
 
 # --- Log Factorial ---
 func test_log_factorial_basic() -> void:
-	var result: float = StatMath.HelperFunctions.log_factorial(5)
-	assert_float(result).is_equal_approx(log(120.0), StatMath.FLOAT_TOLERANCE)
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["log_factorial"]
+	var case: Dictionary = test_data[1]  # log_factorial(5) -> 4.78749174
+	var result: float = StatMath.HelperFunctions.log_factorial(case["params"][0])
+	assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
 
 func test_log_factorial_zero() -> void:
 	var result: float = StatMath.HelperFunctions.log_factorial(0)
@@ -47,8 +51,10 @@ func test_log_factorial_invalid_negative() -> void:
 
 # --- Log Binomial Coefficient ---
 func test_log_binomial_coef_basic() -> void:
-	var result: float = StatMath.HelperFunctions.log_binomial_coef(5, 2)
-	assert_float(result).is_equal_approx(log(10.0), StatMath.FLOAT_TOLERANCE)
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["log_binomial_coef"]
+	var case: Dictionary = test_data[0]  # log_binomial_coef(5, 2) -> 2.30258509
+	var result: float = StatMath.HelperFunctions.log_binomial_coef(case["params"][0], case["params"][1])
+	assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
 
 func test_log_binomial_coef_k_zero() -> void:
 	var result: float = StatMath.HelperFunctions.log_binomial_coef(5, 0)

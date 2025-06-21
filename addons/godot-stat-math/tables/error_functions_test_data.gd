@@ -3,24 +3,34 @@
 # DO NOT EDIT MANUALLY
 
 const VALUES: Dictionary = {
-	"erf": [
+	"erf": [  # Generated using: special.erf(x)
 		{ "params": [0.5], "expected": 0.52049988 },
 		{ "params": [1.0], "expected": 0.84270079 },
 		{ "params": [2.0], "expected": 0.99532227 },
 	],
-	"erfc": [
+	"erfc": [  # Generated using: special.erfc(x)
 		{ "params": [0.5], "expected": 0.47950012 },
 		{ "params": [1.0], "expected": 0.15729921 },
 		{ "params": [2.0], "expected": 0.00467773 },
 	],
-	"erf_inv": [
+	"erf_inv": [  # Generated using: special.erfinv(y)
 		{ "params": [0.5], "expected": 0.47693628 },
 		{ "params": [0.8], "expected": 0.90619380 },
 		{ "params": [-0.3], "expected": -0.27246271 },
 	],
-	"erfc_inv": [
+	"erfc_inv": [  # Generated using: special.erfcinv(y)
 		{ "params": [0.5], "expected": 0.47693628 },
 		{ "params": [1.5], "expected": -0.47693628 },
 		{ "params": [0.2], "expected": 0.90619380 },
+	],
+	"gamma_integer": [  # Generated using: special.gamma(x)
+		{ "params": [1.0], "expected": 1.00000000 },
+		{ "params": [4.0], "expected": 6.00000000 },
+		{ "params": [5.0], "expected": 24.00000000 },
+	],
+	"gamma_half_integer": [  # Generated using: special.gamma(x)
+		{ "params": [0.5], "expected": 1.77245385 },
+		{ "params": [1.5], "expected": 0.88622693 },
+		{ "params": [2.5], "expected": 1.32934039 },
 	],
 }

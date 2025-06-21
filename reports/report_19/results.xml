@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites id="2025-06-21" name="report_19" tests="208" failures="0" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="distributions_test" package="addons/godot-stat-math/tests/core" timestamp="2025-06-21T09:18:05" hostname="localhost" tests="208" failures="0" errors="0" skipped="0" flaky="0" time="7.930">
+		<testcase name="test_randi_bernoulli_p_zero" classname="distributions_test" time="0.020">
+		</testcase>
+		<testcase name="test_randi_bernoulli_p_one" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randi_bernoulli_p_half" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randi_bernoulli_invalid_p_too_low" classname="distributions_test" time="0.029">
+		</testcase>
+		<testcase name="test_randi_bernoulli_invalid_p_too_high" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randi_binomial_p_zero" classname="distributions_test" time="0.013">
+		</testcase>
+		<testcase name="test_randi_binomial_p_one" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randi_binomial_n_zero" classname="distributions_test" time="0.006">
+		</testcase>
+		<testcase name="test_randi_binomial_statistical_properties" classname="distributions_test" time="0.033">
+		</testcase>
+		<testcase name="test_randi_binomial_typical_case" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randi_binomial_invalid_p_too_low" classname="distributions_test" time="0.020">
+		</testcase>
+		<testcase name="test_randi_binomial_invalid_p_too_high" classname="distributions_test" time="0.027">
+		</testcase>
+		<testcase name="test_randi_binomial_invalid_n_negative" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randi_geometric_p_one" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randi_geometric_typical_case" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randi_geometric_p_very_small_expect_large_or_inf" classname="distributions_test" time="0.012">
+		</testcase>
+		<testcase name="test_randi_geometric_invalid_p_zero" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randi_geometric_invalid_p_too_low" classname="distributions_test" time="0.027">
+		</testcase>
+		<testcase name="test_randi_geometric_invalid_p_too_high" classname="distributions_test" time="0.029">
+		</testcase>
+		<testcase name="test_randi_poisson_typical_case" classname="distributions_test" time="0.013">
+		</testcase>
+		<testcase name="test_randi_poisson_small_lambda" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randi_poisson_invalid_lambda_zero" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randi_poisson_invalid_lambda_negative" classname="distributions_test" time="0.029">
+		</testcase>
+		<testcase name="test_randi_pseudo_c_param_one" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randi_pseudo_typical_case" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randi_pseudo_c_param_half" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randi_pseudo_invalid_c_param_zero" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randi_pseudo_invalid_c_param_negative" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randi_pseudo_invalid_c_param_too_high" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randi_seige_initial_capture_guaranteed" classname="distributions_test" time="0.012">
+		</testcase>
+		<testcase name="test_randi_seige_capture_after_one_guaranteed_win" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randi_seige_typical_case" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randi_seige_no_change_eventually_captures" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randi_seige_invalid_w_too_low" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randi_seige_invalid_w_too_high" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randi_seige_invalid_c0_too_low" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randi_seige_invalid_c0_too_high" classname="distributions_test" time="0.029">
+		</testcase>
+		<testcase name="test_randi_uniform_equal_bounds" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randi_uniform_typical_range" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randi_uniform_negative_range" classname="distributions_test" time="0.013">
+		</testcase>
+		<testcase name="test_randi_uniform_mixed_sign_range" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randi_uniform_single_value_range" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randi_uniform_deterministic_with_seed" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randi_uniform_invalid_min_greater_than_max" classname="distributions_test" time="0.035">
+		</testcase>
+		<testcase name="test_randf_uniform_a_equals_b" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_uniform_typical_case" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_uniform_negative_range" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_uniform_mixed_sign_range" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_uniform_invalid_a_greater_than_b" classname="distributions_test" time="0.027">
+		</testcase>
+		<testcase name="test_randf_exponential_typical_case" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_exponential_small_lambda" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_exponential_large_lambda" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_exponential_invalid_lambda_zero" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randf_exponential_invalid_lambda_negative" classname="distributions_test" time="0.029">
+		</testcase>
+		<testcase name="test_randf_exponential_statistical_properties" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_erlang_typical_case" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_erlang_k_one" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_erlang_invalid_k_zero" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randf_erlang_invalid_k_negative" classname="distributions_test" time="0.029">
+		</testcase>
+		<testcase name="test_randf_erlang_invalid_lambda_zero" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randf_erlang_invalid_lambda_negative" classname="distributions_test" time="0.022">
+		</testcase>
+		<testcase name="test_randf_gaussian_returns_float" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_normal_default_parameters" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_normal_sigma_zero" classname="distributions_test" time="0.022">
+		</testcase>
+		<testcase name="test_randf_normal_typical_case" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_normal_negative_mu" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_normal_invalid_sigma_negative" classname="distributions_test" time="0.020">
+		</testcase>
+		<testcase name="test_randf_normal_statistical_properties" classname="distributions_test" time="0.010">
+		</testcase>
+		<testcase name="test_randf_normal_invalid_sigma_zero" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randf_cauchy_basic" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_cauchy_with_location" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_cauchy_with_scale" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_cauchy_with_location_and_scale" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_cauchy_negative_location" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_cauchy_very_small_scale" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_cauchy_large_scale" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_cauchy_deterministic_with_seed" classname="distributions_test" time="0.012">
+		</testcase>
+		<testcase name="test_randf_cauchy_multiple_calls_different_values" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_cauchy_invalid_scale_zero" classname="distributions_test" time="0.027">
+		</testcase>
+		<testcase name="test_randf_cauchy_invalid_scale_negative" classname="distributions_test" time="0.022">
+		</testcase>
+		<testcase name="test_randf_cauchy_statistical_properties" classname="distributions_test" time="0.017">
+		</testcase>
+		<testcase name="test_randf_cauchy_heavy_tails_property" classname="distributions_test" time="0.022">
+		</testcase>
+		<testcase name="test_randf_cauchy_damage_variation" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_cauchy_market_price_fluctuation" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_cauchy_procedural_terrain_height" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_cauchy_npc_reaction_time" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_cauchy_particle_velocity_distribution" classname="distributions_test" time="0.019">
+		</testcase>
+		<testcase name="test_randv_histogram_basic_case" classname="distributions_test" time="0.010">
+		</testcase>
+		<testcase name="test_randv_histogram_probabilities_not_normalized" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randv_histogram_single_value" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randv_histogram_single_value_non_one_prob" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randv_histogram_empty_values" classname="distributions_test" time="0.030">
+		</testcase>
+		<testcase name="test_randv_histogram_empty_probabilities" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randv_histogram_mismatched_sizes" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randv_histogram_non_numeric_probability" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randv_histogram_negative_probability" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randv_histogram_zero_sum_probabilities" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_rng_determinism_with_set_seed" classname="distributions_test" time="0.012">
+		</testcase>
+		<testcase name="test_randf_gamma_basic" classname="distributions_test" time="0.009">
+		</testcase>
+		<testcase name="test_randf_gamma_shape_one" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_gamma_shape_less_than_one" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_gamma_shape_greater_than_one" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_gamma_large_parameters" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_gamma_deterministic_with_seed" classname="distributions_test" time="0.012">
+		</testcase>
+		<testcase name="test_randf_gamma_invalid_shape_zero" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randf_gamma_invalid_shape_negative" classname="distributions_test" time="0.020">
+		</testcase>
+		<testcase name="test_randf_gamma_invalid_scale_zero" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randf_gamma_invalid_scale_negative" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randf_beta_basic" classname="distributions_test" time="0.006">
+		</testcase>
+		<testcase name="test_randf_beta_symmetric" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_beta_skewed_left" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_beta_skewed_right" classname="distributions_test" time="0.013">
+		</testcase>
+		<testcase name="test_randf_beta_uniform" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_beta_large_parameters" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_beta_small_parameters" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_beta_deterministic_with_seed" classname="distributions_test" time="0.022">
+		</testcase>
+		<testcase name="test_randf_beta_invalid_alpha_zero" classname="distributions_test" time="0.029">
+		</testcase>
+		<testcase name="test_randf_beta_invalid_alpha_negative" classname="distributions_test" time="0.027">
+		</testcase>
+		<testcase name="test_randf_beta_invalid_beta_zero" classname="distributions_test" time="0.027">
+		</testcase>
+		<testcase name="test_randf_beta_invalid_beta_negative" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randf_gamma_statistical_properties" classname="distributions_test" time="0.016">
+		</testcase>
+		<testcase name="test_randf_beta_statistical_properties" classname="distributions_test" time="0.024">
+		</testcase>
+		<testcase name="test_randf_gamma_damage_variation" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_beta_quality_scores" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_combined_gamma_beta_procedural_generation" classname="distributions_test" time="0.013">
+		</testcase>
+		<testcase name="test_randf_triangular_basic" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_triangular_symmetric" classname="distributions_test" time="0.006">
+		</testcase>
+		<testcase name="test_randf_triangular_left_skewed" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_triangular_right_skewed" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_triangular_mode_at_minimum" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_triangular_mode_at_maximum" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_triangular_negative_range" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_triangular_mixed_sign_range" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_triangular_small_range" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_triangular_large_range" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_triangular_deterministic_with_seed" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randf_triangular_multiple_calls_different_values" classname="distributions_test" time="0.009">
+		</testcase>
+		<testcase name="test_randf_triangular_degenerate_case_equal_bounds" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_triangular_nearly_equal_bounds" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_triangular_invalid_mode_too_low" classname="distributions_test" time="0.023">
+		</testcase>
+		<testcase name="test_randf_triangular_invalid_mode_too_high" classname="distributions_test" time="0.023">
+		</testcase>
+		<testcase name="test_randf_triangular_invalid_max_less_than_min" classname="distributions_test" time="0.023">
+		</testcase>
+		<testcase name="test_randf_triangular_invalid_max_equal_min_with_different_mode" classname="distributions_test" time="0.022">
+		</testcase>
+		<testcase name="test_randf_triangular_statistical_properties" classname="distributions_test" time="0.019">
+		</testcase>
+		<testcase name="test_randf_triangular_mode_bias_verification" classname="distributions_test" time="0.022">
+		</testcase>
+		<testcase name="test_randf_triangular_weapon_damage" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_triangular_npc_stat_generation" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_triangular_loot_quality" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_triangular_skill_check_difficulty" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_triangular_resource_spawn_rate" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_triangular_procedural_terrain_height" classname="distributions_test" time="0.016">
+		</testcase>
+		<testcase name="test_randf_triangular_ai_decision_confidence" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_triangular_pricing_variation" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_triangular_multiple_parameters" classname="distributions_test" time="0.016">
+		</testcase>
+		<testcase name="test_randf_pareto_basic" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_pareto_scale_parameter" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_pareto_different_shapes" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_pareto_large_scale" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_pareto_small_scale" classname="distributions_test" time="0.006">
+		</testcase>
+		<testcase name="test_randf_pareto_very_small_shape" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_pareto_large_shape" classname="distributions_test" time="0.006">
+		</testcase>
+		<testcase name="test_randf_pareto_deterministic_with_seed" classname="distributions_test" time="0.013">
+		</testcase>
+		<testcase name="test_randf_pareto_multiple_calls_different_values" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_pareto_invalid_scale_zero" classname="distributions_test" time="0.029">
+		</testcase>
+		<testcase name="test_randf_pareto_invalid_scale_negative" classname="distributions_test" time="0.029">
+		</testcase>
+		<testcase name="test_randf_pareto_invalid_shape_zero" classname="distributions_test" time="0.028">
+		</testcase>
+		<testcase name="test_randf_pareto_invalid_shape_negative" classname="distributions_test" time="0.032">
+		</testcase>
+		<testcase name="test_randf_pareto_statistical_properties" classname="distributions_test" time="0.017">
+		</testcase>
+		<testcase name="test_randf_pareto_heavy_tail_property" classname="distributions_test" time="0.016">
+		</testcase>
+		<testcase name="test_randf_pareto_concentration_near_minimum" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_pareto_wealth_distribution" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_pareto_loot_rarity" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_pareto_city_population" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_pareto_resource_deposits" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_pareto_market_price_spikes" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_pareto_player_skill_gaps" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_pareto_quest_reward_scaling" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_pareto_network_effect_scaling" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_pareto_power_law_scaling" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_pareto_multiple_applications" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_weibull_basic" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_weibull_scale_parameter" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_weibull_exponential_case" classname="distributions_test" time="0.006">
+		</testcase>
+		<testcase name="test_randf_weibull_rayleigh_case" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_weibull_different_shapes" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_weibull_large_scale" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_weibull_small_scale" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_weibull_very_small_shape" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_weibull_large_shape" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_weibull_deterministic_with_seed" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randf_weibull_multiple_calls_different_values" classname="distributions_test" time="0.015">
+		</testcase>
+		<testcase name="test_randf_weibull_invalid_scale_zero" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randf_weibull_invalid_scale_negative" classname="distributions_test" time="0.022">
+		</testcase>
+		<testcase name="test_randf_weibull_invalid_shape_zero" classname="distributions_test" time="0.022">
+		</testcase>
+		<testcase name="test_randf_weibull_invalid_shape_negative" classname="distributions_test" time="0.021">
+		</testcase>
+		<testcase name="test_randf_weibull_statistical_properties" classname="distributions_test" time="0.016">
+		</testcase>
+		<testcase name="test_randf_weibull_shape_effect_on_distribution" classname="distributions_test" time="0.018">
+		</testcase>
+		<testcase name="test_randf_weibull_exponential_equivalence" classname="distributions_test" time="0.017">
+		</testcase>
+		<testcase name="test_randf_weibull_equipment_durability" classname="distributions_test" time="0.009">
+		</testcase>
+		<testcase name="test_randf_weibull_wind_speed_simulation" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_weibull_survival_time_modeling" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_weibull_component_reliability" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_weibull_weather_event_duration" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_weibull_quest_completion_time" classname="distributions_test" time="0.007">
+		</testcase>
+		<testcase name="test_randf_weibull_resource_depletion" classname="distributions_test" time="0.014">
+		</testcase>
+		<testcase name="test_randf_weibull_player_session_length" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_weibull_network_latency_spikes" classname="distributions_test" time="0.008">
+		</testcase>
+		<testcase name="test_randf_weibull_multiple_reliability_applications" classname="distributions_test" time="0.008">
+		</testcase>
+	</testsuite>
+</testsuites>

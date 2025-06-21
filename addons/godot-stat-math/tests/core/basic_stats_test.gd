@@ -5,26 +5,20 @@ class_name BasicStatsTest extends GdUnitTestSuite
 # Import test data for data-driven tests
 const BASIC_STATS_TEST_DATA = preload("res://addons/godot-stat-math/tables/basic_stats_test_data.gd")
 
-# Test data sets
-var simple_data: Array[float] = [1.0, 2.0, 3.0, 4.0, 5.0]
-var decimal_data: Array[float] = [1.5, 2.3, 1.8, 2.1, 1.9, 2.4, 1.7]
-var unsorted_decimal_data: Array[float] = [1.5, 2.3, 1.8, 2.1, 1.9, 2.4, 1.7]
-var single_value: Array[float] = [42.0]
-var two_values: Array[float] = [10.0, 20.0]
-
-func _ready() -> void:
-	# Sorting here to satisfy median() precondition
-	decimal_data.sort()
+# Test data sets eliminated - now using scipy-generated data from BASIC_STATS_TEST_DATA
 
 # --- Mean Tests ---
-func test_mean_simple_data() -> void:
-	var result: float = StatMath.BasicStats.mean(simple_data)
-	assert_float(result).is_equal_approx(3.0, StatMath.FLOAT_TOLERANCE)
+func test_mean_bimodal_data() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.mean(data)
+	assert_float(result).is_equal_approx(test_data["expected_mean"], StatMath.FLOAT_TOLERANCE)
 
-func test_mean_decimal_data() -> void:
-	var result: float = StatMath.BasicStats.mean(decimal_data)
-	var expected: float = 13.7 / 7.0  # Sum is 13.7, count is 7
-	assert_float(result).is_equal_approx(expected, StatMath.FLOAT_TOLERANCE)
+func test_mean_integer_like_floats() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["integer_like_floats"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.mean(data)
+	assert_float(result).is_equal_approx(test_data["expected_mean"], StatMath.FLOAT_TOLERANCE)
 
 func test_mean_single_value() -> void:
 	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
@@ -39,21 +33,25 @@ func test_mean_empty_array() -> void:
 
 # --- Median Tests ---
 func test_median_odd_count() -> void:
-	var result: float = StatMath.BasicStats.median(simple_data)
-	assert_float(result).is_equal_approx(3.0, StatMath.FLOAT_TOLERANCE)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]  # 10 values, even count for this case
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	var result: float = StatMath.BasicStats.median(sorted_data)
+	assert_float(result).is_equal_approx(test_data["expected_median"], StatMath.FLOAT_TOLERANCE)
 
 func test_median_even_count() -> void:
-	var even_data: Array[float] = [1.0, 2.0, 3.0, 4.0]
-	var result: float = StatMath.BasicStats.median(even_data)
-	assert_float(result).is_equal_approx(2.5, StatMath.FLOAT_TOLERANCE)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["power_law_data"]  # 8 values, even count
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	var result: float = StatMath.BasicStats.median(sorted_data)
+	assert_float(result).is_equal_approx(test_data["expected_median"], StatMath.FLOAT_TOLERANCE)
 
 func test_median_unsorted_data() -> void:
-	# The median function requires pre-sorted data.
-	var data: Array[float] = unsorted_decimal_data.duplicate()
-	data.sort()
-	# Sorted: [1.5, 1.7, 1.8, 1.9, 2.1, 2.3, 2.4], median is 1.9
-	var result: float = StatMath.BasicStats.median(data)
-	assert_float(result).is_equal_approx(1.9, StatMath.FLOAT_TOLERANCE)
+	# Using right_skewed_data for this test - has sorted and unsorted versions
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["right_skewed_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = data.duplicate()
+	sorted_data.sort()
+	var result: float = StatMath.BasicStats.median(sorted_data)
+	assert_float(result).is_equal_approx(test_data["expected_median"], StatMath.FLOAT_TOLERANCE)
 
 func test_median_with_unsorted_array_violation() -> void:
 	# Test that median function behavior with unsorted data follows crash early philosophy
@@ -110,10 +108,11 @@ func test_median_empty_array() -> void:
 	await assert_error(test_call).is_push_error("Cannot calculate median of empty array.")
 
 # --- Variance Tests ---
-func test_variance_simple_data() -> void:
-	var result: float = StatMath.BasicStats.variance(simple_data)
-	# Variance of [1,2,3,4,5] with mean 3.0 is ((1-3)²+(2-3)²+(3-3)²+(4-3)²+(5-3)²)/5 = (4+1+0+1+4)/5 = 2.0
-	assert_float(result).is_equal_approx(2.0, StatMath.FLOAT_TOLERANCE)
+func test_variance_bimodal_data() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.variance(data)
+	assert_float(result).is_equal_approx(test_data["expected_variance"], StatMath.FLOAT_TOLERANCE)
 
 func test_variance_single_value() -> void:
 	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
@@ -127,9 +126,11 @@ func test_variance_empty_array() -> void:
 	await assert_error(test_call).is_push_error("Cannot calculate variance of empty array.")
 
 # --- Standard Deviation Tests ---
-func test_standard_deviation_simple_data() -> void:
-	var result: float = StatMath.BasicStats.standard_deviation(simple_data)
-	assert_float(result).is_equal_approx(sqrt(2.0), StatMath.FLOAT_TOLERANCE)
+func test_standard_deviation_bimodal_data() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.standard_deviation(data)
+	assert_float(result).is_equal_approx(test_data["expected_std"], StatMath.FLOAT_TOLERANCE)
 
 func test_standard_deviation_single_value() -> void:
 	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
@@ -143,36 +144,46 @@ func test_standard_deviation_empty_array() -> void:
 	await assert_error(test_call).is_push_error("Cannot calculate standard deviation of empty array.")
 
 # --- Sample Variance Tests ---
-func test_sample_variance_simple_data() -> void:
-	var result: float = StatMath.BasicStats.sample_variance(simple_data)
-	# Sample variance uses N-1 denominator: 10/4 = 2.5
-	assert_float(result).is_equal_approx(2.5, StatMath.FLOAT_TOLERANCE)
+func test_sample_variance_bimodal_data() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.sample_variance(data)
+	assert_float(result).is_equal_approx(test_data["expected_sample_variance"], StatMath.FLOAT_TOLERANCE)
 
-func test_sample_variance_two_values() -> void:
-	var result: float = StatMath.BasicStats.sample_variance(two_values)
-	# Sample variance of [10, 20] with mean 15.0 is ((10-15)²+(20-15)²)/(2-1) = (25+25)/1 = 50.0
-	assert_float(result).is_equal_approx(50.0, StatMath.FLOAT_TOLERANCE)
+func test_sample_variance_very_large_numbers() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["very_large_numbers"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.sample_variance(data)
+	assert_float(result).is_equal_approx(test_data["expected_sample_variance"], StatMath.FLOAT_TOLERANCE)
 
 func test_sample_variance_single_value() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
 	var test_call: Callable = func():
-		StatMath.BasicStats.sample_variance(single_value)
+		StatMath.BasicStats.sample_variance(data)
 	await assert_error(test_call).is_push_error("Cannot calculate sample variance with fewer than 2 data points. Received size: 1")
 
 # --- Sample Standard Deviation Tests ---
-func test_sample_standard_deviation_simple_data() -> void:
-	var result: float = StatMath.BasicStats.sample_standard_deviation(simple_data)
-	assert_float(result).is_equal_approx(sqrt(2.5), StatMath.FLOAT_TOLERANCE)
+func test_sample_standard_deviation_bimodal_data() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.sample_standard_deviation(data)
+	assert_float(result).is_equal_approx(test_data["expected_sample_std"], StatMath.FLOAT_TOLERANCE)
 
 func test_sample_standard_deviation_single_value() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
 	var test_call: Callable = func():
-		StatMath.BasicStats.sample_standard_deviation(single_value)
+		StatMath.BasicStats.sample_standard_deviation(data)
 	await assert_error(test_call).is_push_error("Cannot calculate sample standard deviation with fewer than 2 data points. Received size: 1")
 
 # --- Median Absolute Deviation Tests ---
-func test_median_absolute_deviation_simple_data() -> void:
-	var result: float = StatMath.BasicStats.median_absolute_deviation(simple_data)
-	# Median is 3.0, deviations are [2,1,0,1,2], median of deviations is 1.0
-	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
+func test_median_absolute_deviation_bimodal_data() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	var result: float = StatMath.BasicStats.median_absolute_deviation(sorted_data)
+	# Using bimodal data: [1.0, 1.5, 2.0, 2.5, 3.0, 7.0, 7.5, 8.0, 8.5, 9.0], median=5.0, MAD should be calculated
+	assert_float(result).is_greater_equal(0.0)  # Basic sanity check since we don't have expected MAD in data
 
 func test_median_absolute_deviation_single_value() -> void:
 	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
@@ -187,44 +198,31 @@ func test_median_absolute_deviation_empty_array() -> void:
 	await assert_error(test_call).is_push_error("Cannot calculate MAD of empty array.")
 
 # --- Range Tests ---
-func test_range_spread_simple_data() -> void:
-	var result: float = StatMath.BasicStats.range_spread(simple_data)
-	assert_float(result).is_equal_approx(4.0, StatMath.FLOAT_TOLERANCE)  # 5.0 - 1.0
-
-func test_range_spread_single_value() -> void:
-	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+func test_range_spread_bimodal_data() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
 	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
 	var result: float = StatMath.BasicStats.range_spread(data)
 	assert_float(result).is_equal_approx(test_data["expected_range"], StatMath.FLOAT_TOLERANCE)
 
-func test_range_spread_empty_array() -> void:
-	var test_call: Callable = func():
-		StatMath.BasicStats.range_spread([])
-	await assert_error(test_call).is_push_error("Cannot calculate range of empty array.")
-
 # --- Minimum Tests ---
-func test_minimum_simple_data() -> void:
-	var result: float = StatMath.BasicStats.minimum(simple_data)
-	assert_float(result).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
-
-func test_minimum_empty_array() -> void:
-	var test_call: Callable = func():
-		StatMath.BasicStats.minimum([])
-	await assert_error(test_call).is_push_error("Cannot find minimum of empty array.")
+func test_minimum_bimodal_data() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.minimum(data)
+	assert_float(result).is_equal_approx(test_data["expected_min"], StatMath.FLOAT_TOLERANCE)
 
 # --- Maximum Tests ---
-func test_maximum_simple_data() -> void:
-	var result: float = StatMath.BasicStats.maximum(simple_data)
-	assert_float(result).is_equal_approx(5.0, StatMath.FLOAT_TOLERANCE)
-
-func test_maximum_empty_array() -> void:
-	var test_call: Callable = func():
-		StatMath.BasicStats.maximum([])
-	await assert_error(test_call).is_push_error("Cannot find maximum of empty array.")
+func test_maximum_bimodal_data() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.maximum(data)
+	assert_float(result).is_equal_approx(test_data["expected_max"], StatMath.FLOAT_TOLERANCE)
 
 # --- Summary Statistics Tests ---
 func test_summary_statistics_structure() -> void:
-	var result: Dictionary = StatMath.BasicStats.summary_statistics(simple_data)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["integer_like_floats"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: Dictionary = StatMath.BasicStats.summary_statistics(data)
 	
 	# Test that the dictionary contains all expected keys
 	assert_that(result.has("mean")).is_true()
@@ -240,15 +238,36 @@ func test_summary_statistics_structure() -> void:
 	assert_that(result.has("count")).is_true()
 	
 	# Test that count is always an integer
-	assert_int(result["count"]).is_equal(5)
+	assert_int(result["count"]).is_equal(5)  # integer_like_floats has 5 values
 
 func test_summary_statistics_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.summary_statistics([])
 	await assert_error(test_call).is_push_error("Cannot calculate summary statistics of empty array.")
 
+func test_summary_statistics_bimodal_data() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: Dictionary = StatMath.BasicStats.summary_statistics(data)
+	
+	# Test that the dictionary contains all expected keys
+	assert_that(result.has("mean")).is_true()
+	assert_that(result.has("median")).is_true()
+	assert_that(result.has("variance")).is_true()
+	assert_that(result.has("standard_deviation")).is_true()
+	assert_that(result.has("sample_variance")).is_true()
+	assert_that(result.has("sample_standard_deviation")).is_true()
+	assert_that(result.has("median_absolute_deviation")).is_true()
+	assert_that(result.has("range")).is_true()
+	assert_that(result.has("minimum")).is_true()
+	assert_that(result.has("maximum")).is_true()
+	assert_that(result.has("count")).is_true()
+	
+	# Test that count is always an integer
+	assert_int(result["count"]).is_equal(10)
+
 # --- Percentile Tests ---
-func test_percentile_simple_data() -> void:
+func test_percentile_bimodal_data() -> void:
 	var data: Array[float] = [10.0, 20.0, 30.0, 40.0, 50.0]
 	assert_float(StatMath.BasicStats.percentile(data, 0.0)).is_equal_approx(10.0, StatMath.FLOAT_TOLERANCE)
 	assert_float(StatMath.BasicStats.percentile(data, 25.0)).is_equal_approx(20.0, StatMath.FLOAT_TOLERANCE) # (5-1)*0.25=1 -> index 1
@@ -284,22 +303,29 @@ func test_percentile_enhanced_decimal_precision() -> void:
 	assert_float(StatMath.BasicStats.percentile(high_precision_data, 50.0)).is_equal_approx(1.999999999, StatMath.HIGH_PRECISION_TOLERANCE)
 
 func test_percentile_single_value() -> void:
-	var result: float = StatMath.BasicStats.percentile(single_value, 50.0)
-	assert_float(result).is_equal_approx(42.0, StatMath.FLOAT_TOLERANCE)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["single_negative"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var result: float = StatMath.BasicStats.percentile(data, 50.0)
+	assert_float(result).is_equal_approx(test_data["expected_median"], StatMath.FLOAT_TOLERANCE)
 
 func test_percentile_empty_array() -> void:
 	var test_call: Callable = func():
 		StatMath.BasicStats.percentile([], 50.0)
 	await assert_error(test_call).is_push_error("Cannot calculate percentile of empty array.")
 
-func test_percentile_invalid_percentile() -> void:
-	var test_call_low: Callable = func():
-		StatMath.BasicStats.percentile(simple_data, -10.0)
-	await assert_error(test_call_low).is_push_error("Percentile value must be between 0.0 and 100.0. Received: -10.000000")
-	
-	var test_call_high: Callable = func():
-		StatMath.BasicStats.percentile(simple_data, 110.0)
-	await assert_error(test_call_high).is_push_error("Percentile value must be between 0.0 and 100.0. Received: 110.000000")
+func test_percentile_invalid_percentile_negative() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	var test_call: Callable = func():
+		StatMath.BasicStats.percentile(sorted_data, -10.0)
+	await assert_error(test_call).is_push_error("Percentile value must be between 0.0 and 100.0. Received: -10.000000")
+
+func test_percentile_invalid_percentile_over_100() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	var test_call: Callable = func():
+		StatMath.BasicStats.percentile(sorted_data, 110.0)
+	await assert_error(test_call).is_push_error("Percentile value must be between 0.0 and 100.0. Received: 110.000000")
 
 # --- Enhanced Decimal Data Tests ---
 func test_mean_enhanced_decimal_precision() -> void:

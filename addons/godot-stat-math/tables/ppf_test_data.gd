@@ -3,32 +3,32 @@
 # DO NOT EDIT MANUALLY
 
 const VALUES: Dictionary = {
-	"normal_ppf": [
+	"normal_ppf": [  # Generated using: stats.norm.ppf(p, mu, sigma)
 		{ "params": [0.025, 0.0, 1.0], "expected": -1.95996398 },
 		{ "params": [0.5, 0.0, 1.0], "expected": 0.00000000 },
 		{ "params": [0.975, 0.0, 1.0], "expected": 1.95996398 },
 		{ "params": [0.5, 10.0, 2.0], "expected": 10.00000000 },
 		{ "params": [0.84134475, 0.0, 1.0], "expected": 1.00000002 },
 	],
-	"exponential_ppf": [
+	"exponential_ppf": [  # Generated using: stats.expon.ppf(p, scale=1.0/lambda)
 		{ "params": [0.5, 1.0], "expected": 0.69314718 },
 		{ "params": [0.632121, 1.0], "expected": 1.00000120 },
 		{ "params": [0.95, 0.5], "expected": 1.49786614 },
 		{ "params": [0.1, 2.0], "expected": 0.21072103 },
 	],
-	"uniform_ppf": [
+	"uniform_ppf": [  # Generated using: stats.uniform.ppf(p, a, b-a)
 		{ "params": [0.25, 0.0, 4.0], "expected": 1.00000000 },
 		{ "params": [0.5, 1.0, 5.0], "expected": 3.00000000 },
 		{ "params": [0.75, 2.0, 6.0], "expected": 5.00000000 },
 		{ "params": [0.0, 0.0, 1.0], "expected": 0.00000000 },
 		{ "params": [1.0, 0.0, 1.0], "expected": 1.00000000 },
 	],
-	"pareto_ppf": [
+	"pareto_ppf": [  # Generated using: stats.pareto.ppf(p, b=shape, scale=scale)
 		{ "params": [0.5, 1.0, 1.0], "expected": 2.00000000 },
 		{ "params": [0.75, 2.0, 1.0], "expected": 8.00000000 },
 		{ "params": [0.9, 3.0, 2.0], "expected": 9.48683298 },
 	],
-	"weibull_ppf": [
+	"weibull_ppf": [  # Generated using: stats.weibull_min.ppf(p, c=shape, scale=scale)
 		{ "params": [0.5, 1.0, 1.0], "expected": 0.69314718 },
 		{ "params": [0.632121, 2.0, 2.0], "expected": 2.00000120 },
 		{ "params": [0.25, 1.0, 2.0], "expected": 0.53636002 },
