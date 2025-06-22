@@ -1,0 +1,16 @@
+name: Build Docs
+
+on: [workflow_dispatch]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: totaldebug/action-sphinx@v2
+        with:
+          sphinx_src: addons/godot-stat-math
+          target_branch: 'gh-pages'
+          target_path: /docs
+          token: ${{ secrets.GITHUB_TOKEN }}
