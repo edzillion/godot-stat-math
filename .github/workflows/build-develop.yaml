@@ -4,13 +4,47 @@ on:
   push:
     branches: ["develop"]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   VERSION_FILE: project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
 
 jobs:
-  build-addon:
+  trigger-runner:
     runs-on: ubuntu-latest
+    outputs:
+      runner-triggered: ${{ steps.trigger.outputs.triggered }}
+    steps:
+      - name: Trigger AWS Runner
+        id: trigger
+        run: |
+          echo "Triggering AWS runner for develop build..."
+          response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
+          echo "Response: $response"
+          
+          if echo "$response" | grep -q "launched successfully"; then
+            echo "triggered=true" >> $GITHUB_OUTPUT
+            echo "✅ Runner launched successfully"
+          else
+            echo "triggered=false" >> $GITHUB_OUTPUT
+            echo "❌ Failed to launch runner"
+            exit 1
+          fi
+          
+      - name: Wait for runner
+        run: |
+          echo "Waiting 30 seconds for runner to come online..."
+          echo "⏳ Spot instance starting up..."
+          sleep 30
+          echo "✅ Proceeding to job execution"
+
+  build-addon:
+    needs: trigger-runner
+    runs-on: [self-hosted, performance-test, linux]
+    if: needs.trigger-runner.outputs.runner-triggered == 'true'
     permissions:
       checks: write
       actions: read
@@ -18,6 +52,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: System info
+        run: |
+          echo "=== Develop Build Environment ==="
+          echo "Commit: ${{ github.sha }}"
+          echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
+          echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
+          echo "CPU Cores: $(nproc)"
+          echo "================================="
 
       - name: Extract version
         uses: CapsCollective/version-actions/extract-version@v1.0
@@ -55,6 +98,13 @@ jobs:
           path: "godot-stat-math-*-dev.zip"
           retention-days: 14
           if-no-files-found: error
+          
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: develop-build-test-results-${{ github.run_number }}
+          path: reports/
+        if: always()
 
       - name: Generate build summary
         run: |
@@ -62,6 +112,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests**: Passed" >> $GITHUB_STEP_SUMMARY
           echo "- **Artifact**: godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📥 Download the artifact from the **Actions** tab to test this build." >> $GITHUB_STEP_SUMMARY
