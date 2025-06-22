@@ -12,7 +12,6 @@ func test_generate_samples_unified_interface_dimensions() -> void:
 	var samples_1d: Variant = StatMath.SamplingGen.generate_samples(n_draws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL)
 	assert_bool(samples_1d is Array[float]).is_true()
 	var typed_samples_1d: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_1d)
-	var typed_samples_1d: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_1d)
 	assert_int(typed_samples_1d.size()).is_equal(n_draws)
 	
 	# Test 2D generation  
@@ -44,8 +43,6 @@ func test_generate_samples_unified_interface_starting_index() -> void:
 	
 	var typed_start_0: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_0)
 	var typed_start_3: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_3)
-	var typed_start_0: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_0)
-	var typed_start_3: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_3)
 	
 	# Get first 6 samples to verify starting_index works correctly
 	var first_6: Variant = StatMath.SamplingGen.generate_samples(
@@ -56,7 +53,6 @@ func test_generate_samples_unified_interface_starting_index() -> void:
 	# samples_start_3 should equal elements [3,4,5] from first_6
 	for i in range(n_draws):
 		assert_float(typed_start_3[i]).is_equal_approx(typed_first_6[i + 3], StatMath.DETERMINISM_TOLERANCE)
-		assert_float(typed_start_3[i]).is_equal_approx(typed_first_6[i + 3], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_unified_interface_edge_cases() -> void:
@@ -65,7 +61,6 @@ func test_generate_samples_unified_interface_edge_cases() -> void:
 	var zero_2d: Variant = StatMath.SamplingGen.generate_samples(0, 2) 
 	var zero_nd: Variant = StatMath.SamplingGen.generate_samples(0, 5)
 	
-	assert_int(StatMath.HelperFunctions.convert_to_float_array(zero_1d).size()).is_equal(0)
 	assert_int(StatMath.HelperFunctions.convert_to_float_array(zero_1d).size()).is_equal(0)
 	assert_int((zero_2d as Array[Vector2]).size()).is_equal(0)
 	assert_int((zero_nd as Array).size()).is_equal(0)
@@ -349,8 +344,8 @@ func test_coordinated_sampling_performance_comparison() -> void:
 	assert_int(coordinated_sample.size()).is_equal(draw_count)
 	assert_int(fisher_yates_sample.size()).is_equal(draw_count)
 	
-	_assert_unique_indices(coordinated_sample, population_size)
-	_assert_unique_indices(fisher_yates_sample, population_size)
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(coordinated_sample, population_size)).is_true()
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(fisher_yates_sample, population_size)).is_true()
 
 
 # --- UPDATED EXISTING TESTS (following GDUnit4 rules) ---
@@ -539,7 +534,7 @@ func test_sample_indices_hybrid_combinations() -> void:
 		42
 	)
 	assert_int(sobol_fy.size()).is_equal(draw_count)
-	_assert_unique_indices(sobol_fy, population_size)
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(sobol_fy, population_size)).is_true()
 	
 	# Test LATIN_HYPERCUBE + WITH_REPLACEMENT
 	var lhs_wr: Array[int] = StatMath.SamplingGen.sample_indices(
@@ -549,7 +544,7 @@ func test_sample_indices_hybrid_combinations() -> void:
 		42
 	)
 	assert_int(lhs_wr.size()).is_equal(draw_count)
-	_assert_valid_indices(lhs_wr, population_size)
+	assert_bool(StatMath.HelperFunctions.validate_indices(lhs_wr, population_size)).is_true()
 	
 	# Test HALTON + RESERVOIR
 	var halton_res: Array[int] = StatMath.SamplingGen.sample_indices(
@@ -559,7 +554,7 @@ func test_sample_indices_hybrid_combinations() -> void:
 		42
 	)
 	assert_int(halton_res.size()).is_equal(draw_count)
-	_assert_unique_indices(halton_res, population_size)
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(halton_res, population_size)).is_true()
 
 
 func test_sample_indices_seeded_reproducibility() -> void:
@@ -622,7 +617,7 @@ func test_sample_indices_edge_cases() -> void:
 		5, 5, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
 	)
 	assert_int(draw_all.size()).is_equal(5)
-	_assert_unique_indices(draw_all, 5)
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(draw_all, 5)).is_true()
 	
 	# Single element population
 	var single_element: Array[int] = StatMath.SamplingGen.sample_indices(
@@ -659,7 +654,7 @@ func test_card_game_dealing() -> void:
 	var all_hands: Array = [fisher_yates, reservoir, selection_tracking, coordinated]
 	for hand in all_hands:
 		assert_int(hand.size()).is_equal(hand_size)
-		_assert_unique_indices(hand, deck_size)
+		assert_bool(StatMath.HelperFunctions.validate_unique_indices(hand, deck_size)).is_true()
 
 
 func test_dice_rolling_simulation() -> void:
@@ -726,7 +721,7 @@ func test_large_scale_sampling() -> void:
 	)
 	
 	assert_int(large_sample.size()).is_equal(large_draws)
-	_assert_unique_indices(large_sample, large_pop)
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(large_sample, large_pop)).is_true()
 
 
 func test_bootstrap_sampling_pattern() -> void:
@@ -742,7 +737,7 @@ func test_bootstrap_sampling_pattern() -> void:
 	)
 	
 	assert_int(bootstrap_sample.size()).is_equal(bootstrap_size)
-	_assert_valid_indices(bootstrap_sample, original_size)
+	assert_bool(StatMath.HelperFunctions.validate_indices(bootstrap_sample, original_size)).is_true()
 	
 	# Bootstrap should have some duplicates (very high probability)
 	var unique_count: int = 0
@@ -771,24 +766,6 @@ func test_threading_performance_basic() -> void:
 	# Should complete within reasonable time (threading should help)
 	assert_int(elapsed).is_less(5000) # 5 seconds max
 
-
-# --- HELPER FUNCTIONS ---
-
-func _assert_valid_indices(samples: Array[int], population_size: int) -> void:
-	for sample_val in samples:
-		assert_int(sample_val).is_greater_equal(0)
-		assert_int(sample_val).is_less(population_size)
-
-
-func _assert_unique_indices(samples: Array[int], population_size: int) -> void:
-	_assert_valid_indices(samples, population_size)
-	
-	var unique_values: Dictionary = {}
-	for sample_val in samples:
-		assert_bool(unique_values.has(sample_val)).is_false()
-		unique_values[sample_val] = true
-	
-	assert_int(unique_values.size()).is_equal(samples.size())
 
 
 # --- GLOBAL RNG DETERMINISM TESTS (updated) ---
@@ -855,20 +832,3 @@ func test_starting_index_sobol_sequence_continuity() -> void:
 		assert_float(part2_typed[i]).is_equal_approx(typed_full_sequence[first_half + i], StatMath.DETERMINISM_TOLERANCE)
 
 
-# --- HELPER FUNCTIONS ---
-
-func _assert_valid_indices(samples: Array[int], population_size: int) -> void:
-	for sample_val in samples:
-		assert_int(sample_val).is_greater_equal(0)
-		assert_int(sample_val).is_less(population_size)
-
-
-func _assert_unique_indices(samples: Array[int], population_size: int) -> void:
-	_assert_valid_indices(samples, population_size)
-	
-	var unique_values: Dictionary = {}
-	for sample_val in samples:
-		assert_bool(unique_values.has(sample_val)).is_false()
-		unique_values[sample_val] = true
-	
-	assert_int(unique_values.size()).is_equal(samples.size()) 

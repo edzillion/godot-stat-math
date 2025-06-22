@@ -463,26 +463,39 @@ static func convert_to_float_array(input_array: Array) -> Array[float]:
 ## Validates that all indices in a sample are within valid range [0, population_size-1].
 ##
 ## Used by sampling tests to ensure index validity without checking uniqueness.
-## Asserts that all indices are non-negative and less than population_size.
-static func assert_valid_indices(samples: Array[int], population_size: int) -> void:
+## Returns true if all indices are valid, false otherwise with error logging.
+static func validate_indices(samples: Array[int], population_size: int) -> bool:
 	for sample_val in samples:
-		assert(sample_val >= 0, "Sample index must be non-negative")
-		assert(sample_val < population_size, "Sample index must be less than population size")
+		if sample_val < 0:
+			push_error("Sample index must be non-negative. Found: %s" % sample_val)
+			return false
+		if sample_val >= population_size:
+			push_error("Sample index must be less than population size. Found: %s >= %s" % [sample_val, population_size])
+			return false
+	return true
 
 
 ## Validates that all indices in a sample are unique and within valid range.
 ##
 ## Used by sampling tests to ensure both validity and uniqueness of indices.
-## First calls assert_valid_indices(), then verifies all values are unique.
-static func assert_unique_indices(samples: Array[int], population_size: int) -> void:
-	assert_valid_indices(samples, population_size)
+## Returns true if all indices are valid and unique, false otherwise with error logging.
+static func validate_unique_indices(samples: Array[int], population_size: int) -> bool:
+	if not validate_indices(samples, population_size):
+		return false
 	
 	# Check all samples are unique
 	var unique_values: Dictionary = {}
 	for sample_val in samples:
-		assert(not unique_values.has(sample_val), "Sample indices must be unique")
+		if unique_values.has(sample_val):
+			push_error("Sample indices must be unique. Found duplicate: %s" % sample_val)
+			return false
 		unique_values[sample_val] = true
-	assert(unique_values.size() == samples.size(), "Number of unique indices must equal sample size")
+	
+	if unique_values.size() != samples.size():
+		push_error("Number of unique indices (%s) must equal sample size (%s)" % [unique_values.size(), samples.size()])
+		return false
+	
+	return true
 
 
 ## Gets CDF value for any distribution using the appropriate StatMath function.
