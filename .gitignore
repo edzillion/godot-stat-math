@@ -24,3 +24,5 @@ Thumbs.db
 # Editor backups
 *~
 
+# Debugging files
+output.log

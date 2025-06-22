@@ -514,10 +514,13 @@ static func _consolidate_run_results() -> void:
 		if file_name.ends_with("_%s.json" % _run_timestamp):
 			intermediate_files.append(file_name)
 		file_name = dir.get_next()
+	dir.list_dir_end()  # Properly close directory listing
 	
 	if intermediate_files.is_empty():
 		print("⚠️ No intermediate result files found for run: %s" % _run_timestamp)
 		return
+
+	print("📂 Found %d intermediate files: %s" % [intermediate_files.size(), str(intermediate_files)])
 
 	var consolidated_tests: Dictionary = {}
 	var total_tests: int = 0
@@ -581,12 +584,29 @@ static func _consolidate_run_results() -> void:
 		print("💾 Consolidated results: %s (%d tests, %d failures)" % [snapshot_filepath.get_file(), total_tests, failed_tests])
 
 	# Clean up intermediate files
+	print("🗑️ Cleaning up %d intermediate files..." % intermediate_files.size())
+	
+	# Add a small delay to ensure all file handles are released
+	await Engine.get_main_loop().process_frame
+	await Engine.get_main_loop().create_timer(0.1).timeout
+	
+	var cleanup_failures: Array[String] = []
 	for file in intermediate_files:
 		var err: Error = dir.remove(file)
 		if err == OK:
-			print("🗑️  Cleaned up intermediate file: %s" % file)
+			print("✅ Cleaned up intermediate file: %s" % file)
 		else:
-			push_error("Failed to clean up intermediate file: %s" % file)
+			var error_msg: String = "Failed to clean up intermediate file: %s (Error: %d)" % [file, err]
+			push_error(error_msg)
+			cleanup_failures.append(file)
+	
+	# Report cleanup summary
+	if cleanup_failures.is_empty():
+		print("✅ All %d intermediate files cleaned up successfully" % intermediate_files.size())
+	else:
+		push_error("❌ Failed to clean up %d of %d intermediate files: %s" % [
+			cleanup_failures.size(), intermediate_files.size(), str(cleanup_failures)
+		])
 			
 	# Trigger baseline update if this was a successful run
 	if not has_failures:
@@ -978,6 +998,7 @@ static func _update_baseline_from_snapshots() -> void:
 		if current_file.begins_with("pass_") and current_file.ends_with(".json"):
 			pass_files.append(current_file)
 		current_file = dir.get_next()
+	dir.list_dir_end()
 	
 	if pass_files.is_empty():
 		print("⚠️  No successful test runs found - baseline unchanged")
@@ -1152,6 +1173,7 @@ static func _cleanup_old_snapshots() -> void:
 		elif file_name.begins_with("fail_") and file_name.ends_with(".json"):
 			fail_files.append(file_name)
 		file_name = dir.get_next()
+	dir.list_dir_end()
 	
 	# Clean up pass_ files (keep MAX_SNAPSHOTS most recent)
 	pass_files.sort()
@@ -1193,6 +1215,7 @@ static func _cleanup_orphaned_intermediate_files() -> void:
 			file_name != "baseline.json"):
 			orphaned_files.append(file_name)
 		file_name = dir.get_next()
+	dir.list_dir_end()
 	
 	# Remove orphaned intermediate files
 	for orphaned_file in orphaned_files:

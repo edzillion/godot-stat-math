@@ -1,0 +1,88 @@
+{
+	"meta": {
+		"generated_at": "2025-06-22T17:06:18",
+		"total_tests": 13
+	},
+	"module": "CdfFunctions",
+	"tests": {
+		"cdf_functions_beta_cdf": {
+			"baseline_ms": 32.868,
+			"diff_percent": 0.0,
+			"result_ms": 32.868,
+			"status": "pass"
+		},
+		"cdf_functions_binomial_cdf": {
+			"baseline_ms": 3.17,
+			"diff_percent": 0.0,
+			"result_ms": 3.17,
+			"status": "pass"
+		},
+		"cdf_functions_chi_square_cdf": {
+			"baseline_ms": 1.426,
+			"diff_percent": 0.0,
+			"result_ms": 1.426,
+			"status": "pass"
+		},
+		"cdf_functions_exponential_cdf": {
+			"baseline_ms": 0.234,
+			"diff_percent": 0.0,
+			"result_ms": 0.234,
+			"status": "pass"
+		},
+		"cdf_functions_f_cdf": {
+			"baseline_ms": 12.287,
+			"diff_percent": 0.0,
+			"result_ms": 12.287,
+			"status": "pass"
+		},
+		"cdf_functions_gamma_cdf": {
+			"baseline_ms": 2.415,
+			"diff_percent": 0.0,
+			"result_ms": 2.415,
+			"status": "pass"
+		},
+		"cdf_functions_geometric_cdf": {
+			"baseline_ms": 0.08,
+			"diff_percent": 0.0,
+			"result_ms": 0.08,
+			"status": "pass"
+		},
+		"cdf_functions_negative_binomial_cdf": {
+			"baseline_ms": 3.13,
+			"diff_percent": 0.0,
+			"result_ms": 3.13,
+			"status": "pass"
+		},
+		"cdf_functions_normal_cdf": {
+			"baseline_ms": 0.747,
+			"diff_percent": 0.0,
+			"result_ms": 0.747,
+			"status": "pass"
+		},
+		"cdf_functions_pareto_cdf": {
+			"baseline_ms": 0.185,
+			"diff_percent": 0.0,
+			"result_ms": 0.185,
+			"status": "pass"
+		},
+		"cdf_functions_poisson_cdf": {
+			"baseline_ms": 1.577,
+			"diff_percent": 0.0,
+			"result_ms": 1.577,
+			"status": "pass"
+		},
+		"cdf_functions_t_cdf": {
+			"baseline_ms": 19.487,
+			"diff_percent": 0.0,
+			"result_ms": 19.487,
+			"status": "pass"
+		},
+		"cdf_functions_weibull_cdf": {
+			"baseline_ms": 0.274,
+			"diff_percent": 0.0,
+			"result_ms": 0.274,
+			"status": "pass"
+		}
+	},
+	"timestamp": "2025-06-22_17-06-15"
+}

@@ -1,0 +1,76 @@
+{
+	"meta": {
+		"generated_at": "2025-06-22T17:06:19",
+		"total_tests": 11
+	},
+	"module": "PmfPdfFunctions",
+	"tests": {
+		"pmf_pdf_functions_beta_pdf": {
+			"baseline_ms": 3.721,
+			"diff_percent": 0.0,
+			"result_ms": 3.721,
+			"status": "pass"
+		},
+		"pmf_pdf_functions_binomial_pmf": {
+			"baseline_ms": 0.517,
+			"diff_percent": 0.0,
+			"result_ms": 0.517,
+			"status": "pass"
+		},
+		"pmf_pdf_functions_chi_squared_pdf": {
+			"baseline_ms": 1.797,
+			"diff_percent": 0.0,
+			"result_ms": 1.797,
+			"status": "pass"
+		},
+		"pmf_pdf_functions_exponential_pdf": {
+			"baseline_ms": 0.325,
+			"diff_percent": 0.0,
+			"result_ms": 0.325,
+			"status": "pass"
+		},
+		"pmf_pdf_functions_f_pdf": {
+			"baseline_ms": 2.958,
+			"diff_percent": 0.0,
+			"result_ms": 2.958,
+			"status": "pass"
+		},
+		"pmf_pdf_functions_gamma_pdf": {
+			"baseline_ms": 1.315,
+			"diff_percent": 0.0,
+			"result_ms": 1.315,
+			"status": "pass"
+		},
+		"pmf_pdf_functions_negative_binomial_pmf": {
+			"baseline_ms": 0.36,
+			"diff_percent": 0.0,
+			"result_ms": 0.36,
+			"status": "pass"
+		},
+		"pmf_pdf_functions_normal_pdf": {
+			"baseline_ms": 0.357,
+			"diff_percent": 0.0,
+			"result_ms": 0.357,
+			"status": "pass"
+		},
+		"pmf_pdf_functions_poisson_pmf": {
+			"baseline_ms": 0.288,
+			"diff_percent": 0.0,
+			"result_ms": 0.288,
+			"status": "pass"
+		},
+		"pmf_pdf_functions_t_pdf": {
+			"baseline_ms": 2.076,
+			"diff_percent": 0.0,
+			"result_ms": 2.076,
+			"status": "pass"
+		},
+		"pmf_pdf_functions_uniform_pdf": {
+			"baseline_ms": 0.299,
+			"diff_percent": 0.0,
+			"result_ms": 0.299,
+			"status": "pass"
+		}
+	},
+	"timestamp": "2025-06-22_17-06-15"
+}
