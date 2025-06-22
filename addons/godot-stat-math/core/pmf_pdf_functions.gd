@@ -284,7 +284,7 @@ static func lognormal_pdf(x: float, mu: float, sigma: float) -> float:
 ## Calculates the PDF of a chi-squared distribution: f(x; k).
 ##
 ## Returns the probability density at [code]x[/code] for a chi-squared distribution 
-## with [code]k[/code] degrees of freedom. This is a special case of the gamma distribution.
+## with [code]k[/code] degrees of freedom. This is a special case of the [StatMath.PmfPdfFunctions.gamma_pdf].
 ##
 ## Mathematical Note: [code]f(x) = (1/(2^(k/2)Γ(k/2))) x^(k/2-1) e^(-x/2)[/code] for [code]x ≥ 0[/code]
 static func chi_squared_pdf(x: float, k_df: float) -> float:
@@ -322,7 +322,7 @@ static func t_pdf(x: float, df_nu: float) -> float:
 ## Returns the probability density at [code]x[/code] for an F-distribution 
 ## with numerator degrees of freedom [code]d1[/code] and denominator degrees of freedom [code]d2[/code].
 ##
-## Mathematical Note: Uses beta function relationship for numerical stability
+## Mathematical Note: Uses [StatMath.HelperFunctions.beta_function] relationship for numerical stability
 static func f_pdf(x: float, d1_df: float, d2_df: float) -> float:
 	if not (d1_df > 0.0 and d2_df > 0.0):
 		push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=%s, d2_df=%s" % [d1_df, d2_df])

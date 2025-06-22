@@ -153,7 +153,7 @@ static func gamma_function(z: float) -> float:
 
 ## Computes the natural logarithm of the Gamma function: log(Γ(z)).
 ##
-## More numerically stable than [code]log(gamma_function(z))[/code] for large z.
+## More numerically stable than [code]log([StatMath.HelperFunctions.gamma_function](z))[/code] for large z.
 ## Uses Lanczos approximation directly in logarithmic form to avoid overflow.
 ##
 ## Mathematical Note: Only defined for [code]z > 0[/code] where [code]Γ(z) > 0[/code]
@@ -201,7 +201,7 @@ static func beta_function(a: float, b: float) -> float:
 
 ## Computes the natural logarithm of the Beta function: log(B(a,b)).
 ##
-## More numerically stable than [code]log(beta_function(a,b))[/code] for large parameters.
+## More numerically stable than [code]log([StatMath.HelperFunctions.beta_function](a,b))[/code] for large parameters.
 ## Formula: [code]log(B(a,b)) = log(Γ(a)) + log(Γ(b)) - log(Γ(a+b))[/code]
 static func log_beta_function_direct(a: float, b: float) -> float:
 	if not (a > 0.0 and b > 0.0):

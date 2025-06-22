@@ -8,7 +8,7 @@ class_name BasicStats extends RefCounted
 ## where you need to analyze player data, game metrics, performance statistics, etc.
 ##
 ## Note: All functions expect [code]Array[float][/code] input. Use 
-## [code]StatMath.HelperFunctions.sanitize_numeric_array()[/code] to preprocess 
+## [StatMath.HelperFunctions.sanitize_numeric_array] to preprocess 
 ## mixed-type arrays before calling these functions.
 
 
@@ -39,7 +39,7 @@ static func mean(data: Array[float]) -> float:
 ##
 ## For even-sized arrays, returns the average of the two middle values.
 ## This function assumes the input array is already sorted.
-## Use `StatMath.HelperFunctions.sanitize_numeric_array()` which sorts automatically.
+## Use [StatMath.HelperFunctions.sanitize_numeric_array] which sorts automatically.
 static func median(data: Array[float]) -> float:
 	if not (data.size() > 0):
 		push_error("Cannot calculate median of empty array.")
