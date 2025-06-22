@@ -321,14 +321,30 @@ static func _get_confidence_level(sample_size: int) -> String:
 
 # ========== COMPLETION TRACKING SYSTEM ==========
 
-## Static completion tracker - shared across all test suite instances
-static var _discovered_modules: Array[String] = []
-static var _completed_modules: Array[String] = []
-static var _started_modules: Array[String] = []  # Track which modules actually started
-static var _completion_tracker_initialized: bool = false
-static var _final_phase_triggered: bool = false
+## Simple file-based completion tracking that works with GDUnit's test runner
+## This replaces the signal-based approach which doesn't work in GDUnit context
 static var _run_timestamp: String = ""
-static var _disable_regression_checking: bool = false
+static var _disable_regression_checking: bool = true
+static var _completion_tracker_initialized: bool = false
+
+## Initialize completion tracking system
+static func _initialize_completion_tracker() -> void:
+	if _completion_tracker_initialized:
+		return
+	
+	# Read regression checking setting from environment variable ONCE
+	var regression_check_env: String = OS.get_environment("DISABLE_REGRESSION_CHECKING").to_lower()
+	_disable_regression_checking = regression_check_env == "true" or _disable_regression_checking == true
+	
+	_run_timestamp = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
+	_completion_tracker_initialized = true
+	
+	# Clean up any orphaned intermediate files from previous incomplete runs
+	_cleanup_orphaned_intermediate_files()
+	
+	print("🎯 Performance test run initialized:")
+	print("   Run timestamp: %s" % _run_timestamp)
+	print("   Regression Checking Disabled: %s" % _disable_regression_checking)
 
 ## Discover all test suite modules from the core directory
 static func _discover_test_modules() -> Array[String]:
@@ -343,7 +359,6 @@ static func _discover_test_modules() -> Array[String]:
 	
 	while file_name != "":
 		if file_name.ends_with("_perf_test.gd"):
-			# Extract module name from filename and convert to expected format
 			var base_name: String = file_name.replace("_perf_test.gd", "")
 			var module_name: String = _filename_to_module_name(base_name)
 			modules.append(module_name)
@@ -355,30 +370,219 @@ static func _discover_test_modules() -> Array[String]:
 ## Convert filename to expected module name format
 static func _filename_to_module_name(filename: String) -> String:
 	match filename:
-		"basic_stats":
-			return "BasicStats"
-		"cdf_functions":
-			return "CdfFunctions"
-		"distributions":
-			return "Distributions"
-		"error_functions":
-			return "ErrorFunctions"
-		"helper_functions":
-			return "HelperFunctions"
-		"pmf_pdf_functions":
-			return "PmfPdfFunctions"
-		"ppf_functions":
-			return "PpfFunctions"
-		"sampling_gen":
-			return "SamplingGen"
+		"basic_stats": return "BasicStats"
+		"cdf_functions": return "CdfFunctions"
+		"distributions": return "Distributions"
+		"error_functions": return "ErrorFunctions"
+		"helper_functions": return "HelperFunctions"
+		"pmf_pdf_functions": return "PmfPdfFunctions"
+		"ppf_functions": return "PpfFunctions"
+		"sampling_gen": return "SamplingGen"
 		_:
-			# Fallback: convert snake_case to PascalCase
 			var parts: Array = filename.split("_")
 			var result: String = ""
 			for part in parts:
 				if part.length() > 0:
 					result += part.capitalize()
 			return result
+
+## Check if all modules have completed by scanning intermediate files
+static func _check_all_modules_completed() -> void:
+	if not _completion_tracker_initialized:
+		_initialize_completion_tracker()
+	
+	# Get list of expected modules
+	var expected_modules: Array[String] = _discover_test_modules()
+	
+	# Check which intermediate files exist
+	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
+	if dir == null:
+		return
+	
+	var completed_modules: Array[String] = []
+	dir.list_dir_begin()
+	var file_name: String = dir.get_next()
+	
+	while file_name != "":
+		if file_name.ends_with("_%s.json" % _run_timestamp):
+			# Extract module name from filename
+			var module_name: String = file_name.replace("_%s.json" % _run_timestamp, "")
+			if module_name in expected_modules:
+				completed_modules.append(module_name)
+		file_name = dir.get_next()
+	
+	print("📊 Completion check: %d/%d modules completed" % [completed_modules.size(), expected_modules.size()])
+	
+	# If all expected modules are complete, trigger consolidation immediately
+	if completed_modules.size() >= expected_modules.size():
+		print("🏁 All performance test modules completed! Starting consolidation...")
+		_consolidate_run_results_immediate()
+
+## Immediate consolidation without async - works in GDUnit context
+static func _consolidate_run_results_immediate() -> void:
+	print("📦 Consolidating results for run: %s" % _run_timestamp)
+	
+	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
+	if dir == null:
+		push_error("Cannot access results directory for consolidation: " + RESULTS_DIR)
+		return
+
+	# Find intermediate files for current run
+	var intermediate_files: Array[String] = []
+	dir.list_dir_begin()
+	var file_name: String = dir.get_next()
+	while file_name != "":
+		if file_name.ends_with("_%s.json" % _run_timestamp):
+			intermediate_files.append(file_name)
+		file_name = dir.get_next()
+	
+	if intermediate_files.is_empty():
+		print("⚠️ No intermediate result files found for run: %s" % _run_timestamp)
+		return
+
+	var consolidated_tests: Dictionary = {}
+	var total_tests: int = 0
+	var failed_tests: int = 0
+	var files_processed: int = 0
+
+	# Load and merge all intermediate files
+	for file in intermediate_files:
+		var file_path: String = RESULTS_DIR.path_join(file)
+		var module_data: Dictionary = _load_json_file(file_path)
+		
+		if module_data.is_empty() or not module_data.has("tests"):
+			push_warning("Skipping invalid or empty result file: " + file)
+			continue
+		
+		files_processed += 1
+
+		for test_name in module_data.tests:
+			consolidated_tests[test_name] = module_data.tests[test_name]
+			total_tests += 1
+			if module_data.tests[test_name].status == "fail":
+				failed_tests += 1
+		
+	if consolidated_tests.is_empty():
+		print("❌ No valid tests found in intermediate files for run: %s" % _run_timestamp)
+		return
+	
+	print("📊 Processed %d intermediate files, consolidated %d tests" % [files_processed, total_tests])
+	
+	# Create consolidated result
+	var consolidated_data: Dictionary = {
+		"tests": consolidated_tests,
+		"meta": {
+			"type": "test_run",
+			"generated_at": Time.get_datetime_string_from_system(),
+			"original_timestamp": _run_timestamp,
+			"total_tests": total_tests,
+			"failed_tests": failed_tests,
+			"passed_tests": total_tests - failed_tests,
+			"modules_included": files_processed
+		}
+	}
+	
+	# Save results
+	_save_json_file(RESULTS_DIR.path_join("latest.json"), consolidated_data)
+	
+	var has_failures: bool = failed_tests > 0
+	if has_failures:
+		print("\n❌ TEST RUN FAILED - %d of %d tests failed:" % [failed_tests, total_tests])
+		_report_failed_tests(consolidated_tests)
+	else:
+		print("\n✅ TEST RUN PASSED - All %d tests passed!" % total_tests)
+	
+	# Save timestamped snapshot
+	var snapshot_prefix: String = "fail" if has_failures else "pass"
+	var snapshot_filepath: String = RESULTS_DIR.path_join("%s_%s.json" % [snapshot_prefix, _run_timestamp])
+	
+	if has_failures and not KEEP_PREVIOUS_FAILURES:
+		print("🗑️ Discarding failure snapshot as per configuration.")
+	else:
+		_save_json_file(snapshot_filepath, consolidated_data)
+		print("💾 Consolidated results: %s (%d tests, %d failures)" % [snapshot_filepath.get_file(), total_tests, failed_tests])
+
+	# Clean up intermediate files immediately - THIS IS THE KEY FIX!
+	_cleanup_intermediate_files_immediate(intermediate_files, dir)
+	
+	# Update baseline if successful
+	if not has_failures:
+		_update_baseline_from_snapshots()
+		_cleanup_old_snapshots()
+	
+	print("🎉 Performance test run completed successfully!")
+	print("   📊 Results saved in: %s" % RESULTS_DIR)
+	print("   📈 Latest results: %slatest.json" % RESULTS_DIR)
+	print("   📋 Baseline: %s" % BASELINE_FILE)
+
+## Immediate cleanup of intermediate files - synchronous operation
+static func _cleanup_intermediate_files_immediate(intermediate_files: Array[String], dir: DirAccess) -> void:
+	print("🗑️  Cleaning up %d intermediate files..." % intermediate_files.size())
+	
+	var cleanup_success: int = 0
+	var cleanup_failures: Array[String] = []
+	
+	# First pass - attempt to delete all files
+	for file in intermediate_files:
+		var err: Error = dir.remove(file)
+		if err == OK:
+			cleanup_success += 1
+			print("🗑️  Cleaned up intermediate file: %s" % file)
+		else:
+			cleanup_failures.append(file)
+			print("⚠️  Failed to clean up intermediate file: %s (error: %d)" % [file, err])
+	
+	# Retry failed deletions with a small delay
+	if not cleanup_failures.is_empty():
+		print("🔄 Retrying cleanup for %d failed files..." % cleanup_failures.size())
+		
+		# Small synchronous delay
+		OS.delay_msec(200)
+		
+		var final_failures: Array[String] = []
+		for file in cleanup_failures:
+			var err: Error = dir.remove(file)
+			if err == OK:
+				cleanup_success += 1
+				print("🗑️  Cleaned up intermediate file (retry): %s" % file)
+			else:
+				final_failures.append(file)
+		
+		if final_failures.is_empty():
+			print("✅ All intermediate files cleaned up successfully (%d files)" % cleanup_success)
+		else:
+			push_error("❌ Failed to clean up %d intermediate files: %s" % [final_failures.size(), str(final_failures)])
+	else:
+		print("✅ All intermediate files cleaned up successfully (%d files)" % cleanup_success)
+
+## Clean up orphaned intermediate files from incomplete test runs
+static func _cleanup_orphaned_intermediate_files() -> void:
+	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
+	if dir == null:
+		return
+	
+	var orphaned_files: Array[String] = []
+	dir.list_dir_begin()
+	var file_name: String = dir.get_next()
+	
+	while file_name != "":
+		# Look for module intermediate files (format: ModuleName_timestamp.json)
+		# These should not start with "pass_", "fail_", or be "latest.json", "baseline.json"
+		if (file_name.ends_with(".json") and 
+			not file_name.begins_with("pass_") and 
+			not file_name.begins_with("fail_") and
+			file_name != "latest.json" and 
+			file_name != "baseline.json"):
+			orphaned_files.append(file_name)
+		file_name = dir.get_next()
+	
+	# Remove orphaned intermediate files
+	for orphaned_file in orphaned_files:
+		var err: Error = dir.remove(orphaned_file)
+		if err == OK:
+			print("🗑️  Cleaned up orphaned intermediate file: %s" % orphaned_file)
+		else:
+			push_warning("Failed to remove orphaned file: %s (error: %d)" % [orphaned_file, err])
 
 ## Convert PascalCase module name to snake_case for test naming
 static func _module_name_to_snake_case(module_name: String) -> String:
@@ -390,269 +594,21 @@ static func _module_name_to_snake_case(module_name: String) -> String:
 		result += c.to_lower()
 	return result
 
-## Initialize completion tracking system
-static func _initialize_completion_tracker() -> void:
-	if _completion_tracker_initialized:
-		return
-	
-	# Read regression checking setting from environment variable ONCE
-	var regression_check_env: String = OS.get_environment("DISABLE_REGRESSION_CHECKING").to_lower()
-	_disable_regression_checking = (regression_check_env == "true")
-	
-	_run_timestamp = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
-	_discovered_modules = _discover_test_modules()
-	_completed_modules.clear()
-	_started_modules.clear()  # Initialize started modules tracker
-	_final_phase_triggered = false
-	_completion_tracker_initialized = true
-	
-	# Clean up any orphaned intermediate files from previous incomplete runs
-	_cleanup_orphaned_intermediate_files()
-	
-	print("🎯 Performance test run initialized:")
-	print("   Run timestamp: %s" % _run_timestamp)
-	print("   Available modules: %s" % str(_discovered_modules))
-	print("   Total available: %d" % _discovered_modules.size())
-	print("   Regression Checking Disabled: %s" % _disable_regression_checking)
-
-## Register that a module has started (called when PerfTestManager instance is created)
-static func register_module_start(module_name: String) -> void:
-	if not _completion_tracker_initialized:
-		_initialize_completion_tracker()
-	
-	if module_name in _started_modules:
-		return  # Already registered as started
-	
-	if not module_name in _discovered_modules:
-		push_warning("Unknown module started: %s (available: %s)" % [module_name, str(_discovered_modules)])
-		return
-	
-	_started_modules.append(module_name)
-	print("🚀 Module started: %s (%d modules active in this run)" % [module_name, _started_modules.size()])
-
 ## Register module completion and check for final phase trigger
 static func register_module_completion(module_name: String) -> void:
 	if not _completion_tracker_initialized:
 		_initialize_completion_tracker()
 	
-	if module_name in _completed_modules:
-		return  # Already registered
+	print("✅ Module completed: %s" % module_name)
 	
-	if not module_name in _discovered_modules:
-		push_warning("Unknown module completed: %s (available: %s)" % [module_name, str(_discovered_modules)])
-		return
-	
-	_completed_modules.append(module_name)
-	print("✅ Module completed: %s (%d/%d started modules complete)" % [
-		module_name, _completed_modules.size(), _started_modules.size()
-	])
-	
-	# Check if all STARTED modules are complete (not all discovered modules)
-	# This allows partial test runs to consolidate properly
-	var all_started_complete: bool = true
-	for started_module in _started_modules:
-		if not started_module in _completed_modules:
-			all_started_complete = false
-			break
-	
-	if all_started_complete and not _final_phase_triggered:
-		print("🏁 All started modules completed! (%d/%d total available)" % [
-			_started_modules.size(), _discovered_modules.size()
-		])
-		await _trigger_final_phase()
-
-## Trigger final phase actions when all test suites are complete
-static func _trigger_final_phase() -> void:
-	if _final_phase_triggered:
-		return
-	
-	_final_phase_triggered = true
-	print("🏁 All performance test suites completed! Triggering final phase...")
-	
-	# Wait a moment for any pending file I/O to complete
-	await Engine.get_main_loop().process_frame
-	await Engine.get_main_loop().create_timer(0.2).timeout
-	
-	# Consolidate results from the completed run
-	await _consolidate_run_results()
-	
-	var completion_summary: String = ""
-	if _started_modules.size() == _discovered_modules.size():
-		completion_summary = "✅ Full test suite completed (%d modules)" % _started_modules.size()
-	else:
-		completion_summary = "✅ Partial test run completed (%d of %d available modules)" % [
-			_started_modules.size(), _discovered_modules.size()
-		]
-	
-	print(completion_summary)
-	print("🎉 Performance test run completed successfully!")
-	print("   📊 Results saved in: %s" % RESULTS_DIR)
-	print("   📈 Latest results: %slatest.json" % RESULTS_DIR)
-	print("   📋 Baseline: %s" % BASELINE_FILE)
-
-	# Add a final delay to ensure all file I/O operations complete before exit
-	await Engine.get_main_loop().process_frame
-	await Engine.get_main_loop().create_timer(0.1).timeout
-
-## Consolidate all intermediate module results from the current run
-static func _consolidate_run_results() -> void:
-	print("📦 Consolidating results for run: %s" % _run_timestamp)
-	
-	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
-	if dir == null:
-		push_error("Cannot access results directory for consolidation: " + RESULTS_DIR)
-		return
-
-	# Allow a moment for file systems to catch up before reading
-	await Engine.get_main_loop().process_frame
-
-	# Find all intermediate files for the current run
-	var intermediate_files: Array[String] = []
-	dir.list_dir_begin()
-	var file_name: String = dir.get_next()
-	while file_name != "":
-		if file_name.ends_with("_%s.json" % _run_timestamp):
-			intermediate_files.append(file_name)
-		file_name = dir.get_next()
-	dir.list_dir_end()  # Properly close directory listing
-	
-	if intermediate_files.is_empty():
-		print("⚠️ No intermediate result files found for run: %s" % _run_timestamp)
-		return
-
-	print("📂 Found %d intermediate files: %s" % [intermediate_files.size(), str(intermediate_files)])
-
-	var consolidated_tests: Dictionary = {}
-	var total_tests: int = 0
-	var failed_tests: int = 0
-
-	# Load and merge all intermediate files
-	for file in intermediate_files:
-		var file_path: String = RESULTS_DIR.path_join(file)
-		var module_data: Dictionary = _load_json_file(file_path)
-		
-		if module_data.is_empty() or not module_data.has("tests"):
-			push_warning("Skipping invalid or empty result file: " + file)
-			continue
-		
-		var module_name: String = module_data.get("module", "Unknown")
-
-		# Merge tests
-		for test_name in module_data.tests:
-			consolidated_tests[test_name] = module_data.tests[test_name]
-			total_tests += 1
-			if module_data.tests[test_name].status == "fail":
-				failed_tests += 1
-		
-	if consolidated_tests.is_empty():
-		print("❌ No valid tests found in intermediate files for run: %s" % _run_timestamp)
-		return
-	
-	# Create consolidated result object
-	var consolidated_data: Dictionary = {
-		"tests": consolidated_tests,
-		"meta": {
-			"type": "test_run",
-			"generated_at": Time.get_datetime_string_from_system(),
-			"original_timestamp": _run_timestamp,
-			"total_tests": total_tests,
-			"failed_tests": failed_tests,
-			"passed_tests": total_tests - failed_tests,
-			"modules_included": intermediate_files.size()
-		}
-	}
-	
-	# Save as latest.json
-	_save_json_file(RESULTS_DIR.path_join("latest.json"), consolidated_data)
-	
-	# Report test run summary
-	var has_failures: bool = failed_tests > 0
-	if has_failures:
-		print("\n❌ TEST RUN FAILED - %d of %d tests failed:" % [failed_tests, total_tests])
-		_report_failed_tests(consolidated_tests)
-	else:
-		print("\n✅ TEST RUN PASSED - All %d tests passed!" % total_tests)
-	
-	# Save timestamped snapshot (pass_ or fail_)
-	var snapshot_prefix: String = "fail" if has_failures else "pass"
-	var snapshot_filepath: String = RESULTS_DIR.path_join("%s_%s.json" % [snapshot_prefix, _run_timestamp])
-	
-	if has_failures and not KEEP_PREVIOUS_FAILURES:
-		print("🗑️ Discarding failure snapshot as per configuration.")
-	else:
-		_save_json_file(snapshot_filepath, consolidated_data)
-		print("💾 Consolidated results: %s (%d tests, %d failures)" % [snapshot_filepath.get_file(), total_tests, failed_tests])
-
-	# Clean up intermediate files
-	print("🗑️ Cleaning up %d intermediate files..." % intermediate_files.size())
-	
-	# Add a small delay to ensure all file handles are released
-	await Engine.get_main_loop().process_frame
-	await Engine.get_main_loop().create_timer(0.1).timeout
-	
-	var cleanup_failures: Array[String] = []
-	for file in intermediate_files:
-		var err: Error = dir.remove(file)
-		if err == OK:
-			print("✅ Cleaned up intermediate file: %s" % file)
-		else:
-			var error_msg: String = "Failed to clean up intermediate file: %s (Error: %d)" % [file, err]
-			push_error(error_msg)
-			cleanup_failures.append(file)
-	
-	# Report cleanup summary
-	if cleanup_failures.is_empty():
-		print("✅ All %d intermediate files cleaned up successfully" % intermediate_files.size())
-	else:
-		push_error("❌ Failed to clean up %d of %d intermediate files: %s" % [
-			cleanup_failures.size(), intermediate_files.size(), str(cleanup_failures)
-		])
-			
-	# Trigger baseline update if this was a successful run
-	if not has_failures:
-		_update_baseline_from_snapshots()
-		_cleanup_old_snapshots()
-
-## Report details of failed tests with their stats and thresholds
-static func _report_failed_tests(consolidated_tests: Dictionary) -> void:
-	var failed_test_details: Array[Dictionary] = []
-	
-	# Collect failed test information
-	for test_name in consolidated_tests:
-		var test_data: Dictionary = consolidated_tests[test_name]
-		if test_data.status == "fail":
-			failed_test_details.append({
-				"name": test_name,
-				"data": test_data
-			})
-	
-	# Sort failed tests by severity (highest diff_percent first)
-	failed_test_details.sort_custom(func(a, b): return a.data.diff_percent > b.data.diff_percent)
-	
-	# Report each failed test
-	for i in range(failed_test_details.size()):
-		var test_info: Dictionary = failed_test_details[i]
-		var test_name: String = test_info.name
-		var test_data: Dictionary = test_info.data
-		
-		var current_ms: float = test_data.get("result_ms", 0.0)
-		var baseline_ms: float = test_data.get("baseline_ms", 0.0)
-		var diff_percent: float = test_data.get("diff_percent", 0.0)
-		var threshold_percent: float = test_data.get("threshold_percent", REGRESSION_THRESHOLD) * 100.0
-		var sample_size: int = test_data.get("sample_size", 0)
-		var cv: float = test_data.get("coefficient_of_variation", 0.0) * 100.0
-		
-		print("   %d. %s:" % [i + 1, test_name])
-		print("      Current: %.3f ms | Baseline: %.3f ms | Change: %.1f%%" % [current_ms, baseline_ms, diff_percent])
-		print("      Threshold: %.1f%% | Sample size: %d | CV: %.1f%%" % [threshold_percent, sample_size, cv])
+	# Check if all modules are now complete - this triggers immediate consolidation
+	_check_all_modules_completed()
 
 ## Reset completion tracker (for testing purposes)
 static func reset_completion_tracker() -> void:
 	_completion_tracker_initialized = false
-	_discovered_modules.clear()
-	_completed_modules.clear()
-	_started_modules.clear()
-	_final_phase_triggered = false
+
+# ========== INDEPENDENT TEST SUITE INTERFACE ==========
 
 # Instance-specific data (no more shared static state!)
 var _module_results: Dictionary = {}  # This instance's results
@@ -667,106 +623,7 @@ func _init() -> void:
 ## Set the module name for this test suite instance
 func set_module_name(module_name: String) -> void:
 	_module_name = module_name
-	# Register that this module has started
-	register_module_start(module_name)
-
-## Calculate dynamic threshold for a test based on percentile analysis with refinements
-static func _calculate_dynamic_threshold(measurements: Array[float], baseline_median: float) -> float:
-	var sample_size: int = measurements.size()
-	
-	# If insufficient data, use fallback threshold
-	if sample_size < MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD:
-		return REGRESSION_THRESHOLD
-	
-	# Sort measurements for percentile calculation
-	var sorted_measurements: Array[float] = measurements.duplicate()
-	sorted_measurements.sort()
-	
-	# Calculate coefficient of variation for stability assessment
-	var cv: float = StatMath.BasicStats.standard_deviation(measurements) / baseline_median
-	
-	# Use 95th percentile - only 5% of historical runs were slower than this
-	var percentile_95_threshold: float = StatMath.BasicStats.percentile(sorted_measurements, PERCENTILE_THRESHOLD)
-	var percentile_threshold_percent: float = (percentile_95_threshold - baseline_median) / baseline_median
-	
-	# Apply confidence interval adjustment based on sample size
-	# Smaller samples get slightly higher thresholds due to uncertainty
-	var confidence_multiplier: float = 1.0
-	if sample_size < MEDIUM_CONFIDENCE_SAMPLES:
-		confidence_multiplier = 1.2  # 20% higher threshold for small samples
-	elif sample_size < HIGH_CONFIDENCE_SAMPLES:
-		confidence_multiplier = 1.1  # 10% higher threshold for medium samples
-	
-	var calculated_threshold: float = percentile_threshold_percent * confidence_multiplier
-	
-	# REFINEMENT 1: Use robust minimum threshold instead of aggressive 5%
-	var base_min_threshold: float = ROBUST_MIN_THRESHOLD_PERCENT
-	
-	# REFINEMENT 2: Add safety buffer for borderline cases
-	calculated_threshold = calculated_threshold * THRESHOLD_SAFETY_BUFFER
-	
-	# REFINEMENT 3: Special handling for very fast functions (under 0.5ms)
-	# Small absolute variations create large percentage changes in fast functions
-	if baseline_median < FAST_FUNCTION_THRESHOLD_MS:
-		base_min_threshold = max(base_min_threshold, FAST_FUNCTION_MIN_THRESHOLD)
-	
-	# REFINEMENT 4: Advanced CV-based threshold scaling with volatility levels
-	# Different minimum thresholds based on function volatility patterns
-	var volatility_min_threshold: float = base_min_threshold
-	
-	if cv < STABLE_FUNCTION_CV_THRESHOLD:
-		# Very stable functions (CV < 5%) - original logic
-		volatility_min_threshold = max(volatility_min_threshold, STABLE_FUNCTION_MIN_THRESHOLD)
-	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
-		# Low volatility functions (CV 5-8%) - need higher thresholds
-		volatility_min_threshold = max(volatility_min_threshold, LOW_VOLATILITY_MIN_THRESHOLD)
-	elif cv < MEDIUM_VOLATILITY_CV_THRESHOLD:
-		# Medium volatility functions (CV 8-15%) - moderate thresholds
-		volatility_min_threshold = max(volatility_min_threshold, MEDIUM_VOLATILITY_MIN_THRESHOLD)
-	else:
-		# High volatility functions (CV > 15%) - standard thresholds
-		volatility_min_threshold = max(volatility_min_threshold, HIGH_VOLATILITY_MIN_THRESHOLD)
-	
-	# REFINEMENT 5: Mature baseline adjustment
-	# With 25+ samples, we have high confidence in the baseline but need more tolerance
-	# for natural performance variation in production environments
-	if sample_size >= MATURE_BASELINE_SAMPLE_SIZE:
-		volatility_min_threshold = volatility_min_threshold * MATURE_BASELINE_MULTIPLIER
-	
-	# Apply the refined minimum threshold
-	var final_threshold: float = max(calculated_threshold, volatility_min_threshold)
-	
-	# Clamp to maximum bounds
-	final_threshold = min(final_threshold, MAX_THRESHOLD_PERCENT)
-	
-	# Debug info for threshold selection
-	var volatility_level: String = "high"
-	if cv < STABLE_FUNCTION_CV_THRESHOLD:
-		volatility_level = "very stable"
-	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
-		volatility_level = "low"
-	elif cv < MEDIUM_VOLATILITY_CV_THRESHOLD:
-		volatility_level = "medium"
-	
-	print("📊 Refined threshold for baseline=%.3fms, n=%d, CV=%.1f%% (%s volatility):" % [
-		baseline_median, sample_size, cv * 100, volatility_level
-	])
-	print("   • %.0fth percentile: %.3fms (raw: %.1f%%, buffered: %.1f%%)" % [
-		PERCENTILE_THRESHOLD, percentile_95_threshold, 
-		percentile_threshold_percent * 100, calculated_threshold * 100
-	])
-	print("   • Volatility min threshold: %.1f%% (fast: %s, mature: %s)" % [
-		volatility_min_threshold * 100,
-		"yes" if baseline_median < FAST_FUNCTION_THRESHOLD_MS else "no",
-		"yes" if sample_size >= MATURE_BASELINE_SAMPLE_SIZE else "no"
-	])
-	print("   • Final threshold: %.1f%% (confidence: %.1f, sample size: %d)" % [
-		final_threshold * 100, confidence_multiplier, sample_size
-	])
-	
-	return final_threshold
-
-## ========== INDEPENDENT TEST SUITE INTERFACE ==========
+	print("🚀 Module started: %s" % module_name)
 
 ## Measure a test function performance with warmup and multiple iterations
 func measure_test(test_name: String, test_func: Callable) -> Dictionary:
@@ -936,11 +793,11 @@ func _save_module_results() -> void:
 		dir.make_dir_recursive(RESULTS_DIR)
 	
 	# Save to module-specific intermediate file using the shared run timestamp
-	var module_filepath: String = RESULTS_DIR + "%s_%s.json" % [_module_name, PerfTestManager._run_timestamp]
+	var module_filepath: String = RESULTS_DIR + "%s_%s.json" % [_module_name, _run_timestamp]
 	
 	var module_data: Dictionary = {
 		"module": _module_name,
-		"timestamp": PerfTestManager._run_timestamp,
+		"timestamp": _run_timestamp,
 		"tests": _module_results,
 		"meta": {
 			"generated_at": Time.get_datetime_string_from_system(),
@@ -950,6 +807,110 @@ func _save_module_results() -> void:
 	
 	_save_json_file(module_filepath, module_data)
 	print("💾 Saved intermediate results for %s: %s" % [_module_name, module_filepath.get_file()])
+
+## Report details of failed tests with their stats and thresholds
+static func _report_failed_tests(consolidated_tests: Dictionary) -> void:
+	var failed_test_details: Array[Dictionary] = []
+	
+	# Collect failed test information
+	for test_name in consolidated_tests:
+		var test_data: Dictionary = consolidated_tests[test_name]
+		if test_data.status == "fail":
+			failed_test_details.append({
+				"name": test_name,
+				"data": test_data
+			})
+	
+	# Sort failed tests by severity (highest diff_percent first)
+	failed_test_details.sort_custom(func(a, b): return a.data.diff_percent > b.data.diff_percent)
+	
+	# Report each failed test
+	for i in range(failed_test_details.size()):
+		var test_info: Dictionary = failed_test_details[i]
+		var test_name: String = test_info.name
+		var test_data: Dictionary = test_info.data
+		
+		var current_ms: float = test_data.get("result_ms", 0.0)
+		var baseline_ms: float = test_data.get("baseline_ms", 0.0)
+		var diff_percent: float = test_data.get("diff_percent", 0.0)
+		var threshold_percent: float = test_data.get("threshold_percent", REGRESSION_THRESHOLD) * 100.0
+		var sample_size: int = test_data.get("sample_size", 0)
+		var cv: float = test_data.get("coefficient_of_variation", 0.0) * 100.0
+		
+		print("   %d. %s:" % [i + 1, test_name])
+		print("      Current: %.3f ms | Baseline: %.3f ms | Change: %.1f%%" % [current_ms, baseline_ms, diff_percent])
+		print("      Threshold: %.1f%% | Sample size: %d | CV: %.1f%%" % [threshold_percent, sample_size, cv])
+
+## Calculate dynamic threshold for a test based on percentile analysis with refinements
+static func _calculate_dynamic_threshold(measurements: Array[float], baseline_median: float) -> float:
+	var sample_size: int = measurements.size()
+	
+	# If insufficient data, use fallback threshold
+	if sample_size < MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD:
+		return REGRESSION_THRESHOLD
+	
+	# Sort measurements for percentile calculation
+	var sorted_measurements: Array[float] = measurements.duplicate()
+	sorted_measurements.sort()
+	
+	# Calculate coefficient of variation for stability assessment
+	var cv: float = StatMath.BasicStats.standard_deviation(measurements) / baseline_median
+	
+	# Use 95th percentile - only 5% of historical runs were slower than this
+	var percentile_95_threshold: float = StatMath.BasicStats.percentile(sorted_measurements, PERCENTILE_THRESHOLD)
+	var percentile_threshold_percent: float = (percentile_95_threshold - baseline_median) / baseline_median
+	
+	# Apply confidence interval adjustment based on sample size
+	# Smaller samples get slightly higher thresholds due to uncertainty
+	var confidence_multiplier: float = 1.0
+	if sample_size < MEDIUM_CONFIDENCE_SAMPLES:
+		confidence_multiplier = 1.2  # 20% higher threshold for small samples
+	elif sample_size < HIGH_CONFIDENCE_SAMPLES:
+		confidence_multiplier = 1.1  # 10% higher threshold for medium samples
+	
+	var calculated_threshold: float = percentile_threshold_percent * confidence_multiplier
+	
+	# REFINEMENT 1: Use robust minimum threshold instead of aggressive 5%
+	var base_min_threshold: float = ROBUST_MIN_THRESHOLD_PERCENT
+	
+	# REFINEMENT 2: Add safety buffer for borderline cases
+	calculated_threshold = calculated_threshold * THRESHOLD_SAFETY_BUFFER
+	
+	# REFINEMENT 3: Special handling for very fast functions (under 0.5ms)
+	# Small absolute variations create large percentage changes in fast functions
+	if baseline_median < FAST_FUNCTION_THRESHOLD_MS:
+		base_min_threshold = max(base_min_threshold, FAST_FUNCTION_MIN_THRESHOLD)
+	
+	# REFINEMENT 4: Advanced CV-based threshold scaling with volatility levels
+	# Different minimum thresholds based on function volatility patterns
+	var volatility_min_threshold: float = base_min_threshold
+	
+	if cv < STABLE_FUNCTION_CV_THRESHOLD:
+		# Very stable functions (CV < 5%) - original logic
+		volatility_min_threshold = max(volatility_min_threshold, STABLE_FUNCTION_MIN_THRESHOLD)
+	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
+		# Low volatility functions (CV 5-8%) - need higher thresholds
+		volatility_min_threshold = max(volatility_min_threshold, LOW_VOLATILITY_MIN_THRESHOLD)
+	elif cv < MEDIUM_VOLATILITY_CV_THRESHOLD:
+		# Medium volatility functions (CV 8-15%) - moderate thresholds
+		volatility_min_threshold = max(volatility_min_threshold, MEDIUM_VOLATILITY_MIN_THRESHOLD)
+	else:
+		# High volatility functions (CV > 15%) - standard thresholds
+		volatility_min_threshold = max(volatility_min_threshold, HIGH_VOLATILITY_MIN_THRESHOLD)
+	
+	# REFINEMENT 5: Mature baseline adjustment
+	# With 25+ samples, we have high confidence in the baseline but need more tolerance
+	# for natural performance variation in production environments
+	if sample_size >= MATURE_BASELINE_SAMPLE_SIZE:
+		volatility_min_threshold = volatility_min_threshold * MATURE_BASELINE_MULTIPLIER
+	
+	# Apply the refined minimum threshold
+	var final_threshold: float = max(calculated_threshold, volatility_min_threshold)
+	
+	# Clamp to maximum bounds
+	final_threshold = min(final_threshold, MAX_THRESHOLD_PERCENT)
+	
+	return final_threshold
 
 ## Helper to load a JSON file and return its data
 static func _load_json_file(filepath: String) -> Dictionary:
@@ -963,6 +924,8 @@ static func _load_json_file(filepath: String) -> Dictionary:
 		return {}
 
 	var json_string: String = file.get_as_text()
+	file.close()
+	
 	var json: JSON = JSON.new()
 	var err: Error = json.parse(json_string)
 	if err != OK:
@@ -982,7 +945,6 @@ static func _save_json_file(filepath: String, data: Dictionary) -> void:
 	file.close()
 
 ## Update baseline from successful snapshots automatically
-## NOTE: Only uses pass_ files for baseline calculations - fail_ files are ignored
 static func _update_baseline_from_snapshots() -> void:
 	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
 	if dir == null:
@@ -998,7 +960,6 @@ static func _update_baseline_from_snapshots() -> void:
 		if current_file.begins_with("pass_") and current_file.ends_with(".json"):
 			pass_files.append(current_file)
 		current_file = dir.get_next()
-	dir.list_dir_end()
 	
 	if pass_files.is_empty():
 		print("⚠️  No successful test runs found - baseline unchanged")
@@ -1009,44 +970,19 @@ static func _update_baseline_from_snapshots() -> void:
 	var recent_files: Array[String] = pass_files.slice(-MAX_SNAPSHOTS) if pass_files.size() > MAX_SNAPSHOTS else pass_files
 	
 	print("📊 Updating baseline from %d successful test runs" % recent_files.size())
-	if recent_files.size() >= HIGH_CONFIDENCE_SAMPLES:
-		print("   🎯 High confidence data for statistical analysis (n≥%d)" % HIGH_CONFIDENCE_SAMPLES)
-	elif recent_files.size() >= MEDIUM_CONFIDENCE_SAMPLES:
-		print("   ⚠️  Medium confidence - consider running more tests (n=%d)" % recent_files.size())
-	elif recent_files.size() >= MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD:
-		print("   ⚠️  Limited confidence but sufficient for dynamic thresholds (n=%d)" % recent_files.size())
-	else:
-		print("   🚨 Very limited data - using fallback thresholds (n=%d)" % recent_files.size())
 	
 	# Load and accumulate results using statistical analysis
 	var test_data_arrays: Dictionary = {}  # test_name -> Array[float] of all measurements
 	
 	for results_file in recent_files:
 		var file_path: String = RESULTS_DIR + results_file
-		var file: FileAccess = FileAccess.open(file_path, FileAccess.READ)
-		if file == null:
-			push_warning("Could not read results file: " + file_path)
-			continue
-		
-		var json_string: String = file.get_as_text()
-		file.close()
-		
-		var json: JSON = JSON.new()
-		var parse_result: Error = json.parse(json_string)
-		if parse_result != OK:
-			push_warning("Failed to parse JSON in: " + file_path)
-			continue
-		
-		var file_data: Dictionary = json.data
-		if not file_data.has("tests"):
-			push_warning("Results file missing 'tests' key: " + file_path)
+		var file_data: Dictionary = _load_json_file(file_path)
+		if file_data.is_empty() or not file_data.has("tests"):
 			continue
 		
 		# Collect each test result into arrays for statistical analysis
 		for test_name in file_data.tests:
 			var test_data = file_data.tests[test_name]
-			
-			# Use normalized result_ms value for baseline calculation
 			var execution_time: float = test_data.result_ms
 			
 			if not test_data_arrays.has(test_name):
@@ -1060,7 +996,6 @@ static func _update_baseline_from_snapshots() -> void:
 	
 	# Calculate robust statistics and dynamic thresholds using StatMath library
 	var baseline_tests: Dictionary = {}
-	var statistics_summary: Dictionary = {}
 	
 	for test_name in test_data_arrays:
 		var measurements: Array[float] = []
@@ -1088,48 +1023,6 @@ static func _update_baseline_from_snapshots() -> void:
 			"sample_size": measurements.size(),
 			"coefficient_of_variation": coefficient_of_variation
 		}
-		
-		# Store statistics for reporting
-		statistics_summary[test_name] = {
-			"mean": test_mean,
-			"median": test_median,
-			"std_dev": test_std,
-			"sample_size": measurements.size(),
-			"coefficient_of_variation": coefficient_of_variation,
-			"dynamic_threshold": dynamic_threshold
-		}
-	
-	# Report statistical summary for well-sampled tests
-	print("📈 Statistical Summary with Dynamic Thresholds:")
-	var high_variance_tests: Array[String] = []
-	var dynamic_threshold_count: int = 0
-	
-	for test_name in statistics_summary:
-		var stats: Dictionary = statistics_summary[test_name]
-		var cv: float = stats.coefficient_of_variation
-		var threshold: float = stats.dynamic_threshold
-		
-		if cv > 0.15:  # Flag tests with >15% coefficient of variation
-			high_variance_tests.append(test_name)
-		
-		if stats.sample_size >= MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD:
-			dynamic_threshold_count += 1
-		
-		if stats.sample_size >= 5:  # Log detailed stats for reasonably sampled tests
-			print("   %s: median=%.3fms, cv=%.1f%%, threshold=%.1f%%, n=%d" % [
-				test_name, stats.median, cv * 100.0, threshold * 100.0, stats.sample_size
-			])
-	
-	print("🎯 Dynamic thresholds calculated for %d/%d tests" % [dynamic_threshold_count, statistics_summary.size()])
-	if not high_variance_tests.is_empty():
-		print("⚠️  High variance tests (CV > 15%%): %s" % str(high_variance_tests.slice(0, 5)))
-	
-	# Determine confidence level based on sample size
-	var confidence: String = "low"
-	if recent_files.size() >= HIGH_CONFIDENCE_SAMPLES:
-		confidence = "high"
-	elif recent_files.size() >= MEDIUM_CONFIDENCE_SAMPLES:
-		confidence = "medium"
 	
 	# Save the updated baseline with dynamic thresholds
 	var baseline_data: Dictionary = {
@@ -1140,15 +1033,7 @@ static func _update_baseline_from_snapshots() -> void:
 			"generated_at": Time.get_datetime_string_from_system(),
 			"total_tests": baseline_tests.size(),
 			"source_snapshots": recent_files.size(),
-			"statistical_method": "percentile_based_thresholds",
-			"confidence": confidence,
-			"dynamic_threshold_tests": dynamic_threshold_count,
-			"threshold_parameters": {
-				"percentile_threshold": PERCENTILE_THRESHOLD,
-				"min_samples": MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD,
-				"min_threshold": MIN_THRESHOLD_PERCENT,
-				"max_threshold": MAX_THRESHOLD_PERCENT
-			}
+			"statistical_method": "percentile_based_thresholds"
 		}
 	}
 	
@@ -1173,7 +1058,6 @@ static func _cleanup_old_snapshots() -> void:
 		elif file_name.begins_with("fail_") and file_name.ends_with(".json"):
 			fail_files.append(file_name)
 		file_name = dir.get_next()
-	dir.list_dir_end()
 	
 	# Clean up pass_ files (keep MAX_SNAPSHOTS most recent)
 	pass_files.sort()
@@ -1189,38 +1073,3 @@ static func _cleanup_old_snapshots() -> void:
 			var oldest_file: String = fail_files.pop_front()
 			dir.remove(oldest_file)
 			print("🗑️  Removed old failure snapshot: %s" % oldest_file)
-	else:
-		# Remove all fail_ files if not keeping failures
-		for fail_file in fail_files:
-			dir.remove(fail_file)
-			print("🗑️  Removed failure snapshot: %s" % fail_file)
-
-## Clean up orphaned intermediate files from incomplete test runs
-static func _cleanup_orphaned_intermediate_files() -> void:
-	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
-	if dir == null:
-		return
-	
-	var orphaned_files: Array[String] = []
-	dir.list_dir_begin()
-	var file_name: String = dir.get_next()
-	
-	while file_name != "":
-		# Look for module intermediate files (format: ModuleName_timestamp.json)
-		# These should not start with "pass_", "fail_", or be "latest.json", "baseline.json"
-		if (file_name.ends_with(".json") and 
-			not file_name.begins_with("pass_") and 
-			not file_name.begins_with("fail_") and
-			file_name != "latest.json" and 
-			file_name != "baseline.json"):
-			orphaned_files.append(file_name)
-		file_name = dir.get_next()
-	dir.list_dir_end()
-	
-	# Remove orphaned intermediate files
-	for orphaned_file in orphaned_files:
-		var err: Error = dir.remove(orphaned_file)
-		if err == OK:
-			print("🗑️  Cleaned up orphaned intermediate file: %s" % orphaned_file)
-		else:
-			push_warning("Failed to remove orphaned file: %s (error: %d)" % [orphaned_file, err])
