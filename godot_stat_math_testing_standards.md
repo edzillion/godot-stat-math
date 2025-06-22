@@ -3,6 +3,22 @@
 ## Overview
 This document establishes comprehensive testing standards for the Godot Stat Math project, derived from extensive data-driven conversion work and testing best practices. These standards ensure accuracy, maintainability, and consistency across the entire test suite.
 
+## Folder Structure Pattern
+```
+tests/core/
+├── [module_name]/
+│   ├── scipy_validation_test.gd     # SCIPY VALIDATION TESTS - DATA-DRIVEN
+│   ├── mathematical_property_test.gd # MATHEMATICAL PROPERTY TESTS  
+│   └── parameter_validation_test.gd  # PARAMETER VALIDATION TESTS
+```
+
+## Implementation Guidelines
+
+### File Naming Convention
+- **scipy_validation_test.gd** - Contains all data-driven tests that validate against SciPy reference values
+- **mathematical_property_test.gd** - Contains tests for mathematical properties, relationships, and theoretical behavior
+- **parameter_validation_test.gd** - Contains all input validation and error handling tests
+
 ## CI/CD Integration and Platform Consistency
 
 ### Dedicated AWS Testing Infrastructure
