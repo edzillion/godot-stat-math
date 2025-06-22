@@ -288,8 +288,3 @@ func test_integration_parameter_validation() -> void:
 	# Individual function parameter validation is tested in their respective test files
 	pass
 
-# =============================================================================
-# HELPER FUNCTIONS
-# =============================================================================
-
-# TERRIBLE ABSTRACTION LAYERS ELIMINATED - USE DIRECT FUNCTION CALLS 

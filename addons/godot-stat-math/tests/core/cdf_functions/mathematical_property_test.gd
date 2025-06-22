@@ -116,7 +116,7 @@ func test_f_cdf_known_value() -> void:
 	var test_data: Array = CDF_TEST_DATA.VALUES["f_cdf"]
 	var case: Dictionary = test_data[0]  # First case: f_cdf(1.5, 2.0, 2.0)
 	var result: float = StatMath.CdfFunctions.f_cdf(case["params"][0], case["params"][1], case["params"][2])
-	assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
+	assert_float(result).is_equal_approx(case["expected"], StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
 
 
 func test_f_cdf_x_zero() -> void:

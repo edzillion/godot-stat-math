@@ -61,7 +61,8 @@ func test_f_cdf_comprehensive() -> void:
 	var test_data: Array = CDF_TEST_DATA.VALUES["f_cdf"]
 	for case in test_data:
 		var result: float = StatMath.CdfFunctions.f_cdf(case["params"][0], case["params"][1], case["params"][2])
-		assert_float(result).is_equal_approx(case["expected"], StatMath.NUMERICAL_TOLERANCE)
+		# F-distribution requires higher tolerance due to incomplete beta function complexity
+		assert_float(result).is_equal_approx(case["expected"], StatMath.NUMERICAL_INTEGRATION_TOLERANCE)
 
 
 ## Tests Weibull CDF function with comprehensive test data

@@ -13,8 +13,8 @@ const VALUES: Dictionary = {
 	"exponential_ppf": [  # Generated using: stats.expon.ppf(p, scale=1.0/lambda)
 		{ "params": [0.5, 1.0], "expected": 0.69314718 },
 		{ "params": [0.632121, 1.0], "expected": 1.00000120 },
-		{ "params": [0.95, 0.5], "expected": 1.49786614 },
-		{ "params": [0.1, 2.0], "expected": 0.21072103 },
+		{ "params": [0.95, 2.0], "expected": 1.49786614 },
+		{ "params": [0.1, 0.5], "expected": 0.21072103 },
 	],
 	"uniform_ppf": [  # Generated using: stats.uniform.ppf(p, a, b-a)
 		{ "params": [0.25, 0.0, 4.0], "expected": 1.00000000 },

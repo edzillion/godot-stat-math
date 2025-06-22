@@ -537,15 +537,19 @@ static func generate_samples(
 	starting_index: int = 0,
 	sample_seed: int = -1
 ) -> Variant:
-	if n_draws <= 0:
-		match dimensions:
-			1: return Array([], TYPE_FLOAT, "", null)
-			2: return Array([], TYPE_VECTOR2, "", null)
-			_: return Array([], TYPE_ARRAY, "", null)
+	if n_draws < 0:
+		push_error("n_draws must be non-negative. Received: " + str(n_draws))
+		return null
 	
 	if dimensions < 1:
 		push_error("dimensions must be >= 1. Received: " + str(dimensions))
 		return null
+	
+	if n_draws == 0:
+		match dimensions:
+			1: return Array([], TYPE_FLOAT, "", null)
+			2: return Array([], TYPE_VECTOR2, "", null)
+			_: return Array([], TYPE_ARRAY, "", null)
 	
 	# Use the unified N-dimensional generation for all cases
 	var nd_samples: Array = generate_samples_nd(n_draws, dimensions, method, starting_index, sample_seed)
@@ -810,6 +814,9 @@ static func sample_indices(
 		return []
 	if population_size < 0:
 		push_error("population_size cannot be negative. Received: " + str(population_size))
+		return []
+	if population_size == 0:
+		push_error("population_size must be positive. Received: " + str(population_size))
 		return []
 	if selection_strategy != SelectionStrategy.WITH_REPLACEMENT and draw_count > population_size:
 		push_error("Without replacement, draw_count cannot exceed population_size. Received draw_count=" + str(draw_count) + ", population_size=" + str(population_size))

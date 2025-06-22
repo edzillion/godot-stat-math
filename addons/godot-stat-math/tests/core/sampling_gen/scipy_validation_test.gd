@@ -366,10 +366,10 @@ func test_generate_samples_1d_edge_cases() -> void:
 	var typed_zero: Array[float] = StatMath.HelperFunctions.convert_to_float_array(zero_samples)
 	assert_int(typed_zero.size()).is_equal(0)
 	
-	# Negative draws
-	var negative_samples: Variant = StatMath.SamplingGen.generate_samples(-5, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_negative: Array[float] = StatMath.HelperFunctions.convert_to_float_array(negative_samples)
-	assert_int(typed_negative.size()).is_equal(0)
+	# Negative draws should throw an error
+	var test_negative_draws: Callable = func():
+		StatMath.SamplingGen.generate_samples(-5, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	await assert_error(test_negative_draws).is_push_error("n_draws must be non-negative. Received: -5")
 
 
 func test_generate_samples_1d_sobol_deterministic() -> void:

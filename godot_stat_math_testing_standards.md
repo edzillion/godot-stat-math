@@ -1,7 +1,40 @@
 # Godot Stat Math Testing Standards
 
 ## Overview
-This document establishes comprehensive testing standards for the Godot Stat Math project, derived from extensive data-driven conversion work and testing best practices. These standards ensure scientific accuracy, maintainability, and consistency across the entire test suite.
+This document establishes comprehensive testing standards for the Godot Stat Math project, derived from extensive data-driven conversion work and testing best practices. These standards ensure accuracy, maintainability, and consistency across the entire test suite.
+
+## CI/CD Integration and Platform Consistency
+
+### Dedicated AWS Testing Infrastructure
+The project uses **dedicated AWS Spot instances** for all test execution, triggered via Lambda functions. This eliminates cross-platform floating-point precision concerns that typically plague statistical computing projects.
+
+#### Development Workflow & Test Execution Points:
+1. **PR to `develop`** → Full GDUnit4 test suite on AWS Spot instances
+2. **PR to `release`** → Version validation + comprehensive testing  
+3. **Manual Test Runs** → Development iterations with committed results
+
+#### Key Benefits:
+- **Consistent Hardware**: Identical AWS instances eliminate platform-specific variations
+- **Test Result History**: All test reports committed to branches for historical tracking
+- **Performance Baselines**: Automated regression detection with snapshot comparisons
+- **Isolated Testing**: Fresh, identical environments for every test run
+
+This infrastructure allows us to focus on mathematical accuracy without worrying about hardware-specific floating-point differences that would otherwise require platform-specific tolerance adjustments.
+
+### Performance Testing Integration
+Performance tests run alongside standard tests in `run-tests.yaml` and automatically generate baseline snapshots for regression detection.
+
+**Known Regression Handling:**
+- Tests with known performance issues can be marked as regression cases
+- Marked tests will not execute until new performance baselines are established
+- This prevents false failures while allowing continued development
+
+**Baseline Regeneration:**
+- Major algorithmic changes may require baseline regeneration across all functions
+- Run `run-tests.yaml` multiple times to establish new performance baselines
+- The system automatically commits updated baseline data to the repository
+
+This approach maintains performance monitoring while allowing flexibility during development cycles.
 
 ## Core Principles
 
@@ -52,16 +85,35 @@ const VALUES: Dictionary = {
 - Non-obvious mathematical results requiring computation
 - Values that appear as "magic numbers" without clear mathematical justification
 
-**Exception: Hardcoding for Simple, Illustrative Test Cases**
+**Exception: Simple, Illustrative Test Data**
 
-It is acceptable to hardcode simple data (like arrays of numbers) directly within a single test function if its primary purpose is to illustrate a specific behavior, data handling characteristic, or edge case, rather than to validate a complex mathematical result against a scientific standard.
+It is acceptable to hardcode simple data directly within a single test function if its primary purpose is to illustrate a specific behavior, data handling characteristic, or edge case, rather than to validate a complex mathematical result against a scientific standard.
 
-This exception applies when all of the following are true:
-- The data is simple, and its structure is self-explanatory in the context of the test (e.g., an unsorted array for a sorting test, an array with repeated decimals for a median test).
-- The data is not the result of a scientific or complex calculation that should be sourced from scipy.
-- The data is not reused across multiple tests.
+**Criteria for "Simple Test Data" Exception:**
+- **No computed expected values**: The data is not the result of scientific/mathematical calculations
+- **Self-evident from context**: Data structure and purpose is immediately clear (e.g., `[1, 2, 3, 4, 5]` for median testing)
+- **Single test usage**: Data is not reused across multiple tests
+- **Illustrative purpose**: Primary goal is demonstrating behavior, not validating mathematical accuracy
 
-This approach maintains test readability for simple cases. If the data is ever needed for more than one test, or if it represents a calculated "expected" value, it must be moved to a central data table in /addons/godot-stat-math/tables/.
+**Examples of acceptable simple data:**
+```gdscript
+# ✅ Acceptable - simple array for median behavior
+func test_median_with_odd_count() -> void:
+	var data: Array[float] = [1.0, 3.0, 2.0, 5.0, 4.0]
+	assert_float(StatMath.BasicStats.median(data)).is_equal_approx(3.0, StatMath.FLOAT_TOLERANCE)
+
+# ✅ Acceptable - edge case demonstration  
+func test_empty_array_handling() -> void:
+	var empty_data: Array[float] = []
+	assert_that(is_nan(StatMath.BasicStats.mean(empty_data))).is_true()
+```
+
+**Move to tables when:**
+- Data is needed for more than one test
+- Expected values represent calculated results
+- Data represents complex scenarios requiring scipy validation
+
+This approach maintains test readability for simple cases while enforcing data-driven standards for mathematical validation.
 
 ### Data Generation Requirements
 - **Scipy Call Documentation**: Every function must include exact scipy call used
@@ -70,6 +122,44 @@ This approach maintains test readability for simple cases. If the data is ever n
 - **Optimized Structure**: Design for test consumption, not generation convenience
 
 ## Test Implementation Patterns
+
+### Types of Testing Approaches
+
+#### 1. **Example-Based Testing** (Current Primary Approach)
+Tests specific input → output pairs using known correct values:
+```gdscript
+func test_normal_cdf_specific_case() -> void:
+	var result = StatMath.CdfFunctions.normal_cdf(1.96, 0.0, 1.0)
+	assert_float(result).is_equal_approx(0.97500210, StatMath.FLOAT_TOLERANCE)
+```
+
+#### 2. **Data-Driven Testing** (Implemented via Scipy Tables)
+Uses precomputed test cases from scipy for validation:
+```gdscript
+func test_normal_cdf_scipy_validation() -> void:
+	var test_data: Array = CDF_TEST_DATA.VALUES["normal_cdf"]
+	var case: Dictionary = test_data[0]
+	var result: float = StatMath.CdfFunctions.normal_cdf(case["params"][0], case["params"][1], case["params"][2])
+	assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
+```
+
+#### 3. **Property-Based Testing** (Future Enhancement)
+Tests mathematical relationships that should always hold using randomly generated inputs:
+```gdscript
+func test_cdf_range_property() -> void:
+	var rng = RandomNumberGenerator.new()
+	rng.seed = 12345
+	
+	for i in range(100):
+		var x = rng.randf_range(-10.0, 10.0)
+		var mu = rng.randf_range(-3.0, 3.0) 
+		var sigma = rng.randf_range(0.1, 2.0)
+		
+		var result = StatMath.CdfFunctions.normal_cdf(x, mu, sigma)
+		assert_float(result).is_between(0.0, 1.0)
+```
+
+> **Note**: Our current test suite has excellent mathematical property testing with fixed examples but lacks true property-based testing with random parameter generation. This enhancement will be undertaken at a later date. See: **[https://github.com/edzillion/godot-stat-math/issues/10]** for details.
 
 ### Standard Test Function Pattern
 ```gdscript
@@ -137,6 +227,30 @@ func test_normal_cdf_scipy_validated() -> void:
 
 ## Tolerance Constants Usage
 
+### Tolerance Decision Tree
+Use this decision tree to eliminate tolerance selection paralysis:
+
+```
+├── Testing mathematical identity or boundary condition?
+│   └── YES → StatMath.BOUNDARY_TOLERANCE (1.0e-10)
+│
+├── Testing against scipy validation data?
+│   ├── Basic statistical functions (mean, variance, etc.)
+│   │   └── StatMath.FLOAT_TOLERANCE (1.0e-7)
+│   ├── Approximation algorithms (erf, gamma, etc.)
+│   │   └── StatMath.ERF_APPROX_TOLERANCE (1.0e-5)
+│   ├── Inverse functions (ppf, quantiles)
+│   │   └── StatMath.INVERSE_FUNCTION_TOLERANCE
+│   └── Probability density/mass functions
+│       └── StatMath.PROBABILITY_TOLERANCE (1.0e-6)
+│
+├── Testing numerical integration or iterative methods?
+│   └── StatMath.NUMERICAL_INTEGRATION_TOLERANCE (5.0e-3)
+│
+└── High-precision mathematical operations?
+    └── StatMath.HIGH_PRECISION_TOLERANCE (1.0e-9)
+```
+
 ### Standard Tolerances
 - `StatMath.FLOAT_TOLERANCE = 1.0e-7` - General floating-point comparisons
 - `StatMath.HIGH_PRECISION_TOLERANCE = 1.0e-9` - High-precision operations
@@ -151,9 +265,10 @@ func test_normal_cdf_scipy_validated() -> void:
 - `StatMath.CDF_PPF_CONSISTENCY_TOLERANCE` - Round-trip consistency tests
 
 ### Tolerance Selection Guidelines
-- Use the most restrictive tolerance that tests can reliably pass
+- Use the decision tree above to eliminate guesswork
 - Consider numerical method precision when selecting tolerances
 - Document why specific tolerances are chosen for edge cases
+- When in doubt, start with the most restrictive tolerance and adjust upward if tests fail
 
 ## File Organization Standards
 
@@ -317,11 +432,32 @@ if not (valid_condition):
 - Consistent use of appropriate tolerance constants
 - Elimination of redundant and duplicate tests
 
+## Test Data Governance Process
+
+### Scipy Version Control
+All test data files generated by `generate_test_data.py` include version information for scipy and numpy in their headers:
+```gdscript
+# Generated with: scipy 1.11.3, numpy 1.24.3
+```
+
+This provides traceability for test data generation and ensures reproducibility when debugging edge cases.
+
+### Minimal Governance Philosophy
+Our data governance approach is intentionally minimal since we are dealing with **mathematical constants and relationships** that should not change across scipy versions. Mathematical functions like `norm.cdf(1.96, 0.0, 1.0)` represent universal mathematical truths, not implementation-specific behaviors.
+
+**Key Principles:**
+- Test data represents mathematical constants, not software behavior
+- Scipy version changes should not affect mathematical correctness
+- Data regeneration is only needed when adding new functions or test cases
+- Version tracking provides debugging context, not compatibility requirements
+
+This approach differs from typical software testing where external API changes require extensive data migration and compatibility testing.
+
 ## Conclusion
 
-These standards represent the culmination of extensive data-driven conversion work and establish the foundation for maintaining scientific accuracy and code quality in the Godot Stat Math project. By following these guidelines, future development will benefit from:
+These standards represent the culmination of extensive data-driven conversion work and establish the foundation for maintaining accuracy and code quality in the Godot Stat Math project. By following these guidelines, future development will benefit from:
 
-- **Scientific Accuracy**: All calculations validated against scipy
+- **Accuracy**: All calculations validated against scipy
 - **Maintainability**: Clear, traceable, and modifiable test code
 - **Consistency**: Uniform patterns across the entire test suite
 - **Reliability**: Robust error handling and edge case coverage

@@ -134,7 +134,7 @@ func test_sample_indices_invalid_parameters() -> void:
 	# Test sampling more than population without replacement
 	var test_oversample: Callable = func():
 		StatMath.SamplingGen.sample_indices(5, 10, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES)
-	await assert_error(test_oversample).is_push_error("Cannot sample 10 items from population of 5 without replacement.")
+	await assert_error(test_oversample).is_push_error("Without replacement, draw_count cannot exceed population_size. Received draw_count=10, population_size=5")
 
 
 # --- HELPER FUNCTIONS ---

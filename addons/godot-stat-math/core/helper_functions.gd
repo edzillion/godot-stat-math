@@ -229,6 +229,10 @@ static func incomplete_beta(x_val: float, a: float, b: float) -> float:
 	if x_val == 1.0:
 		return 1.0
 	
+	# Special case: I_x(1,1) = x (uniform distribution on [0,1])
+	if is_equal_approx(a, 1.0) and is_equal_approx(b, 1.0):
+		return x_val
+	
 	# Special case: Beta(2,2) has exact closed form
 	if is_equal_approx(a, 2.0) and is_equal_approx(b, 2.0):
 		return x_val * x_val * (3.0 - 2.0 * x_val)
