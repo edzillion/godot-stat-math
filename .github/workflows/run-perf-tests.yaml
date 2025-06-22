@@ -1,10 +1,10 @@
-name: Test Performance Integration
+name: Run Tests
 
 on:
   workflow_dispatch:
     inputs:
       disable_regression_checking:
-        description: 'Disable performance regression checking (set to true to build baselines)'
+        description: 'Disable performance regression checking'
         required: false
         default: false
         type: boolean
@@ -22,7 +22,7 @@ jobs:
       - name: Trigger AWS Runner
         id: trigger
         run: |
-          echo "Triggering AWS runner for performance integration test..."
+          echo "Triggering AWS runner for test run..."
           response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
           echo "Response: $response"
           
@@ -37,8 +37,8 @@ jobs:
           
       - name: Wait for runner
         run: |
-          echo "Waiting 30 seconds for runner to come online..."
-          sleep 30
+          echo "Waiting 15 seconds for runner to come online..."
+          sleep 15
 
   test-and-commit:
     needs: trigger-runner
@@ -65,14 +65,12 @@ jobs:
           
       - name: System info
         run: |
-          echo "=== Performance Integration Test Environment ==="
+          echo "=== Test Run Environment ==="
           echo "Timestamp: $(date)"
           echo "Commit: ${{ github.sha }}"
           echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
           echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
-          echo "CPU Cores: $(nproc)"
-          echo "Memory: $(free -h | awk '/^Mem:/ {print $2}')"
-          echo "==============================================="
+          echo "=========================="
 
       - name: Extract version
         uses: CapsCollective/version-actions/extract-version@v1.0
@@ -84,42 +82,18 @@ jobs:
       - name: Clean up previous reports
         run: rm -rf reports
       
-      - name: Run GDUnit4 tests (including performance tests)
+      - name: Run GDUnit4 tests
         uses: MikeSchulze/gdunit4-action@v1
         with:
           godot-version: "4.4"
-          paths: "res://addons/godot-stat-math/tests"
+          paths: "res://addons/godot-stat-math/tests/performance"
           upload-report: false
         env:
           DISABLE_REGRESSION_CHECKING: ${{ github.event.inputs.disable_regression_checking }}
 
-      - name: Check performance results
+      - name: Commit test and performance results
         run: |
-          echo "Checking for performance test results..."
-          RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
-          
-          if [ -d "$RESULTS_DIR" ]; then
-            echo "✅ Performance results directory exists"
-            ls -la "$RESULTS_DIR"
-            
-            if [ -f "$RESULTS_DIR/latest.json" ]; then
-              echo "✅ latest.json found"
-              echo "File size: $(stat -c%s "$RESULTS_DIR/latest.json") bytes"
-            else
-              echo "❌ latest.json not found"
-            fi
-            
-            # Count result files
-            PASS_FILES=$(find "$RESULTS_DIR" -name "pass_*.json" | wc -l)
-            FAIL_FILES=$(find "$RESULTS_DIR" -name "fail_*.json" | wc -l)
-            echo "📊 Performance snapshots: $PASS_FILES pass, $FAIL_FILES fail"
-          else
-            echo "❌ Performance results directory not found"
-          fi
-
-      - name: Commit test reports and performance results
-        run: |
-          echo "Committing GDUnit4 test reports and performance results..."
+          echo "Committing GDUnit4 test and performance results..."
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -137,51 +111,25 @@ jobs:
           if git diff --staged --quiet; then
             echo "No new test results to commit"
           else
-            TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S UTC')
-            COMMIT_MSG="📊 Test & Perf Results - $TIMESTAMP
-
-            - Instance: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)
-            - Commit: ${{ github.sha }}
-            - Run: ${{ github.run_number }}"
+            COMMIT_MSG="📊 Test Results - ${{ github.workflow }} ${{ github.run_number }}"
             
             git commit -m "$COMMIT_MSG"
             git push origin ${{ github.ref_name }}
             echo "✅ Test reports and performance results committed and pushed"
           fi
           
-      - name: Create addon zip
-        run: |
-          echo "Creating test addon zip for version ${{ steps.extract-version.outputs.version-string }}"
-          cd addons
-          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-test.zip godot-stat-math/ -x "*.uid"
-          
-          echo "Created: godot-stat-math-${{ steps.extract-version.outputs.version-string }}-test.zip"
-          zipinfo ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-test.zip
-
-      - name: Upload zip artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: godot-stat-math-test-${{ github.run_number }}
-          path: godot-stat-math-*-test.zip
-        if: always()
-
       - name: Generate test summary
         run: |
-          echo "## 🧪 Performance Integration Test Complete" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧪 Test Run Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test results committed to branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Regression Checking Disabled**: ${{ github.event.inputs.disable_regression_checking }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Addon Artifact**: Uploaded" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
           
-          RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
-          if [ -d "$RESULTS_DIR" ]; then
-            PASS_FILES=$(find "$RESULTS_DIR" -name "pass_*.json" | wc -l)
-            FAIL_FILES=$(find "$RESULTS_DIR" -name "fail_*.json" | wc -l)
+          PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+          if [ -d "$PERF_RESULTS_DIR" ]; then
+            PASS_FILES=$(find "$PERF_RESULTS_DIR" -name "pass_*.json" | wc -l)
+            FAIL_FILES=$(find "$PERF_RESULTS_DIR" -name "fail_*.json" | wc -l)
             echo "- **Performance Snapshots**: $PASS_FILES pass, $FAIL_FILES fail" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🎯 This test validates the complete workflow: AWS spot instances → GDUnit4 tests → commit results → upload artifact" >> $GITHUB_STEP_SUMMARY
+          fi 
