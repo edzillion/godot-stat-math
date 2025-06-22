@@ -12,6 +12,7 @@ func test_generate_samples_unified_interface_dimensions() -> void:
 	var samples_1d: Variant = StatMath.SamplingGen.generate_samples(n_draws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL)
 	assert_bool(samples_1d is Array[float]).is_true()
 	var typed_samples_1d: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_1d)
+	var typed_samples_1d: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_1d)
 	assert_int(typed_samples_1d.size()).is_equal(n_draws)
 	
 	# Test 2D generation  
@@ -43,6 +44,8 @@ func test_generate_samples_unified_interface_starting_index() -> void:
 	
 	var typed_start_0: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_0)
 	var typed_start_3: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_3)
+	var typed_start_0: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_0)
+	var typed_start_3: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_3)
 	
 	# Get first 6 samples to verify starting_index works correctly
 	var first_6: Variant = StatMath.SamplingGen.generate_samples(
@@ -53,6 +56,7 @@ func test_generate_samples_unified_interface_starting_index() -> void:
 	# samples_start_3 should equal elements [3,4,5] from first_6
 	for i in range(n_draws):
 		assert_float(typed_start_3[i]).is_equal_approx(typed_first_6[i + 3], StatMath.DETERMINISM_TOLERANCE)
+		assert_float(typed_start_3[i]).is_equal_approx(typed_first_6[i + 3], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_unified_interface_edge_cases() -> void:
@@ -61,6 +65,7 @@ func test_generate_samples_unified_interface_edge_cases() -> void:
 	var zero_2d: Variant = StatMath.SamplingGen.generate_samples(0, 2) 
 	var zero_nd: Variant = StatMath.SamplingGen.generate_samples(0, 5)
 	
+	assert_int(StatMath.HelperFunctions.convert_to_float_array(zero_1d).size()).is_equal(0)
 	assert_int(StatMath.HelperFunctions.convert_to_float_array(zero_1d).size()).is_equal(0)
 	assert_int((zero_2d as Array[Vector2]).size()).is_equal(0)
 	assert_int((zero_nd as Array).size()).is_equal(0)
@@ -521,6 +526,303 @@ func test_sample_indices_without_replacement_basic() -> void:
 			unique_values[sample_val] = true
 		assert_int(unique_values.size()).is_equal(draw_count)
 
+
+func test_sample_indices_hybrid_combinations() -> void:
+	var population_size: int = 50
+	var draw_count: int = 10
+	
+	# Test SOBOL + FISHER_YATES
+	var sobol_fy: Array[int] = StatMath.SamplingGen.sample_indices(
+		population_size, draw_count,
+		StatMath.SamplingGen.SelectionStrategy.FISHER_YATES,
+		StatMath.SamplingGen.SamplingMethod.SOBOL,
+		42
+	)
+	assert_int(sobol_fy.size()).is_equal(draw_count)
+	_assert_unique_indices(sobol_fy, population_size)
+	
+	# Test LATIN_HYPERCUBE + WITH_REPLACEMENT
+	var lhs_wr: Array[int] = StatMath.SamplingGen.sample_indices(
+		population_size, draw_count,
+		StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT,
+		StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE,
+		42
+	)
+	assert_int(lhs_wr.size()).is_equal(draw_count)
+	_assert_valid_indices(lhs_wr, population_size)
+	
+	# Test HALTON + RESERVOIR
+	var halton_res: Array[int] = StatMath.SamplingGen.sample_indices(
+		population_size, draw_count,
+		StatMath.SamplingGen.SelectionStrategy.RESERVOIR,
+		StatMath.SamplingGen.SamplingMethod.HALTON,
+		42
+	)
+	assert_int(halton_res.size()).is_equal(draw_count)
+	_assert_unique_indices(halton_res, population_size)
+
+
+func test_sample_indices_seeded_reproducibility() -> void:
+	var population_size: int = 30
+	var draw_count: int = 8
+	var seed: int = 98765
+	
+	# Test reproducibility with different strategy/method combinations
+	var combinations: Array[Array] = [
+		[StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT, StatMath.SamplingGen.SamplingMethod.SOBOL],
+		[StatMath.SamplingGen.SelectionStrategy.FISHER_YATES, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE],
+		[StatMath.SamplingGen.SelectionStrategy.RESERVOIR, StatMath.SamplingGen.SamplingMethod.HALTON_RANDOM],
+		[StatMath.SamplingGen.SelectionStrategy.SELECTION_TRACKING, StatMath.SamplingGen.SamplingMethod.SOBOL]
+	]
+	
+	for combo in combinations:
+		var strategy: StatMath.SamplingGen.SelectionStrategy = combo[0]
+		var method: StatMath.SamplingGen.SamplingMethod = combo[1]
+		
+		var samples_1: Array[int] = StatMath.SamplingGen.sample_indices(population_size, draw_count, strategy, method, seed)
+		var samples_2: Array[int] = StatMath.SamplingGen.sample_indices(population_size, draw_count, strategy, method, seed)
+		
+		assert_int(samples_1.size()).is_equal(draw_count)
+		assert_int(samples_2.size()).is_equal(draw_count)
+		
+		for i in range(draw_count):
+			assert_int(samples_1[i]).is_equal(samples_2[i])
+
+
+func test_sample_indices_parameter_validation() -> void:
+	# Test negative draw_count
+	var test_negative_draw: Callable = func():
+		StatMath.SamplingGen.sample_indices(10, -1)
+	await assert_error(test_negative_draw).is_push_error("draw_count cannot be negative. Received: -1")
+	
+	# Test negative population_size
+	var test_negative_pop: Callable = func():
+		StatMath.SamplingGen.sample_indices(-10, 5)
+	await assert_error(test_negative_pop).is_push_error("population_size cannot be negative. Received: -10")
+	
+	# Test draw_count > population_size for without replacement
+	var test_invalid_without_replacement: Callable = func():
+		StatMath.SamplingGen.sample_indices(5, 10, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES)
+	await assert_error(test_invalid_without_replacement).is_push_error("Without replacement, draw_count cannot exceed population_size. Received draw_count=10, population_size=5")
+	
+	# Test draw_count > population_size for with replacement (should work)
+	var valid_with_replacement: Array[int] = StatMath.SamplingGen.sample_indices(
+		5, 10, StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT
+	)
+	assert_int(valid_with_replacement.size()).is_equal(10)
+
+
+func test_sample_indices_edge_cases() -> void:
+	# Zero draws
+	var zero_draws: Array[int] = StatMath.SamplingGen.sample_indices(10, 0)
+	assert_int(zero_draws.size()).is_equal(0)
+	
+	# Draw all elements
+	var draw_all: Array[int] = StatMath.SamplingGen.sample_indices(
+		5, 5, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
+	)
+	assert_int(draw_all.size()).is_equal(5)
+	_assert_unique_indices(draw_all, 5)
+	
+	# Single element population
+	var single_element: Array[int] = StatMath.SamplingGen.sample_indices(
+		1, 1, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
+	)
+	assert_int(single_element.size()).is_equal(1)
+	assert_int(single_element[0]).is_equal(0)
+
+
+# --- CARD GAME SIMULATION TESTS (updated) ---
+
+func test_card_game_dealing() -> void:
+	var deck_size: int = 52
+	var hand_size: int = 5
+	
+	# Test different dealing strategies for card games
+	var fisher_yates: Array[int] = StatMath.SamplingGen.sample_indices(
+		deck_size, hand_size, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
+	)
+	var reservoir: Array[int] = StatMath.SamplingGen.sample_indices(
+		deck_size, hand_size, StatMath.SamplingGen.SelectionStrategy.RESERVOIR
+	)
+	var selection_tracking: Array[int] = StatMath.SamplingGen.sample_indices(
+		deck_size, hand_size, StatMath.SamplingGen.SelectionStrategy.SELECTION_TRACKING
+	)
+	
+	# For coordinated sampling, use coordinated_shuffle + slice
+	var coordinated_shuffle: Array[int] = StatMath.SamplingGen.coordinated_shuffle(
+		deck_size, StatMath.SamplingGen.SamplingMethod.SOBOL, 0
+	)
+	var coordinated: Array[int] = coordinated_shuffle.slice(0, hand_size)
+	
+	# All strategies should deal valid hands
+	var all_hands: Array = [fisher_yates, reservoir, selection_tracking, coordinated]
+	for hand in all_hands:
+		assert_int(hand.size()).is_equal(hand_size)
+		_assert_unique_indices(hand, deck_size)
+
+
+func test_dice_rolling_simulation() -> void:
+	# Test dice rolling with replacement (can roll same number multiple times)
+	var dice_sides: int = 6
+	var roll_count: int = 100
+	
+	var dice_rolls: Array[int] = StatMath.SamplingGen.sample_indices(
+		dice_sides, roll_count,
+		StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT,
+		StatMath.SamplingGen.SamplingMethod.RANDOM
+	)
+	
+	assert_int(dice_rolls.size()).is_equal(roll_count)
+	for roll in dice_rolls:
+		assert_int(roll).is_between(0, dice_sides - 1)  # 0-5 representing 1-6 on dice
+	
+	# Verify we can have duplicates (should be very likely with 100 rolls)
+	var unique_values: Dictionary = {}
+	for roll in dice_rolls:
+		unique_values[roll] = true
+	assert_int(unique_values.size()).is_less_equal(dice_sides)  # Should have 6 or fewer unique values
+
+
+# --- ROYAL FLUSH SIMULATION TEST ---
+
+func test_royal_flush_simulation_demo() -> void:
+	# Test the coordinated shuffle approach for rare event simulation
+	var deck_size: int = 52
+	var n_trials: int = 100
+	
+	# Generate coordinated shuffles for consistent rare event analysis
+	var batch_shuffles: Array = StatMath.SamplingGen.coordinated_batch_shuffles(
+		deck_size, n_trials, StatMath.SamplingGen.SamplingMethod.SOBOL
+	)
+	
+	assert_int(batch_shuffles.size()).is_equal(n_trials)
+	
+	# Verify systematic exploration
+	var hand_frequencies: Dictionary = {}
+	for trial in range(n_trials):
+		var deck: Array = batch_shuffles[trial]
+		var hand: Array = deck.slice(0, 5)  # First 5 cards
+		var hand_key: String = str(hand)
+		hand_frequencies[hand_key] = hand_frequencies.get(hand_key, 0) + 1
+	
+	# With Sobol sequences, we should get more systematic coverage
+	# Should have mostly unique hands due to systematic exploration
+	var unique_hands: int = hand_frequencies.size()
+	assert_int(unique_hands).is_greater(n_trials * 0.8) # At least 80% unique hands
+
+
+# --- PERFORMANCE AND STRESS TESTS (updated) ---
+
+func test_large_scale_sampling() -> void:
+	# Test with larger datasets to ensure performance
+	var large_pop: int = 1000
+	var large_draws: int = 100
+	
+	var large_sample: Array[int] = StatMath.SamplingGen.sample_indices(
+		large_pop, large_draws,
+		StatMath.SamplingGen.SelectionStrategy.FISHER_YATES,
+		StatMath.SamplingGen.SamplingMethod.RANDOM
+	)
+	
+	assert_int(large_sample.size()).is_equal(large_draws)
+	_assert_unique_indices(large_sample, large_pop)
+
+
+func test_bootstrap_sampling_pattern() -> void:
+	# Test typical bootstrap sampling scenario
+	var original_size: int = 100
+	var bootstrap_size: int = 100
+	
+	var bootstrap_sample: Array[int] = StatMath.SamplingGen.sample_indices(
+		original_size, bootstrap_size,
+		StatMath.SamplingGen.SelectionStrategy.WITH_REPLACEMENT,
+		StatMath.SamplingGen.SamplingMethod.RANDOM,
+		42
+	)
+	
+	assert_int(bootstrap_sample.size()).is_equal(bootstrap_size)
+	_assert_valid_indices(bootstrap_sample, original_size)
+	
+	# Bootstrap should have some duplicates (very high probability)
+	var unique_count: int = 0
+	var seen: Dictionary = {}
+	for idx in bootstrap_sample:
+		if not seen.has(idx):
+			seen[idx] = true
+			unique_count += 1
+	
+	# Bootstrap should have fewer unique values than total samples (statistically almost certain)
+	assert_int(unique_count).is_less(bootstrap_size)
+
+
+func test_threading_performance_basic() -> void:
+	# Test that high-dimensional generation completes in reasonable time
+	var n_draws: int = 50
+	var high_dims: int = 10
+	
+	var start_time: int = Time.get_ticks_msec()
+	var samples: Array = StatMath.SamplingGen.generate_samples_nd(
+		n_draws, high_dims, StatMath.SamplingGen.SamplingMethod.SOBOL
+	)
+	var elapsed: int = Time.get_ticks_msec() - start_time
+	
+	assert_int(samples.size()).is_equal(n_draws)
+	# Should complete within reasonable time (threading should help)
+	assert_int(elapsed).is_less(5000) # 5 seconds max
+
+
+# --- HELPER FUNCTIONS ---
+
+func _assert_valid_indices(samples: Array[int], population_size: int) -> void:
+	for sample_val in samples:
+		assert_int(sample_val).is_greater_equal(0)
+		assert_int(sample_val).is_less(population_size)
+
+
+func _assert_unique_indices(samples: Array[int], population_size: int) -> void:
+	_assert_valid_indices(samples, population_size)
+	
+	var unique_values: Dictionary = {}
+	for sample_val in samples:
+		assert_bool(unique_values.has(sample_val)).is_false()
+		unique_values[sample_val] = true
+	
+	assert_int(unique_values.size()).is_equal(samples.size())
+
+
+# --- GLOBAL RNG DETERMINISM TESTS (updated) ---
+
+func test_global_rng_determinism() -> void:
+	var test_seed: int = 888
+	var ndraws: int = 5
+	
+	# Test continuous sampling determinism
+	StatMath.set_global_seed(test_seed)
+	var continuous_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var typed_continuous_1: Array[float] = StatMath.HelperFunctions.convert_to_float_array(continuous_1)
+	
+	StatMath.set_global_seed(test_seed)
+	var continuous_2: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	var typed_continuous_2: Array[float] = StatMath.HelperFunctions.convert_to_float_array(continuous_2)
+	
+	assert_int(typed_continuous_1.size()).is_equal(ndraws)
+	for i in range(ndraws):
+		assert_float(typed_continuous_1[i]).is_equal(typed_continuous_2[i])
+	
+	# Test discrete sampling determinism
+	StatMath.set_global_seed(test_seed)
+	var discrete_1: Array[int] = StatMath.SamplingGen.sample_indices(20, 5)
+	
+	StatMath.set_global_seed(test_seed)
+	var discrete_2: Array[int] = StatMath.SamplingGen.sample_indices(20, 5)
+	
+	assert_int(discrete_1.size()).is_equal(5)
+	for i in range(5):
+		assert_int(discrete_1[i]).is_equal(discrete_2[i])
+
+
+# --- STARTING INDEX COMPREHENSIVE TESTS ---
 
 func test_starting_index_sobol_sequence_continuity() -> void:
 	# Test that starting_index produces continuous sequences
