@@ -94,6 +94,163 @@ const MAX_ITERATIONS: int = 200
 ## Mathematical Note: [code]10^-9[/code] provides good balance between precision and numerical stability
 const EPSILON: float = 1.0e-9
 
+## Standard floating point tolerance for test assertions and approximate comparisons.
+##
+## Mathematical Note: [code]10^-7[/code] provides robust floating point comparison for statistical calculations
+const FLOAT_TOLERANCE: float = 1.0e-7
+
+## High precision tolerance for algorithms requiring extra precision.
+##
+## Mathematical Note: [code]10^-9[/code] used for high-precision statistical calculations
+const HIGH_PRECISION_TOLERANCE: float = 1.0e-9
+
+## Error function approximation tolerance for iterative algorithms.
+##
+## Mathematical Note: [code]10^-5[/code] accounts for precision limitations in error function approximations
+const ERF_APPROX_TOLERANCE: float = 1.0e-5
+
+## Numerical differentiation step size for derivative approximations.
+##
+## Mathematical Note: [code]10^-6[/code] provides optimal balance between accuracy and numerical stability
+const NUMERICAL_DIFFERENTIATION_H: float = 1.0e-6
+
+## Tolerance for statistical sample mean calculations.
+##
+## Mathematical Note: [code]10^-6[/code] appropriate for probability density integrations
+const SAMPLE_MEAN_TOLERANCE: float = 1.0e-6
+
+## Deterministic sampling tolerance for quasi-random sequences.
+##
+## Mathematical Note: [code]10^-7[/code] ensures reproducibility in deterministic sampling methods
+const SAMPLING_DETERMINISM_TOLERANCE: float = 1.0e-7
+
+## Inverse function (PPF) calculation tolerance for quantile computations.
+##
+## Mathematical Note: [code]2×10^-6[/code] appropriate for Newton-Raphson and binary search PPF algorithms  
+const INVERSE_FUNCTION_TOLERANCE: float = 2.0e-6
+
+## Numerical algorithm tolerance for iterative approximations.
+##
+## Mathematical Note: [code]10^-5[/code] balances accuracy with convergence speed
+const NUMERICAL_TOLERANCE: float = 1.0e-5
+
+## CDF-PPF consistency tolerance for round-trip validation.
+##
+## Mathematical Note: `10^-5` ensures inverse function consistency
+const CDF_PPF_CONSISTENCY_TOLERANCE: float = 1.0e-5
+
+## Derivative tolerance for CDF-PDF relationship validation.
+##
+## Mathematical Note: `10^-3` accounts for numerical differentiation errors
+const DERIVATIVE_TOLERANCE: float = 1.0e-3
+
+## Probability calculation tolerance for statistical tests.
+##
+## Mathematical Note: [code]10^-6[/code] suitable for probability mass/density calculations
+const PROBABILITY_TOLERANCE: float = 1.0e-6
+
+## Special mathematical values tolerance (ln(2), π, z-scores, etc.).
+##
+## Mathematical Note: [code]2×10^-6[/code] appropriate for well-known mathematical constants and statistical tables
+const SPECIAL_VALUES_TOLERANCE: float = 2.0e-6
+
+## Boundary condition tolerance for extreme probability values.
+##
+## Mathematical Note: [code]10^-10[/code] for testing probability bounds (0, 1) and distribution limits
+const BOUNDARY_TOLERANCE: float = 1.0e-10
+
+## Tolerance for asymptotic approximations and convergence tests.
+##
+## Mathematical Note: [code]10^-2[/code] for large-parameter approximations (e.g., t-distribution → normal)
+const ASYMPTOTIC_TOLERANCE: float = 1.0e-2
+
+## Interpolation tolerance for percentile calculations.
+##
+## Mathematical Note: [code]10^-4[/code] appropriate for linear interpolation in statistical functions
+const INTERPOLATION_TOLERANCE: float = 1.0e-4
+
+
+
+## Numerical integration tolerance for mathematical computations.
+##
+## Mathematical Note: [code]5×10^-3[/code] accounts for truncation errors in infinite-tail distributions
+const NUMERICAL_INTEGRATION_TOLERANCE: float = 5.0e-3
+
+## Symmetry validation tolerance for testing mathematical properties.
+##
+## Mathematical Note: [code]10^-4[/code] for symmetry tests around mathematical points
+const SYMMETRY_TOLERANCE: float = 1.0e-4
+
+## Error function inverse approximation tolerance.
+##
+## Mathematical Note: [code]2×10^-2[/code] accounts for Newton-Raphson convergence limitations
+const ERF_INV_TOLERANCE: float = 2.0e-2
+
+## Statistical test standard deviation multiplier for confidence intervals.
+##
+## Mathematical Note: [code]4.0[/code] represents ~4σ confidence level for statistical validation
+const STATISTICAL_TEST_STD_DEV_MULTIPLIER: float = 4.0
+
+## Default tolerance factor for adaptive tolerance calculations.
+##
+## Mathematical Note: [code]1.0[/code] baseline multiplier for dynamic tolerance adjustment
+const DEFAULT_TOLERANCE_FACTOR: float = 1.0
+
+## Sampling tolerance for statistical distributions and random number generation.
+##
+## Mathematical Note: [code]10^-6[/code] for sampling validation and distribution testing
+const SAMPLING_TOLERANCE: float = 1.0e-6
+
+## Inverse consistency tolerance for PPF-CDF round-trip validation.
+##
+## Mathematical Note: [code]10^-5[/code] ensures inverse function accuracy
+const INVERSE_CONSISTENCY_TOLERANCE: float = 1.0e-5
+
+## Stability tolerance for numerical algorithm convergence.
+##
+## Mathematical Note: [code]10^-6[/code] for algorithm stability testing
+const STABILITY_TOLERANCE: float = 1.0e-6
+
+## Stress test boundary value for extreme parameter testing.
+##
+## Mathematical Note: [code]10^-17[/code] for testing numerical stability at extreme scales
+const STRESS_TEST_BOUNDARY: float = 1.0e-17
+
+## Stress test small value for boundary condition testing.
+##
+## Mathematical Note: [code]10^-3[/code] for testing small parameter behavior
+const STRESS_TEST_SMALL_VALUE: float = 1.0e-3
+
+## Interface tolerance for API consistency testing.
+##
+## Mathematical Note: [code]10^-7[/code] for testing interface contracts and return value consistency
+const INTERFACE_TOLERANCE: float = 1.0e-7
+
+## Determinism tolerance for reproducible random number generation.
+##
+## Mathematical Note: [code]10^-7[/code] ensures exact reproducibility in deterministic contexts
+const DETERMINISM_TOLERANCE: float = 1.0e-7
+
+## Distribution-specific tolerance for hypergeometric distribution tests.
+##
+## Mathematical Note: [code]0.15[/code] accounts for discrete distribution sampling variance
+const HYPERGEOMETRIC_TOLERANCE: float = 0.15
+
+## Distribution-specific tolerance for negative binomial distribution tests.
+##
+## Mathematical Note: [code]0.2[/code] accounts for higher variance in negative binomial sampling
+const NEGATIVE_BINOMIAL_TOLERANCE: float = 0.2
+
+## Distribution-specific high tolerance for challenging distributions.
+##
+## Mathematical Note: [code]0.5[/code] for distributions with high variability or convergence challenges
+const HIGH_DISTRIBUTION_TOLERANCE: float = 0.5
+
+## Distribution-specific tolerance for beta distribution tests.
+##
+## Mathematical Note: [code]0.1[/code] for bounded distributions with moderate variance
+const BETA_TOLERANCE: float = 0.1
+
 ## Lanczos approximation parameter for Gamma function calculations.
 ##
 ## Mathematical Note: [code]g = 7.5[/code] provides optimal accuracy for the Lanczos method
@@ -123,6 +280,82 @@ const A3_ERR: float =  1.421413741
 const A4_ERR: float = -1.453152027
 const A5_ERR: float =  1.061405429
 const P_ERR: float  =  0.3275911
+
+
+# =============================================================================
+# DISTRIBUTION ENUMS
+# =============================================================================
+
+## Enumeration of all statistical distributions supported by the library.
+##
+## This enum provides type-safe distribution identification across all modules,
+## replacing string literals for better maintainability and IDE support.
+##
+## Usage Examples:
+## [codeblock]
+## # Instead of strings:
+## var sample = StatMath.Distributions.randf_from_distribution(StatMath.SupportedDistributions.NORMAL, [0.0, 1.0])
+## 
+## # Use enum values:
+## var sample = StatMath.Distributions.randf_from_distribution(StatMath.SupportedDistributions.NORMAL, [0.0, 1.0])
+## [/codeblock]
+enum SupportedDistributions {
+	## Standard normal distribution and variants with arbitrary mean and variance.
+	## Parameters: [mean, standard_deviation]
+	NORMAL,
+	
+	## Exponential distribution for modeling time between events.
+	## Parameters: [rate] (lambda parameter)
+	EXPONENTIAL,
+	
+	## Uniform distribution over a continuous interval.
+	## Parameters: [min_value, max_value]
+	UNIFORM,
+	
+	## Gamma distribution with shape and scale parameters.
+	## Parameters: [shape, scale] (k and theta parameters)
+	GAMMA,
+	
+	## Beta distribution bounded between 0 and 1.
+	## Parameters: [alpha, beta] (shape parameters)
+	BETA,
+	
+	## Chi-square distribution (special case of gamma).
+	## Parameters: [degrees_of_freedom]
+	CHI_SQUARE,
+	
+	## Student's t-distribution for small sample statistics.
+	## Parameters: [degrees_of_freedom]
+	T_DISTRIBUTION,
+	
+	## F-distribution for variance ratio testing.
+	## Parameters: [degrees_of_freedom_1, degrees_of_freedom_2]
+	F_DISTRIBUTION,
+	
+	## Weibull distribution for reliability and survival analysis.
+	## Parameters: [scale, shape] (lambda and k parameters)
+	WEIBULL,
+	
+	## Pareto distribution for power-law phenomena.
+	## Parameters: [scale, shape] (minimum value and alpha parameters)
+	PARETO,
+	
+	## Binomial distribution for fixed number of trials.
+	## Parameters: [num_trials, success_probability]
+	BINOMIAL,
+	
+	## Poisson distribution for counting rare events.
+	## Parameters: [rate] (lambda parameter)
+	POISSON,
+	
+	## Geometric distribution for number of trials until first success.
+	## Parameters: [success_probability]
+	GEOMETRIC,
+	
+	## Negative binomial distribution for number of failures before r successes.
+	## Parameters: [num_successes, success_probability]
+	NEGATIVE_BINOMIAL
+}
 
 
 # =============================================================================

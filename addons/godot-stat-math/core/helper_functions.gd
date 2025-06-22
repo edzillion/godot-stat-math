@@ -229,6 +229,10 @@ static func incomplete_beta(x_val: float, a: float, b: float) -> float:
 	if x_val == 1.0:
 		return 1.0
 	
+	# Special case: I_x(1,1) = x (uniform distribution on [0,1])
+	if is_equal_approx(a, 1.0) and is_equal_approx(b, 1.0):
+		return x_val
+	
 	# Special case: Beta(2,2) has exact closed form
 	if is_equal_approx(a, 2.0) and is_equal_approx(b, 2.0):
 		return x_val * x_val * (3.0 - 2.0 * x_val)
@@ -322,27 +326,35 @@ static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
 ##
 ## Implements the series expansion form of the incomplete Gamma function for better 
 ## numerical stability in the appropriate parameter range.
+## Formula: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / (a*(a+1)*...*(a+n))) for n=0 to ∞
 static func _gamma_series_expansion(a: float, z: float) -> float:
 	var max_terms: int = 200  # Increased iterations for better convergence
 	var tolerance: float = 1e-15  # Tighter tolerance
 	
-	var series_sum: float = 1.0
-	var term: float = 1.0
+	# Start with n=0 term: z^0 / a = 1/a
+	var series_sum: float = 1.0 / a
+	var term: float = 1.0 / a
 	
+	# Correct series expansion: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / (a*(a+1)*...*(a+n)))
+	# Each subsequent term: z^n / (a*(a+1)*...*(a+n))
 	for n in range(1, max_terms):
-		term *= z / (a + float(n - 1))
+		# Multiply by z and divide by (a+n) to get the next term
+		term *= z / (a + float(n))
 		series_sum += term
 		
 		# Check convergence with relative tolerance
 		if abs(term / series_sum) < tolerance:
 			break
 	
-	# More stable calculation using log space
+	# Calculate: P(a,z) = (z^a * e^(-z) / Γ(a)) * series_sum
+	# Using log space for numerical stability: log(P) = a*log(z) - z - log(Γ(a)) + log(series_sum)
 	var log_result: float = a * log(z) - z - log_gamma(a) + log(series_sum)
 	
 	# Prevent overflow/underflow
-	if log_result > 0.0:  # Result would be > 1.0
-		return 1.0
+	if log_result > 0.0:  # Result would be > 1.0 - this indicates numerical error
+		# For debugging, let's see what went wrong
+		push_warning("_gamma_series_expansion: log_result=%s > 0 for a=%s, z=%s. This indicates a numerical error." % [log_result, a, z])
+		return clamp(exp(log_result), 0.0, 1.0)  # Clamp instead of just returning 1.0
 	elif log_result < -50.0:  # Result would be essentially 0
 		return 0.0
 	
@@ -425,3 +437,158 @@ static func sanitize_numeric_array(input_array: Array) -> Array[float]:
 	
 	sanitized.sort()
 	return sanitized
+
+
+## Converts a generic Array to a typed Array[float].
+##
+## Essential helper for converting test data arrays (which are generic Array types) 
+## to the typed Array[float] required by StatMath functions. Each element is explicitly 
+## cast to float to ensure type safety.
+##
+## Use this when working with data from external sources like test data files or 
+## JSON imports that produce generic arrays.
+static func convert_to_float_array(input_array: Array) -> Array[float]:
+	var converted: Array[float] = []
+	
+	for element in input_array:
+		converted.append(float(element))
+	
+	return converted
+
+
+# =============================================================================
+# CENTRALIZED TEST HELPER FUNCTIONS
+# =============================================================================
+
+## Validates that all indices in a sample are within valid range [0, population_size-1].
+##
+## Used by sampling tests to ensure index validity without checking uniqueness.
+## Returns true if all indices are valid, false otherwise with error logging.
+static func validate_indices(samples: Array[int], population_size: int) -> bool:
+	for sample_val in samples:
+		if sample_val < 0:
+			push_error("Sample index must be non-negative. Found: %s" % sample_val)
+			return false
+		if sample_val >= population_size:
+			push_error("Sample index must be less than population size. Found: %s >= %s" % [sample_val, population_size])
+			return false
+	return true
+
+
+## Validates that all indices in a sample are unique and within valid range.
+##
+## Used by sampling tests to ensure both validity and uniqueness of indices.
+## Returns true if all indices are valid and unique, false otherwise with error logging.
+static func validate_unique_indices(samples: Array[int], population_size: int) -> bool:
+	if not validate_indices(samples, population_size):
+		return false
+	
+	# Check all samples are unique
+	var unique_values: Dictionary = {}
+	for sample_val in samples:
+		if unique_values.has(sample_val):
+			push_error("Sample indices must be unique. Found duplicate: %s" % sample_val)
+			return false
+		unique_values[sample_val] = true
+	
+	if unique_values.size() != samples.size():
+		push_error("Number of unique indices (%s) must equal sample size (%s)" % [unique_values.size(), samples.size()])
+		return false
+	
+	return true
+
+
+## Gets CDF value for any distribution using the appropriate StatMath function.
+##
+## Centralized helper that routes CDF calculations to the correct StatMath function
+## based on distribution type. Handles both enum and string distribution identifiers.
+static func get_cdf_value(distribution: Variant, x: float, params: Array) -> float:
+	var dist_enum: StatMath.SupportedDistributions
+	
+	if distribution is StatMath.SupportedDistributions:
+		dist_enum = distribution
+	elif distribution is String:
+		dist_enum = string_to_distribution_enum(distribution)
+	else:
+		push_error("Invalid distribution type. Expected SupportedDistributions enum or String.")
+		return NAN
+	
+	match dist_enum:
+		StatMath.SupportedDistributions.NORMAL:
+			return StatMath.CdfFunctions.normal_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.EXPONENTIAL:
+			return StatMath.CdfFunctions.exponential_cdf(x, params[0])
+		StatMath.SupportedDistributions.UNIFORM:
+			return StatMath.CdfFunctions.uniform_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.GAMMA:
+			return StatMath.CdfFunctions.gamma_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.BETA:
+			return StatMath.CdfFunctions.beta_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.WEIBULL:
+			return StatMath.CdfFunctions.weibull_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.PARETO:
+			return StatMath.CdfFunctions.pareto_cdf(x, params[0], params[1])
+		StatMath.SupportedDistributions.CHI_SQUARE:
+			return StatMath.CdfFunctions.chi_square_cdf(x, params[0])
+		_:
+			push_error("CDF function not implemented for distribution: %s" % distribution)
+			return NAN
+
+
+## Gets PPF value for any distribution using the appropriate StatMath function.
+##
+## Centralized helper that routes PPF calculations to the correct StatMath function
+## based on distribution type. Handles both enum and string distribution identifiers.
+static func get_ppf_value(distribution: Variant, p: float, params: Array) -> float:
+	var dist_enum: StatMath.SupportedDistributions
+	
+	if distribution is StatMath.SupportedDistributions:
+		dist_enum = distribution
+	elif distribution is String:
+		dist_enum = string_to_distribution_enum(distribution)
+	else:
+		push_error("Invalid distribution type. Expected SupportedDistributions enum or String.")
+		return NAN
+	
+	match dist_enum:
+		StatMath.SupportedDistributions.NORMAL:
+			return StatMath.PpfFunctions.normal_ppf(p, params[0], params[1])
+		StatMath.SupportedDistributions.EXPONENTIAL:
+			return StatMath.PpfFunctions.exponential_ppf(p, params[0])
+		StatMath.SupportedDistributions.UNIFORM:
+			return StatMath.PpfFunctions.uniform_ppf(p, params[0], params[1])
+		StatMath.SupportedDistributions.WEIBULL:
+			return StatMath.PpfFunctions.weibull_ppf(p, params[0], params[1])
+		StatMath.SupportedDistributions.PARETO:
+			return StatMath.PpfFunctions.pareto_ppf(p, params[0], params[1])
+		_:
+			push_error("PPF function not implemented for distribution: %s" % distribution)
+			return NAN
+
+
+## Converts a string distribution name to SupportedDistributions enum.
+##
+## Centralized helper for converting string identifiers to proper enum values.
+## Supports both uppercase and lowercase string inputs for flexibility.
+static func string_to_distribution_enum(distribution: String) -> StatMath.SupportedDistributions:
+	var upper_dist: String = distribution.to_upper()
+	match upper_dist:
+		"NORMAL":
+			return StatMath.SupportedDistributions.NORMAL
+		"EXPONENTIAL":
+			return StatMath.SupportedDistributions.EXPONENTIAL
+		"UNIFORM":
+			return StatMath.SupportedDistributions.UNIFORM
+		"GAMMA":
+			return StatMath.SupportedDistributions.GAMMA
+		"BETA":
+			return StatMath.SupportedDistributions.BETA
+		"WEIBULL":
+			return StatMath.SupportedDistributions.WEIBULL
+		"PARETO":
+			return StatMath.SupportedDistributions.PARETO
+		"CHI_SQUARE":
+			return StatMath.SupportedDistributions.CHI_SQUARE
+		_:
+			push_error("Unknown distribution string: %s" % distribution)
+			return StatMath.SupportedDistributions.NORMAL  # Default fallback

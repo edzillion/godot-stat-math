@@ -4,6 +4,10 @@ on:
   push:
     branches: ["release"]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   VERSION_FILE: project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
@@ -66,6 +70,12 @@ jobs:
           version-regex: ${{ env.VERSION_REGEX }}
         id: extract-version
 
+      - name: Run GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests"
+
       - name: Extract release notes from CHANGELOG
         run: |
           # Extract release notes for current version from CHANGELOG.md
@@ -99,11 +109,6 @@ jobs:
           echo "Release notes extracted:"
           cat release_notes.md
 
-      - name: Run GDUnit4 tests
-        uses: MikeSchulze/gdunit4-action@v1
-        with:
-          godot-version: "4.4"
-          paths: "res://addons/godot-stat-math/tests"
 
       - name: Create addon release zip
         run: |

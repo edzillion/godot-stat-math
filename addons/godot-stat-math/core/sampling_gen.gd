@@ -33,6 +33,7 @@ enum SelectionStrategy {
 }
 
 const _SOBOL_DATA = preload("res://addons/godot-stat-math/tables/sobol_data.gd")
+const _PRIME_DATA = preload("res://addons/godot-stat-math/tables/prime_numbers_data.gd")
 const _SOBOL_BITS: int = 30
 const _SOBOL_MAX_VAL_FLOAT: float = float(1 << _SOBOL_BITS)
 
@@ -537,15 +538,19 @@ static func generate_samples(
 	starting_index: int = 0,
 	sample_seed: int = -1
 ) -> Variant:
-	if n_draws <= 0:
-		match dimensions:
-			1: return Array([], TYPE_FLOAT, "", null)
-			2: return Array([], TYPE_VECTOR2, "", null)
-			_: return Array([], TYPE_ARRAY, "", null)
+	if n_draws < 0:
+		push_error("n_draws must be non-negative. Received: " + str(n_draws))
+		return null
 	
 	if dimensions < 1:
 		push_error("dimensions must be >= 1. Received: " + str(dimensions))
 		return null
+	
+	if n_draws == 0:
+		match dimensions:
+			1: return Array([], TYPE_FLOAT, "", null)
+			2: return Array([], TYPE_VECTOR2, "", null)
+			_: return Array([], TYPE_ARRAY, "", null)
 	
 	# Use the unified N-dimensional generation for all cases
 	var nd_samples: Array = generate_samples_nd(n_draws, dimensions, method, starting_index, sample_seed)
@@ -811,6 +816,9 @@ static func sample_indices(
 	if population_size < 0:
 		push_error("population_size cannot be negative. Received: " + str(population_size))
 		return []
+	if population_size == 0:
+		push_error("population_size must be positive. Received: " + str(population_size))
+		return []
 	if selection_strategy != SelectionStrategy.WITH_REPLACEMENT and draw_count > population_size:
 		push_error("Without replacement, draw_count cannot exceed population_size. Received draw_count=" + str(draw_count) + ", population_size=" + str(population_size))
 		return []
@@ -1017,13 +1025,10 @@ static func _selection_tracking_draw(population_size: int, draw_count: int, samp
 
 # --- SOBOL SEQUENCE IMPLEMENTATION ---
 
-## Returns the nth prime number from the StatMath.PRIMES array.
+## Returns the nth prime number using the PrimeNumbersData table.
 ## Used for Halton sequence base selection.
 static func _get_nth_prime(n: int) -> int:
-	if n < 0 or n >= StatMath.PRIMES.size():
-		push_error("SamplingGen: Prime number index %d out of range [0, %d]" % [n, StatMath.PRIMES.size() - 1])
-		return 2  # Return first prime as fallback
-	return StatMath.PRIMES[n]
+	return _PRIME_DATA.get_nth_prime(n)
 
 
 ## Generates Sobol sequence integers for a specific dimension.

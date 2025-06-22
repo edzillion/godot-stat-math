@@ -130,7 +130,7 @@ static func sample_standard_deviation(data: Array[float]) -> float:
 ## deviation. Formula: `median(|x - median(x)|)`
 static func median_absolute_deviation(data: Array[float]) -> float:
 	if not (data.size() > 0):
-		push_error("Cannot calculate MAD of empty array.")
+		push_error("Cannot calculate median absolute deviation of empty array.")
 		return NAN
 	
 	var median_val: float = median(data)

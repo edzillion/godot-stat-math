@@ -1,20 +1,9 @@
-# addons/godot-stat-math/tests/core/sampling_gen_test.gd
-class_name SamplingGenTest extends GdUnitTestSuite
+# res://addons/godot-stat-math/tests/core/sampling_gen/scipy_validation_test.gd
+class_name SamplingGenScipyValidationTest extends GdUnitTestSuite
 
-# Member variables here if needed, e.g. for complex setups or shared resources.
-
-
-# Called before each test.
-func before_test() -> void:
-	pass
-
-
-# Called after each test.
-func after_test() -> void:
-	pass
-
-
-# --- UNIFIED GENERATE_SAMPLES INTERFACE TESTS ---
+# =============================================================================
+# SCIPY VALIDATION TESTS - DATA-DRIVEN
+# =============================================================================
 
 func test_generate_samples_unified_interface_dimensions() -> void:
 	var n_draws: int = 5
@@ -22,7 +11,7 @@ func test_generate_samples_unified_interface_dimensions() -> void:
 	# Test 1D generation
 	var samples_1d: Variant = StatMath.SamplingGen.generate_samples(n_draws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL)
 	assert_bool(samples_1d is Array[float]).is_true()
-	var typed_samples_1d: Array[float] = samples_1d as Array[float]
+	var typed_samples_1d: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_1d)
 	assert_int(typed_samples_1d.size()).is_equal(n_draws)
 	
 	# Test 2D generation  
@@ -52,18 +41,18 @@ func test_generate_samples_unified_interface_starting_index() -> void:
 		n_draws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL, 3
 	)
 	
-	var typed_start_0: Array[float] = samples_start_0 as Array[float]
-	var typed_start_3: Array[float] = samples_start_3 as Array[float]
+	var typed_start_0: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_0)
+	var typed_start_3: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples_start_3)
 	
 	# Get first 6 samples to verify starting_index works correctly
 	var first_6: Variant = StatMath.SamplingGen.generate_samples(
 		6, 1, StatMath.SamplingGen.SamplingMethod.SOBOL, 0
 	)
-	var typed_first_6: Array[float] = first_6 as Array[float]
+	var typed_first_6: Array[float] = StatMath.HelperFunctions.convert_to_float_array(first_6)
 	
 	# samples_start_3 should equal elements [3,4,5] from first_6
 	for i in range(n_draws):
-		assert_float(typed_start_3[i]).is_equal_approx(typed_first_6[i + 3], 0.00001)
+		assert_float(typed_start_3[i]).is_equal_approx(typed_first_6[i + 3], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_unified_interface_edge_cases() -> void:
@@ -72,7 +61,7 @@ func test_generate_samples_unified_interface_edge_cases() -> void:
 	var zero_2d: Variant = StatMath.SamplingGen.generate_samples(0, 2) 
 	var zero_nd: Variant = StatMath.SamplingGen.generate_samples(0, 5)
 	
-	assert_int((zero_1d as Array[float]).size()).is_equal(0)
+	assert_int(StatMath.HelperFunctions.convert_to_float_array(zero_1d).size()).is_equal(0)
 	assert_int((zero_2d as Array[Vector2]).size()).is_equal(0)
 	assert_int((zero_nd as Array).size()).is_equal(0)
 	
@@ -138,7 +127,7 @@ func test_generate_samples_nd_starting_index_determinism() -> void:
 	
 	for i in range(n_draws):
 		for d in range(dimensions):
-			assert_float(samples_0[i][d]).is_equal_approx(samples_0_repeat[i][d], 0.0000001)
+			assert_float(samples_0[i][d]).is_equal_approx(samples_0_repeat[i][d], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_nd_all_methods() -> void:
@@ -355,8 +344,8 @@ func test_coordinated_sampling_performance_comparison() -> void:
 	assert_int(coordinated_sample.size()).is_equal(draw_count)
 	assert_int(fisher_yates_sample.size()).is_equal(draw_count)
 	
-	_assert_unique_indices(coordinated_sample, population_size)
-	_assert_unique_indices(fisher_yates_sample, population_size)
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(coordinated_sample, population_size)).is_true()
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(fisher_yates_sample, population_size)).is_true()
 
 
 # --- UPDATED EXISTING TESTS (following GDUnit4 rules) ---
@@ -364,7 +353,7 @@ func test_coordinated_sampling_performance_comparison() -> void:
 func test_generate_samples_1d_random_basic() -> void:
 	var ndraws: int = 10
 	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_samples: Array[float] = samples as Array[float]
+	var typed_samples: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples)
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)
 	for sample_val in typed_samples:
@@ -374,35 +363,35 @@ func test_generate_samples_1d_random_basic() -> void:
 func test_generate_samples_1d_edge_cases() -> void:
 	# Zero draws
 	var zero_samples: Variant = StatMath.SamplingGen.generate_samples(0, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_zero: Array[float] = zero_samples as Array[float]
+	var typed_zero: Array[float] = StatMath.HelperFunctions.convert_to_float_array(zero_samples)
 	assert_int(typed_zero.size()).is_equal(0)
 	
-	# Negative draws
-	var negative_samples: Variant = StatMath.SamplingGen.generate_samples(-5, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_negative: Array[float] = negative_samples as Array[float]
-	assert_int(typed_negative.size()).is_equal(0)
+	# Negative draws should throw an error
+	var test_negative_draws: Callable = func():
+		StatMath.SamplingGen.generate_samples(-5, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
+	await assert_error(test_negative_draws).is_push_error("n_draws must be non-negative. Received: -5")
 
 
 func test_generate_samples_1d_sobol_deterministic() -> void:
 	var ndraws: int = 5
 	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL)
-	var typed_samples: Array[float] = samples as Array[float]
+	var typed_samples: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples)
 	var expected_sobol: Array[float] = [0.0, 0.5, 0.75, 0.25, 0.375]
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(typed_samples[i]).is_equal_approx(expected_sobol[i], 0.00001)
+		assert_float(typed_samples[i]).is_equal_approx(expected_sobol[i], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_1d_halton_deterministic() -> void:
 	var ndraws: int = 5
 	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.HALTON)
-	var typed_samples: Array[float] = samples as Array[float]
+	var typed_samples: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples)
 	var expected_halton: Array[float] = [0.5, 0.25, 0.75, 0.125, 0.625]
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(typed_samples[i]).is_equal_approx(expected_halton[i], 0.00001)
+		assert_float(typed_samples[i]).is_equal_approx(expected_halton[i], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_1d_seeded_reproducibility() -> void:
@@ -413,29 +402,29 @@ func test_generate_samples_1d_seeded_reproducibility() -> void:
 	var sobol_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, 0, seed)
 	var sobol_2: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL_RANDOM, 0, seed)
 	
-	var typed_sobol_1: Array[float] = sobol_1 as Array[float]
-	var typed_sobol_2: Array[float] = sobol_2 as Array[float]
+	var typed_sobol_1: Array[float] = StatMath.HelperFunctions.convert_to_float_array(sobol_1)
+	var typed_sobol_2: Array[float] = StatMath.HelperFunctions.convert_to_float_array(sobol_2)
 	
 	assert_int(typed_sobol_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(typed_sobol_1[i]).is_equal_approx(typed_sobol_2[i], 0.0000001)
+		assert_float(typed_sobol_1[i]).is_equal_approx(typed_sobol_2[i], StatMath.DETERMINISM_TOLERANCE)
 	
 	# Test LATIN_HYPERCUBE reproducibility
 	var lhs_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 0, seed)
 	var lhs_2: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 0, seed)
 	
-	var typed_lhs_1: Array[float] = lhs_1 as Array[float]
-	var typed_lhs_2: Array[float] = lhs_2 as Array[float]
+	var typed_lhs_1: Array[float] = StatMath.HelperFunctions.convert_to_float_array(lhs_1)
+	var typed_lhs_2: Array[float] = StatMath.HelperFunctions.convert_to_float_array(lhs_2)
 	
 	assert_int(typed_lhs_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_float(typed_lhs_1[i]).is_equal_approx(typed_lhs_2[i], 0.0000001)
+		assert_float(typed_lhs_1[i]).is_equal_approx(typed_lhs_2[i], StatMath.DETERMINISM_TOLERANCE)
 
 
 func test_generate_samples_1d_latin_hypercube_stratification() -> void:
 	var ndraws: int = 20
 	var samples: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.LATIN_HYPERCUBE, 0, 123)
-	var typed_samples: Array[float] = samples as Array[float]
+	var typed_samples: Array[float] = StatMath.HelperFunctions.convert_to_float_array(samples)
 	
 	var sorted_samples: Array[float] = typed_samples.duplicate()
 	sorted_samples.sort()
@@ -479,7 +468,7 @@ func test_generate_samples_2d_sobol_deterministic() -> void:
 	
 	assert_int(typed_samples.size()).is_equal(ndraws)
 	for i in range(ndraws):
-		assert_vector(typed_samples[i]).is_equal_approx(expected_sobol_2d[i], Vector2(0.00001, 0.00001))
+		assert_vector(typed_samples[i]).is_equal_approx(expected_sobol_2d[i], Vector2(StatMath.DETERMINISM_TOLERANCE, StatMath.DETERMINISM_TOLERANCE))
 
 
 # --- DISCRETE INDEX SAMPLING TESTS (updated) ---
@@ -545,7 +534,7 @@ func test_sample_indices_hybrid_combinations() -> void:
 		42
 	)
 	assert_int(sobol_fy.size()).is_equal(draw_count)
-	_assert_unique_indices(sobol_fy, population_size)
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(sobol_fy, population_size)).is_true()
 	
 	# Test LATIN_HYPERCUBE + WITH_REPLACEMENT
 	var lhs_wr: Array[int] = StatMath.SamplingGen.sample_indices(
@@ -555,7 +544,7 @@ func test_sample_indices_hybrid_combinations() -> void:
 		42
 	)
 	assert_int(lhs_wr.size()).is_equal(draw_count)
-	_assert_valid_indices(lhs_wr, population_size)
+	assert_bool(StatMath.HelperFunctions.validate_indices(lhs_wr, population_size)).is_true()
 	
 	# Test HALTON + RESERVOIR
 	var halton_res: Array[int] = StatMath.SamplingGen.sample_indices(
@@ -565,7 +554,7 @@ func test_sample_indices_hybrid_combinations() -> void:
 		42
 	)
 	assert_int(halton_res.size()).is_equal(draw_count)
-	_assert_unique_indices(halton_res, population_size)
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(halton_res, population_size)).is_true()
 
 
 func test_sample_indices_seeded_reproducibility() -> void:
@@ -628,7 +617,7 @@ func test_sample_indices_edge_cases() -> void:
 		5, 5, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES
 	)
 	assert_int(draw_all.size()).is_equal(5)
-	_assert_unique_indices(draw_all, 5)
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(draw_all, 5)).is_true()
 	
 	# Single element population
 	var single_element: Array[int] = StatMath.SamplingGen.sample_indices(
@@ -665,7 +654,7 @@ func test_card_game_dealing() -> void:
 	var all_hands: Array = [fisher_yates, reservoir, selection_tracking, coordinated]
 	for hand in all_hands:
 		assert_int(hand.size()).is_equal(hand_size)
-		_assert_unique_indices(hand, deck_size)
+		assert_bool(StatMath.HelperFunctions.validate_unique_indices(hand, deck_size)).is_true()
 
 
 func test_dice_rolling_simulation() -> void:
@@ -732,7 +721,7 @@ func test_large_scale_sampling() -> void:
 	)
 	
 	assert_int(large_sample.size()).is_equal(large_draws)
-	_assert_unique_indices(large_sample, large_pop)
+	assert_bool(StatMath.HelperFunctions.validate_unique_indices(large_sample, large_pop)).is_true()
 
 
 func test_bootstrap_sampling_pattern() -> void:
@@ -748,7 +737,7 @@ func test_bootstrap_sampling_pattern() -> void:
 	)
 	
 	assert_int(bootstrap_sample.size()).is_equal(bootstrap_size)
-	_assert_valid_indices(bootstrap_sample, original_size)
+	assert_bool(StatMath.HelperFunctions.validate_indices(bootstrap_sample, original_size)).is_true()
 	
 	# Bootstrap should have some duplicates (very high probability)
 	var unique_count: int = 0
@@ -778,24 +767,6 @@ func test_threading_performance_basic() -> void:
 	assert_int(elapsed).is_less(5000) # 5 seconds max
 
 
-# --- HELPER FUNCTIONS ---
-
-func _assert_valid_indices(samples: Array[int], population_size: int) -> void:
-	for sample_val in samples:
-		assert_int(sample_val).is_greater_equal(0)
-		assert_int(sample_val).is_less(population_size)
-
-
-func _assert_unique_indices(samples: Array[int], population_size: int) -> void:
-	_assert_valid_indices(samples, population_size)
-	
-	var unique_values: Dictionary = {}
-	for sample_val in samples:
-		assert_bool(unique_values.has(sample_val)).is_false()
-		unique_values[sample_val] = true
-	
-	assert_int(unique_values.size()).is_equal(samples.size())
-
 
 # --- GLOBAL RNG DETERMINISM TESTS (updated) ---
 
@@ -806,11 +777,11 @@ func test_global_rng_determinism() -> void:
 	# Test continuous sampling determinism
 	StatMath.set_global_seed(test_seed)
 	var continuous_1: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_continuous_1: Array[float] = continuous_1 as Array[float]
+	var typed_continuous_1: Array[float] = StatMath.HelperFunctions.convert_to_float_array(continuous_1)
 	
 	StatMath.set_global_seed(test_seed)
 	var continuous_2: Variant = StatMath.SamplingGen.generate_samples(ndraws, 1, StatMath.SamplingGen.SamplingMethod.RANDOM)
-	var typed_continuous_2: Array[float] = continuous_2 as Array[float]
+	var typed_continuous_2: Array[float] = StatMath.HelperFunctions.convert_to_float_array(continuous_2)
 	
 	assert_int(typed_continuous_1.size()).is_equal(ndraws)
 	for i in range(ndraws):
@@ -840,7 +811,7 @@ func test_starting_index_sobol_sequence_continuity() -> void:
 	var full_sequence: Variant = StatMath.SamplingGen.generate_samples(
 		total_draws, 1, StatMath.SamplingGen.SamplingMethod.SOBOL
 	)
-	var typed_full_sequence: Array[float] = full_sequence as Array[float]
+	var typed_full_sequence: Array[float] = StatMath.HelperFunctions.convert_to_float_array(full_sequence)
 	
 	# Generate in two parts using starting_index
 	var part1: Variant = StatMath.SamplingGen.generate_samples(
@@ -854,8 +825,10 @@ func test_starting_index_sobol_sequence_continuity() -> void:
 	var part2_explicit: Variant = StatMath.SamplingGen.generate_samples(
 		second_half, 1, StatMath.SamplingGen.SamplingMethod.SOBOL, first_half
 	)
-	var part2_typed: Array[float] = part2_explicit as Array[float]
+	var part2_typed: Array[float] = StatMath.HelperFunctions.convert_to_float_array(part2_explicit)
 	
 	# part2_explicit should match the second half of full_sequence
 	for i in range(second_half):
-		assert_float(part2_typed[i]).is_equal_approx(typed_full_sequence[first_half + i], 0.00001)
+		assert_float(part2_typed[i]).is_equal_approx(typed_full_sequence[first_half + i], StatMath.DETERMINISM_TOLERANCE)
+
+
