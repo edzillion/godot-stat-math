@@ -13,7 +13,7 @@ class_name ErrorFunctions extends RefCounted
 ## Computes the error function erf(x).
 ##
 ## The error function is an odd function ([code]erf(-x) = -erf(x)[/code]) and is related to 
-## the cumulative distribution function ([StatMath.CdfFunctions.normal_cdf]) of the normal distribution. 
+## the cumulative distribution function ([method CdfFunctions.normal_cdf]) of the normal distribution. 
 ## Uses the Abramowitz and Stegun formula 7.1.26 approximation with a maximum error of 1.5 × 10⁻⁷.
 ## 
 ## Mathematical Note: [code]erf(0) = 0[/code], [code]erf(∞) = 1[/code], [code]erf(-∞) = -1[/code]
@@ -40,7 +40,7 @@ static func erf(x: float) -> float:
 
 ## Computes the complementary error function erfc(x).
 ##
-## Defined as [code]erfc(x) = 1 - [StatMath.ErrorFunctions.erf](x)[/code]. This function is useful for numerical 
+## Defined as [code]erfc(x) = 1 - erf(x)[/code]. This function is useful for numerical 
 ## stability when computing values close to 1.
 ## 
 ## Mathematical Note: [code]erfc(0) = 1[/code], [code]erfc(∞) = 0[/code], [code]erfc(-∞) = 2[/code]
@@ -50,7 +50,7 @@ static func erfc(x: float) -> float:
 
 ## Computes the inverse error function erf⁻¹(x).
 ##
-## Returns the value y such that [code][StatMath.ErrorFunctions.erf](y) = x[/code]. Uses an iterative approximation 
+## Returns the value y such that [code]erf(y) = x[/code]. Uses an iterative approximation 
 ## method with Newton-Raphson refinement for improved accuracy.
 ## Valid input range: [code]-1 < x < 1[/code]
 ## 
@@ -148,7 +148,7 @@ static func erf_inv(x: float) -> float:
 
 ## Computes the inverse complementary error function erfc⁻¹(x).
 ##
-## Returns the value y such that [code][StatMath.ErrorFunctions.erfc](y) = x[/code]. 
+## Returns the value y such that [code]erfc(y) = x[/code]. 
 ## Valid input range: [code]0 < x < 2[/code]
 ## 
 ## Mathematical Note: [code]erfc_inv(1) = 0[/code], [code]erfc_inv(0)[/code] approaches [code]∞[/code], 
@@ -205,7 +205,7 @@ static func log_gamma(x: float) -> float:
 ## The gamma function Γ(x).
 ##
 ## For positive integers: [code]Γ(n) = (n-1)![/code]
-## Uses the exponential of [StatMath.ErrorFunctions.log_gamma] to compute the actual gamma value.
+## Uses the exponential of [method ErrorFunctions.log_gamma] to compute the actual gamma value.
 ## 
 ## Mathematical Note: [code]Γ(1) = 1[/code], [code]Γ(0.5) = √π[/code]
 static func gamma(x: float) -> float:

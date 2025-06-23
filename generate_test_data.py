@@ -273,6 +273,149 @@ def generate_basic_stats_data_file(filename, data):
         
     print(f"Successfully generated basic stats test data at: {output_path}")
 
+def generate_cdf_pdf_integration_test_data():
+    """
+    Generates integration test data for CDF/PDF derivative relationships,
+    monotonicity testing, cross-function consistency, and boundary behavior.
+    All data validated against scipy calculations.
+    """
+    
+    # Test points for derivative relationship testing
+    derivative_test_data = {
+        "normal_derivative_tests": [  # Generated using: numerical derivative comparison
+            # Each test compares numerical derivative of CDF with actual PDF
+            {"params": [0.0, 0.0, 1.0], "cdf_expected": stats.norm.cdf(0.0, 0.0, 1.0), "pdf_expected": stats.norm.pdf(0.0, 0.0, 1.0)},
+            {"params": [1.0, 0.0, 1.0], "cdf_expected": stats.norm.cdf(1.0, 0.0, 1.0), "pdf_expected": stats.norm.pdf(1.0, 0.0, 1.0)},
+            {"params": [-1.0, 0.0, 1.0], "cdf_expected": stats.norm.cdf(-1.0, 0.0, 1.0), "pdf_expected": stats.norm.pdf(-1.0, 0.0, 1.0)},
+            {"params": [2.0, 0.0, 1.0], "cdf_expected": stats.norm.cdf(2.0, 0.0, 1.0), "pdf_expected": stats.norm.pdf(2.0, 0.0, 1.0)},
+            {"params": [-2.0, 0.0, 1.0], "cdf_expected": stats.norm.cdf(-2.0, 0.0, 1.0), "pdf_expected": stats.norm.pdf(-2.0, 0.0, 1.0)},
+        ],
+        "exponential_derivative_tests": [  # Generated using: numerical derivative comparison
+            {"params": [0.1, 2.0], "cdf_expected": stats.expon.cdf(0.1, scale=1.0/2.0), "pdf_expected": stats.expon.pdf(0.1, scale=1.0/2.0)},
+            {"params": [0.5, 2.0], "cdf_expected": stats.expon.cdf(0.5, scale=1.0/2.0), "pdf_expected": stats.expon.pdf(0.5, scale=1.0/2.0)},
+            {"params": [1.0, 2.0], "cdf_expected": stats.expon.cdf(1.0, scale=1.0/2.0), "pdf_expected": stats.expon.pdf(1.0, scale=1.0/2.0)},
+            {"params": [2.0, 2.0], "cdf_expected": stats.expon.cdf(2.0, scale=1.0/2.0), "pdf_expected": stats.expon.pdf(2.0, scale=1.0/2.0)},
+            {"params": [5.0, 2.0], "cdf_expected": stats.expon.cdf(5.0, scale=1.0/2.0), "pdf_expected": stats.expon.pdf(5.0, scale=1.0/2.0)},
+        ],
+        "uniform_derivative_tests": [  # Generated using: numerical derivative comparison
+            {"params": [1.5, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(1.5, 1.0, 3.0), "pdf_expected": stats.uniform.pdf(1.5, 1.0, 3.0)},
+            {"params": [2.0, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(2.0, 1.0, 3.0), "pdf_expected": stats.uniform.pdf(2.0, 1.0, 3.0)},
+            {"params": [2.5, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(2.5, 1.0, 3.0), "pdf_expected": stats.uniform.pdf(2.5, 1.0, 3.0)},
+            {"params": [3.0, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(3.0, 1.0, 3.0), "pdf_expected": stats.uniform.pdf(3.0, 1.0, 3.0)},
+            {"params": [3.5, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(3.5, 1.0, 3.0), "pdf_expected": stats.uniform.pdf(3.5, 1.0, 3.0)},
+        ],
+        "beta_derivative_tests": [  # Generated using: numerical derivative comparison
+            {"params": [0.1, 2.0, 3.0], "cdf_expected": stats.beta.cdf(0.1, 2.0, 3.0), "pdf_expected": stats.beta.pdf(0.1, 2.0, 3.0)},
+            {"params": [0.3, 2.0, 3.0], "cdf_expected": stats.beta.cdf(0.3, 2.0, 3.0), "pdf_expected": stats.beta.pdf(0.3, 2.0, 3.0)},
+            {"params": [0.5, 2.0, 3.0], "cdf_expected": stats.beta.cdf(0.5, 2.0, 3.0), "pdf_expected": stats.beta.pdf(0.5, 2.0, 3.0)},
+            {"params": [0.7, 2.0, 3.0], "cdf_expected": stats.beta.cdf(0.7, 2.0, 3.0), "pdf_expected": stats.beta.pdf(0.7, 2.0, 3.0)},
+            {"params": [0.9, 2.0, 3.0], "cdf_expected": stats.beta.cdf(0.9, 2.0, 3.0), "pdf_expected": stats.beta.pdf(0.9, 2.0, 3.0)},
+        ],
+        "weibull_derivative_tests": [  # Generated using: numerical derivative comparison
+            {"params": [0.5, 2.0, 2.0], "cdf_expected": stats.weibull_min.cdf(0.5, c=2.0, scale=2.0), "pdf_expected": stats.weibull_min.pdf(0.5, c=2.0, scale=2.0)},
+            {"params": [1.0, 2.0, 2.0], "cdf_expected": stats.weibull_min.cdf(1.0, c=2.0, scale=2.0), "pdf_expected": stats.weibull_min.pdf(1.0, c=2.0, scale=2.0)},
+            {"params": [1.5, 2.0, 2.0], "cdf_expected": stats.weibull_min.cdf(1.5, c=2.0, scale=2.0), "pdf_expected": stats.weibull_min.pdf(1.5, c=2.0, scale=2.0)},
+            {"params": [2.0, 2.0, 2.0], "cdf_expected": stats.weibull_min.cdf(2.0, c=2.0, scale=2.0), "pdf_expected": stats.weibull_min.pdf(2.0, c=2.0, scale=2.0)},
+            {"params": [3.0, 2.0, 2.0], "cdf_expected": stats.weibull_min.cdf(3.0, c=2.0, scale=2.0), "pdf_expected": stats.weibull_min.pdf(3.0, c=2.0, scale=2.0)},
+        ],
+    }
+    
+    # Monotonicity test data - sorted test points with expected CDF values
+    monotonicity_test_data = {
+        "normal_monotonicity": [  # Generated using: stats.norm.cdf(x, mu=0.0, sigma=1.0)
+            {"params": [-3.0, 0.0, 1.0], "expected": stats.norm.cdf(-3.0, 0.0, 1.0)},
+            {"params": [-1.0, 0.0, 1.0], "expected": stats.norm.cdf(-1.0, 0.0, 1.0)},
+            {"params": [0.0, 0.0, 1.0], "expected": stats.norm.cdf(0.0, 0.0, 1.0)},
+            {"params": [1.0, 0.0, 1.0], "expected": stats.norm.cdf(1.0, 0.0, 1.0)},
+            {"params": [3.0, 0.0, 1.0], "expected": stats.norm.cdf(3.0, 0.0, 1.0)},
+        ],
+        "exponential_monotonicity": [  # Generated using: stats.expon.cdf(x, scale=1.0)
+            {"params": [0.1, 1.0], "expected": stats.expon.cdf(0.1, scale=1.0)},
+            {"params": [0.5, 1.0], "expected": stats.expon.cdf(0.5, scale=1.0)},
+            {"params": [1.0, 1.0], "expected": stats.expon.cdf(1.0, scale=1.0)},
+            {"params": [2.0, 1.0], "expected": stats.expon.cdf(2.0, scale=1.0)},
+            {"params": [5.0, 1.0], "expected": stats.expon.cdf(5.0, scale=1.0)},
+        ],
+        "uniform_monotonicity": [  # Generated using: stats.uniform.cdf(x, 1.0, 3.0)
+            {"params": [1.0, 1.0, 4.0], "expected": stats.uniform.cdf(1.0, 1.0, 3.0)},
+            {"params": [1.5, 1.0, 4.0], "expected": stats.uniform.cdf(1.5, 1.0, 3.0)},
+            {"params": [2.5, 1.0, 4.0], "expected": stats.uniform.cdf(2.5, 1.0, 3.0)},
+            {"params": [3.5, 1.0, 4.0], "expected": stats.uniform.cdf(3.5, 1.0, 3.0)},
+            {"params": [4.0, 1.0, 4.0], "expected": stats.uniform.cdf(4.0, 1.0, 3.0)},
+        ],
+        "beta_monotonicity": [  # Generated using: stats.beta.cdf(x, 2.0, 3.0)
+            {"params": [0.0, 2.0, 3.0], "expected": stats.beta.cdf(0.0, 2.0, 3.0)},
+            {"params": [0.25, 2.0, 3.0], "expected": stats.beta.cdf(0.25, 2.0, 3.0)},
+            {"params": [0.5, 2.0, 3.0], "expected": stats.beta.cdf(0.5, 2.0, 3.0)},
+            {"params": [0.75, 2.0, 3.0], "expected": stats.beta.cdf(0.75, 2.0, 3.0)},
+            {"params": [1.0, 2.0, 3.0], "expected": stats.beta.cdf(1.0, 2.0, 3.0)},
+        ],
+        "gamma_monotonicity": [  # Generated using: stats.gamma.cdf(x, a=2.0, scale=1.5)
+            {"params": [0.1, 2.0, 1.5], "expected": stats.gamma.cdf(0.1, a=2.0, scale=1.5)},
+            {"params": [1.0, 2.0, 1.5], "expected": stats.gamma.cdf(1.0, a=2.0, scale=1.5)},
+            {"params": [2.0, 2.0, 1.5], "expected": stats.gamma.cdf(2.0, a=2.0, scale=1.5)},
+            {"params": [4.0, 2.0, 1.5], "expected": stats.gamma.cdf(4.0, a=2.0, scale=1.5)},
+            {"params": [6.0, 2.0, 1.5], "expected": stats.gamma.cdf(6.0, a=2.0, scale=1.5)},
+        ],
+        "weibull_monotonicity": [  # Generated using: stats.weibull_min.cdf(x, c=2.0, scale=2.0)
+            {"params": [0.1, 2.0, 2.0], "expected": stats.weibull_min.cdf(0.1, c=2.0, scale=2.0)},
+            {"params": [1.0, 2.0, 2.0], "expected": stats.weibull_min.cdf(1.0, c=2.0, scale=2.0)},
+            {"params": [2.0, 2.0, 2.0], "expected": stats.weibull_min.cdf(2.0, c=2.0, scale=2.0)},
+            {"params": [3.0, 2.0, 2.0], "expected": stats.weibull_min.cdf(3.0, c=2.0, scale=2.0)},
+            {"params": [4.0, 2.0, 2.0], "expected": stats.weibull_min.cdf(4.0, c=2.0, scale=2.0)},
+        ],
+    }
+    
+    # Cross-function consistency tests - CDF/PPF round-trip validation
+    cross_function_test_data = {
+        "normal_cdf_ppf_consistency": [  # Generated using: round-trip CDF->PPF validation
+            {"cdf_params": [1.5, 0.0, 1.0], "cdf_expected": stats.norm.cdf(1.5, 0.0, 1.0), "ppf_expected": stats.norm.ppf(stats.norm.cdf(1.5, 0.0, 1.0), 0.0, 1.0)},
+            {"cdf_params": [0.0, 0.0, 1.0], "cdf_expected": stats.norm.cdf(0.0, 0.0, 1.0), "ppf_expected": stats.norm.ppf(stats.norm.cdf(0.0, 0.0, 1.0), 0.0, 1.0)},
+            {"cdf_params": [-1.5, 0.0, 1.0], "cdf_expected": stats.norm.cdf(-1.5, 0.0, 1.0), "ppf_expected": stats.norm.ppf(stats.norm.cdf(-1.5, 0.0, 1.0), 0.0, 1.0)},
+        ],
+        "exponential_cdf_ppf_consistency": [  # Generated using: round-trip CDF->PPF validation
+            {"cdf_params": [2.0, 1.0], "cdf_expected": stats.expon.cdf(2.0, scale=1.0), "ppf_expected": stats.expon.ppf(stats.expon.cdf(2.0, scale=1.0), scale=1.0)},
+            {"cdf_params": [1.0, 1.0], "cdf_expected": stats.expon.cdf(1.0, scale=1.0), "ppf_expected": stats.expon.ppf(stats.expon.cdf(1.0, scale=1.0), scale=1.0)},
+            {"cdf_params": [0.5, 1.0], "cdf_expected": stats.expon.cdf(0.5, scale=1.0), "ppf_expected": stats.expon.ppf(stats.expon.cdf(0.5, scale=1.0), scale=1.0)},
+        ],
+        "uniform_cdf_ppf_consistency": [  # Generated using: round-trip CDF->PPF validation
+            {"cdf_params": [2.5, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(2.5, 1.0, 3.0), "ppf_expected": stats.uniform.ppf(stats.uniform.cdf(2.5, 1.0, 3.0), 1.0, 3.0)},
+            {"cdf_params": [1.5, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(1.5, 1.0, 3.0), "ppf_expected": stats.uniform.ppf(stats.uniform.cdf(1.5, 1.0, 3.0), 1.0, 3.0)},
+            {"cdf_params": [3.5, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(3.5, 1.0, 3.0), "ppf_expected": stats.uniform.ppf(stats.uniform.cdf(3.5, 1.0, 3.0), 1.0, 3.0)},
+        ],
+    }
+    
+    # Boundary behavior test data - special values and edge cases
+    boundary_test_data = {
+        "normal_boundary_tests": [  # Generated using: stats.norm functions at extreme values
+            {"params": [0.0, 0.0, 1.0], "cdf_expected": stats.norm.cdf(0.0, 0.0, 1.0), "pdf_expected": stats.norm.pdf(0.0, 0.0, 1.0)},
+            {"params": [10.0, 0.0, 1.0], "cdf_expected": stats.norm.cdf(10.0, 0.0, 1.0), "pdf_expected": stats.norm.pdf(10.0, 0.0, 1.0)},
+            {"params": [-10.0, 0.0, 1.0], "cdf_expected": stats.norm.cdf(-10.0, 0.0, 1.0), "pdf_expected": stats.norm.pdf(-10.0, 0.0, 1.0)},
+        ],
+        "uniform_boundary_tests": [  # Generated using: stats.uniform functions at boundaries
+            {"params": [1.0, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(1.0, 1.0, 3.0), "pdf_expected": stats.uniform.pdf(1.0, 1.0, 3.0)},
+            {"params": [4.0, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(4.0, 1.0, 3.0), "pdf_expected": stats.uniform.pdf(4.0, 1.0, 3.0)},
+            {"params": [0.5, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(0.5, 1.0, 3.0), "pdf_expected": stats.uniform.pdf(0.5, 1.0, 3.0)},
+            {"params": [4.5, 1.0, 4.0], "cdf_expected": stats.uniform.cdf(4.5, 1.0, 3.0), "pdf_expected": stats.uniform.pdf(4.5, 1.0, 3.0)},
+        ],
+        "beta_boundary_tests": [  # Generated using: stats.beta functions at boundaries
+            {"params": [0.0, 2.0, 3.0], "cdf_expected": stats.beta.cdf(0.0, 2.0, 3.0), "pdf_expected": stats.beta.pdf(0.0, 2.0, 3.0)},
+            {"params": [1.0, 2.0, 3.0], "cdf_expected": stats.beta.cdf(1.0, 2.0, 3.0), "pdf_expected": stats.beta.pdf(1.0, 2.0, 3.0)},
+        ],
+        "exponential_boundary_tests": [  # Generated using: stats.expon functions at boundary
+            {"params": [0.0, 2.0], "cdf_expected": stats.expon.cdf(0.0, scale=1.0/2.0), "pdf_expected": stats.expon.pdf(0.0, scale=1.0/2.0)},
+        ],
+    }
+    
+    # Combine all test data
+    integration_data = {}
+    integration_data.update(derivative_test_data)
+    integration_data.update(monotonicity_test_data)
+    integration_data.update(cross_function_test_data)
+    integration_data.update(boundary_test_data)
+    
+    return integration_data
+
 def generate_test_data():
     """
     Generates GDScript files with pre-calculated values for statistical functions
@@ -574,6 +717,10 @@ def generate_test_data():
     # Generate basic stats test data
     generate_basic_stats_test_data()
     
+    # Generate integration test data
+    integration_data = generate_cdf_pdf_integration_test_data()
+    generate_cdf_pdf_integration_data_file("cdf_pdf_integration_test_data", integration_data)
+    
     # Generate prime numbers data
     generate_prime_numbers_data()
 
@@ -648,6 +795,80 @@ def generate_prime_numbers_data():
         f.write("\n".join(content))
         
     print(f"Successfully generated prime numbers data at: {output_path}")
+
+def generate_cdf_pdf_integration_data_file(filename, data):
+    """Generate the integration test data file with proper scipy documentation"""
+    output_path = os.path.join("addons", "godot-stat-math", "tables", f"{filename}.gd")
+    
+    content = [
+        f"# res://addons/godot-stat-math/tables/{filename}.gd",
+        "# THIS FILE IS AUTOGENERATED BY generate_test_data.py",
+        "# DO NOT EDIT MANUALLY",
+        f"# Generated with: scipy {scipy.__version__}, numpy {np.__version__}",
+        "",
+        "## Integration test data for CDF/PDF derivative relationships, monotonicity testing,",
+        "## cross-function consistency, and boundary behavior validation.",
+        "##",
+        "## All expected values are calculated using scipy statistical functions to ensure",
+        "## mathematical accuracy and consistency across test scenarios.",
+        "",
+        "const VALUES: Dictionary = {",
+    ]
+
+    # Map integration test names to their scipy call documentation
+    scipy_integration_calls = {
+        "normal_derivative_tests": "stats.norm.cdf(x, mu, sigma) and stats.norm.pdf(x, mu, sigma)",
+        "exponential_derivative_tests": "stats.expon.cdf(x, scale=1/lambda) and stats.expon.pdf(x, scale=1/lambda)",
+        "uniform_derivative_tests": "stats.uniform.cdf(x, a, b-a) and stats.uniform.pdf(x, a, b-a)",
+        "beta_derivative_tests": "stats.beta.cdf(x, alpha, beta) and stats.beta.pdf(x, alpha, beta)",
+        "weibull_derivative_tests": "stats.weibull_min.cdf(x, c=shape, scale=scale) and stats.weibull_min.pdf(x, c=shape, scale=scale)",
+        "normal_monotonicity": "stats.norm.cdf(x, mu, sigma)",
+        "exponential_monotonicity": "stats.expon.cdf(x, scale=1/lambda)",
+        "uniform_monotonicity": "stats.uniform.cdf(x, a, b-a)",
+        "beta_monotonicity": "stats.beta.cdf(x, alpha, beta)",
+        "gamma_monotonicity": "stats.gamma.cdf(x, a=shape, scale=scale)",
+        "weibull_monotonicity": "stats.weibull_min.cdf(x, c=shape, scale=scale)",
+        "normal_cdf_ppf_consistency": "stats.norm.cdf(x, mu, sigma) and stats.norm.ppf(p, mu, sigma)",
+        "exponential_cdf_ppf_consistency": "stats.expon.cdf(x, scale=1/lambda) and stats.expon.ppf(p, scale=1/lambda)",
+        "uniform_cdf_ppf_consistency": "stats.uniform.cdf(x, a, b-a) and stats.uniform.ppf(p, a, b-a)",
+        "normal_boundary_tests": "stats.norm.cdf(x, mu, sigma) and stats.norm.pdf(x, mu, sigma)",
+        "uniform_boundary_tests": "stats.uniform.cdf(x, a, b-a) and stats.uniform.pdf(x, a, b-a)",
+        "beta_boundary_tests": "stats.beta.cdf(x, alpha, beta) and stats.beta.pdf(x, alpha, beta)",
+        "exponential_boundary_tests": "stats.expon.cdf(x, scale=1/lambda) and stats.expon.pdf(x, scale=1/lambda)",
+    }
+
+    for func_name, test_cases in data.items():
+        # Add scipy documentation comment
+        scipy_call = scipy_integration_calls.get(func_name, "# scipy function call not documented")
+        content.append(f'\t"{func_name}": [  # Generated using: {scipy_call}')
+        
+        for case in test_cases:
+            if "cdf_expected" in case and "pdf_expected" in case:
+                # Derivative test format
+                params_str = ", ".join(map(str, case["params"]))
+                cdf_val = f'{case["cdf_expected"]:.8f}'
+                pdf_val = f'{case["pdf_expected"]:.8f}'
+                content.append(f'\t\t{{ "params": [{params_str}], "cdf_expected": {cdf_val}, "pdf_expected": {pdf_val} }},')
+            elif "cdf_expected" in case and "ppf_expected" in case:
+                # Cross-function consistency test format
+                cdf_params_str = ", ".join(map(str, case["cdf_params"]))
+                cdf_val = f'{case["cdf_expected"]:.8f}'
+                ppf_val = f'{case["ppf_expected"]:.8f}'
+                content.append(f'\t\t{{ "cdf_params": [{cdf_params_str}], "cdf_expected": {cdf_val}, "ppf_expected": {ppf_val} }},')
+            else:
+                # Standard format with params and expected
+                params_str = ", ".join(map(str, case["params"]))
+                expected_val = f'{case["expected"]:.8f}'
+                content.append(f'\t\t{{ "params": [{params_str}], "expected": {expected_val} }},')
+        
+        content.append("\t],")
+    
+    content.append("}")
+    
+    with open(output_path, "w", newline="\n") as f:
+        f.write("\n".join(content))
+        
+    print(f"Successfully generated integration test data at: {output_path}")
 
 def generate_data_file(filename, data):
     """Generate a GDScript test data file with scipy function call documentation"""

@@ -8,10 +8,14 @@ class_name CdfFunctions extends RefCounted
 ## that a random variable X will take a value less than or equal to x.
 ##
 ## Distribution Categories:
-## • Continuous distributions (Normal, Exponential, Gamma, Beta, etc.)
-## • Discrete distributions (Binomial, Poisson, Geometric, etc.)
-## • Special distributions (Chi-Square, F-distribution, Student's t)
-## • Heavy-tailed distributions (Pareto, Weibull)
+##
+## * Continuous distributions (Normal, Exponential, Gamma, Beta, etc.)
+##
+## * Discrete distributions (Binomial, Poisson, Geometric, etc.)
+##
+## * Special distributions (Chi-Square, F-distribution, Student's t)
+##
+## * Heavy-tailed distributions (Pareto, Weibull)
 
 
 # =============================================================================
@@ -39,9 +43,9 @@ static func uniform_cdf(x: float, a: float, b: float) -> float:
 ##
 ## Returns the probability that a random variable from a normal (Gaussian) 
 ## distribution with mean [code]μ[/code] and standard deviation [code]σ[/code] 
-## is less than or equal to x. Uses the [StatMath.ErrorFunctions.erf] for computation.
+## is less than or equal to x. Uses the [method ErrorFunctions.erf] for computation.
 ##
-## Mathematical Note: [code]F(x) = (1/2)[1 + [StatMath.ErrorFunctions.erf]((x-μ)/(σ√2))][/code]
+## Mathematical Note: [code]F(x) = (1/2)[1 + erf((x-μ)/(σ√2))][/code] See [method ErrorFunctions.erf] for the error function implementation.
 static func normal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 	if not (sigma > 0.0):
 		push_error("Standard deviation (sigma) must be positive for Normal CDF. Received: %s" % sigma)
@@ -69,9 +73,9 @@ static func exponential_cdf(x: float, lambda_param: float) -> float:
 ##
 ## Returns the probability that a random variable from a beta distribution 
 ## with shape parameters [code]α[/code] and [code]β[/code] is less than or equal to x.
-## Uses the [StatMath.HelperFunctions.incomplete_beta].
+## Uses the [method HelperFunctions.incomplete_beta].
 ##
-## Mathematical Note: [code]F(x) = I_x(α, β)[/code] where I is the [StatMath.HelperFunctions.incomplete_beta]
+## Mathematical Note: [code]F(x) = I_x(α, β)[/code] where I is the incomplete beta function. See [method HelperFunctions.incomplete_beta] for implementation details.
 static func beta_cdf(x: float, alpha: float, beta_param: float) -> float:
 	if not (alpha > 0.0 and beta_param > 0.0):
 		push_error("Shape parameters (alpha, beta_param) must be positive for Beta CDF. Received alpha=%s, beta_param=%s" % [alpha, beta_param])
@@ -87,9 +91,9 @@ static func beta_cdf(x: float, alpha: float, beta_param: float) -> float:
 ##
 ## Returns the probability that a random variable from a gamma distribution 
 ## with shape parameter [code]k[/code] and scale parameter [code]θ[/code] is less than or equal to x.
-## Uses the [StatMath.HelperFunctions.lower_incomplete_gamma_regularized].
+## Uses the [method HelperFunctions.lower_incomplete_gamma_regularized].
 ##
-## Mathematical Note: [code]F(x) = P(k, x/θ)[/code] where P is the [StatMath.HelperFunctions.lower_incomplete_gamma_regularized]
+## Mathematical Note: [code]F(x) = P(k, x/θ)[/code] where P is the regularized lower incomplete gamma function. See [method HelperFunctions.lower_incomplete_gamma_regularized] for implementation details.
 static func gamma_cdf(x: float, k_shape: float, theta_scale: float) -> float: # Renamed k, theta
 	if not (k_shape > 0.0 and theta_scale > 0.0):
 		push_error("Shape (k_shape) and scale (theta_scale) must be positive for Gamma CDF. Received k_shape=%s, theta_scale=%s" % [k_shape, theta_scale])
@@ -119,7 +123,7 @@ static func gamma_cdf(x: float, k_shape: float, theta_scale: float) -> float: # 
 ## with [code]k[/code] degrees of freedom is less than or equal to x.
 ## This is a special case of the gamma distribution.
 ##
-## Mathematical Note: Chi-square with k df is [code][StatMath.CdfFunctions.gamma_cdf](k/2, 2)[/code]
+## Mathematical Note: Chi-square with k df is [code]gamma_cdf(k/2, 2)[/code]. See [method CdfFunctions.gamma_cdf] for the gamma CDF implementation.
 static func chi_square_cdf(x: float, k_df: float) -> float:
 	if not (k_df > 0.0):
 		push_error("Degrees of freedom (k_df) must be positive for Chi-Square CDF. Received: %s" % k_df)
@@ -158,7 +162,7 @@ static func f_cdf(x: float, d1_df: float, d2_df: float) -> float: # Renamed d1, 
 ## with [code]ν[/code] (nu) degrees of freedom is less than or equal to x.
 ## Uses the regularized incomplete beta function.
 ##
-## Mathematical Note: Uses transformation via [StatMath.HelperFunctions.incomplete_beta]
+## Mathematical Note: Uses transformation via [method HelperFunctions.incomplete_beta]
 static func t_cdf(x_val: float, df_nu: float) -> float: # Renamed x, df
 	if not (df_nu > 0.0):
 		push_error("Degrees of freedom (df_nu) must be positive for Student's t-Distribution CDF. Received: %s" % df_nu)
@@ -181,7 +185,7 @@ static func t_cdf(x_val: float, df_nu: float) -> float: # Renamed x, df
 ##
 ## Returns the probability of observing [code]k[/code] or fewer successes in [code]n[/code] 
 ## independent Bernoulli trials, each with success probability [code]p[/code].
-## Computed as the sum of [StatMath.PmfPdfFunctions.binomial_pmf] values.
+## Computed as the sum of [method PmfPdfFunctions.binomial_pmf] values.
 ##
 ## Mathematical Note: [code]F(k) = Σᵢ₌₀ᵏ (n choose i) p^i (1-p)^(n-i)[/code]
 static func binomial_cdf(k_successes: int, n_trials: int, p_prob: float) -> float:
@@ -206,7 +210,7 @@ static func binomial_cdf(k_successes: int, n_trials: int, p_prob: float) -> floa
 ## Calculates the CDF of a Poisson distribution: F(k; λ).
 ##
 ## Returns the probability of observing [code]k[/code] or fewer events in a fixed interval, 
-## given an average rate [code]λ[/code] of events. Computed as the sum of [StatMath.PmfPdfFunctions.poisson_pmf] values.
+## given an average rate [code]λ[/code] of events. Computed as the sum of Poisson PMF values. See [method PmfPdfFunctions.poisson_pmf] for the PMF implementation.
 ##
 ## Mathematical Note: [code]F(k) = Σᵢ₌₀ᵏ (λ^i e^(-λ))/i![/code]
 static func poisson_cdf(k_events: int, lambda_param: float) -> float:
@@ -243,7 +247,7 @@ static func geometric_cdf(k_trials: int, p_prob: float) -> float:
 ##
 ## Returns the probability that the [code]r[/code]-th success occurs on or before 
 ## the [code]k[/code]-th trial in independent Bernoulli trials.
-## Computed as the sum of [StatMath.PmfPdfFunctions.negative_binomial_pmf] values.
+## Computed as the sum of [method PmfPdfFunctions.negative_binomial_pmf] values.
 ##
 ## Mathematical Note: [code]F(k) = Σᵢ₌ᵣᵏ (i-1 choose r-1) p^r (1-p)^(i-r)[/code]
 static func negative_binomial_cdf(k_trials: int, r_successes: int, p_prob: float) -> float:
