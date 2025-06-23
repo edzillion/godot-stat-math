@@ -22,9 +22,6 @@ jobs:
           target_branch: 'gh-pages'
           pre_build_commands: |
             pip install sphinx_rtd_theme
-          # pre_build_commands: |
-          #   pip install sphinx_rtd_theme
-          #   pip install sphinx-autodoc-typehints
-          #   pip install sphinx-copybutton
-          #   pip install sphinx-design
-          #   pip install sphinx-copybutton
+            pip install sphinx-autodoc-typehints
+            pip install sphinx-copybutton
+            pip install sphinx-design

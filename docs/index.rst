@@ -37,7 +37,6 @@ The StatMath singleton provides access to all functionality through organized mo
 
    installation
    quick_start
-   seeding_rng
 
 .. toctree::
    :maxdepth: 2
@@ -55,37 +54,10 @@ The StatMath singleton provides access to all functionality through organized mo
 
 .. toctree::
    :maxdepth: 2
-   :caption: Advanced Usage
-
-   examples/game_analytics
-   examples/procedural_generation
-   examples/testing_randomness
-   performance/optimization_guide
-   performance/benchmarks
-
-.. toctree::
-   :maxdepth: 2
    :caption: Tests
 
    unit_testing
    performance
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Reference
-
-   api_reference
-   mathematical_background
-   testing_standards
-   changelog
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Development
-
-   contributing
-   architecture
-   license
 
 **Indices and Tables**
 ----------------------
