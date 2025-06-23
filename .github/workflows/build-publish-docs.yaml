@@ -2,6 +2,11 @@ name: Build and Publish Docs
 
 on: [workflow_dispatch]
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -17,3 +22,9 @@ jobs:
           target_branch: 'gh-pages'
           pre_build_commands: |
             pip install sphinx_rtd_theme
+          # pre_build_commands: |
+          #   pip install sphinx_rtd_theme
+          #   pip install sphinx-autodoc-typehints
+          #   pip install sphinx-copybutton
+          #   pip install sphinx-design
+          #   pip install sphinx-copybutton
