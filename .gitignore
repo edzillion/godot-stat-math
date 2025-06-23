@@ -29,6 +29,3 @@ output.log
 
 # Documentation build artifacts
 docs/_build/
-
-# Auto-generated API documentation files
-docs/modules/
