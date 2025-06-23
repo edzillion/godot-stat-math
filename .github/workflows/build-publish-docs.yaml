@@ -15,6 +15,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           sphinx_src: 'docs'
           target_branch: 'gh-pages'
-          pre_build_commands: |
-            pip install sphinx_rtd_theme
-            pip install sphinx 
+          # pre_build_commands: |
+          #   pip install sphinx_rtd_theme
+          #   pip install sphinx 
