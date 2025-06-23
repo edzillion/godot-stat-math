@@ -25,11 +25,46 @@ if errorlevel 9009 (
 
 if "%1" == "" goto help
 
-%SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+if "%1" == "clean" goto clean
+
+REM Clean build directory and Sphinx cache before building
+if "%1" == "html" (
+	echo Cleaning build directory and Sphinx cache...
+	if exist "%BUILDDIR%" (
+		rmdir /s /q "%BUILDDIR%"
+		echo Build directory cleared.
+	)
+	if exist "%SOURCEDIR%\.doctrees" (
+		rmdir /s /q "%SOURCEDIR%\.doctrees"
+		echo Sphinx doctrees cache cleared.
+	)
+	echo Building documentation...
+)
+
+%SPHINXBUILD% -b %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+goto end
+
+:clean
+echo Cleaning build directory and Sphinx cache...
+if exist "%BUILDDIR%" (
+	rmdir /s /q "%BUILDDIR%"
+	echo Build directory cleared.
+)
+if exist "%SOURCEDIR%\.doctrees" (
+	rmdir /s /q "%SOURCEDIR%\.doctrees"
+	echo Sphinx doctrees cache cleared.
+)
+echo Clean complete.
 goto end
 
 :help
-%SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
+echo Please use `make ^<target^>` where ^<target^> is one of
+echo   html       to make standalone HTML files (auto-cleans first)
+echo   clean      to clean build directory and Sphinx cache
+echo   help       to show this help message
+echo.
+echo Standard Sphinx targets are also available:
+%SPHINXBUILD% -b help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 
 :end
 popd

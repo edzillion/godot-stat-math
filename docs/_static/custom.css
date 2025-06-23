@@ -27,4 +27,25 @@
 /* Better spacing for lists */
 .rst-content .toctree-wrapper ul {
     margin-bottom: 1.5em;
+}
+
+/* Performance chart enhancements */
+.performance-dashboard .col-chart {
+    background: #f8f8f8;
+    border: 1px solid #e1e4e5;
+    border-radius: 4px;
+}
+
+.performance-dashboard .grid-row:hover .col-chart {
+    background: #e7f2fa;
+    border-color: #a5c4d4;
+}
+
+/* Chart styling for performance dashboard */
+.performance-dashboard .chart-row.status-fail {
+    background: #ffe6e6;
+}
+
+.performance-dashboard .chart-row.status-disabled {
+    opacity: 0.6;
 } 

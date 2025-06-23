@@ -65,6 +65,12 @@ The StatMath singleton provides access to all functionality through organized mo
 
 .. toctree::
    :maxdepth: 2
+   :caption: Performance
+
+   performance
+
+.. toctree::
+   :maxdepth: 2
    :caption: Reference
 
    api_reference

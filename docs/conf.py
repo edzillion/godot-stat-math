@@ -14,11 +14,16 @@ release = '0.0.4'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
+import sys
+import os
+sys.path.insert(0, os.path.abspath('_ext'))
+
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
+    'performance_dashboard',
 ]
 
 templates_path = ['_templates']
