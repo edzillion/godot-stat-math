@@ -16,6 +16,9 @@ from sphinx.util.docutils import SphinxDirective
 class PerformanceDashboardDirective(SphinxDirective):
     """Directive to generate performance dashboard"""
     
+    # Configuration constants
+    DEFAULT_CHART_DATA_POINTS = 10  # Number of historical data points to show in charts
+    
     has_content = False
     optional_arguments = 1
     option_spec = {
@@ -31,8 +34,8 @@ class PerformanceDashboardDirective(SphinxDirective):
         results_path = self.options.get('results_path', 
             '../addons/godot-stat-math/tests/performance/results')
         
-        # Get number of chart points to show (default 5)
-        chart_points = int(self.options.get('chart_points', 5))
+        # Get number of chart points to show
+        chart_points = int(self.options.get('chart_points', self.DEFAULT_CHART_DATA_POINTS))
         
         # Resolve relative to source directory
         source_dir = Path(env.srcdir)
@@ -99,7 +102,7 @@ class PerformanceDashboardDirective(SphinxDirective):
         
         return historical_data
     
-    def _load_performance_data(self, results_dir: Path, chart_points: int = 10):
+    def _load_performance_data(self, results_dir: Path, chart_points: int = 20):
         """Load performance data from JSON files"""
         try:
             latest_file = results_dir / 'latest.json'
@@ -202,6 +205,11 @@ class PerformanceDashboardDirective(SphinxDirective):
         tests = data['tests']
         meta = data['meta']
         
+        # Performance test methodology constants (from PerfTestManager)
+        FUNCTION_CALLS_PER_MEASUREMENT = 100
+        MEASUREMENT_ITERATIONS = 5
+        total_function_calls = FUNCTION_CALLS_PER_MEASUREMENT * MEASUREMENT_ITERATIONS
+        
         # Group tests by module
         modules = self._group_tests_by_module(tests)
         
@@ -216,6 +224,8 @@ class PerformanceDashboardDirective(SphinxDirective):
                     <span class="meta-item">Total Tests: {len(tests)}</span>
                     <span class="meta-item">Passed: {meta.get('passed_tests', 0)}</span>
                     <span class="meta-item">Failed: {meta.get('failed_tests', 0)}</span>
+                    <span class="meta-item">Calls: {FUNCTION_CALLS_PER_MEASUREMENT}</span>
+                    <span class="meta-item">Iterations: {MEASUREMENT_ITERATIONS} (median)</span>
                 </div>
             </div>
             
