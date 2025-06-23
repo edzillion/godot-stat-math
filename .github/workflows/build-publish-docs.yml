@@ -1,4 +1,4 @@
-name: Publish Sphinx Docs
+name: Build and Publish Docs
 
 on: [workflow_dispatch]
 
@@ -9,7 +9,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Publish Sphinx Docs to GitHub Pages
+      - name: Build and Publish Sphinx Docs to GitHub Pages
         uses: totaldebug/sphinx-publish-action@1.2.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}          
