@@ -9,7 +9,7 @@
 project = 'Godot Stat Math'
 copyright = '2025, edzillion'
 author = 'edzillion'
-release = '0.0.4'
+release = '0.0.5'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
