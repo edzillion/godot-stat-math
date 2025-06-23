@@ -82,7 +82,7 @@ jobs:
       - name: Clean up previous reports
         run: rm -rf reports
       
-      - name: Run GDUnit4 tests
+      - name: Run GDUnit4 performance tests
         uses: MikeSchulze/gdunit4-action@v1
         with:
           godot-version: "4.4"

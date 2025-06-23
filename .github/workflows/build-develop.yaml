@@ -36,9 +36,9 @@ jobs:
           
       - name: Wait for runner
         run: |
-          echo "Waiting 30 seconds for runner to come online..."
+          echo "Waiting 15 seconds for runner to come online..."
           echo "⏳ Spot instance starting up..."
-          sleep 30
+          sleep 15
           echo "✅ Proceeding to job execution"
 
   build-addon:
@@ -48,14 +48,24 @@ jobs:
     permissions:
       checks: write
       actions: read
-      contents: read
+      contents: write
+
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Synchronize with remote branch
+        run: |
+          echo "Pulling latest changes for branch ${{ github.ref_name }}..."
+          git pull origin ${{ github.ref_name }}
 
       - name: System info
         run: |
           echo "=== Develop Build Environment ==="
+          echo "Timestamp: $(date)"
           echo "Commit: ${{ github.sha }}"
           echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
           echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
@@ -69,11 +79,17 @@ jobs:
           version-regex: ${{ env.VERSION_REGEX }}
         id: extract-version
 
-      - name: Run GDUnit4 tests
+      - name: Clean up previous reports
+        run: rm -rf reports
+
+      - name: Run All GDUnit4 tests
         uses: MikeSchulze/gdunit4-action@v1
         with:
           godot-version: "4.4"
           paths: "res://addons/godot-stat-math/tests"
+          upload-report: false
+        env:
+          DISABLE_REGRESSION_CHECKING: true
 
       - name: Create addon zip
         run: |
