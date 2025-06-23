@@ -21,18 +21,10 @@ jobs:
       - name: Trigger AWS Runner
         id: trigger
         run: |
-          echo "Triggering AWS runner for develop build..."
-          response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
-          echo "Response: $response"
-          
-          if echo "$response" | grep -q "launched successfully"; then
-            echo "triggered=true" >> $GITHUB_OUTPUT
-            echo "✅ Runner launched successfully"
-          else
-            echo "triggered=false" >> $GITHUB_OUTPUT
-            echo "❌ Failed to launch runner"
-            exit 1
-          fi
+          # Call Lambda function to start runner
+          curl -X POST "${{ secrets.LAMBDA_ENDPOINT }}" \
+            -H "Authorization: Bearer ${{ secrets.AWS_LAMBDA_TOKEN }}"
+          echo "triggered=true" >> $GITHUB_OUTPUT
           
       - name: Wait for runner
         run: |
@@ -90,6 +82,33 @@ jobs:
           upload-report: false
         env:
           DISABLE_REGRESSION_CHECKING: true
+
+      - name: Commit test and performance results
+        run: |
+          echo "Committing GDUnit4 test and performance results..."
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          REPORTS_DIR="reports"
+          PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+
+          # Add both directories if they exist
+          if [ -d "$REPORTS_DIR" ]; then
+            git add "$REPORTS_DIR/"
+          fi
+          if [ -d "$PERF_RESULTS_DIR" ]; then
+            git add "$PERF_RESULTS_DIR/"
+          fi
+
+          if git diff --staged --quiet; then
+            echo "No new test results to commit"
+          else
+            COMMIT_MSG="📊 Test Results - ${{ github.workflow }} ${{ github.run_number }}"
+            
+            git commit -m "$COMMIT_MSG"
+            git push origin ${{ github.ref_name }}
+            echo "✅ Test reports and performance results committed and pushed"
+          fi
 
       - name: Create addon zip
         run: |
