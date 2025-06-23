@@ -1,4 +1,4 @@
-name: Build and Publish Docs
+name: Publish Sphinx Docs
 
 on: [workflow_dispatch]
 
@@ -9,9 +9,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Build and Publish Sphinx Docs to GitHub Pages
+      - name: Publish Sphinx Docs to GitHub Pages
         uses: totaldebug/sphinx-publish-action@1.2.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}          
-          sphinx_src: 'docs'          
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sphinx_src: 'docs'
           target_branch: 'gh-pages'
+          pre_build_commands: |
+            pip install sphinx_rtd_theme
+            pip install sphinx 
