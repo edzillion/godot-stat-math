@@ -572,7 +572,7 @@ static func get_ppf_value(distribution: Variant, p: float, params: Array) -> flo
 			return NAN
 
 
-## Converts a string distribution name to SupportedDistributions enum.
+## Converts a string distribution name to [code]StatMath.SupportedDistributions[/code] enum.
 ##
 ## Centralized helper for converting string identifiers to proper enum values.
 ## Supports both uppercase and lowercase string inputs for flexibility.

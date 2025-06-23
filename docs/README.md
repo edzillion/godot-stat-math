@@ -7,7 +7,7 @@
 python docs/generate_api_rst.py addons/godot-stat-math/core docs/modules
 
 # 2. Build HTML documentation  
-make.bat html
+./make.bat html
 ```
 
 ## View Results
