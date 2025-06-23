@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.abspath('_ext'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
+    'sphinx_rtd_theme',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'performance_dashboard',
