@@ -5,6 +5,7 @@ Embeds the latest GDUnit4 test report HTML into documentation
 
 import os
 import shutil
+import re
 from pathlib import Path
 from docutils import nodes
 from sphinx.application import Sphinx
@@ -334,6 +335,9 @@ class TestResultsDirective(SphinxDirective):
             # Insert the CSS before the closing </head> tag
             html_content = html_content.replace('</head>', f'{compact_css}</head>')
             
+            # Add tooltips to truncated table cells
+            html_content = self._add_tooltips_to_truncated_cells(html_content)
+            
             # Write the modified HTML back
             with open(html_file, 'w', encoding='utf-8') as f:
                 f.write(html_content)
@@ -341,6 +345,59 @@ class TestResultsDirective(SphinxDirective):
         except Exception as e:
             # If modification fails, just use the original
             pass
+    
+    def _add_tooltips_to_truncated_cells(self, html_content: str) -> str:
+        """Add title attributes (tooltips) to table cells that will be truncated"""
+        try:
+            # Simple and reliable approach: find all <td>content</td> patterns
+            # and add title attributes to the first one in each row
+            
+            def add_title_if_long(match):
+                full_td = match.group(0)
+                td_content = match.group(1)
+                
+                # Skip if already has title attribute
+                if 'title=' in full_td:
+                    return full_td
+                
+                # Get plain text content (no HTML tags)
+                text_content = re.sub(r'<[^>]*>', '', td_content).strip()
+                
+                # Add title if text is long (likely to be truncated)
+                if len(text_content) > 50:
+                    # Escape quotes for HTML
+                    escaped_text = text_content.replace('"', '&quot;').replace("'", '&#39;')
+                    # Insert title attribute into the opening tag
+                    return full_td.replace('<td>', f'<td title="{escaped_text}">', 1)
+                
+                return full_td
+            
+            # Process each line separately to handle indentation properly
+            lines = html_content.split('\n')
+            result_lines = []
+            in_table_row = False
+            
+            for line in lines:
+                # Check if we're starting a new table row
+                if '<tr' in line:
+                    in_table_row = True
+                elif '</tr>' in line:
+                    in_table_row = False
+                
+                # If we're in a table row and this line has the first <td>
+                if in_table_row and '<td>' in line and not any(x in line for x in ['<td><span', '<td><a', '<td><div']):
+                    # This should be the first column (testcase name)
+                    # Use the simplest regex pattern that works
+                    line = re.sub(r'<td>(.*?)</td>', add_title_if_long, line, count=1)
+                
+                result_lines.append(line)
+            
+            return '\n'.join(result_lines)
+            
+        except Exception as e:
+            # If tooltip addition fails, return original content
+            print(f"Tooltip addition failed: {e}")  # Debug output
+            return html_content
     
     def _generate_iframe_html(self, report_name: str):
         """Generate HTML for iframe to display the report"""
