@@ -24,6 +24,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'performance_dashboard',
+    'test_results',
 ]
 
 templates_path = ['_templates']

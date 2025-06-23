@@ -1,5 +1,5 @@
-Performance Dashboard
-====================
+Performance Testing
+==================
 
 This page displays the current performance metrics for the Godot Stat Math library. The dashboard shows execution times for all performance tests, comparing current results against established baselines.
 
