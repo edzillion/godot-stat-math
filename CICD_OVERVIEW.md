@@ -17,9 +17,8 @@ All new code enters the `develop` or `release` branches via Pull Requests. We ha
 - **Goal**: Quickly verify that the changes are structurally sound and don't break core functionality.
 - **Actions**:
     1.  **Validate Structure**: Checks that essential addon files like `plugin.cfg` are present and correctly configured.
-    2.  **Trigger AWS Runner**: Spins up a dedicated, powerful AWS spot instance to run the tests.
-    3.  **Run Core Tests**: Executes a subset of the test suite (`/tests/core` and `stat_math_test.gd`). This provides a fast feedback loop by focusing on critical unit and integration tests, excluding slower performance tests.
-    4.  **Upload Results**: Test reports are uploaded as artifacts for inspection.
+    2.  **Run Core Tests**: Executes a subset of the test suite (`/tests/core` and `stat_math_test.gd`). This provides a fast feedback loop by focusing on critical unit and integration tests, excluding slower performance tests.
+    3.  **Upload Results**: Test reports are uploaded as artifacts for inspection.
 
 ### PR to `release` (`verify-release.yaml`)
 - **Trigger**: Opening or updating a PR targeting the `release` branch.

@@ -84,35 +84,49 @@ jobs:
       - name: Trigger AWS Runner
         id: trigger
         run: |
-          echo "Triggering AWS runner for release verification..."
-          response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
+          if [ -z "${{ secrets.LAMBDA_FUNCTION_URL }}" ]; then
+            echo "❌ LAMBDA_FUNCTION_URL secret is not set"
+            exit 1
+          fi
+          
+          echo "Triggering AWS runner..."
+          echo "Lambda URL: ${{ secrets.LAMBDA_FUNCTION_URL }}"
+          
+          response=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
           echo "Response: $response"
           
-          if echo "$response" | grep -q "launched successfully"; then
+          http_code=$(echo "$response" | grep "HTTP_CODE:" | cut -d: -f2)
+          body=$(echo "$response" | sed '/HTTP_CODE:/d')
+          
+          if [ "$http_code" = "200" ] && echo "$body" | grep -q "launched successfully"; then
             echo "triggered=true" >> $GITHUB_OUTPUT
             echo "✅ Runner launched successfully"
+            echo "Instance ID: $(echo "$body" | jq -r '.instance_id' 2>/dev/null || echo 'N/A')"
           else
             echo "triggered=false" >> $GITHUB_OUTPUT
             echo "❌ Failed to launch runner"
+            echo "HTTP Code: $http_code"
+            echo "Response Body: $body"
             exit 1
           fi
           
       - name: Wait for runner
         run: |
-          echo "Waiting 30 seconds for runner to come online..."
+          echo "Waiting 60 seconds for runner to come online..."
           echo "⏳ Spot instance starting up..."
-          sleep 30
+          sleep 60
           echo "✅ Proceeding to job execution"
 
   run-tests:
     needs: [check-version-bump, validate-addon-structure, trigger-runner]
-    runs-on: [self-hosted, performance-test, linux]
+    runs-on: [self-hosted, linux, x64]
     if: needs.trigger-runner.outputs.runner-triggered == 'true'
-    timeout-minutes: 60
     permissions:
       checks: write
       actions: read
-      contents: read
+      contents: write
+    timeout-minutes: 30
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -129,11 +143,16 @@ jobs:
           echo "CPU Cores: $(nproc)"
           echo "========================================"
 
-      - name: Run GDUnit4 tests
+      - name: Clean up previous reports
+        run: rm -rf reports
+
+      - name: Run All GDUnit4 tests
         uses: MikeSchulze/gdunit4-action@v1
         with:
           godot-version: "4.4"
           paths: "res://addons/godot-stat-math/tests"
+        env:
+          DISABLE_REGRESSION_CHECKING: false
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
