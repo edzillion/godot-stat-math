@@ -88,17 +88,41 @@ class TestResultsDirective(SphinxDirective):
         self._modify_report_for_compact_layout(dest_dir)
     
     def _modify_report_for_compact_layout(self, report_dir: Path):
-        """Modify the report HTML for a more compact layout"""
+        """Modify the report HTML files for a more compact layout"""
+        # Find all HTML files to modify
+        html_files = []
+        
+        # Add the main index file
         index_file = report_dir / 'index.html'
-        if not index_file.exists():
-            return
-            
+        if index_file.exists():
+            html_files.append(index_file)
+        
+        # Add all test suite HTML files
+        test_suites_dir = report_dir / 'test_suites'
+        if test_suites_dir.exists():
+            html_files.extend(test_suites_dir.glob('*.html'))
+        
+        # Add all path aggregation HTML files
+        path_dir = report_dir / 'path'
+        if path_dir.exists():
+            html_files.extend(path_dir.glob('*.html'))
+        
+        # Apply compact CSS to all HTML files
+        for html_file in html_files:
+            self._apply_compact_css_to_file(html_file)
+    
+    def _apply_compact_css_to_file(self, html_file: Path):
+        """Apply compact CSS to a single HTML file"""
         try:
             # Read the original HTML
-            with open(index_file, 'r', encoding='utf-8') as f:
+            with open(html_file, 'r', encoding='utf-8') as f:
                 html_content = f.read()
             
-            # Add custom CSS to make the header more compact
+            # Skip if CSS already applied
+            if 'Compact header styles for embedding' in html_content:
+                return
+            
+            # Add custom CSS to make the layout more compact
             compact_css = '''
             <style>
             /* Compact header styles for embedding */
@@ -126,8 +150,8 @@ class TestResultsDirective(SphinxDirective):
             }
             
             .report-container h1 {
-                font-size: 16px !important;
-                margin: 0 0 5px 0 !important;
+                font-size: 18px !important;
+                margin: 0 !important;
             }
             
             /* Force horizontal layout for summary */
@@ -156,7 +180,7 @@ class TestResultsDirective(SphinxDirective):
             }
             
             .summary-item .label {
-                font-size: 9px !important;
+                font-size: 13px !important;
                 color: white !important;
                 margin-bottom: 1px !important;
                 white-space: nowrap !important;
@@ -215,6 +239,7 @@ class TestResultsDirective(SphinxDirective):
                 margin-top: 0 !important;
                 margin-left: 1em !important;
                 margin-right: 1em !important;
+                overflow-y: hidden !important;
             }
             
             /* Ensure content area takes up more space */
@@ -223,14 +248,85 @@ class TestResultsDirective(SphinxDirective):
                 height: calc(100vh - 150px) !important;
             }
             
-            /* Adjust navigation */
-            nav {
+            /* Adjust navigation and breadcrumbs */
+            nav, .breadcrumb {
                 padding: 5px 0px !important;
             }
             
             /* Remove grid item padding */
             .grid-item {
                 padding-left: 0px !important;
+            }
+            
+            /* Add bottom padding to grid-item tbody for better scroller positioning */
+            .grid-item tbody {
+                padding-bottom: 10px !important;
+            }
+            
+            /* Override footer paragraph padding */
+            footer p {
+                padding-left: 1em !important;
+            }
+            
+            /* Compact table styling for test suite pages */
+            #report-table {
+                margin-top: 0 !important;
+                table-layout: fixed !important;
+                width: 100% !important;
+            }
+            
+            #report-table th, #report-table td {
+                padding: 4px 8px !important;
+                font-size: 14px !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+            }
+            
+            /* Set specific widths for table columns to prevent overflow */
+            #report-table th:first-child, #report-table td:first-child {
+                width: 40% !important;
+                max-width: 300px !important;
+            }
+            
+            #report-table th:nth-child(2), #report-table td:nth-child(2) {
+                width: 80px !important;
+                min-width: 80px !important;
+            }
+            
+            /* Compact breadcrumb styling */
+            .breadcrumb {
+                margin: 0 !important;
+                padding: 5px 10px !important;
+            }
+            
+            .breadcrumb a {
+                font-size: 12px !important;
+                padding: 2px 6px !important;
+            }
+            
+            /* Report area styling for individual test pages */
+            .tab-report-grid {
+                margin-top: 10px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 15px !important;
+            }
+            
+            .tab-report-grid .grid-item {
+                width: 100% !important;
+                flex: none !important;
+            }
+            
+            #report_area {
+                margin-top: 15px !important;
+                order: 2 !important;
+            }
+            
+            #report_area h4 {
+                font-size: 16px !important;
+                margin-top: 0 !important;
+                margin-bottom: 10px !important;
             }
             </style>
             '''
@@ -239,7 +335,7 @@ class TestResultsDirective(SphinxDirective):
             html_content = html_content.replace('</head>', f'{compact_css}</head>')
             
             # Write the modified HTML back
-            with open(index_file, 'w', encoding='utf-8') as f:
+            with open(html_file, 'w', encoding='utf-8') as f:
                 f.write(html_content)
                 
         except Exception as e:
