@@ -21,16 +21,37 @@ jobs:
       - name: Trigger AWS Runner
         id: trigger
         run: |
-          # Call Lambda function to start runner
-          curl -X POST "${{ secrets.LAMBDA_ENDPOINT }}" \
-            -H "Authorization: Bearer ${{ secrets.AWS_LAMBDA_TOKEN }}"
-          echo "triggered=true" >> $GITHUB_OUTPUT
+          if [ -z "${{ secrets.LAMBDA_FUNCTION_URL }}" ]; then
+            echo "❌ LAMBDA_FUNCTION_URL secret is not set"
+            exit 1
+          fi
+          
+          echo "Triggering AWS runner..."
+          echo "Lambda URL: ${{ secrets.LAMBDA_FUNCTION_URL }}"
+          
+          response=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
+          echo "Response: $response"
+          
+          http_code=$(echo "$response" | grep "HTTP_CODE:" | cut -d: -f2)
+          body=$(echo "$response" | sed '/HTTP_CODE:/d')
+          
+          if [ "$http_code" = "200" ] && echo "$body" | grep -q "launched successfully"; then
+            echo "triggered=true" >> $GITHUB_OUTPUT
+            echo "✅ Runner launched successfully"
+            echo "Instance ID: $(echo "$body" | jq -r '.instance_id' 2>/dev/null || echo 'N/A')"
+          else
+            echo "triggered=false" >> $GITHUB_OUTPUT
+            echo "❌ Failed to launch runner"
+            echo "HTTP Code: $http_code"
+            echo "Response Body: $body"
+            exit 1
+          fi
           
       - name: Wait for runner
         run: |
-          echo "Waiting 15 seconds for runner to come online..."
+          echo "Waiting 60 seconds for runner to come online..."
           echo "⏳ Spot instance starting up..."
-          sleep 15
+          sleep 60
           echo "✅ Proceeding to job execution"
 
   build-addon:
