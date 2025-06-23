@@ -43,7 +43,7 @@ jobs:
 
   build-addon:
     needs: trigger-runner
-    runs-on: [self-hosted, performance-test, linux]
+    runs-on: [self-hosted, linux, x64]
     if: needs.trigger-runner.outputs.runner-triggered == 'true'
     permissions:
       checks: write
