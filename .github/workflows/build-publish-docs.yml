@@ -1,0 +1,17 @@
+name: Publish Sphinx Docs
+
+on: [workflow_dispatch]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Publish Sphinx Docs to GitHub Pages
+        uses: totaldebug/sphinx-publish-action@1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}          
+          sphinx_src: 'docs'          
+          target_branch: 'gh-pages'
