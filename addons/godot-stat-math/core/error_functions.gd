@@ -13,7 +13,7 @@ class_name ErrorFunctions extends RefCounted
 ## Computes the error function erf(x).
 ##
 ## The error function is an odd function ([code]erf(-x) = -erf(x)[/code]) and is related to 
-## the cumulative distribution function (CDF) of the normal distribution. 
+## the cumulative distribution function ([method CdfFunctions.normal_cdf]) of the normal distribution. 
 ## Uses the Abramowitz and Stegun formula 7.1.26 approximation with a maximum error of 1.5 × 10⁻⁷.
 ## 
 ## Mathematical Note: [code]erf(0) = 0[/code], [code]erf(∞) = 1[/code], [code]erf(-∞) = -1[/code]
@@ -205,7 +205,7 @@ static func log_gamma(x: float) -> float:
 ## The gamma function Γ(x).
 ##
 ## For positive integers: [code]Γ(n) = (n-1)![/code]
-## Uses the exponential of [code]log_gamma[/code] to compute the actual gamma value.
+## Uses the exponential of [method ErrorFunctions.log_gamma] to compute the actual gamma value.
 ## 
 ## Mathematical Note: [code]Γ(1) = 1[/code], [code]Γ(0.5) = √π[/code]
 static func gamma(x: float) -> float:

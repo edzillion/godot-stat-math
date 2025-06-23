@@ -8,11 +8,16 @@ class_name SamplingGen extends RefCounted
 ## Designed for high-performance multi-dimensional sampling with threading support.
 ##
 ## Features:
-## • Quasi-random sequences (Sobol, Halton) for low-discrepancy sampling
-## • Latin Hypercube sampling for space-filling designs
-## • Coordinated shuffling with statistical guarantees
-## • Memory pooling and threading for performance optimization
-## • Multiple selection strategies (with/without replacement)
+##
+## * Quasi-random sequences (Sobol, Halton) for low-discrepancy sampling
+##
+## * Latin Hypercube sampling for space-filling designs
+##
+## * Coordinated shuffling with statistical guarantees
+##
+## * Memory pooling and threading for performance optimization
+##
+## * Multiple selection strategies (with/without replacement)
 
 ## Defines the available sampling methods for generating random sequences.
 enum SamplingMethod {

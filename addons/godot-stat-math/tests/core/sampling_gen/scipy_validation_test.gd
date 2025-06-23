@@ -830,5 +830,3 @@ func test_starting_index_sobol_sequence_continuity() -> void:
 	# part2_explicit should match the second half of full_sequence
 	for i in range(second_half):
 		assert_float(part2_typed[i]).is_equal_approx(typed_full_sequence[first_half + i], StatMath.DETERMINISM_TOLERANCE)
-
-

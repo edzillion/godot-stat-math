@@ -27,14 +27,22 @@ extends Node
 ## [/codeblock]
 ##
 ## Module Organization:
-## • [code]BasicStats[/code] - Descriptive statistics (mean, variance, quantiles, etc.)
-## • [code]Distributions[/code] - Random number generation from various distributions
-## • [code]CdfFunctions[/code] - Cumulative distribution functions
-## • [code]PpfFunctions[/code] - Inverse CDF/quantile functions
-## • [code]PmfPdfFunctions[/code] - Probability mass/density functions
-## • [code]ErrorFunctions[/code] - Error functions and special mathematical functions
-## • [code]HelperFunctions[/code] - Core mathematical utilities
-## • [code]SamplingGen[/code] - Advanced sampling and quasi-random sequences
+##
+## * [code]BasicStats[/code] - Descriptive statistics (mean, variance, quantiles, etc.)
+##
+## * [code]Distributions[/code] - Random number generation from various distributions
+##
+## * [code]CdfFunctions[/code] - Cumulative distribution functions
+##
+## * [code]PpfFunctions[/code] - Inverse CDF/quantile functions
+##
+## * [code]PmfPdfFunctions[/code] - Probability mass/density functions
+##
+## * [code]ErrorFunctions[/code] - Error functions and special mathematical functions
+##
+## * [code]HelperFunctions[/code] - Core mathematical utilities
+##
+## * [code]SamplingGen[/code] - Advanced sampling and quasi-random sequences
 
 
 # =============================================================================

@@ -1,6 +1,8 @@
 # res://addons/godot-stat-math/core/ppf_functions.gd
 class_name PpfFunctions extends RefCounted
 
+const ACKLAM_COEFFICIENTS = preload("res://addons/godot-stat-math/tables/acklam_normal_ppf_coefficients.gd")
+
 ## Inverse Cumulative Distribution Functions (PPF/Quantile Functions)
 ##
 ## This class provides static methods to calculate Percentile Point Functions (PPF), 
@@ -8,11 +10,16 @@ class_name PpfFunctions extends RefCounted
 ## These functions return the value [code]x[/code] such that [code]CDF(x) = p[/code].
 ##
 ## Distribution Categories:
-## • Continuous distributions (Normal, Exponential, Gamma, Beta, etc.)
-## • Discrete distributions (Binomial, Poisson, Geometric, etc.)
-## • Special distributions (Chi-Square, F-distribution, Student's t)
-## • Heavy-tailed distributions (Pareto, Weibull)
-## • Custom distributions (Discrete Histogram)
+##
+## * Continuous distributions (Normal, Exponential, Gamma, Beta, etc.)
+##
+## * Discrete distributions (Binomial, Poisson, Geometric, etc.)
+##
+## * Special distributions (Chi-Square, F-distribution, Student's t)
+##
+## * Heavy-tailed distributions (Pareto, Weibull)
+##
+## * Custom distributions (Discrete Histogram)
 
 
 # =============================================================================
@@ -55,52 +62,31 @@ static func normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 	if p == 1.0:
 		return INF
 	
-	# Coefficients for the approximation (Acklam, 2010)
-	# For p_low < p < p_high
-	const A1 := -3.969683028665376e+01
-	const A2 := 2.209460984245205e+02
-	const A3 := -2.759285104469687e+02
-	const A4 := 1.383577518672690e+02
-	const A5 := -3.066479806614716e+01
-	const A6 := 2.506628277459239e+00
-	
-	const B1 := -5.447609879822406e+01
-	const B2 := 1.615858368580409e+02
-	const B3 := -1.556989798598866e+02
-	const B4 := 6.680131188771972e+01
-	const B5 := -1.328068155288572e+01
-	
-	# For p <= p_low or p >= p_high
-	const C1 := -7.784894002430293e-03
-	const C2 := -3.223964580411365e-01
-	const C3 := -2.400758277161838e+00
-	const C4 := -2.549732539343734e+00
-	const C5 := 4.374664141464968e+00
-	const C6 := 2.938163982698783e+00
-	
-	const D1 := 7.784695709041462e-03
-	const D2 := 3.224671290700398e-01
-	const D3 := 2.445134137142996e+00
-	const D4 := 3.754408661907416e+00
-	
-	const P_LOW := 0.02425
-	const P_HIGH := 1.0 - P_LOW
+	# Load Acklam algorithm coefficients from data table
+	# Reference: https://gist.github.com/roguetrainer/8188638
+	var coeffs: Dictionary = ACKLAM_COEFFICIENTS.VALUES["acklam_coefficients"]
+	var a: Array = coeffs["central_numerator"]
+	var b: Array = coeffs["central_denominator"]
+	var c: Array = coeffs["tail_numerator"]
+	var d: Array = coeffs["tail_denominator"]
+	var p_low: float = coeffs["breakpoints"]["p_low"]
+	var p_high: float = coeffs["breakpoints"]["p_high"]
 	
 	var x: float
 	
-	if p < P_LOW: # Left tail
+	if p < p_low: # Left tail
 		var q := sqrt(-2.0 * log(p))
-		x = (((((C1 * q + C2) * q + C3) * q + C4) * q + C5) * q + C6) / \
-			((((D1 * q + D2) * q + D3) * q + D4) * q + 1.0)
-	elif p <= P_HIGH: # Central region
+		x = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / \
+			((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0)
+	elif p <= p_high: # Central region
 		var q := p - 0.5
 		var r := q * q
-		x = (((((A1 * r + A2) * r + A3) * r + A4) * r + A5) * r + A6) * q / \
-			(((((B1 * r + B2) * r + B3) * r + B4) * r + B5) * r + 1.0)
-	else: # Right tail (p > P_HIGH)
+		x = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / \
+			(((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1.0)
+	else: # Right tail (p > p_high)
 		var q := sqrt(-2.0 * log(1.0 - p))
-		x = -(((((C1 * q + C2) * q + C3) * q + C4) * q + C5) * q + C6) / \
-			((((D1 * q + D2) * q + D3) * q + D4) * q + 1.0)
+		x = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / \
+			((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0)
 
 	# One refinement step for additional precision (optional, but good practice for Acklam's algorithm)
 	# Using Normal CDF: 0.5 * (1 + erf(x / sqrt(2)))

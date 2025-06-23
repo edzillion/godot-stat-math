@@ -8,10 +8,14 @@ class_name Distributions extends RefCounted
 ## modeling, and statistical analysis in game development.
 ##
 ## Distribution Categories:
-## • Discrete distributions (Bernoulli, Binomial, Geometric, Poisson)
-## • Continuous distributions (Normal, Exponential, Gamma, Beta, etc.)
-## • Specialized distributions (Triangular, Pareto, Weibull, Cauchy)
-## • Custom distributions (Pseudo, Siege, Histogram)
+##
+## * Discrete distributions (Bernoulli, Binomial, Geometric, Poisson)
+##
+## * Continuous distributions (Normal, Exponential, Gamma, Beta, etc.)
+##
+## * Specialized distributions (Triangular, Pareto, Weibull, Cauchy)
+##
+## * Custom distributions (Pseudo, Siege, Histogram)
 
 
 # =============================================================================
@@ -243,7 +247,7 @@ static func randf_exponential(lambda_param: float) -> float:
 
 ## Generates a float from an Erlang distribution.
 ##
-## Special case of Gamma distribution with integer shape parameter [code]k[/code].
+## Special case of [method Distributions.randf_gamma] distribution with integer shape parameter [code]k[/code].
 ## Represents the sum of [code]k[/code] independent Exponential([code]lambda_param[/code]) variables.
 ##
 ## Mathematical Note: [code]E[X] = k/λ[/code], [code]Var(X) = k/λ²[/code]
@@ -317,7 +321,7 @@ static func randf_gamma(shape: float, scale: float = 1.0) -> float:
 
 ## Generates a float from a Beta distribution.
 ##
-## Uses the gamma-to-beta transformation: if [code]X ~ Gamma(α,1)[/code] and [code]Y ~ Gamma(β,1)[/code], 
+## Uses the gamma-to-beta transformation: if [code]X ~ randf_gamma(α,1)[/code] and [code]Y ~ randf_gamma(β,1)[/code], 
 ## then [code]X/(X+Y) ~ Beta(α,β)[/code]. Values are always in [code][0,1][/code].
 ##
 ## Mathematical Note: [code]E[X] = α/(α+β)[/code], [code]Var(X) = αβ/[(α+β)²(α+β+1)][/code]
@@ -468,7 +472,7 @@ static func randf_pareto(scale_param: float, shape_param: float) -> float:
 ## Widely used for reliability analysis, survival analysis, and weather modeling.
 ## Uses inverse transform sampling: [code]λ * (-ln(1-U))^(1/k)[/code] where U ~ Uniform(0,1).
 ##
-## Mathematical Note: Mean = [code]λ * Γ(1 + 1/k)[/code] where Γ is the gamma function
+## Mathematical Note: Mean = [code]λ * Γ(1 + 1/k)[/code] where Γ is the gamma function. See [method HelperFunctions.gamma_function] for the gamma function implementation.
 static func randf_weibull(scale_param: float, shape_param: float) -> float:
 	if not (scale_param > 0.0):
 		push_error("Scale parameter must be positive for Weibull distribution. Received: %s" % scale_param)

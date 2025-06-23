@@ -8,10 +8,11 @@ class_name HelperFunctions extends RefCounted
 ## serve as the mathematical foundation for statistical calculations throughout the StatMath library.
 ##
 ## Mathematical Categories:
-## • Combinatorial functions (binomial coefficients, factorials)
-## • Gamma and Beta functions with their incomplete variants
-## • Array sanitization and preprocessing utilities
-## • Logarithmic versions for numerical stability
+##
+## * Combinatorial functions (binomial coefficients, factorials)
+## * Gamma and Beta functions with their incomplete variants  
+## * Array sanitization and preprocessing utilities
+## * Logarithmic versions for numerical stability
 
 # Constants are now defined in StatMath.gd
 
@@ -154,6 +155,7 @@ static func gamma_function(z: float) -> float:
 ## Computes the natural logarithm of the Gamma function: log(Γ(z)).
 ##
 ## More numerically stable than [code]log(gamma_function(z))[/code] for large z.
+## See [method HelperFunctions.gamma_function] for the gamma function implementation.
 ## Uses Lanczos approximation directly in logarithmic form to avoid overflow.
 ##
 ## Mathematical Note: Only defined for [code]z > 0[/code] where [code]Γ(z) > 0[/code]
@@ -202,6 +204,7 @@ static func beta_function(a: float, b: float) -> float:
 ## Computes the natural logarithm of the Beta function: log(B(a,b)).
 ##
 ## More numerically stable than [code]log(beta_function(a,b))[/code] for large parameters.
+## See [method HelperFunctions.beta_function] for the beta function implementation.
 ## Formula: [code]log(B(a,b)) = log(Γ(a)) + log(Γ(b)) - log(Γ(a+b))[/code]
 static func log_beta_function_direct(a: float, b: float) -> float:
 	if not (a > 0.0 and b > 0.0):
@@ -326,7 +329,8 @@ static func lower_incomplete_gamma_regularized(a: float, z: float) -> float:
 ##
 ## Implements the series expansion form of the incomplete Gamma function for better 
 ## numerical stability in the appropriate parameter range.
-## Formula: P(a,z) = (z^a * e^(-z) / Γ(a)) * Σ(z^n / (a*(a+1)*...*(a+n))) for n=0 to ∞
+## 
+## Formula: :math:`P(a,z) = \frac{z^a e^{-z}}{\Gamma(a)} \sum_{n=0}^{\infty} \frac{z^n}{a(a+1)\cdots(a+n)}`
 static func _gamma_series_expansion(a: float, z: float) -> float:
 	var max_terms: int = 200  # Increased iterations for better convergence
 	var tolerance: float = 1e-15  # Tighter tolerance
@@ -365,6 +369,8 @@ static func _gamma_series_expansion(a: float, z: float) -> float:
 ##
 ## Implements the continued fraction form of the incomplete Gamma function for better 
 ## numerical stability with larger z values relative to a.
+##
+## Uses the continued fraction representation: :math:`Q(a,z) = \frac{z^a e^{-z}}{\Gamma(a)} \frac{1}{z+1-a-\frac{1 \cdot (1-a)}{z+3-a-\frac{2 \cdot (2-a)}{z+5-a-\cdots}}}`
 static func _gamma_continued_fraction(a: float, z: float) -> float:
 	var max_iterations: int = 200
 	var tolerance: float = 1e-15
@@ -510,7 +516,7 @@ static func get_cdf_value(distribution: Variant, x: float, params: Array) -> flo
 	elif distribution is String:
 		dist_enum = string_to_distribution_enum(distribution)
 	else:
-		push_error("Invalid distribution type. Expected SupportedDistributions enum or String.")
+		push_error("Invalid distribution type. Expected StatMath.SupportedDistributions enum or String.")
 		return NAN
 	
 	match dist_enum:
@@ -547,7 +553,7 @@ static func get_ppf_value(distribution: Variant, p: float, params: Array) -> flo
 	elif distribution is String:
 		dist_enum = string_to_distribution_enum(distribution)
 	else:
-		push_error("Invalid distribution type. Expected SupportedDistributions enum or String.")
+		push_error("Invalid distribution type. Expected StatMath.SupportedDistributions enum or String.")
 		return NAN
 	
 	match dist_enum:
@@ -566,7 +572,7 @@ static func get_ppf_value(distribution: Variant, p: float, params: Array) -> flo
 			return NAN
 
 
-## Converts a string distribution name to SupportedDistributions enum.
+## Converts a string distribution name to [code]StatMath.SupportedDistributions[/code] enum.
 ##
 ## Centralized helper for converting string identifiers to proper enum values.
 ## Supports both uppercase and lowercase string inputs for flexibility.

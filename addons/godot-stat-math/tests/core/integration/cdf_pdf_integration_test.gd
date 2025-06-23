@@ -1,4 +1,4 @@
-# res://addons/godot-stat-math/tests/core/cdf_pdf_integration_test.gd
+# res://addons/godot-stat-math/tests/core/integration/cdf_pdf_integration_test.gd
 class_name CdfPdfIntegrationTest extends GdUnitTestSuite
 
 const CDF_PDF_INTEGRATION_TEST_DATA = preload("res://addons/godot-stat-math/tables/cdf_pdf_integration_test_data.gd")
@@ -14,168 +14,221 @@ const CDF_PDF_INTEGRATION_TEST_DATA = preload("res://addons/godot-stat-math/tabl
 # SCIPY VALIDATION TESTS - DATA-DRIVEN
 # =============================================================================
 
-## Tests integration consistency using scipy-validated data
-func test_scipy_integration_validation() -> void:
-	# This is a placeholder for scipy-validated integration tests
-	# Currently this file focuses on mathematical property testing
-	pass
+## Tests derivative relationship using scipy-validated data
+func test_scipy_derivative_validation() -> void:
+	# Test Normal distribution derivative relationship
+	var normal_data: Array = CDF_PDF_INTEGRATION_TEST_DATA.VALUES["normal_derivative_tests"]
+	for case in normal_data:
+		var x: float = case["params"][0]
+		var mu: float = case["params"][1] 
+		var sigma: float = case["params"][2]
+		
+		# Validate CDF matches scipy
+		var cdf_result: float = StatMath.CdfFunctions.normal_cdf(x, mu, sigma)
+		assert_float(cdf_result).is_equal_approx(case["cdf_expected"], StatMath.FLOAT_TOLERANCE)
+		
+		# Validate PDF matches scipy
+		var pdf_result: float = StatMath.PmfPdfFunctions.normal_pdf(x, mu, sigma)
+		assert_float(pdf_result).is_equal_approx(case["pdf_expected"], StatMath.FLOAT_TOLERANCE)
+
+## Tests monotonicity using scipy-validated data
+func test_scipy_monotonicity_validation() -> void:
+	# Test multiple distributions for monotonicity
+	var distributions: Array[String] = ["normal_monotonicity", "exponential_monotonicity", "uniform_monotonicity", "beta_monotonicity", "gamma_monotonicity", "weibull_monotonicity"]
+	
+	for dist_name in distributions:
+		var test_data: Array = CDF_PDF_INTEGRATION_TEST_DATA.VALUES[dist_name]
+		var prev_cdf: float = -1.0
+		
+		for case in test_data:
+			var calculated_cdf: float
+			
+			match dist_name:
+				"normal_monotonicity":
+					calculated_cdf = StatMath.CdfFunctions.normal_cdf(case["params"][0], case["params"][1], case["params"][2])
+				"exponential_monotonicity":
+					calculated_cdf = StatMath.CdfFunctions.exponential_cdf(case["params"][0], case["params"][1])
+				"uniform_monotonicity":
+					calculated_cdf = StatMath.CdfFunctions.uniform_cdf(case["params"][0], case["params"][1], case["params"][2])
+				"beta_monotonicity":
+					calculated_cdf = StatMath.CdfFunctions.beta_cdf(case["params"][0], case["params"][1], case["params"][2])
+				"gamma_monotonicity":
+					calculated_cdf = StatMath.CdfFunctions.gamma_cdf(case["params"][0], case["params"][1], case["params"][2])
+				"weibull_monotonicity":
+					calculated_cdf = StatMath.CdfFunctions.weibull_cdf(case["params"][0], case["params"][1], case["params"][2])
+			
+			# Validate against scipy expected value
+			assert_float(calculated_cdf).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
+			
+			# Validate monotonicity property
+			assert_float(calculated_cdf).is_greater_equal(prev_cdf)
+			assert_float(calculated_cdf).is_greater_equal(0.0)
+			assert_float(calculated_cdf).is_less_equal(1.0)
+			
+			prev_cdf = calculated_cdf
+
+## Tests cross-function consistency using scipy-validated data
+func test_scipy_cross_function_validation() -> void:
+	# Test Normal CDF/PPF consistency
+	var normal_data: Array = CDF_PDF_INTEGRATION_TEST_DATA.VALUES["normal_cdf_ppf_consistency"]
+	for case in normal_data:
+		var x: float = case["cdf_params"][0]
+		var mu: float = case["cdf_params"][1]
+		var sigma: float = case["cdf_params"][2]
+		
+		# Validate CDF matches scipy
+		var cdf_result: float = StatMath.CdfFunctions.normal_cdf(x, mu, sigma)
+		assert_float(cdf_result).is_equal_approx(case["cdf_expected"], StatMath.FLOAT_TOLERANCE)
+		
+		# Validate PPF round-trip consistency
+		var ppf_result: float = StatMath.PpfFunctions.normal_ppf(cdf_result, mu, sigma)
+		assert_float(ppf_result).is_equal_approx(case["ppf_expected"], StatMath.INVERSE_FUNCTION_TOLERANCE)
+
+## Tests boundary behavior using scipy-validated data
+func test_scipy_boundary_validation() -> void:
+	# Test boundary conditions for multiple distributions
+	var boundary_tests: Array[String] = ["normal_boundary_tests", "uniform_boundary_tests", "beta_boundary_tests", "exponential_boundary_tests"]
+	
+	for test_name in boundary_tests:
+		var test_data: Array = CDF_PDF_INTEGRATION_TEST_DATA.VALUES[test_name]
+		
+		for case in test_data:
+			var calculated_cdf: float
+			var calculated_pdf: float
+			
+			match test_name:
+				"normal_boundary_tests":
+					calculated_cdf = StatMath.CdfFunctions.normal_cdf(case["params"][0], case["params"][1], case["params"][2])
+					calculated_pdf = StatMath.PmfPdfFunctions.normal_pdf(case["params"][0], case["params"][1], case["params"][2])
+				"uniform_boundary_tests":
+					calculated_cdf = StatMath.CdfFunctions.uniform_cdf(case["params"][0], case["params"][1], case["params"][2])
+					calculated_pdf = StatMath.PmfPdfFunctions.uniform_pdf(case["params"][0], case["params"][1], case["params"][2])
+				"beta_boundary_tests":
+					calculated_cdf = StatMath.CdfFunctions.beta_cdf(case["params"][0], case["params"][1], case["params"][2])
+					calculated_pdf = StatMath.PmfPdfFunctions.beta_pdf(case["params"][0], case["params"][1], case["params"][2])
+				"exponential_boundary_tests":
+					calculated_cdf = StatMath.CdfFunctions.exponential_cdf(case["params"][0], case["params"][1])
+					calculated_pdf = StatMath.PmfPdfFunctions.exponential_pdf(case["params"][0], case["params"][1])
+			
+			# Validate against scipy expected values
+			assert_float(calculated_cdf).is_equal_approx(case["cdf_expected"], StatMath.FLOAT_TOLERANCE)
+			assert_float(calculated_pdf).is_equal_approx(case["pdf_expected"], StatMath.FLOAT_TOLERANCE)
 
 # =============================================================================
 # MATHEMATICAL PROPERTY TESTS
 # =============================================================================
 
-# --- CDF ↔ PDF Derivative Relationship Tests ---
-
 ## Tests that the numerical derivative of Normal CDF approximates Normal PDF
 func test_normal_cdf_pdf_derivative_relationship() -> void:
-	var test_points: Array = CDF_PDF_INTEGRATION_TEST_DATA.DERIVATIVE_TEST_POINTS[StatMath.SupportedDistributions.NORMAL]
-	var params: Dictionary = CDF_PDF_INTEGRATION_TEST_DATA.DISTRIBUTION_PARAMETERS["normal_standard"]
+	var test_data: Array = CDF_PDF_INTEGRATION_TEST_DATA.VALUES["normal_derivative_tests"]
 	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
-	for x in test_points:
+	for case in test_data:
+		var x: float = case["params"][0]
+		var mu: float = case["params"][1]
+		var sigma: float = case["params"][2]
+		
 		# Calculate numerical derivative: d/dx CDF(x) ≈ (CDF(x+h) - CDF(x-h)) / (2h)
-		var cdf_plus: float = StatMath.CdfFunctions.normal_cdf(x + h, params["mu"], params["sigma"])
-		var cdf_minus: float = StatMath.CdfFunctions.normal_cdf(x - h, params["mu"], params["sigma"])
+		var cdf_plus: float = StatMath.CdfFunctions.normal_cdf(x + h, mu, sigma)
+		var cdf_minus: float = StatMath.CdfFunctions.normal_cdf(x - h, mu, sigma)
 		var numerical_derivative: float = (cdf_plus - cdf_minus) / (2.0 * h)
 		
-		# Calculate actual PDF value
-		var pdf_value: float = StatMath.PmfPdfFunctions.normal_pdf(x, params["mu"], params["sigma"])
-		
-		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
+		# Compare against scipy-validated PDF value
+		assert_float(numerical_derivative).is_equal_approx(case["pdf_expected"], StatMath.DERIVATIVE_TOLERANCE)
 
 ## Tests that the numerical derivative of Exponential CDF approximates Exponential PDF
 func test_exponential_cdf_pdf_derivative_relationship() -> void:
-	var test_points: Array = CDF_PDF_INTEGRATION_TEST_DATA.DERIVATIVE_TEST_POINTS[StatMath.SupportedDistributions.EXPONENTIAL]
-	var params: Dictionary = CDF_PDF_INTEGRATION_TEST_DATA.DISTRIBUTION_PARAMETERS["exponential_rate_2"]
+	var test_data: Array = CDF_PDF_INTEGRATION_TEST_DATA.VALUES["exponential_derivative_tests"]
 	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
-	for x in test_points:
-		var cdf_plus: float = StatMath.CdfFunctions.exponential_cdf(x + h, params["lambda_param"])
-		var cdf_minus: float = StatMath.CdfFunctions.exponential_cdf(x - h, params["lambda_param"])
+	for case in test_data:
+		var x: float = case["params"][0]
+		var lambda_param: float = case["params"][1]
+		
+		var cdf_plus: float = StatMath.CdfFunctions.exponential_cdf(x + h, lambda_param)
+		var cdf_minus: float = StatMath.CdfFunctions.exponential_cdf(x - h, lambda_param)
 		var numerical_derivative: float = (cdf_plus - cdf_minus) / (2.0 * h)
 		
-		var pdf_value: float = StatMath.PmfPdfFunctions.exponential_pdf(x, params["lambda_param"])
-		
-		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
+		assert_float(numerical_derivative).is_equal_approx(case["pdf_expected"], StatMath.DERIVATIVE_TOLERANCE)
 
 ## Tests that the numerical derivative of Uniform CDF approximates Uniform PDF
 func test_uniform_cdf_pdf_derivative_relationship() -> void:
-	var a: float = 1.0
-	var b: float = 4.0
-	var test_points: Array[float] = [1.5, 2.0, 2.5, 3.0, 3.5]  # Points strictly inside [a,b]
+	var test_data: Array = CDF_PDF_INTEGRATION_TEST_DATA.VALUES["uniform_derivative_tests"]
 	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
-	for x in test_points:
+	for case in test_data:
+		var x: float = case["params"][0]
+		var a: float = case["params"][1]
+		var b: float = case["params"][2]
+		
 		var cdf_plus: float = StatMath.CdfFunctions.uniform_cdf(x + h, a, b)
 		var cdf_minus: float = StatMath.CdfFunctions.uniform_cdf(x - h, a, b)
 		var numerical_derivative: float = (cdf_plus - cdf_minus) / (2.0 * h)
 		
-		var pdf_value: float = StatMath.PmfPdfFunctions.uniform_pdf(x, a, b)
-		
-		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
+		assert_float(numerical_derivative).is_equal_approx(case["pdf_expected"], StatMath.DERIVATIVE_TOLERANCE)
 
 ## Tests that the numerical derivative of Beta CDF approximates Beta PDF
 func test_beta_cdf_pdf_derivative_relationship() -> void:
-	var alpha: float = 2.0
-	var beta_param: float = 3.0
-	var test_points: Array[float] = [0.1, 0.3, 0.5, 0.7, 0.9]  # Points strictly inside (0,1)
+	var test_data: Array = CDF_PDF_INTEGRATION_TEST_DATA.VALUES["beta_derivative_tests"]
 	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
 	
-	for x in test_points:
+	for case in test_data:
+		var x: float = case["params"][0]
+		var alpha: float = case["params"][1]
+		var beta_param: float = case["params"][2]
+		
 		var cdf_plus: float = StatMath.CdfFunctions.beta_cdf(x + h, alpha, beta_param)
 		var cdf_minus: float = StatMath.CdfFunctions.beta_cdf(x - h, alpha, beta_param)
 		var numerical_derivative: float = (cdf_plus - cdf_minus) / (2.0 * h)
 		
-		var pdf_value: float = StatMath.PmfPdfFunctions.beta_pdf(x, alpha, beta_param)
+		assert_float(numerical_derivative).is_equal_approx(case["pdf_expected"], StatMath.DERIVATIVE_TOLERANCE)
+
+## Tests that the numerical derivative of Weibull CDF approximates Weibull PDF
+func test_weibull_cdf_pdf_derivative_relationship() -> void:
+	var test_data: Array = CDF_PDF_INTEGRATION_TEST_DATA.VALUES["weibull_derivative_tests"]
+	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
+	
+	for case in test_data:
+		var x: float = case["params"][0]
+		var scale_param: float = case["params"][1]
+		var shape_param: float = case["params"][2]
 		
-		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
+		var cdf_plus: float = StatMath.CdfFunctions.weibull_cdf(x + h, scale_param, shape_param)
+		var cdf_minus: float = StatMath.CdfFunctions.weibull_cdf(x - h, scale_param, shape_param)
+		var numerical_derivative: float = (cdf_plus - cdf_minus) / (2.0 * h)
+		
+		assert_float(numerical_derivative).is_equal_approx(case["pdf_expected"], StatMath.DERIVATIVE_TOLERANCE)
 
 ## Tests Gamma distribution probability consistency (Gamma(1,scale) = Exponential(1/scale))
-func test_gamma_cdf_pdf_probability_consistency() -> void:
-	# Test that Gamma(1, scale) is equivalent to Exponential(1/scale)
+func test_gamma_exponential_mathematical_relationship() -> void:
+	# Mathematical relationship that Gamma(1, scale) = Exponential(1/scale)
 	var shape: float = 1.0
 	var scale: float = 2.0
 	var lambda_equiv: float = 1.0 / scale
-	
 	var test_points: Array[float] = [0.5, 1.0, 2.0, 4.0]
 	
 	for x in test_points:
 		var gamma_cdf: float = StatMath.CdfFunctions.gamma_cdf(x, shape, scale)
 		var exponential_cdf: float = StatMath.CdfFunctions.exponential_cdf(x, lambda_equiv)
 		
-		# They should be approximately equal due to mathematical relationship
 		assert_float(gamma_cdf).is_equal_approx(exponential_cdf, StatMath.PROBABILITY_TOLERANCE)
 
-## Tests that the numerical derivative of Weibull CDF approximates Weibull PDF
-func test_weibull_cdf_pdf_derivative_relationship() -> void:
-	var scale_param: float = 2.0
-	var shape_param: float = 2.0
-	var test_points: Array[float] = [0.5, 1.0, 1.5, 2.0, 3.0]  # Points > 0
-	var h: float = StatMath.NUMERICAL_DIFFERENTIATION_H
-	
-	for x in test_points:
-		var cdf_plus: float = StatMath.CdfFunctions.weibull_cdf(x + h, scale_param, shape_param)
-		var cdf_minus: float = StatMath.CdfFunctions.weibull_cdf(x - h, scale_param, shape_param)
-		var numerical_derivative: float = (cdf_plus - cdf_minus) / (2.0 * h)
-		
-		var pdf_value: float = StatMath.PmfPdfFunctions.weibull_pdf(x, scale_param, shape_param)
-		
-		assert_float(numerical_derivative).is_equal_approx(pdf_value, StatMath.DERIVATIVE_TOLERANCE)
-
-# --- CDF Monotonicity Tests ---
-
-## Tests that CDFs are monotonically increasing for all continuous distributions
-func test_cdf_monotonicity_all_distributions() -> void:
-	var distributions: Array[Dictionary] = CDF_PDF_INTEGRATION_TEST_DATA.MONOTONICITY_TEST_DATA
-	
-	for dist in distributions:
-		var points: Array = dist["points"]
-		var prev_cdf: float = -1.0
-		
-		for i in range(points.size()):
-			var x: float = points[i]
-			var current_cdf: float
-			
-			# Direct function calls instead of terrible abstraction
-			match dist["name"]:
-				StatMath.SupportedDistributions.NORMAL:
-					current_cdf = StatMath.CdfFunctions.normal_cdf(x, dist["params"][0], dist["params"][1])
-				StatMath.SupportedDistributions.EXPONENTIAL:
-					current_cdf = StatMath.CdfFunctions.exponential_cdf(x, dist["params"][0])
-				StatMath.SupportedDistributions.UNIFORM:
-					current_cdf = StatMath.CdfFunctions.uniform_cdf(x, dist["params"][0], dist["params"][1])
-				StatMath.SupportedDistributions.BETA:
-					current_cdf = StatMath.CdfFunctions.beta_cdf(x, dist["params"][0], dist["params"][1])
-				StatMath.SupportedDistributions.GAMMA:
-					current_cdf = StatMath.CdfFunctions.gamma_cdf(x, dist["params"][0], dist["params"][1])
-				StatMath.SupportedDistributions.WEIBULL:
-					current_cdf = StatMath.CdfFunctions.weibull_cdf(x, dist["params"][0], dist["params"][1])
-				_:
-					push_error("Unknown distribution: " + str(dist["name"]))
-					current_cdf = NAN
-			
-			# CDF should be monotonically non-decreasing
-			assert_float(current_cdf).is_greater_equal(prev_cdf)
-			
-			# CDF should be between 0 and 1
-			assert_float(current_cdf).is_greater_equal(0.0)
-			assert_float(current_cdf).is_less_equal(1.0)
-			
-			prev_cdf = current_cdf
-
-# --- End-to-End Statistical Computation Tests ---
+# =============================================================================
+# END-TO-END WORKFLOW TESTS
+# =============================================================================
 
 ## Tests a complete statistical workflow: data generation → analysis → validation
 func test_end_to_end_normal_distribution_workflow() -> void:
-	# Generate sample from normal distribution using our Distributions module
-	var workflow_params: Dictionary = CDF_PDF_INTEGRATION_TEST_DATA.WORKFLOW_TEST_PARAMETERS
-	var sample_size: int = workflow_params["sample_size"]
-	var mu: float = workflow_params["normal_params"]["mu"]
-	var sigma: float = workflow_params["normal_params"]["sigma"]
+	# Use simple hardcoded workflow parameters for illustrative purposes
+	var sample_size: int = 1000
+	var mu: float = 5.0
+	var sigma: float = 2.0
+	var test_seed: int = 12345
+	var percentile_value: float = 95.0
 	var samples: Array[float] = []
 	
 	# Use a fixed seed for reproducible testing
-	StatMath.set_global_seed(workflow_params["test_seed"])
+	StatMath.set_global_seed(test_seed)
 	
 	for i in range(sample_size):
 		samples.append(StatMath.Distributions.randf_normal(mu, sigma))
@@ -185,59 +238,15 @@ func test_end_to_end_normal_distribution_workflow() -> void:
 	var sample_std: float = StatMath.BasicStats.standard_deviation(samples)
 	
 	# Validate that sample statistics are close to theoretical values
-	# With 1000 samples, we expect good approximation
-	assert_float(sample_mean).is_equal_approx(mu, StatMath.NEGATIVE_BINOMIAL_TOLERANCE)  # Within tolerance of true mean
-	assert_float(sample_std).is_equal_approx(sigma, StatMath.HIGH_DISTRIBUTION_TOLERANCE)  # Within tolerance of true std
+	assert_float(sample_mean).is_equal_approx(mu, StatMath.NEGATIVE_BINOMIAL_TOLERANCE)
+	assert_float(sample_std).is_equal_approx(sigma, StatMath.HIGH_DISTRIBUTION_TOLERANCE)
 	
 	# Test that our CDF/PDF functions work with sample data
-	samples.sort()  # Sort the array before calculating percentile
-	var percentile_95: float = StatMath.BasicStats.percentile(samples, workflow_params["percentile_value"])
-	var theoretical_95: float = StatMath.PpfFunctions.normal_ppf(workflow_params["percentile_value"] / 100.0, mu, sigma)
+	samples.sort()
+	var percentile_95: float = StatMath.BasicStats.percentile(samples, percentile_value)
+	var theoretical_95: float = StatMath.PpfFunctions.normal_ppf(percentile_value / 100.0, mu, sigma)
 	
-	assert_float(percentile_95).is_equal_approx(theoretical_95, StatMath.DEFAULT_TOLERANCE_FACTOR)  # Within tolerance factor - increased tolerance for sampling variation
-
-## Tests cross-function consistency in probability calculations
-func test_cross_function_probability_consistency() -> void:
-	# Test that CDF, PDF, and PPF are mathematically consistent
-	var distributions: Array[Dictionary] = [
-		{"name": StatMath.SupportedDistributions.NORMAL, "cdf_params": [1.5, 0.0, 1.0], "pdf_params": [1.5, 0.0, 1.0], "ppf_params": [0.0, 1.0]},
-		{"name": StatMath.SupportedDistributions.EXPONENTIAL, "cdf_params": [2.0, 1.0], "pdf_params": [2.0, 1.0], "ppf_params": [1.0]},
-		{"name": StatMath.SupportedDistributions.UNIFORM, "cdf_params": [2.5, 1.0, 4.0], "pdf_params": [2.5, 1.0, 4.0], "ppf_params": [1.0, 4.0]}
-	]
-	
-	for dist in distributions:
-		var name: StatMath.SupportedDistributions = dist["name"]
-		
-		# Calculate CDF value directly
-		var cdf_val: float
-		var x_val: float = dist["cdf_params"][0]
-		
-		match name:
-			StatMath.SupportedDistributions.NORMAL:
-				cdf_val = StatMath.CdfFunctions.normal_cdf(x_val, dist["cdf_params"][1], dist["cdf_params"][2])
-			StatMath.SupportedDistributions.EXPONENTIAL:
-				cdf_val = StatMath.CdfFunctions.exponential_cdf(x_val, dist["cdf_params"][1])
-			StatMath.SupportedDistributions.UNIFORM:
-				cdf_val = StatMath.CdfFunctions.uniform_cdf(x_val, dist["cdf_params"][1], dist["cdf_params"][2])
-			_:
-				push_error("Unknown distribution: " + str(name))
-				cdf_val = NAN
-		
-		# Calculate corresponding PPF value directly
-		var ppf_val: float
-		match name:
-			StatMath.SupportedDistributions.NORMAL:
-				ppf_val = StatMath.PpfFunctions.normal_ppf(cdf_val, dist["ppf_params"][0], dist["ppf_params"][1])
-			StatMath.SupportedDistributions.EXPONENTIAL:
-				ppf_val = StatMath.PpfFunctions.exponential_ppf(cdf_val, dist["ppf_params"][0])
-			StatMath.SupportedDistributions.UNIFORM:
-				ppf_val = StatMath.PpfFunctions.uniform_ppf(cdf_val, dist["ppf_params"][0], dist["ppf_params"][1])
-			_:
-				push_error("PPF not implemented for distribution: " + str(name))
-				ppf_val = NAN
-		
-		# PPF(CDF(x)) should equal x
-		assert_float(ppf_val).is_equal_approx(dist["cdf_params"][0], StatMath.INVERSE_CONSISTENCY_TOLERANCE)
+	assert_float(percentile_95).is_equal_approx(theoretical_95, StatMath.DEFAULT_TOLERANCE_FACTOR)
 
 # =============================================================================
 # NUMERICAL STABILITY TESTS
@@ -256,7 +265,7 @@ func test_numerical_stability_extreme_values() -> void:
 	var large_x: float = 1e6
 	var result_large: float = StatMath.CdfFunctions.exponential_cdf(large_x, 1.0)
 	assert_bool(is_finite(result_large)).is_true()
-	assert_float(result_large).is_equal_approx(1.0, StatMath.BOUNDARY_TOLERANCE)  # Should be very close to 1
+	assert_float(result_large).is_equal_approx(1.0, StatMath.BOUNDARY_TOLERANCE)
 	
 	# Test with extreme probability values
 	var result_extreme_low: float = StatMath.PpfFunctions.normal_ppf(1e-10)
@@ -264,27 +273,12 @@ func test_numerical_stability_extreme_values() -> void:
 	assert_bool(is_finite(result_extreme_low)).is_true()
 	assert_bool(is_finite(result_extreme_high)).is_true()
 
-## Tests behavior at distribution boundaries and special points
-func test_distribution_boundary_behavior() -> void:
-	# Test uniform distribution at boundaries
-	assert_float(StatMath.CdfFunctions.uniform_cdf(1.0, 1.0, 4.0)).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
-	assert_float(StatMath.CdfFunctions.uniform_cdf(4.0, 1.0, 4.0)).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
-	
-	# Test beta distribution at boundaries
-	assert_float(StatMath.CdfFunctions.beta_cdf(0.0, 2.0, 3.0)).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
-	assert_float(StatMath.CdfFunctions.beta_cdf(1.0, 2.0, 3.0)).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
-	
-	# Test exponential distribution at x=0
-	assert_float(StatMath.CdfFunctions.exponential_cdf(0.0, 2.0)).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
-
 # =============================================================================
 # PARAMETER VALIDATION TESTS
 # =============================================================================
 
 ## Tests parameter validation for integration functions
 func test_integration_parameter_validation() -> void:
-	# This is a placeholder for parameter validation tests
 	# Integration tests primarily focus on mathematical properties
 	# Individual function parameter validation is tested in their respective test files
 	pass
-
