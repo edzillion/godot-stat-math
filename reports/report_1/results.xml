@@ -1,243 +1,243 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <testsuites id="2025-06-23" name="report_1" tests="643" failures="0" skipped="0" flaky="0" time="0.000">
-	<testsuite id="0" name="stat_math_test" package="addons/godot-stat-math/tests" timestamp="2025-06-23T21:37:55" hostname="localhost" tests="19" failures="0" errors="0" skipped="0" flaky="0" time="0.652">
-		<testcase name="test_modules_preloaded" classname="stat_math_test" time="0.024">
+	<testsuite id="0" name="stat_math_test" package="addons/godot-stat-math/tests" timestamp="2025-06-23T22:35:01" hostname="localhost" tests="19" failures="0" errors="0" skipped="0" flaky="0" time="0.633">
+		<testcase name="test_modules_preloaded" classname="stat_math_test" time="0.018">
 		</testcase>
-		<testcase name="test_module_function_access" classname="stat_math_test" time="0.012">
+		<testcase name="test_module_function_access" classname="stat_math_test" time="0.016">
 		</testcase>
-		<testcase name="test_get_rng_returns_valid_instance" classname="stat_math_test" time="0.018">
+		<testcase name="test_get_rng_returns_valid_instance" classname="stat_math_test" time="0.016">
 		</testcase>
-		<testcase name="test_get_rng_returns_same_instance" classname="stat_math_test" time="0.018">
+		<testcase name="test_get_rng_returns_same_instance" classname="stat_math_test" time="0.015">
 		</testcase>
-		<testcase name="test_set_global_seed_changes_rng" classname="stat_math_test" time="0.023">
+		<testcase name="test_set_global_seed_changes_rng" classname="stat_math_test" time="0.015">
 		</testcase>
-		<testcase name="test_set_global_seed_zero_valid" classname="stat_math_test" time="0.015">
+		<testcase name="test_set_global_seed_zero_valid" classname="stat_math_test" time="0.016">
 		</testcase>
-		<testcase name="test_rng_produces_reproducible_results" classname="stat_math_test" time="0.018">
+		<testcase name="test_rng_produces_reproducible_results" classname="stat_math_test" time="0.016">
 		</testcase>
-		<testcase name="test_default_seed_behavior" classname="stat_math_test" time="0.012">
+		<testcase name="test_default_seed_behavior" classname="stat_math_test" time="0.016">
 		</testcase>
-		<testcase name="test_project_setting_integer_seed" classname="stat_math_test" time="0.018">
+		<testcase name="test_project_setting_integer_seed" classname="stat_math_test" time="0.016">
 		</testcase>
-		<testcase name="test_project_setting_invalid_type" classname="stat_math_test" time="0.022">
+		<testcase name="test_project_setting_invalid_type" classname="stat_math_test" time="0.016">
 		</testcase>
 		<testcase name="test_stat_math_integration_with_distributions" classname="stat_math_test" time="0.016">
 		</testcase>
-		<testcase name="test_stat_math_integration_with_basic_stats" classname="stat_math_test" time="0.018">
+		<testcase name="test_stat_math_integration_with_basic_stats" classname="stat_math_test" time="0.015">
 		</testcase>
-		<testcase name="test_stat_math_integration_with_helper_functions" classname="stat_math_test" time="0.015">
+		<testcase name="test_stat_math_integration_with_helper_functions" classname="stat_math_test" time="0.016">
 		</testcase>
-		<testcase name="test_stat_math_integration_with_error_functions" classname="stat_math_test" time="0.016">
+		<testcase name="test_stat_math_integration_with_error_functions" classname="stat_math_test" time="0.015">
 		</testcase>
-		<testcase name="test_rng_initialization_before_ready" classname="stat_math_test" time="0.017">
+		<testcase name="test_rng_initialization_before_ready" classname="stat_math_test" time="0.016">
 		</testcase>
-		<testcase name="test_large_seed_values" classname="stat_math_test" time="0.017">
+		<testcase name="test_large_seed_values" classname="stat_math_test" time="0.023">
 		</testcase>
-		<testcase name="test_negative_seed_values" classname="stat_math_test" time="0.015">
+		<testcase name="test_negative_seed_values" classname="stat_math_test" time="0.016">
 		</testcase>
-		<testcase name="test_multiple_rng_calls_consistency" classname="stat_math_test" time="0.014">
+		<testcase name="test_multiple_rng_calls_consistency" classname="stat_math_test" time="0.017">
 		</testcase>
-		<testcase name="test_seed_changes_affect_all_modules" classname="stat_math_test" time="0.015">
-		</testcase>
-	</testsuite>
-	<testsuite id="1" name="ppf_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T21:37:56" hostname="localhost" tests="4" failures="0" errors="0" skipped="0" flaky="0" time="14.894">
-		<testcase name="test_normal_ppf_performance" classname="ppf_functions_perf_test" time="0.056">
-		</testcase>
-		<testcase name="test_gamma_ppf_performance" classname="ppf_functions_perf_test" time="2.675">
-		</testcase>
-		<testcase name="test_beta_ppf_performance" classname="ppf_functions_perf_test" time="12.078">
-		</testcase>
-		<testcase name="test_weibull_ppf_performance" classname="ppf_functions_perf_test" time="0.024">
+		<testcase name="test_seed_changes_affect_all_modules" classname="stat_math_test" time="0.016">
 		</testcase>
 	</testsuite>
-	<testsuite id="2" name="sampling_gen_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T21:38:11" hostname="localhost" tests="38" failures="0" errors="0" skipped="0" flaky="0" time="6.280">
-		<testcase name="test_generate_samples:0 (SamplingGen.SamplingMethod.RANDOM, 1, 32)" classname="sampling_gen_perf_test" time="0.078">
+	<testsuite id="1" name="ppf_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T22:35:02" hostname="localhost" tests="4" failures="0" errors="0" skipped="0" flaky="0" time="15.041">
+		<testcase name="test_normal_ppf_performance" classname="ppf_functions_perf_test" time="0.057">
 		</testcase>
-		<testcase name="test_generate_samples:1 (SamplingGen.SamplingMethod.RANDOM, 1, 256)" classname="sampling_gen_perf_test" time="0.073">
+		<testcase name="test_gamma_ppf_performance" classname="ppf_functions_perf_test" time="2.648">
 		</testcase>
-		<testcase name="test_generate_samples:2 (SamplingGen.SamplingMethod.RANDOM, 1, 1024)" classname="sampling_gen_perf_test" time="0.088">
+		<testcase name="test_beta_ppf_performance" classname="ppf_functions_perf_test" time="12.255">
+		</testcase>
+		<testcase name="test_weibull_ppf_performance" classname="ppf_functions_perf_test" time="0.031">
+		</testcase>
+	</testsuite>
+	<testsuite id="2" name="sampling_gen_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T22:35:17" hostname="localhost" tests="38" failures="0" errors="0" skipped="0" flaky="0" time="6.205">
+		<testcase name="test_generate_samples:0 (SamplingGen.SamplingMethod.RANDOM, 1, 32)" classname="sampling_gen_perf_test" time="0.097">
+		</testcase>
+		<testcase name="test_generate_samples:1 (SamplingGen.SamplingMethod.RANDOM, 1, 256)" classname="sampling_gen_perf_test" time="0.075">
+		</testcase>
+		<testcase name="test_generate_samples:2 (SamplingGen.SamplingMethod.RANDOM, 1, 1024)" classname="sampling_gen_perf_test" time="0.087">
 		</testcase>
 		<testcase name="test_generate_samples:3 (SamplingGen.SamplingMethod.RANDOM, 3, 32)" classname="sampling_gen_perf_test" time="0.072">
 		</testcase>
-		<testcase name="test_generate_samples:4 (SamplingGen.SamplingMethod.RANDOM, 3, 256)" classname="sampling_gen_perf_test" time="0.077">
+		<testcase name="test_generate_samples:4 (SamplingGen.SamplingMethod.RANDOM, 3, 256)" classname="sampling_gen_perf_test" time="0.076">
 		</testcase>
-		<testcase name="test_generate_samples:5 (SamplingGen.SamplingMethod.RANDOM, 3, 1024)" classname="sampling_gen_perf_test" time="0.100">
+		<testcase name="test_generate_samples:5 (SamplingGen.SamplingMethod.RANDOM, 3, 1024)" classname="sampling_gen_perf_test" time="0.099">
 		</testcase>
 		<testcase name="test_generate_samples:6 (SamplingGen.SamplingMethod.RANDOM, 10, 32)" classname="sampling_gen_perf_test" time="0.076">
 		</testcase>
-		<testcase name="test_generate_samples:7 (SamplingGen.SamplingMethod.RANDOM, 10, 256)" classname="sampling_gen_perf_test" time="0.093">
+		<testcase name="test_generate_samples:7 (SamplingGen.SamplingMethod.RANDOM, 10, 256)" classname="sampling_gen_perf_test" time="0.094">
 		</testcase>
-		<testcase name="test_generate_samples:8 (SamplingGen.SamplingMethod.RANDOM, 10, 1024)" classname="sampling_gen_perf_test" time="0.158">
+		<testcase name="test_generate_samples:8 (SamplingGen.SamplingMethod.RANDOM, 10, 1024)" classname="sampling_gen_perf_test" time="0.162">
 		</testcase>
-		<testcase name="test_generate_samples:9 (SamplingGen.SamplingMethod.SOBOL, 1, 32)" classname="sampling_gen_perf_test" time="0.083">
+		<testcase name="test_generate_samples:9 (SamplingGen.SamplingMethod.SOBOL, 1, 32)" classname="sampling_gen_perf_test" time="0.069">
 		</testcase>
-		<testcase name="test_generate_samples:10 (SamplingGen.SamplingMethod.SOBOL, 1, 256)" classname="sampling_gen_perf_test" time="0.076">
+		<testcase name="test_generate_samples:10 (SamplingGen.SamplingMethod.SOBOL, 1, 256)" classname="sampling_gen_perf_test" time="0.081">
 		</testcase>
-		<testcase name="test_generate_samples:11 (SamplingGen.SamplingMethod.SOBOL, 1, 1024)" classname="sampling_gen_perf_test" time="0.101">
+		<testcase name="test_generate_samples:11 (SamplingGen.SamplingMethod.SOBOL, 1, 1024)" classname="sampling_gen_perf_test" time="0.096">
 		</testcase>
 		<testcase name="test_generate_samples:12 (SamplingGen.SamplingMethod.SOBOL, 3, 32)" classname="sampling_gen_perf_test" time="0.074">
 		</testcase>
-		<testcase name="test_generate_samples:13 (SamplingGen.SamplingMethod.SOBOL, 3, 256)" classname="sampling_gen_perf_test" time="0.087">
+		<testcase name="test_generate_samples:13 (SamplingGen.SamplingMethod.SOBOL, 3, 256)" classname="sampling_gen_perf_test" time="0.090">
 		</testcase>
-		<testcase name="test_generate_samples:14 (SamplingGen.SamplingMethod.SOBOL, 3, 1024)" classname="sampling_gen_perf_test" time="0.149">
+		<testcase name="test_generate_samples:14 (SamplingGen.SamplingMethod.SOBOL, 3, 1024)" classname="sampling_gen_perf_test" time="0.135">
 		</testcase>
-		<testcase name="test_generate_samples:15 (SamplingGen.SamplingMethod.SOBOL, 10, 32)" classname="sampling_gen_perf_test" time="0.082">
+		<testcase name="test_generate_samples:15 (SamplingGen.SamplingMethod.SOBOL, 10, 32)" classname="sampling_gen_perf_test" time="0.080">
 		</testcase>
-		<testcase name="test_generate_samples:16 (SamplingGen.SamplingMethod.SOBOL, 10, 256)" classname="sampling_gen_perf_test" time="0.126">
+		<testcase name="test_generate_samples:16 (SamplingGen.SamplingMethod.SOBOL, 10, 256)" classname="sampling_gen_perf_test" time="0.125">
 		</testcase>
 		<testcase name="test_generate_samples:17 (SamplingGen.SamplingMethod.SOBOL, 10, 1024)" classname="sampling_gen_perf_test" time="0.281">
 		</testcase>
-		<testcase name="test_generate_samples:18 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 32)" classname="sampling_gen_perf_test" time="0.067">
+		<testcase name="test_generate_samples:18 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 32)" classname="sampling_gen_perf_test" time="0.071">
 		</testcase>
-		<testcase name="test_generate_samples:19 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 256)" classname="sampling_gen_perf_test" time="0.073">
+		<testcase name="test_generate_samples:19 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 256)" classname="sampling_gen_perf_test" time="0.076">
 		</testcase>
-		<testcase name="test_generate_samples:20 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 1024)" classname="sampling_gen_perf_test" time="0.093">
+		<testcase name="test_generate_samples:20 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 1024)" classname="sampling_gen_perf_test" time="0.096">
 		</testcase>
-		<testcase name="test_generate_samples:21 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 32)" classname="sampling_gen_perf_test" time="0.075">
+		<testcase name="test_generate_samples:21 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 32)" classname="sampling_gen_perf_test" time="0.073">
 		</testcase>
-		<testcase name="test_generate_samples:22 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 256)" classname="sampling_gen_perf_test" time="0.092">
+		<testcase name="test_generate_samples:22 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 256)" classname="sampling_gen_perf_test" time="0.087">
 		</testcase>
-		<testcase name="test_generate_samples:23 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 1024)" classname="sampling_gen_perf_test" time="0.143">
+		<testcase name="test_generate_samples:23 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 1024)" classname="sampling_gen_perf_test" time="0.136">
 		</testcase>
-		<testcase name="test_generate_samples:24 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 32)" classname="sampling_gen_perf_test" time="0.082">
+		<testcase name="test_generate_samples:24 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 32)" classname="sampling_gen_perf_test" time="0.079">
 		</testcase>
-		<testcase name="test_generate_samples:25 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 256)" classname="sampling_gen_perf_test" time="0.124">
+		<testcase name="test_generate_samples:25 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 256)" classname="sampling_gen_perf_test" time="0.120">
 		</testcase>
-		<testcase name="test_generate_samples:26 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 1024)" classname="sampling_gen_perf_test" time="0.276">
+		<testcase name="test_generate_samples:26 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 1024)" classname="sampling_gen_perf_test" time="0.270">
 		</testcase>
-		<testcase name="test_generate_samples:27 (SamplingGen.SamplingMethod.HALTON, 1, 32)" classname="sampling_gen_perf_test" time="0.070">
+		<testcase name="test_generate_samples:27 (SamplingGen.SamplingMethod.HALTON, 1, 32)" classname="sampling_gen_perf_test" time="0.072">
 		</testcase>
-		<testcase name="test_generate_samples:28 (SamplingGen.SamplingMethod.HALTON, 1, 256)" classname="sampling_gen_perf_test" time="0.079">
+		<testcase name="test_generate_samples:28 (SamplingGen.SamplingMethod.HALTON, 1, 256)" classname="sampling_gen_perf_test" time="0.080">
 		</testcase>
-		<testcase name="test_generate_samples:29 (SamplingGen.SamplingMethod.HALTON, 1, 1024)" classname="sampling_gen_perf_test" time="0.111">
+		<testcase name="test_generate_samples:29 (SamplingGen.SamplingMethod.HALTON, 1, 1024)" classname="sampling_gen_perf_test" time="0.107">
 		</testcase>
-		<testcase name="test_generate_samples:30 (SamplingGen.SamplingMethod.HALTON, 3, 32)" classname="sampling_gen_perf_test" time="0.074">
+		<testcase name="test_generate_samples:30 (SamplingGen.SamplingMethod.HALTON, 3, 32)" classname="sampling_gen_perf_test" time="0.075">
 		</testcase>
-		<testcase name="test_generate_samples:31 (SamplingGen.SamplingMethod.HALTON, 3, 256)" classname="sampling_gen_perf_test" time="0.089">
+		<testcase name="test_generate_samples:31 (SamplingGen.SamplingMethod.HALTON, 3, 256)" classname="sampling_gen_perf_test" time="0.091">
 		</testcase>
-		<testcase name="test_generate_samples:32 (SamplingGen.SamplingMethod.HALTON, 3, 1024)" classname="sampling_gen_perf_test" time="0.161">
+		<testcase name="test_generate_samples:32 (SamplingGen.SamplingMethod.HALTON, 3, 1024)" classname="sampling_gen_perf_test" time="0.158">
 		</testcase>
-		<testcase name="test_generate_samples:33 (SamplingGen.SamplingMethod.HALTON, 10, 32)" classname="sampling_gen_perf_test" time="0.080">
+		<testcase name="test_generate_samples:33 (SamplingGen.SamplingMethod.HALTON, 10, 32)" classname="sampling_gen_perf_test" time="0.078">
 		</testcase>
-		<testcase name="test_generate_samples:34 (SamplingGen.SamplingMethod.HALTON, 10, 256)" classname="sampling_gen_perf_test" time="0.143">
+		<testcase name="test_generate_samples:34 (SamplingGen.SamplingMethod.HALTON, 10, 256)" classname="sampling_gen_perf_test" time="0.119">
 		</testcase>
-		<testcase name="test_generate_samples:35 (SamplingGen.SamplingMethod.HALTON, 10, 1024)" classname="sampling_gen_perf_test" time="0.284">
+		<testcase name="test_generate_samples:35 (SamplingGen.SamplingMethod.HALTON, 10, 1024)" classname="sampling_gen_perf_test" time="0.283">
 		</testcase>
-		<testcase name="test_coordinated_shuffle_performance" classname="sampling_gen_perf_test" time="1.652">
+		<testcase name="test_coordinated_shuffle_performance" classname="sampling_gen_perf_test" time="1.627">
 		</testcase>
-		<testcase name="test_sample_indices_performance" classname="sampling_gen_perf_test" time="0.030">
+		<testcase name="test_sample_indices_performance" classname="sampling_gen_perf_test" time="0.023">
 		</testcase>
 	</testsuite>
-	<testsuite id="3" name="distributions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T21:38:17" hostname="localhost" tests="12" failures="0" errors="0" skipped="0" flaky="0" time="0.447">
-		<testcase name="test_normal_distribution_performance" classname="distributions_perf_test" time="0.026">
+	<testsuite id="3" name="distributions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T22:35:23" hostname="localhost" tests="12" failures="0" errors="0" skipped="0" flaky="0" time="0.483">
+		<testcase name="test_normal_distribution_performance" classname="distributions_perf_test" time="0.033">
 		</testcase>
 		<testcase name="test_gamma_distribution_performance" classname="distributions_perf_test" time="0.021">
 		</testcase>
-		<testcase name="test_beta_distribution_performance" classname="distributions_perf_test" time="0.025">
+		<testcase name="test_beta_distribution_performance" classname="distributions_perf_test" time="0.031">
 		</testcase>
-		<testcase name="test_binomial_distribution_performance" classname="distributions_perf_test" time="0.039">
+		<testcase name="test_binomial_distribution_performance" classname="distributions_perf_test" time="0.030">
 		</testcase>
-		<testcase name="test_poisson_distribution_performance" classname="distributions_perf_test" time="0.023">
+		<testcase name="test_poisson_distribution_performance" classname="distributions_perf_test" time="0.029">
 		</testcase>
-		<testcase name="test_weibull_distribution_performance" classname="distributions_perf_test" time="0.022">
+		<testcase name="test_weibull_distribution_performance" classname="distributions_perf_test" time="0.020">
 		</testcase>
-		<testcase name="test_uniform_int_distribution_performance" classname="distributions_perf_test" time="0.019">
+		<testcase name="test_uniform_int_distribution_performance" classname="distributions_perf_test" time="0.026">
 		</testcase>
-		<testcase name="test_uniform_float_distribution_performance" classname="distributions_perf_test" time="0.021">
+		<testcase name="test_uniform_float_distribution_performance" classname="distributions_perf_test" time="0.020">
 		</testcase>
-		<testcase name="test_exponential_distribution_performance" classname="distributions_perf_test" time="0.027">
+		<testcase name="test_exponential_distribution_performance" classname="distributions_perf_test" time="0.019">
 		</testcase>
 		<testcase name="test_pareto_distribution_performance" classname="distributions_perf_test" time="0.019">
 		</testcase>
-		<testcase name="test_cauchy_distribution_performance" classname="distributions_perf_test" time="0.023">
+		<testcase name="test_cauchy_distribution_performance" classname="distributions_perf_test" time="0.022">
 		</testcase>
 		<testcase name="test_triangular_distribution_performance" classname="distributions_perf_test" time="0.020">
 		</testcase>
 	</testsuite>
-	<testsuite id="4" name="error_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T21:38:17" hostname="localhost" tests="4" failures="0" errors="0" skipped="0" flaky="0" time="0.180">
-		<testcase name="test_error_function_performance" classname="error_functions_perf_test" time="0.030">
+	<testsuite id="4" name="error_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T22:35:24" hostname="localhost" tests="4" failures="0" errors="0" skipped="0" flaky="0" time="0.185">
+		<testcase name="test_error_function_performance" classname="error_functions_perf_test" time="0.031">
 		</testcase>
 		<testcase name="test_complementary_error_function_performance" classname="error_functions_perf_test" time="0.025">
 		</testcase>
 		<testcase name="test_error_function_inverse_performance" classname="error_functions_perf_test" time="0.037">
 		</testcase>
-		<testcase name="test_complementary_error_function_inverse_performance" classname="error_functions_perf_test" time="0.041">
+		<testcase name="test_complementary_error_function_inverse_performance" classname="error_functions_perf_test" time="0.040">
 		</testcase>
 	</testsuite>
-	<testsuite id="5" name="cdf_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T21:38:18" hostname="localhost" tests="13" failures="0" errors="0" skipped="0" flaky="0" time="2.101">
-		<testcase name="test_normal_cdf_performance" classname="cdf_functions_perf_test" time="0.037">
+	<testsuite id="5" name="cdf_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T22:35:24" hostname="localhost" tests="13" failures="0" errors="0" skipped="0" flaky="0" time="2.115">
+		<testcase name="test_normal_cdf_performance" classname="cdf_functions_perf_test" time="0.046">
 		</testcase>
-		<testcase name="test_gamma_cdf_performance" classname="cdf_functions_perf_test" time="0.073">
+		<testcase name="test_gamma_cdf_performance" classname="cdf_functions_perf_test" time="0.076">
 		</testcase>
-		<testcase name="test_beta_cdf_performance" classname="cdf_functions_perf_test" time="0.727">
+		<testcase name="test_beta_cdf_performance" classname="cdf_functions_perf_test" time="0.721">
 		</testcase>
-		<testcase name="test_weibull_cdf_performance" classname="cdf_functions_perf_test" time="0.024">
+		<testcase name="test_weibull_cdf_performance" classname="cdf_functions_perf_test" time="0.023">
 		</testcase>
-		<testcase name="test_exponential_cdf_performance" classname="cdf_functions_perf_test" time="0.023">
+		<testcase name="test_exponential_cdf_performance" classname="cdf_functions_perf_test" time="0.029">
 		</testcase>
-		<testcase name="test_chi_square_cdf_performance" classname="cdf_functions_perf_test" time="0.050">
+		<testcase name="test_chi_square_cdf_performance" classname="cdf_functions_perf_test" time="0.051">
 		</testcase>
-		<testcase name="test_f_cdf_performance" classname="cdf_functions_perf_test" time="0.292">
+		<testcase name="test_f_cdf_performance" classname="cdf_functions_perf_test" time="0.303">
 		</testcase>
-		<testcase name="test_t_cdf_performance" classname="cdf_functions_perf_test" time="0.435">
+		<testcase name="test_t_cdf_performance" classname="cdf_functions_perf_test" time="0.455">
 		</testcase>
-		<testcase name="test_binomial_cdf_performance" classname="cdf_functions_perf_test" time="0.079">
+		<testcase name="test_binomial_cdf_performance" classname="cdf_functions_perf_test" time="0.072">
 		</testcase>
-		<testcase name="test_poisson_cdf_performance" classname="cdf_functions_perf_test" time="0.048">
+		<testcase name="test_poisson_cdf_performance" classname="cdf_functions_perf_test" time="0.041">
 		</testcase>
-		<testcase name="test_geometric_cdf_performance" classname="cdf_functions_perf_test" time="0.020">
+		<testcase name="test_geometric_cdf_performance" classname="cdf_functions_perf_test" time="0.021">
 		</testcase>
-		<testcase name="test_negative_binomial_cdf_performance" classname="cdf_functions_perf_test" time="0.079">
+		<testcase name="test_negative_binomial_cdf_performance" classname="cdf_functions_perf_test" time="0.076">
 		</testcase>
-		<testcase name="test_pareto_cdf_performance" classname="cdf_functions_perf_test" time="0.028">
+		<testcase name="test_pareto_cdf_performance" classname="cdf_functions_perf_test" time="0.036">
 		</testcase>
 	</testsuite>
-	<testsuite id="6" name="basic_stats_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T21:38:20" hostname="localhost" tests="5" failures="0" errors="0" skipped="0" flaky="0" time="0.361">
-		<testcase name="test_mean_variance_performance" classname="basic_stats_perf_test" time="0.063">
+	<testsuite id="6" name="basic_stats_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T22:35:26" hostname="localhost" tests="5" failures="0" errors="0" skipped="0" flaky="0" time="0.373">
+		<testcase name="test_mean_variance_performance" classname="basic_stats_perf_test" time="0.055">
 		</testcase>
-		<testcase name="test_median_performance" classname="basic_stats_perf_test" time="0.052">
+		<testcase name="test_median_performance" classname="basic_stats_perf_test" time="0.050">
 		</testcase>
-		<testcase name="test_median_absolute_deviation_performance" classname="basic_stats_perf_test" time="0.098">
+		<testcase name="test_median_absolute_deviation_performance" classname="basic_stats_perf_test" time="0.096">
 		</testcase>
-		<testcase name="test_sample_statistics_performance" classname="basic_stats_perf_test" time="0.046">
+		<testcase name="test_sample_statistics_performance" classname="basic_stats_perf_test" time="0.045">
 		</testcase>
 		<testcase name="test_min_max_range_performance" classname="basic_stats_perf_test" time="0.034">
 		</testcase>
 	</testsuite>
-	<testsuite id="7" name="helper_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T21:38:20" hostname="localhost" tests="8" failures="0" errors="0" skipped="0" flaky="0" time="0.520">
-		<testcase name="test_gamma_function_performance" classname="helper_functions_perf_test" time="0.038">
+	<testsuite id="7" name="helper_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T22:35:27" hostname="localhost" tests="8" failures="0" errors="0" skipped="0" flaky="0" time="0.534">
+		<testcase name="test_gamma_function_performance" classname="helper_functions_perf_test" time="0.044">
 		</testcase>
-		<testcase name="test_beta_function_performance" classname="helper_functions_perf_test" time="0.046">
+		<testcase name="test_beta_function_performance" classname="helper_functions_perf_test" time="0.045">
 		</testcase>
-		<testcase name="test_incomplete_beta_function_performance" classname="helper_functions_perf_test" time="0.157">
+		<testcase name="test_incomplete_beta_function_performance" classname="helper_functions_perf_test" time="0.155">
 		</testcase>
-		<testcase name="test_binomial_coefficient_performance" classname="helper_functions_perf_test" time="0.029">
+		<testcase name="test_binomial_coefficient_performance" classname="helper_functions_perf_test" time="0.027">
 		</testcase>
-		<testcase name="test_log_gamma_function_performance" classname="helper_functions_perf_test" time="0.034">
+		<testcase name="test_log_gamma_function_performance" classname="helper_functions_perf_test" time="0.031">
 		</testcase>
-		<testcase name="test_log_factorial_performance" classname="helper_functions_perf_test" time="0.031">
+		<testcase name="test_log_factorial_performance" classname="helper_functions_perf_test" time="0.037">
 		</testcase>
-		<testcase name="test_log_binomial_coefficient_performance" classname="helper_functions_perf_test" time="0.031">
+		<testcase name="test_log_binomial_coefficient_performance" classname="helper_functions_perf_test" time="0.030">
 		</testcase>
-		<testcase name="test_sanitize_numeric_array_performance" classname="helper_functions_perf_test" time="0.037">
+		<testcase name="test_sanitize_numeric_array_performance" classname="helper_functions_perf_test" time="0.038">
 		</testcase>
 	</testsuite>
-	<testsuite id="8" name="pmf_pdf_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T21:38:21" hostname="localhost" tests="11" failures="0" errors="0" skipped="0" flaky="0" time="0.727">
+	<testsuite id="8" name="pmf_pdf_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-23T22:35:27" hostname="localhost" tests="11" failures="0" errors="0" skipped="0" flaky="0" time="0.700">
 		<testcase name="test_normal_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.039">
 		</testcase>
-		<testcase name="test_exponential_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.031">
+		<testcase name="test_exponential_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.029">
 		</testcase>
-		<testcase name="test_uniform_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.031">
+		<testcase name="test_uniform_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.036">
 		</testcase>
-		<testcase name="test_gamma_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.051">
+		<testcase name="test_gamma_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.050">
 		</testcase>
-		<testcase name="test_beta_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.098">
+		<testcase name="test_beta_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.095">
 		</testcase>
-		<testcase name="test_binomial_pmf_performance" classname="pmf_pdf_functions_perf_test" time="0.034">
+		<testcase name="test_binomial_pmf_performance" classname="pmf_pdf_functions_perf_test" time="0.026">
 		</testcase>
-		<testcase name="test_poisson_pmf_performance" classname="pmf_pdf_functions_perf_test" time="0.030">
+		<testcase name="test_poisson_pmf_performance" classname="pmf_pdf_functions_perf_test" time="0.023">
 		</testcase>
-		<testcase name="test_chi_squared_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.049">
+		<testcase name="test_chi_squared_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.048">
 		</testcase>
 		<testcase name="test_t_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.062">
 		</testcase>
@@ -246,62 +246,62 @@
 		<testcase name="test_negative_binomial_pmf_performance" classname="pmf_pdf_functions_perf_test" time="0.024">
 		</testcase>
 	</testsuite>
-	<testsuite id="9" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/basic_stats" timestamp="2025-06-23T21:38:21" hostname="localhost" tests="17" failures="0" errors="0" skipped="0" flaky="0" time="0.587">
-		<testcase name="test_mean_bimodal_data" classname="scipy_validation_test" time="0.038">
+	<testsuite id="9" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/basic_stats" timestamp="2025-06-23T22:35:28" hostname="localhost" tests="17" failures="0" errors="0" skipped="0" flaky="0" time="0.587">
+		<testcase name="test_mean_bimodal_data" classname="scipy_validation_test" time="0.029">
 		</testcase>
-		<testcase name="test_mean_integer_like_floats" classname="scipy_validation_test" time="0.015">
+		<testcase name="test_mean_integer_like_floats" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_mean_single_value" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_median_odd_count" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_median_odd_count" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_median_even_count" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_median_even_count" classname="scipy_validation_test" time="0.022">
 		</testcase>
-		<testcase name="test_median_single_value" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_median_single_value" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_variance_bimodal_data" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_variance_bimodal_data" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_variance_single_value" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_variance_single_value" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_standard_deviation_bimodal_data" classname="scipy_validation_test" time="0.015">
+		<testcase name="test_standard_deviation_bimodal_data" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_standard_deviation_single_value" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_standard_deviation_single_value" classname="scipy_validation_test" time="0.022">
 		</testcase>
-		<testcase name="test_sample_variance_bimodal_data" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_sample_variance_bimodal_data" classname="scipy_validation_test" time="0.015">
 		</testcase>
 		<testcase name="test_sample_variance_very_large_numbers" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_sample_standard_deviation_bimodal_data" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_sample_standard_deviation_bimodal_data" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_median_absolute_deviation_bimodal_data" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_median_absolute_deviation_bimodal_data" classname="scipy_validation_test" time="0.015">
 		</testcase>
 		<testcase name="test_range_spread_bimodal_data" classname="scipy_validation_test" time="0.022">
 		</testcase>
 		<testcase name="test_minimum_bimodal_data" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_maximum_bimodal_data" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_maximum_bimodal_data" classname="scipy_validation_test" time="0.017">
 		</testcase>
 	</testsuite>
-	<testsuite id="10" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/basic_stats" timestamp="2025-06-23T21:38:22" hostname="localhost" tests="17" failures="0" errors="0" skipped="0" flaky="0" time="0.591">
-		<testcase name="test_median_unsorted_data" classname="mathematical_property_test" time="0.032">
+	<testsuite id="10" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/basic_stats" timestamp="2025-06-23T22:35:29" hostname="localhost" tests="17" failures="0" errors="0" skipped="0" flaky="0" time="0.594">
+		<testcase name="test_median_unsorted_data" classname="mathematical_property_test" time="0.029">
 		</testcase>
 		<testcase name="test_median_with_unsorted_array_violation" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_median_enhanced_decimal_precision" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_median_enhanced_decimal_precision" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_median_with_repeated_decimal_values" classname="mathematical_property_test" time="0.022">
+		<testcase name="test_median_with_repeated_decimal_values" classname="mathematical_property_test" time="0.023">
 		</testcase>
 		<testcase name="test_right_skewed_data_behavior" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_left_skewed_data_behavior" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_heavy_tailed_data_robustness" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_heavy_tailed_data_robustness" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_bimodal_data_characteristics" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_bimodal_data_characteristics" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_power_law_data_handling" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_power_law_data_handling" classname="mathematical_property_test" time="0.022">
 		</testcase>
-		<testcase name="test_very_large_numbers_stability" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_very_large_numbers_stability" classname="mathematical_property_test" time="0.015">
 		</testcase>
 		<testcase name="test_very_small_numbers_precision" classname="mathematical_property_test" time="0.016">
 		</testcase>
@@ -309,39 +309,39 @@
 		</testcase>
 		<testcase name="test_close_numbers_precision_stability" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_identical_values_numerical_stability" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_identical_values_numerical_stability" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_integer_like_float_precision" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_integer_like_float_precision" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_variance_standard_deviation_relationship" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_variance_standard_deviation_relationship" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_median_absolute_deviation_basic_properties" classname="mathematical_property_test" time="0.016">
-		</testcase>
-	</testsuite>
-	<testsuite id="11" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/basic_stats" timestamp="2025-06-23T21:38:23" hostname="localhost" tests="10" failures="0" errors="0" skipped="0" flaky="0" time="0.488">
-		<testcase name="test_mean_empty_array" classname="parameter_validation_test" time="0.031">
-		</testcase>
-		<testcase name="test_median_empty_array" classname="parameter_validation_test" time="0.031">
-		</testcase>
-		<testcase name="test_variance_empty_array" classname="parameter_validation_test" time="0.032">
-		</testcase>
-		<testcase name="test_standard_deviation_empty_array" classname="parameter_validation_test" time="0.032">
-		</testcase>
-		<testcase name="test_sample_variance_single_value" classname="parameter_validation_test" time="0.030">
-		</testcase>
-		<testcase name="test_sample_standard_deviation_single_value" classname="parameter_validation_test" time="0.031">
-		</testcase>
-		<testcase name="test_range_spread_empty_array" classname="parameter_validation_test" time="0.032">
-		</testcase>
-		<testcase name="test_minimum_empty_array" classname="parameter_validation_test" time="0.033">
-		</testcase>
-		<testcase name="test_maximum_empty_array" classname="parameter_validation_test" time="0.031">
-		</testcase>
-		<testcase name="test_median_absolute_deviation_empty_array" classname="parameter_validation_test" time="0.037">
+		<testcase name="test_median_absolute_deviation_basic_properties" classname="mathematical_property_test" time="0.015">
 		</testcase>
 	</testsuite>
-	<testsuite id="12" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/ppf_functions" timestamp="2025-06-23T21:38:23" hostname="localhost" tests="5" failures="0" errors="0" skipped="0" flaky="0" time="0.168">
-		<testcase name="test_normal_ppf_scipy_validation" classname="scipy_validation_test" time="0.023">
+	<testsuite id="11" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/basic_stats" timestamp="2025-06-23T22:35:29" hostname="localhost" tests="10" failures="0" errors="0" skipped="0" flaky="0" time="0.490">
+		<testcase name="test_mean_empty_array" classname="parameter_validation_test" time="0.030">
+		</testcase>
+		<testcase name="test_median_empty_array" classname="parameter_validation_test" time="0.030">
+		</testcase>
+		<testcase name="test_variance_empty_array" classname="parameter_validation_test" time="0.030">
+		</testcase>
+		<testcase name="test_standard_deviation_empty_array" classname="parameter_validation_test" time="0.030">
+		</testcase>
+		<testcase name="test_sample_variance_single_value" classname="parameter_validation_test" time="0.035">
+		</testcase>
+		<testcase name="test_sample_standard_deviation_single_value" classname="parameter_validation_test" time="0.029">
+		</testcase>
+		<testcase name="test_range_spread_empty_array" classname="parameter_validation_test" time="0.031">
+		</testcase>
+		<testcase name="test_minimum_empty_array" classname="parameter_validation_test" time="0.036">
+		</testcase>
+		<testcase name="test_maximum_empty_array" classname="parameter_validation_test" time="0.037">
+		</testcase>
+		<testcase name="test_median_absolute_deviation_empty_array" classname="parameter_validation_test" time="0.030">
+		</testcase>
+	</testsuite>
+	<testsuite id="12" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/ppf_functions" timestamp="2025-06-23T22:35:30" hostname="localhost" tests="5" failures="0" errors="0" skipped="0" flaky="0" time="0.175">
+		<testcase name="test_normal_ppf_scipy_validation" classname="scipy_validation_test" time="0.024">
 		</testcase>
 		<testcase name="test_exponential_ppf_scipy_validation" classname="scipy_validation_test" time="0.016">
 		</testcase>
@@ -352,66 +352,66 @@
 		<testcase name="test_weibull_ppf_scipy_validation" classname="scipy_validation_test" time="0.016">
 		</testcase>
 	</testsuite>
-	<testsuite id="13" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/ppf_functions" timestamp="2025-06-23T21:38:23" hostname="localhost" tests="11" failures="0" errors="0" skipped="0" flaky="0" time="0.373">
-		<testcase name="test_normal_cdf_ppf_round_trip_consistency" classname="mathematical_property_test" time="0.032">
+	<testsuite id="13" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/ppf_functions" timestamp="2025-06-23T22:35:30" hostname="localhost" tests="11" failures="0" errors="0" skipped="0" flaky="0" time="0.363">
+		<testcase name="test_normal_cdf_ppf_round_trip_consistency" classname="mathematical_property_test" time="0.023">
 		</testcase>
 		<testcase name="test_exponential_cdf_ppf_round_trip_consistency" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_uniform_cdf_ppf_round_trip_consistency" classname="mathematical_property_test" time="0.019">
+		<testcase name="test_uniform_cdf_ppf_round_trip_consistency" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_normal_ppf_cdf_round_trip_consistency" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_normal_ppf_cdf_round_trip_consistency" classname="mathematical_property_test" time="0.022">
 		</testcase>
 		<testcase name="test_exponential_ppf_cdf_round_trip_consistency" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_normal_ppf_monotonicity" classname="mathematical_property_test" time="0.013">
+		<testcase name="test_normal_ppf_monotonicity" classname="mathematical_property_test" time="0.015">
 		</testcase>
 		<testcase name="test_exponential_ppf_monotonicity" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_normal_ppf_boundary_conditions" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_normal_ppf_boundary_conditions" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_uniform_ppf_boundary_conditions" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_uniform_ppf_boundary_conditions" classname="mathematical_property_test" time="0.023">
 		</testcase>
-		<testcase name="test_exponential_weibull_equivalence" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_exponential_weibull_equivalence" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_exponential_median_special_value" classname="mathematical_property_test" time="0.016">
-		</testcase>
-	</testsuite>
-	<testsuite id="14" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/ppf_functions" timestamp="2025-06-23T21:38:24" hostname="localhost" tests="2" failures="0" errors="0" skipped="0" flaky="0" time="0.149">
-		<testcase name="test_normal_ppf_parameter_validation" classname="parameter_validation_test" time="0.068">
-		</testcase>
-		<testcase name="test_exponential_ppf_parameter_validation" classname="parameter_validation_test" time="0.047">
+		<testcase name="test_exponential_median_special_value" classname="mathematical_property_test" time="0.015">
 		</testcase>
 	</testsuite>
-	<testsuite id="15" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/error_functions" timestamp="2025-06-23T21:38:24" hostname="localhost" tests="10" failures="0" errors="0" skipped="0" flaky="0" time="0.337">
+	<testsuite id="14" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/ppf_functions" timestamp="2025-06-23T22:35:30" hostname="localhost" tests="2" failures="0" errors="0" skipped="0" flaky="0" time="0.156">
+		<testcase name="test_normal_ppf_parameter_validation" classname="parameter_validation_test" time="0.073">
+		</testcase>
+		<testcase name="test_exponential_ppf_parameter_validation" classname="parameter_validation_test" time="0.051">
+		</testcase>
+	</testsuite>
+	<testsuite id="15" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/error_functions" timestamp="2025-06-23T22:35:30" hostname="localhost" tests="10" failures="0" errors="0" skipped="0" flaky="0" time="0.328">
 		<testcase name="test_error_function_zero" classname="scipy_validation_test" time="0.022">
 		</testcase>
-		<testcase name="test_error_function_positive" classname="scipy_validation_test" time="0.015">
+		<testcase name="test_error_function_positive" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_error_function_negative" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_error_function_large_positive" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_error_function_large_negative" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_error_function_large_negative" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_complementary_error_function_zero" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_complementary_error_function_zero" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_complementary_error_function_positive" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_complementary_error_function_positive" classname="scipy_validation_test" time="0.015">
 		</testcase>
 		<testcase name="test_complementary_error_function_negative" classname="scipy_validation_test" time="0.015">
 		</testcase>
 		<testcase name="test_gamma_integer" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_gamma_half_integer" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_gamma_half_integer" classname="scipy_validation_test" time="0.015">
 		</testcase>
 	</testsuite>
-	<testsuite id="16" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/error_functions" timestamp="2025-06-23T21:38:24" hostname="localhost" tests="9" failures="0" errors="0" skipped="0" flaky="0" time="0.305">
-		<testcase name="test_error_function_inverse_round_trip" classname="mathematical_property_test" time="0.030">
+	<testsuite id="16" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/error_functions" timestamp="2025-06-23T22:35:31" hostname="localhost" tests="9" failures="0" errors="0" skipped="0" flaky="0" time="0.302">
+		<testcase name="test_error_function_inverse_round_trip" classname="mathematical_property_test" time="0.022">
 		</testcase>
-		<testcase name="test_error_function_inverse_zero" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_error_function_inverse_zero" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_error_function_inverse_one" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_error_function_inverse_one" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_error_function_inverse_minus_one" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_error_function_inverse_minus_one" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_complementary_error_function_inverse_round_trip" classname="mathematical_property_test" time="0.015">
 		</testcase>
@@ -421,109 +421,109 @@
 		</testcase>
 		<testcase name="test_complementary_error_function_inverse_two" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_log_gamma_consistency" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_log_gamma_consistency" classname="mathematical_property_test" time="0.022">
 		</testcase>
 	</testsuite>
-	<testsuite id="17" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/error_functions" timestamp="2025-06-23T21:38:25" hostname="localhost" tests="6" failures="0" errors="0" skipped="0" flaky="0" time="0.268">
-		<testcase name="test_error_function_inverse_invalid_gt_one" classname="parameter_validation_test" time="0.038">
+	<testsuite id="17" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/error_functions" timestamp="2025-06-23T22:35:31" hostname="localhost" tests="6" failures="0" errors="0" skipped="0" flaky="0" time="0.263">
+		<testcase name="test_error_function_inverse_invalid_gt_one" classname="parameter_validation_test" time="0.036">
 		</testcase>
-		<testcase name="test_error_function_inverse_invalid_lt_minus_one" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_error_function_inverse_invalid_lt_minus_one" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_complementary_error_function_inverse_invalid_gt_two" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_complementary_error_function_inverse_invalid_gt_two" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_complementary_error_function_inverse_invalid_lt_zero" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_complementary_error_function_inverse_invalid_lt_zero" classname="parameter_validation_test" time="0.030">
 		</testcase>
 		<testcase name="test_gamma_invalid_input" classname="parameter_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_log_gamma_invalid_input" classname="parameter_validation_test" time="0.016">
 		</testcase>
 	</testsuite>
-	<testsuite id="18" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/cdf_functions" timestamp="2025-06-23T21:38:25" hostname="localhost" tests="8" failures="0" errors="0" skipped="0" flaky="0" time="0.272">
+	<testsuite id="18" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/cdf_functions" timestamp="2025-06-23T22:35:31" hostname="localhost" tests="8" failures="0" errors="0" skipped="0" flaky="0" time="0.257">
 		<testcase name="test_normal_cdf_comprehensive" classname="scipy_validation_test" time="0.023">
 		</testcase>
-		<testcase name="test_exponential_cdf_comprehensive" classname="scipy_validation_test" time="0.015">
+		<testcase name="test_exponential_cdf_comprehensive" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_gamma_cdf_comprehensive" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_gamma_cdf_comprehensive" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_beta_cdf_comprehensive" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_beta_cdf_comprehensive" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_chi_square_cdf_comprehensive" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_chi_square_cdf_comprehensive" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_t_cdf_comprehensive" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_t_cdf_comprehensive" classname="scipy_validation_test" time="0.011">
 		</testcase>
-		<testcase name="test_f_cdf_comprehensive" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_f_cdf_comprehensive" classname="scipy_validation_test" time="0.018">
 		</testcase>
 		<testcase name="test_weibull_cdf_comprehensive" classname="scipy_validation_test" time="0.016">
 		</testcase>
 	</testsuite>
-	<testsuite id="19" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/cdf_functions" timestamp="2025-06-23T21:38:25" hostname="localhost" tests="54" failures="0" errors="0" skipped="0" flaky="0" time="1.827">
-		<testcase name="test_uniform_cdf_basic_range" classname="mathematical_property_test" time="0.037">
+	<testsuite id="19" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/cdf_functions" timestamp="2025-06-23T22:35:32" hostname="localhost" tests="54" failures="0" errors="0" skipped="0" flaky="0" time="1.822">
+		<testcase name="test_uniform_cdf_basic_range" classname="mathematical_property_test" time="0.025">
 		</testcase>
-		<testcase name="test_uniform_cdf_x_below_a" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_uniform_cdf_x_below_a" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_uniform_cdf_x_above_b" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_uniform_cdf_x_above_b" classname="mathematical_property_test" time="0.025">
 		</testcase>
-		<testcase name="test_uniform_cdf_a_equals_b" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_uniform_cdf_a_equals_b" classname="mathematical_property_test" time="0.022">
 		</testcase>
-		<testcase name="test_normal_cdf_standard_normal" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_normal_cdf_standard_normal" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_normal_cdf_mu_sigma" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_normal_cdf_mu_sigma" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_normal_cdf_known_value" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_normal_cdf_known_value" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_exponential_cdf_typical" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_exponential_cdf_typical" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_exponential_cdf_x_zero" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_exponential_cdf_x_zero" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_beta_cdf_symmetric" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_beta_cdf_symmetric" classname="mathematical_property_test" time="0.015">
 		</testcase>
 		<testcase name="test_beta_cdf_x_zero" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_beta_cdf_x_one" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_beta_cdf_x_one" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_gamma_cdf_known_value" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_gamma_cdf_known_value" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_gamma_cdf_x_zero" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_gamma_cdf_x_zero" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_chi_square_cdf_known_value" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_chi_square_cdf_known_value" classname="mathematical_property_test" time="0.015">
 		</testcase>
 		<testcase name="test_chi_square_cdf_x_zero" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_f_cdf_known_value" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_f_cdf_x_zero" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_f_cdf_x_zero" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_t_cdf_x_zero" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_t_cdf_x_zero" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_t_cdf_known_value" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_t_cdf_known_value" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_binomial_cdf_known_value" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_binomial_cdf_k_negative" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_binomial_cdf_k_negative" classname="mathematical_property_test" time="0.015">
 		</testcase>
 		<testcase name="test_binomial_cdf_k_ge_n" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_poisson_cdf_known_value" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_poisson_cdf_k_negative" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_poisson_cdf_k_negative" classname="mathematical_property_test" time="0.015">
 		</testcase>
 		<testcase name="test_geometric_cdf_known_value" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_geometric_cdf_k_less_than_1" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_negative_binomial_cdf_known_value" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_negative_binomial_cdf_known_value" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_negative_binomial_cdf_k_less_than_r" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_negative_binomial_cdf_k_less_than_r" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_pareto_cdf_x_equals_scale" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_pareto_cdf_x_equals_scale" classname="mathematical_property_test" time="0.015">
 		</testcase>
 		<testcase name="test_pareto_cdf_basic_calculation" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_pareto_cdf_x_below_scale" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_pareto_cdf_x_below_scale" classname="mathematical_property_test" time="0.015">
 		</testcase>
 		<testcase name="test_pareto_cdf_large_x" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_pareto_cdf_different_shapes" classname="mathematical_property_test" time="0.022">
+		<testcase name="test_pareto_cdf_different_shapes" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_pareto_cdf_monotonicity" classname="mathematical_property_test" time="0.016">
 		</testcase>
@@ -531,29 +531,29 @@
 		</testcase>
 		<testcase name="test_pareto_cdf_deterministic" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_pareto_cdf_wealth_distribution_probability" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_pareto_cdf_wealth_distribution_probability" classname="mathematical_property_test" time="0.015">
 		</testcase>
 		<testcase name="test_pareto_cdf_loot_rarity_distribution" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_pareto_cdf_damage_resistance_calculation" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_pareto_cdf_damage_resistance_calculation" classname="mathematical_property_test" time="0.023">
 		</testcase>
-		<testcase name="test_pareto_cdf_market_price_analysis" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_pareto_cdf_market_price_analysis" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_weibull_cdf_known_value" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_weibull_cdf_basic_calculation" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_weibull_cdf_x_below_zero" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_weibull_cdf_x_below_zero" classname="mathematical_property_test" time="0.022">
 		</testcase>
-		<testcase name="test_weibull_cdf_exponential_case" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_weibull_cdf_exponential_case" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_weibull_cdf_monotonicity" classname="mathematical_property_test" time="0.024">
+		<testcase name="test_weibull_cdf_monotonicity" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_weibull_cdf_bounds" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_weibull_cdf_equipment_failure_probability" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_weibull_cdf_survival_analysis" classname="mathematical_property_test" time="0.020">
+		<testcase name="test_weibull_cdf_survival_analysis" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_weibull_cdf_wind_speed_distribution" classname="mathematical_property_test" time="0.016">
 		</testcase>
@@ -563,53 +563,53 @@
 		</testcase>
 		<testcase name="test_weibull_cdf_resource_depletion_modeling" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_weibull_cdf_network_latency_analysis" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_weibull_cdf_network_latency_analysis" classname="mathematical_property_test" time="0.017">
 		</testcase>
 	</testsuite>
-	<testsuite id="20" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/cdf_functions" timestamp="2025-06-23T21:38:27" hostname="localhost" tests="19" failures="0" errors="0" skipped="0" flaky="0" time="1.021">
-		<testcase name="test_normal_cdf_invalid_sigma_zero" classname="parameter_validation_test" time="0.047">
+	<testsuite id="20" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/cdf_functions" timestamp="2025-06-23T22:35:34" hostname="localhost" tests="19" failures="0" errors="0" skipped="0" flaky="0" time="1.020">
+		<testcase name="test_normal_cdf_invalid_sigma_zero" classname="parameter_validation_test" time="0.044">
 		</testcase>
-		<testcase name="test_exponential_cdf_invalid_lambda_zero" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_exponential_cdf_invalid_lambda_zero" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_beta_cdf_invalid_alpha_beta" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_beta_cdf_invalid_alpha_beta" classname="parameter_validation_test" time="0.033">
 		</testcase>
-		<testcase name="test_gamma_cdf_invalid_shape_scale" classname="parameter_validation_test" time="0.035">
+		<testcase name="test_gamma_cdf_invalid_shape_scale" classname="parameter_validation_test" time="0.038">
 		</testcase>
 		<testcase name="test_chi_square_cdf_invalid_df" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_f_cdf_invalid_df" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_f_cdf_invalid_df" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_t_cdf_invalid_df" classname="parameter_validation_test" time="0.038">
+		<testcase name="test_t_cdf_invalid_df" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_binomial_cdf_invalid_n_negative" classname="parameter_validation_test" time="0.027">
+		<testcase name="test_binomial_cdf_invalid_n_negative" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_binomial_cdf_invalid_p" classname="parameter_validation_test" time="0.061">
+		<testcase name="test_binomial_cdf_invalid_p" classname="parameter_validation_test" time="0.036">
 		</testcase>
-		<testcase name="test_poisson_cdf_invalid_lambda_negative" classname="parameter_validation_test" time="0.034">
+		<testcase name="test_poisson_cdf_invalid_lambda_negative" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_geometric_cdf_invalid_p_zero" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_geometric_cdf_invalid_p_zero" classname="parameter_validation_test" time="0.037">
 		</testcase>
-		<testcase name="test_negative_binomial_cdf_invalid_r" classname="parameter_validation_test" time="0.034">
+		<testcase name="test_negative_binomial_cdf_invalid_r" classname="parameter_validation_test" time="0.037">
 		</testcase>
 		<testcase name="test_negative_binomial_cdf_invalid_p" classname="parameter_validation_test" time="0.031">
 		</testcase>
 		<testcase name="test_pareto_cdf_invalid_scale_zero" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_pareto_cdf_invalid_scale_negative" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_pareto_cdf_invalid_scale_negative" classname="parameter_validation_test" time="0.038">
 		</testcase>
-		<testcase name="test_pareto_cdf_invalid_shape_zero" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_pareto_cdf_invalid_shape_zero" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_pareto_cdf_invalid_shape_negative" classname="parameter_validation_test" time="0.037">
+		<testcase name="test_pareto_cdf_invalid_shape_negative" classname="parameter_validation_test" time="0.038">
 		</testcase>
-		<testcase name="test_weibull_cdf_invalid_shape" classname="parameter_validation_test" time="0.046">
+		<testcase name="test_weibull_cdf_invalid_shape" classname="parameter_validation_test" time="0.051">
 		</testcase>
-		<testcase name="test_weibull_cdf_invalid_scale" classname="parameter_validation_test" time="0.053">
+		<testcase name="test_weibull_cdf_invalid_scale" classname="parameter_validation_test" time="0.050">
 		</testcase>
 	</testsuite>
-	<testsuite id="21" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/pmf_pdf_functions" timestamp="2025-06-23T21:38:28" hostname="localhost" tests="39" failures="0" errors="0" skipped="0" flaky="0" time="1.339">
-		<testcase name="test_binomial_pmf_scipy_validated" classname="scipy_validation_test" time="0.032">
+	<testsuite id="21" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/pmf_pdf_functions" timestamp="2025-06-23T22:35:35" hostname="localhost" tests="39" failures="0" errors="0" skipped="0" flaky="0" time="1.320">
+		<testcase name="test_binomial_pmf_scipy_validated" classname="scipy_validation_test" time="0.037">
 		</testcase>
-		<testcase name="test_poisson_pmf_scipy_validated" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_poisson_pmf_scipy_validated" classname="scipy_validation_test" time="0.017">
 		</testcase>
 		<testcase name="test_negative_binomial_pmf_scipy_validated" classname="scipy_validation_test" time="0.016">
 		</testcase>
@@ -619,13 +619,13 @@
 		</testcase>
 		<testcase name="test_uniform_pdf_scipy_validated" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_gamma_pdf_basic" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_gamma_pdf_basic" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_gamma_pdf_scipy_validated" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_gamma_pdf_scipy_validated" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_beta_pdf_scipy_validated" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_beta_pdf_scipy_validated" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_chi_squared_pdf_scipy_validated" classname="scipy_validation_test" time="0.023">
+		<testcase name="test_chi_squared_pdf_scipy_validated" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_t_pdf_scipy_validated" classname="scipy_validation_test" time="0.016">
 		</testcase>
@@ -633,157 +633,157 @@
 		</testcase>
 		<testcase name="test_weibull_pdf_scipy_validated" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_lognormal_pdf_scipy_validated" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_lognormal_pdf_scipy_validated" classname="scipy_validation_test" time="0.017">
 		</testcase>
 		<testcase name="test_weibull_pdf_edge_cases" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_lognormal_pdf_edge_cases" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_lognormal_pdf_edge_cases" classname="scipy_validation_test" time="0.015">
 		</testcase>
 		<testcase name="test_beta_pdf_outside_range" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_chi_squared_pdf_edge_cases" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_chi_squared_pdf_edge_cases" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_f_pdf_edge_cases" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_f_pdf_edge_cases" classname="scipy_validation_test" time="0.015">
 		</testcase>
 		<testcase name="test_weibull_pdf_boundary_conditions" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_weibull_pdf_deterministic_behavior" classname="scipy_validation_test" time="0.018">
 		</testcase>
-		<testcase name="test_beta_pdf_boundary_behavior" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_beta_pdf_boundary_behavior" classname="scipy_validation_test" time="0.020">
 		</testcase>
 		<testcase name="test_normal_pdf_non_negative" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_exponential_pdf_non_negative" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_exponential_pdf_non_negative" classname="scipy_validation_test" time="0.018">
 		</testcase>
 		<testcase name="test_uniform_pdf_non_negative" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_beta_pdf_non_negative" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_chi_squared_pdf_non_negative" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_chi_squared_pdf_non_negative" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_weibull_pdf_non_negative" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_weibull_pdf_non_negative" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_lognormal_pdf_non_negative" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_lognormal_pdf_non_negative" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_pdf_numerical_stability" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_pdf_integration_normal" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_pdf_integration_normal" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_pdf_integration_exponential" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_pdf_integration_exponential" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_pdf_integration_uniform" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_pdf_integration_uniform" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_pdf_integration_beta" classname="scipy_validation_test" time="0.023">
+		<testcase name="test_pdf_integration_beta" classname="scipy_validation_test" time="0.021">
 		</testcase>
-		<testcase name="test_pdf_integration_gamma" classname="scipy_validation_test" time="0.019">
+		<testcase name="test_pdf_integration_gamma" classname="scipy_validation_test" time="0.018">
 		</testcase>
-		<testcase name="test_pdf_integration_weibull" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_pdf_integration_weibull" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_pdf_integration_lognormal" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_pdf_integration_lognormal" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_pdf_integration_parametrized" classname="scipy_validation_test" time="0.026">
+		<testcase name="test_pdf_integration_parametrized" classname="scipy_validation_test" time="0.019">
 		</testcase>
 		<testcase name="test_pdf_integration_approximation" classname="scipy_validation_test" time="0.018">
 		</testcase>
 	</testsuite>
-	<testsuite id="22" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/pmf_pdf_functions" timestamp="2025-06-23T21:38:30" hostname="localhost" tests="11" failures="0" errors="0" skipped="0" flaky="0" time="0.361">
+	<testsuite id="22" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/pmf_pdf_functions" timestamp="2025-06-23T22:35:36" hostname="localhost" tests="11" failures="0" errors="0" skipped="0" flaky="0" time="0.370">
 		<testcase name="test_beta_pdf_uniform_special_case" classname="mathematical_property_test" time="0.024">
 		</testcase>
-		<testcase name="test_beta_pdf_symmetry_property" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_beta_pdf_symmetry_property" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_chi_squared_pdf_exponential_relationship" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_chi_squared_pdf_exponential_relationship" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_chi_squared_pdf_gamma_relationship" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_chi_squared_pdf_gamma_relationship" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_t_pdf_special_cases" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_t_pdf_special_cases" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_t_pdf_symmetry" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_t_pdf_symmetry" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_gamma_pdf_exponential_special_case" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_gamma_pdf_exponential_special_case" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_weibull_pdf_exponential_special_case" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_weibull_pdf_exponential_special_case" classname="mathematical_property_test" time="0.023">
 		</testcase>
 		<testcase name="test_weibull_pdf_rayleigh_special_case" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_weibull_pdf_monotonicity" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_lognormal_pdf_relationship_to_normal" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_lognormal_pdf_relationship_to_normal" classname="mathematical_property_test" time="0.015">
 		</testcase>
 	</testsuite>
-	<testsuite id="23" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/pmf_pdf_functions" timestamp="2025-06-23T21:38:30" hostname="localhost" tests="13" failures="0" errors="0" skipped="0" flaky="0" time="0.995">
-		<testcase name="test_binomial_pmf_invalid_parameters" classname="parameter_validation_test" time="0.063">
+	<testsuite id="23" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/pmf_pdf_functions" timestamp="2025-06-23T22:35:36" hostname="localhost" tests="13" failures="0" errors="0" skipped="0" flaky="0" time="0.995">
+		<testcase name="test_binomial_pmf_invalid_parameters" classname="parameter_validation_test" time="0.059">
 		</testcase>
-		<testcase name="test_poisson_pmf_invalid_parameters" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_poisson_pmf_invalid_parameters" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_negative_binomial_pmf_invalid_parameters" classname="parameter_validation_test" time="0.047">
+		<testcase name="test_negative_binomial_pmf_invalid_parameters" classname="parameter_validation_test" time="0.044">
 		</testcase>
-		<testcase name="test_normal_pdf_invalid_parameters" classname="parameter_validation_test" time="0.050">
+		<testcase name="test_normal_pdf_invalid_parameters" classname="parameter_validation_test" time="0.052">
 		</testcase>
-		<testcase name="test_exponential_pdf_invalid_parameters" classname="parameter_validation_test" time="0.049">
+		<testcase name="test_exponential_pdf_invalid_parameters" classname="parameter_validation_test" time="0.048">
 		</testcase>
-		<testcase name="test_uniform_pdf_invalid_parameters" classname="parameter_validation_test" time="0.048">
+		<testcase name="test_uniform_pdf_invalid_parameters" classname="parameter_validation_test" time="0.045">
 		</testcase>
-		<testcase name="test_gamma_pdf_invalid_parameters" classname="parameter_validation_test" time="0.076">
+		<testcase name="test_gamma_pdf_invalid_parameters" classname="parameter_validation_test" time="0.081">
 		</testcase>
-		<testcase name="test_beta_pdf_invalid_parameters" classname="parameter_validation_test" time="0.088">
+		<testcase name="test_beta_pdf_invalid_parameters" classname="parameter_validation_test" time="0.082">
 		</testcase>
-		<testcase name="test_chi_squared_pdf_invalid_parameters" classname="parameter_validation_test" time="0.053">
+		<testcase name="test_chi_squared_pdf_invalid_parameters" classname="parameter_validation_test" time="0.051">
 		</testcase>
-		<testcase name="test_t_pdf_invalid_parameters" classname="parameter_validation_test" time="0.048">
+		<testcase name="test_t_pdf_invalid_parameters" classname="parameter_validation_test" time="0.052">
 		</testcase>
-		<testcase name="test_f_pdf_invalid_parameters" classname="parameter_validation_test" time="0.085">
+		<testcase name="test_f_pdf_invalid_parameters" classname="parameter_validation_test" time="0.081">
 		</testcase>
-		<testcase name="test_weibull_pdf_invalid_parameters" classname="parameter_validation_test" time="0.085">
+		<testcase name="test_weibull_pdf_invalid_parameters" classname="parameter_validation_test" time="0.092">
 		</testcase>
-		<testcase name="test_lognormal_pdf_invalid_parameters" classname="parameter_validation_test" time="0.047">
+		<testcase name="test_lognormal_pdf_invalid_parameters" classname="parameter_validation_test" time="0.046">
 		</testcase>
 	</testsuite>
-	<testsuite id="24" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/sampling_gen" timestamp="2025-06-23T21:38:31" hostname="localhost" tests="37" failures="0" errors="0" skipped="0" flaky="0" time="1.391">
-		<testcase name="test_generate_samples_unified_interface_dimensions" classname="scipy_validation_test" time="0.031">
+	<testsuite id="24" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/sampling_gen" timestamp="2025-06-23T22:35:37" hostname="localhost" tests="37" failures="0" errors="0" skipped="0" flaky="0" time="1.363">
+		<testcase name="test_generate_samples_unified_interface_dimensions" classname="scipy_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_generate_samples_unified_interface_starting_index" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_generate_samples_unified_interface_starting_index" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_generate_samples_unified_interface_edge_cases" classname="scipy_validation_test" time="0.032">
+		<testcase name="test_generate_samples_unified_interface_edge_cases" classname="scipy_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_generate_samples_nd_basic" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_generate_samples_nd_basic" classname="scipy_validation_test" time="0.019">
 		</testcase>
 		<testcase name="test_generate_samples_nd_high_dimensions" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_generate_samples_nd_starting_index_determinism" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_generate_samples_nd_starting_index_determinism" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_generate_samples_nd_all_methods" classname="scipy_validation_test" time="0.021">
+		<testcase name="test_generate_samples_nd_all_methods" classname="scipy_validation_test" time="0.020">
 		</testcase>
 		<testcase name="test_coordinated_shuffle_basic" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_coordinated_shuffle_deterministic" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_coordinated_shuffle_edge_cases" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_coordinated_shuffle_edge_cases" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_coordinated_batch_shuffles" classname="scipy_validation_test" time="0.018">
 		</testcase>
-		<testcase name="test_coordinated_batch_shuffles_starting_index" classname="scipy_validation_test" time="0.019">
+		<testcase name="test_coordinated_batch_shuffles_starting_index" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_coordinated_sampling_alternative" classname="scipy_validation_test" time="0.025">
+		<testcase name="test_coordinated_sampling_alternative" classname="scipy_validation_test" time="0.018">
 		</testcase>
 		<testcase name="test_coordinated_sampling_deterministic" classname="scipy_validation_test" time="0.018">
 		</testcase>
-		<testcase name="test_coordinated_sampling_performance_comparison" classname="scipy_validation_test" time="0.015">
+		<testcase name="test_coordinated_sampling_performance_comparison" classname="scipy_validation_test" time="0.025">
 		</testcase>
 		<testcase name="test_generate_samples_1d_random_basic" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_generate_samples_1d_edge_cases" classname="scipy_validation_test" time="0.032">
+		<testcase name="test_generate_samples_1d_edge_cases" classname="scipy_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_generate_samples_1d_sobol_deterministic" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_generate_samples_1d_sobol_deterministic" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_generate_samples_1d_halton_deterministic" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_generate_samples_1d_seeded_reproducibility" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_generate_samples_1d_latin_hypercube_stratification" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_generate_samples_1d_latin_hypercube_stratification" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_generate_samples_2d_basic" classname="scipy_validation_test" time="0.020">
+		<testcase name="test_generate_samples_2d_basic" classname="scipy_validation_test" time="0.018">
 		</testcase>
-		<testcase name="test_generate_samples_2d_sobol_deterministic" classname="scipy_validation_test" time="0.024">
+		<testcase name="test_generate_samples_2d_sobol_deterministic" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_sample_indices_with_replacement_basic" classname="scipy_validation_test" time="0.017">
 		</testcase>
@@ -791,15 +791,15 @@
 		</testcase>
 		<testcase name="test_sample_indices_hybrid_combinations" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_sample_indices_seeded_reproducibility" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_sample_indices_seeded_reproducibility" classname="scipy_validation_test" time="0.019">
 		</testcase>
 		<testcase name="test_sample_indices_parameter_validation" classname="scipy_validation_test" time="0.061">
 		</testcase>
 		<testcase name="test_sample_indices_edge_cases" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_card_game_dealing" classname="scipy_validation_test" time="0.019">
+		<testcase name="test_card_game_dealing" classname="scipy_validation_test" time="0.018">
 		</testcase>
-		<testcase name="test_dice_rolling_simulation" classname="scipy_validation_test" time="0.020">
+		<testcase name="test_dice_rolling_simulation" classname="scipy_validation_test" time="0.018">
 		</testcase>
 		<testcase name="test_royal_flush_simulation_demo" classname="scipy_validation_test" time="0.035">
 		</testcase>
@@ -807,195 +807,195 @@
 		</testcase>
 		<testcase name="test_bootstrap_sampling_pattern" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_threading_performance_basic" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_threading_performance_basic" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_global_rng_determinism" classname="scipy_validation_test" time="0.024">
+		<testcase name="test_global_rng_determinism" classname="scipy_validation_test" time="0.018">
 		</testcase>
-		<testcase name="test_starting_index_sobol_sequence_continuity" classname="scipy_validation_test" time="0.014">
-		</testcase>
-	</testsuite>
-	<testsuite id="25" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/sampling_gen" timestamp="2025-06-23T21:38:32" hostname="localhost" tests="2" failures="0" errors="0" skipped="0" flaky="0" time="0.081">
-		<testcase name="test_sampling_uniformity_property" classname="mathematical_property_test" time="0.029">
-		</testcase>
-		<testcase name="test_quasi_random_determinism" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_starting_index_sobol_sequence_continuity" classname="scipy_validation_test" time="0.017">
 		</testcase>
 	</testsuite>
-	<testsuite id="26" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/sampling_gen" timestamp="2025-06-23T21:38:33" hostname="localhost" tests="2" failures="0" errors="0" skipped="0" flaky="0" time="0.136">
-		<testcase name="test_sampling_invalid_parameters" classname="parameter_validation_test" time="0.054">
+	<testsuite id="25" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/sampling_gen" timestamp="2025-06-23T22:35:39" hostname="localhost" tests="2" failures="0" errors="0" skipped="0" flaky="0" time="0.083">
+		<testcase name="test_sampling_uniformity_property" classname="mathematical_property_test" time="0.031">
 		</testcase>
-		<testcase name="test_sample_indices_invalid_parameters" classname="parameter_validation_test" time="0.048">
+		<testcase name="test_quasi_random_determinism" classname="mathematical_property_test" time="0.016">
 		</testcase>
 	</testsuite>
-	<testsuite id="27" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/helper_functions" timestamp="2025-06-23T21:38:33" hostname="localhost" tests="31" failures="0" errors="0" skipped="0" flaky="0" time="1.063">
-		<testcase name="test_binomial_coefficient_basic" classname="scipy_validation_test" time="0.024">
+	<testsuite id="26" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/sampling_gen" timestamp="2025-06-23T22:35:39" hostname="localhost" tests="2" failures="0" errors="0" skipped="0" flaky="0" time="0.133">
+		<testcase name="test_sampling_invalid_parameters" classname="parameter_validation_test" time="0.053">
 		</testcase>
-		<testcase name="test_binomial_coefficient_r_zero" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_sample_indices_invalid_parameters" classname="parameter_validation_test" time="0.046">
 		</testcase>
-		<testcase name="test_binomial_coefficient_r_equals_n" classname="scipy_validation_test" time="0.017">
+	</testsuite>
+	<testsuite id="27" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/helper_functions" timestamp="2025-06-23T22:35:39" hostname="localhost" tests="31" failures="0" errors="0" skipped="0" flaky="0" time="1.064">
+		<testcase name="test_binomial_coefficient_basic" classname="scipy_validation_test" time="0.039">
 		</testcase>
-		<testcase name="test_binomial_coefficient_r_greater_than_n" classname="scipy_validation_test" time="0.019">
+		<testcase name="test_binomial_coefficient_r_zero" classname="scipy_validation_test" time="0.015">
 		</testcase>
-		<testcase name="test_log_factorial_basic" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_binomial_coefficient_r_equals_n" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_log_factorial_zero" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_binomial_coefficient_r_greater_than_n" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_log_binomial_coef_basic" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_log_factorial_basic" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_log_binomial_coef_k_zero" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_log_factorial_zero" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_log_binomial_coef_k_equals_n" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_log_binomial_coef_basic" classname="scipy_validation_test" time="0.016">
+		</testcase>
+		<testcase name="test_log_binomial_coef_k_zero" classname="scipy_validation_test" time="0.016">
+		</testcase>
+		<testcase name="test_log_binomial_coef_k_equals_n" classname="scipy_validation_test" time="0.017">
 		</testcase>
 		<testcase name="test_log_binomial_coef_k_greater_than_n" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_beta_function_basic" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_beta_function_basic" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_incomplete_beta_x_zero" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_incomplete_beta_x_zero" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_incomplete_beta_x_one" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_incomplete_beta_x_one" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_incomplete_beta_special_case_beta_2_2" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_incomplete_beta_special_case_beta_2_2" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_incomplete_beta_special_case_beta_2_2_quarter" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_incomplete_beta_special_case_beta_2_2_quarter" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_incomplete_beta_special_case_beta_2_2_three_quarters" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_incomplete_beta_scipy_validation" classname="scipy_validation_test" time="0.019">
+		<testcase name="test_incomplete_beta_scipy_validation" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_log_beta_function_direct_basic" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_log_beta_function_direct_basic" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_lower_incomplete_gamma_regularized_z_zero" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_lower_incomplete_gamma_regularized_scipy_validation" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_lower_incomplete_gamma_regularized_scipy_validation" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_lower_incomplete_gamma_regularized_a_equals_one" classname="scipy_validation_test" time="0.019">
+		<testcase name="test_lower_incomplete_gamma_regularized_a_equals_one" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_lower_incomplete_gamma_regularized_small_z" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_lower_incomplete_gamma_regularized_small_z" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_lower_incomplete_gamma_regularized_large_z" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_lower_incomplete_gamma_regularized_large_z" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_lower_incomplete_gamma_regularized_zero_z_different_a" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_lower_incomplete_gamma_regularized_zero_z_different_a" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_incomplete_functions_beta_cdf_integration" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_incomplete_functions_gamma_cdf_integration" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_sanitize_numeric_array_mixed_types" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_sanitize_numeric_array_mixed_types" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_sanitize_numeric_array_with_invalid_values" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_sanitize_numeric_array_with_invalid_values" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_sanitize_numeric_array_is_sorted" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_sanitize_numeric_array_is_sorted" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_sanitize_numeric_array_with_negative_values" classname="scipy_validation_test" time="0.023">
+		<testcase name="test_sanitize_numeric_array_with_negative_values" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_sanitize_numeric_array_empty_input" classname="scipy_validation_test" time="0.016">
 		</testcase>
 	</testsuite>
-	<testsuite id="28" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/helper_functions" timestamp="2025-06-23T21:38:34" hostname="localhost" tests="12" failures="0" errors="0" skipped="0" flaky="0" time="0.416">
-		<testcase name="test_binomial_coefficient_symmetry" classname="mathematical_property_test" time="0.031">
+	<testsuite id="28" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/helper_functions" timestamp="2025-06-23T22:35:40" hostname="localhost" tests="12" failures="0" errors="0" skipped="0" flaky="0" time="0.391">
+		<testcase name="test_binomial_coefficient_symmetry" classname="mathematical_property_test" time="0.023">
 		</testcase>
 		<testcase name="test_binomial_coefficient_pascals_identity" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_log_factorial_growth_property" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_log_factorial_growth_property" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_beta_function_symmetry" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_beta_function_gamma_relationship" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_beta_function_gamma_relationship" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_incomplete_beta_boundary_conditions" classname="mathematical_property_test" time="0.014">
+		<testcase name="test_incomplete_beta_boundary_conditions" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_incomplete_beta_monotonicity" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_incomplete_beta_monotonicity" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_lower_incomplete_gamma_boundary_conditions" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_lower_incomplete_gamma_monotonicity" classname="mathematical_property_test" time="0.025">
+		<testcase name="test_lower_incomplete_gamma_monotonicity" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_lower_incomplete_gamma_regularized_monotonicity" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_lower_incomplete_gamma_regularized_monotonicity" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_lower_incomplete_gamma_regularized_bounds" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_lower_incomplete_gamma_regularized_bounds" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_lower_incomplete_gamma_regularized_convergence_warning" classname="mathematical_property_test" time="0.017">
 		</testcase>
 	</testsuite>
-	<testsuite id="29" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/helper_functions" timestamp="2025-06-23T21:38:34" hostname="localhost" tests="11" failures="0" errors="0" skipped="0" flaky="0" time="0.540">
-		<testcase name="test_binomial_coefficient_invalid_n_negative" classname="parameter_validation_test" time="0.032">
+	<testsuite id="29" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/helper_functions" timestamp="2025-06-23T22:35:41" hostname="localhost" tests="11" failures="0" errors="0" skipped="0" flaky="0" time="0.568">
+		<testcase name="test_binomial_coefficient_invalid_n_negative" classname="parameter_validation_test" time="0.037">
 		</testcase>
 		<testcase name="test_binomial_coefficient_invalid_r_negative" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_log_factorial_invalid_negative" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_log_factorial_invalid_negative" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_log_binomial_coef_invalid_n_negative" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_log_binomial_coef_invalid_n_negative" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_log_binomial_coef_invalid_k_negative" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_log_binomial_coef_invalid_k_negative" classname="parameter_validation_test" time="0.037">
 		</testcase>
-		<testcase name="test_beta_function_invalid_a_negative" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_beta_function_invalid_a_negative" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_incomplete_beta_invalid_a_negative" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_incomplete_beta_invalid_a_negative" classname="parameter_validation_test" time="0.037">
 		</testcase>
-		<testcase name="test_incomplete_beta_invalid_x_out_of_range" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_incomplete_beta_invalid_x_out_of_range" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_log_beta_function_direct_invalid_a_negative" classname="parameter_validation_test" time="0.034">
+		<testcase name="test_log_beta_function_direct_invalid_a_negative" classname="parameter_validation_test" time="0.033">
 		</testcase>
-		<testcase name="test_lower_incomplete_gamma_regularized_invalid_a_negative" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_lower_incomplete_gamma_regularized_invalid_a_negative" classname="parameter_validation_test" time="0.038">
 		</testcase>
-		<testcase name="test_lower_incomplete_gamma_regularized_invalid_z_negative" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_lower_incomplete_gamma_regularized_invalid_z_negative" classname="parameter_validation_test" time="0.043">
 		</testcase>
 	</testsuite>
-	<testsuite id="30" name="cdf_pdf_integration_test" package="addons/godot-stat-math/tests/core/integration" timestamp="2025-06-23T21:38:35" hostname="localhost" tests="13" failures="0" errors="0" skipped="0" flaky="0" time="0.462">
-		<testcase name="test_scipy_derivative_validation" classname="cdf_pdf_integration_test" time="0.032">
+	<testsuite id="30" name="cdf_pdf_integration_test" package="addons/godot-stat-math/tests/core/integration" timestamp="2025-06-23T22:35:41" hostname="localhost" tests="13" failures="0" errors="0" skipped="0" flaky="0" time="0.472">
+		<testcase name="test_scipy_derivative_validation" classname="cdf_pdf_integration_test" time="0.024">
 		</testcase>
-		<testcase name="test_scipy_monotonicity_validation" classname="cdf_pdf_integration_test" time="0.027">
+		<testcase name="test_scipy_monotonicity_validation" classname="cdf_pdf_integration_test" time="0.034">
 		</testcase>
-		<testcase name="test_scipy_cross_function_validation" classname="cdf_pdf_integration_test" time="0.018">
+		<testcase name="test_scipy_cross_function_validation" classname="cdf_pdf_integration_test" time="0.017">
 		</testcase>
-		<testcase name="test_scipy_boundary_validation" classname="cdf_pdf_integration_test" time="0.018">
+		<testcase name="test_scipy_boundary_validation" classname="cdf_pdf_integration_test" time="0.017">
 		</testcase>
-		<testcase name="test_normal_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.018">
+		<testcase name="test_normal_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.017">
 		</testcase>
-		<testcase name="test_exponential_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.018">
+		<testcase name="test_exponential_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.017">
 		</testcase>
-		<testcase name="test_uniform_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.016">
+		<testcase name="test_uniform_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.017">
 		</testcase>
 		<testcase name="test_beta_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.018">
 		</testcase>
 		<testcase name="test_weibull_cdf_pdf_derivative_relationship" classname="cdf_pdf_integration_test" time="0.017">
 		</testcase>
-		<testcase name="test_gamma_exponential_mathematical_relationship" classname="cdf_pdf_integration_test" time="0.015">
+		<testcase name="test_gamma_exponential_mathematical_relationship" classname="cdf_pdf_integration_test" time="0.017">
 		</testcase>
-		<testcase name="test_end_to_end_normal_distribution_workflow" classname="cdf_pdf_integration_test" time="0.018">
+		<testcase name="test_end_to_end_normal_distribution_workflow" classname="cdf_pdf_integration_test" time="0.019">
 		</testcase>
-		<testcase name="test_numerical_stability_extreme_values" classname="cdf_pdf_integration_test" time="0.018">
+		<testcase name="test_numerical_stability_extreme_values" classname="cdf_pdf_integration_test" time="0.016">
 		</testcase>
-		<testcase name="test_integration_parameter_validation" classname="cdf_pdf_integration_test" time="0.017">
+		<testcase name="test_integration_parameter_validation" classname="cdf_pdf_integration_test" time="0.016">
 		</testcase>
 	</testsuite>
-	<testsuite id="31" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/distributions" timestamp="2025-06-23T21:38:35" hostname="localhost" tests="12" failures="0" errors="0" skipped="0" flaky="0" time="0.423">
-		<testcase name="test_randi_bernoulli_deterministic_cases" classname="scipy_validation_test" time="0.034">
+	<testsuite id="31" name="scipy_validation_test" package="addons/godot-stat-math/tests/core/distributions" timestamp="2025-06-23T22:35:42" hostname="localhost" tests="12" failures="0" errors="0" skipped="0" flaky="0" time="0.420">
+		<testcase name="test_randi_bernoulli_deterministic_cases" classname="scipy_validation_test" time="0.023">
 		</testcase>
 		<testcase name="test_randi_bernoulli_p_zero" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_randi_bernoulli_p_one" classname="scipy_validation_test" time="0.025">
+		<testcase name="test_randi_bernoulli_p_one" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_randi_bernoulli_p_half" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_randi_bernoulli_p_half" classname="scipy_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randi_binomial_p_zero" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_randi_binomial_p_zero" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_randi_binomial_p_one" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_randi_binomial_p_one" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_randi_binomial_n_zero" classname="scipy_validation_test" time="0.017">
+		<testcase name="test_randi_binomial_n_zero" classname="scipy_validation_test" time="0.016">
 		</testcase>
 		<testcase name="test_randi_binomial_deterministic_cases" classname="scipy_validation_test" time="0.017">
 		</testcase>
-		<testcase name="test_randi_geometric_deterministic_cases" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_randi_geometric_deterministic_cases" classname="scipy_validation_test" time="0.023">
 		</testcase>
-		<testcase name="test_randi_poisson_deterministic_cases" classname="scipy_validation_test" time="0.018">
+		<testcase name="test_randi_poisson_deterministic_cases" classname="scipy_validation_test" time="0.016">
 		</testcase>
-		<testcase name="test_randi_pseudo_deterministic_cases" classname="scipy_validation_test" time="0.016">
+		<testcase name="test_randi_pseudo_deterministic_cases" classname="scipy_validation_test" time="0.017">
 		</testcase>
 		<testcase name="test_randi_seige_deterministic_cases" classname="scipy_validation_test" time="0.017">
 		</testcase>
 	</testsuite>
-	<testsuite id="32" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/distributions" timestamp="2025-06-23T21:38:36" hostname="localhost" tests="123" failures="0" errors="0" skipped="0" flaky="0" time="4.405">
-		<testcase name="test_randi_uniform_range_properties" classname="mathematical_property_test" time="0.032">
+	<testsuite id="32" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/distributions" timestamp="2025-06-23T22:35:42" hostname="localhost" tests="123" failures="0" errors="0" skipped="0" flaky="0" time="4.213">
+		<testcase name="test_randi_uniform_range_properties" classname="mathematical_property_test" time="0.038">
 		</testcase>
 		<testcase name="test_randi_uniform_deterministic_with_seed" classname="mathematical_property_test" time="0.017">
 		</testcase>
@@ -1005,19 +1005,19 @@
 		</testcase>
 		<testcase name="test_randf_erlang_non_negative_property" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_erlang_exponential_equivalence" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_erlang_exponential_equivalence" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_gaussian_returns_float" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_gaussian_returns_float" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_normal_default_parameters" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_normal_default_parameters" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_normal_sigma_zero" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_normal_sigma_zero" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_normal_typical_case" classname="mathematical_property_test" time="0.019">
+		<testcase name="test_randf_normal_typical_case" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_normal_negative_mu" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_normal_negative_mu" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_normal_statistical_properties" classname="mathematical_property_test" time="0.029">
+		<testcase name="test_randf_normal_statistical_properties" classname="mathematical_property_test" time="0.020">
 		</testcase>
 		<testcase name="test_randf_cauchy_basic" classname="mathematical_property_test" time="0.017">
 		</testcase>
@@ -1025,159 +1025,159 @@
 		</testcase>
 		<testcase name="test_randf_cauchy_with_scale" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_cauchy_with_location_and_scale" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_cauchy_with_location_and_scale" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_cauchy_negative_location" classname="mathematical_property_test" time="0.019">
+		<testcase name="test_randf_cauchy_negative_location" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_cauchy_very_small_scale" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_cauchy_large_scale" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_cauchy_large_scale" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_cauchy_deterministic_with_seed" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_randf_cauchy_deterministic_with_seed" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_cauchy_multiple_calls_different_values" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_cauchy_statistical_properties" classname="mathematical_property_test" time="0.022">
+		<testcase name="test_randf_cauchy_statistical_properties" classname="mathematical_property_test" time="0.028">
 		</testcase>
 		<testcase name="test_randf_cauchy_damage_variation" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_cauchy_market_price_fluctuation" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_cauchy_npc_reaction_time" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_cauchy_npc_reaction_time" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_cauchy_particle_velocity_distribution" classname="mathematical_property_test" time="0.020">
+		<testcase name="test_randf_cauchy_particle_velocity_distribution" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_cauchy_procedural_terrain_height" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_randf_cauchy_procedural_terrain_height" classname="mathematical_property_test" time="0.014">
 		</testcase>
-		<testcase name="test_randf_cauchy_heavy_tails_property" classname="mathematical_property_test" time="0.020">
+		<testcase name="test_randf_cauchy_heavy_tails_property" classname="mathematical_property_test" time="0.021">
 		</testcase>
 		<testcase name="test_randv_histogram_basic_case" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randv_histogram_probabilities_not_normalized" classname="mathematical_property_test" time="0.026">
+		<testcase name="test_randv_histogram_probabilities_not_normalized" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randv_histogram_single_value" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randv_histogram_single_value_non_one_prob" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randv_histogram_single_value_non_one_prob" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_rng_determinism_with_set_seed" classname="mathematical_property_test" time="0.018">
 		</testcase>
-		<testcase name="test_randf_gamma_basic" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_randf_gamma_basic" classname="mathematical_property_test" time="0.021">
 		</testcase>
-		<testcase name="test_randf_gamma_shape_one" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_gamma_shape_one" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_gamma_shape_less_than_one" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_gamma_shape_greater_than_one" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_gamma_shape_greater_than_one" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_gamma_large_parameters" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_gamma_large_parameters" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_gamma_deterministic_with_seed" classname="mathematical_property_test" time="0.026">
+		<testcase name="test_randf_gamma_deterministic_with_seed" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_beta_basic" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_beta_basic" classname="mathematical_property_test" time="0.018">
 		</testcase>
-		<testcase name="test_randf_beta_symmetric" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_beta_symmetric" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_beta_skewed_left" classname="mathematical_property_test" time="0.020">
+		<testcase name="test_randf_beta_skewed_left" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_beta_skewed_right" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_beta_skewed_right" classname="mathematical_property_test" time="0.024">
 		</testcase>
 		<testcase name="test_randf_beta_uniform" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_beta_large_parameters" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_beta_small_parameters" classname="mathematical_property_test" time="0.019">
+		<testcase name="test_randf_beta_small_parameters" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_beta_deterministic_with_seed" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_beta_deterministic_with_seed" classname="mathematical_property_test" time="0.018">
 		</testcase>
-		<testcase name="test_randf_gamma_statistical_properties" classname="mathematical_property_test" time="0.027">
+		<testcase name="test_randf_gamma_statistical_properties" classname="mathematical_property_test" time="0.020">
 		</testcase>
 		<testcase name="test_randf_beta_statistical_properties" classname="mathematical_property_test" time="0.020">
 		</testcase>
-		<testcase name="test_randf_gamma_damage_variation" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_gamma_damage_variation" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_beta_quality_scores" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_randf_beta_quality_scores" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_combined_gamma_beta_procedural_generation" classname="mathematical_property_test" time="0.019">
+		<testcase name="test_combined_gamma_beta_procedural_generation" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_triangular_basic" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_triangular_symmetric" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_randf_triangular_symmetric" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_triangular_left_skewed" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_triangular_left_skewed" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_randf_triangular_right_skewed" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_triangular_mode_at_minimum" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_triangular_mode_at_minimum" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_triangular_mode_at_maximum" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_triangular_mode_at_maximum" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_triangular_negative_range" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_randf_triangular_negative_range" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_triangular_mixed_sign_range" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_triangular_mixed_sign_range" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_triangular_small_range" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_triangular_small_range" classname="mathematical_property_test" time="0.018">
 		</testcase>
 		<testcase name="test_randf_triangular_large_range" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_triangular_deterministic_with_seed" classname="mathematical_property_test" time="0.024">
+		<testcase name="test_randf_triangular_deterministic_with_seed" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_triangular_multiple_calls_different_values" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_randf_triangular_degenerate_case_equal_bounds" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_triangular_nearly_equal_bounds" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_triangular_nearly_equal_bounds" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_triangular_statistical_properties" classname="mathematical_property_test" time="0.022">
+		<testcase name="test_randf_triangular_statistical_properties" classname="mathematical_property_test" time="0.028">
 		</testcase>
-		<testcase name="test_randf_triangular_mode_bias_verification" classname="mathematical_property_test" time="0.025">
+		<testcase name="test_randf_triangular_mode_bias_verification" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_triangular_ai_decision_confidence" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_triangular_loot_quality" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_triangular_loot_quality" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_triangular_multiple_parameters" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_triangular_npc_stat_generation" classname="mathematical_property_test" time="0.019">
+		<testcase name="test_randf_triangular_npc_stat_generation" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_triangular_pricing_variation" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_triangular_pricing_variation" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_triangular_procedural_terrain_height" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_randf_triangular_procedural_terrain_height" classname="mathematical_property_test" time="0.015">
 		</testcase>
-		<testcase name="test_randf_triangular_resource_spawn_rate" classname="mathematical_property_test" time="0.023">
+		<testcase name="test_randf_triangular_resource_spawn_rate" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_randf_triangular_skill_check_difficulty" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_triangular_weapon_damage" classname="mathematical_property_test" time="0.016">
+		<testcase name="test_randf_triangular_weapon_damage" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_pareto_basic" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_pareto_scale_parameter" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_pareto_large_scale" classname="mathematical_property_test" time="0.025">
+		<testcase name="test_randf_pareto_large_scale" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_pareto_small_scale" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_pareto_small_scale" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_pareto_very_small_shape" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_pareto_very_small_shape" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_pareto_large_shape" classname="mathematical_property_test" time="0.024">
+		<testcase name="test_randf_pareto_large_shape" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_randf_pareto_deterministic_with_seed" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_pareto_multiple_calls_different_values" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_pareto_multiple_calls_different_values" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_pareto_statistical_properties" classname="mathematical_property_test" time="0.027">
+		<testcase name="test_randf_pareto_statistical_properties" classname="mathematical_property_test" time="0.019">
 		</testcase>
-		<testcase name="test_randf_pareto_wealth_distribution" classname="mathematical_property_test" time="0.019">
+		<testcase name="test_randf_pareto_wealth_distribution" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_pareto_multiple_applications" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_pareto_city_population" classname="mathematical_property_test" time="0.026">
+		<testcase name="test_randf_pareto_city_population" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_pareto_concentration_near_minimum" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_pareto_concentration_near_minimum" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_pareto_different_shapes" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_pareto_different_shapes" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_pareto_heavy_tail_property" classname="mathematical_property_test" time="0.026">
+		<testcase name="test_randf_pareto_heavy_tail_property" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_pareto_loot_rarity" classname="mathematical_property_test" time="0.017">
 		</testcase>
@@ -1185,9 +1185,9 @@
 		</testcase>
 		<testcase name="test_randf_pareto_network_effect_scaling" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_pareto_player_skill_gaps" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_pareto_player_skill_gaps" classname="mathematical_property_test" time="0.018">
 		</testcase>
-		<testcase name="test_randf_pareto_power_law_scaling" classname="mathematical_property_test" time="0.024">
+		<testcase name="test_randf_pareto_power_law_scaling" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_pareto_quest_reward_scaling" classname="mathematical_property_test" time="0.017">
 		</testcase>
@@ -1195,163 +1195,163 @@
 		</testcase>
 		<testcase name="test_randf_weibull_basic" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_scale_parameter" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_weibull_scale_parameter" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_exponential_case" classname="mathematical_property_test" time="0.025">
+		<testcase name="test_randf_weibull_exponential_case" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_weibull_rayleigh_case" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_different_shapes" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_weibull_different_shapes" classname="mathematical_property_test" time="0.017">
 		</testcase>
 		<testcase name="test_randf_weibull_large_scale" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_small_scale" classname="mathematical_property_test" time="0.025">
+		<testcase name="test_randf_weibull_small_scale" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_very_small_shape" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_weibull_very_small_shape" classname="mathematical_property_test" time="0.016">
 		</testcase>
-		<testcase name="test_randf_weibull_large_shape" classname="mathematical_property_test" time="0.019">
+		<testcase name="test_randf_weibull_large_shape" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_deterministic_with_seed" classname="mathematical_property_test" time="0.024">
+		<testcase name="test_randf_weibull_deterministic_with_seed" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_multiple_calls_different_values" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_weibull_multiple_calls_different_values" classname="mathematical_property_test" time="0.023">
 		</testcase>
 		<testcase name="test_randf_weibull_statistical_properties" classname="mathematical_property_test" time="0.020">
 		</testcase>
-		<testcase name="test_randf_weibull_shape_effect_on_distribution" classname="mathematical_property_test" time="0.030">
+		<testcase name="test_randf_weibull_shape_effect_on_distribution" classname="mathematical_property_test" time="0.022">
 		</testcase>
-		<testcase name="test_randf_weibull_exponential_equivalence" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_weibull_exponential_equivalence" classname="mathematical_property_test" time="0.026">
 		</testcase>
-		<testcase name="test_randf_weibull_equipment_durability" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_weibull_equipment_durability" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_wind_speed_simulation" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_weibull_wind_speed_simulation" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_randf_weibull_survival_time_modeling" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_component_reliability" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_weibull_component_reliability" classname="mathematical_property_test" time="0.018">
 		</testcase>
-		<testcase name="test_randf_weibull_weather_event_duration" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_weibull_weather_event_duration" classname="mathematical_property_test" time="0.016">
 		</testcase>
 		<testcase name="test_randf_weibull_quest_completion_time" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_resource_depletion" classname="mathematical_property_test" time="0.018">
+		<testcase name="test_randf_weibull_resource_depletion" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_player_session_length" classname="mathematical_property_test" time="0.020">
+		<testcase name="test_randf_weibull_player_session_length" classname="mathematical_property_test" time="0.017">
 		</testcase>
-		<testcase name="test_randf_weibull_network_latency_spikes" classname="mathematical_property_test" time="0.017">
+		<testcase name="test_randf_weibull_network_latency_spikes" classname="mathematical_property_test" time="0.018">
 		</testcase>
 		<testcase name="test_randf_weibull_multiple_reliability_applications" classname="mathematical_property_test" time="0.018">
 		</testcase>
 	</testsuite>
-	<testsuite id="33" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/distributions" timestamp="2025-06-23T21:38:40" hostname="localhost" tests="55" failures="0" errors="0" skipped="0" flaky="0" time="2.773">
-		<testcase name="test_randi_bernoulli_invalid_p_too_low" classname="parameter_validation_test" time="0.062">
+	<testsuite id="33" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/distributions" timestamp="2025-06-23T22:35:47" hostname="localhost" tests="55" failures="0" errors="0" skipped="0" flaky="0" time="2.763">
+		<testcase name="test_randi_bernoulli_invalid_p_too_low" classname="parameter_validation_test" time="0.039">
 		</testcase>
-		<testcase name="test_randi_bernoulli_invalid_p_too_high" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randi_bernoulli_invalid_p_too_high" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_randi_binomial_invalid_p_too_low" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randi_binomial_invalid_p_too_low" classname="parameter_validation_test" time="0.039">
 		</testcase>
-		<testcase name="test_randi_binomial_invalid_p_too_high" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randi_binomial_invalid_p_too_high" classname="parameter_validation_test" time="0.031">
 		</testcase>
 		<testcase name="test_randi_binomial_invalid_n_negative" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_randi_geometric_invalid_p_zero" classname="parameter_validation_test" time="0.034">
+		<testcase name="test_randi_geometric_invalid_p_zero" classname="parameter_validation_test" time="0.030">
 		</testcase>
 		<testcase name="test_randi_geometric_invalid_p_too_low" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_randi_geometric_invalid_p_too_high" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randi_geometric_invalid_p_too_high" classname="parameter_validation_test" time="0.038">
 		</testcase>
-		<testcase name="test_randi_poisson_invalid_lambda_zero" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randi_poisson_invalid_lambda_zero" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randi_poisson_invalid_lambda_negative" classname="parameter_validation_test" time="0.029">
+		<testcase name="test_randi_poisson_invalid_lambda_negative" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randi_pseudo_invalid_c_param_zero" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randi_pseudo_invalid_c_param_zero" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randi_pseudo_invalid_c_param_negative" classname="parameter_validation_test" time="0.026">
+		<testcase name="test_randi_pseudo_invalid_c_param_negative" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_randi_pseudo_invalid_c_param_too_high" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randi_pseudo_invalid_c_param_too_high" classname="parameter_validation_test" time="0.036">
 		</testcase>
-		<testcase name="test_randi_seige_invalid_w_too_low" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randi_seige_invalid_w_too_low" classname="parameter_validation_test" time="0.033">
 		</testcase>
-		<testcase name="test_randi_seige_invalid_w_too_high" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randi_seige_invalid_w_too_high" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_randi_seige_invalid_c0_too_low" classname="parameter_validation_test" time="0.030">
+		<testcase name="test_randi_seige_invalid_c0_too_low" classname="parameter_validation_test" time="0.038">
 		</testcase>
-		<testcase name="test_randi_seige_invalid_c0_too_high" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randi_seige_invalid_c0_too_high" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randi_uniform_invalid_min_greater_than_max" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randi_uniform_invalid_min_greater_than_max" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_uniform_invalid_a_greater_than_b" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randf_uniform_invalid_a_greater_than_b" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_exponential_invalid_lambda_zero" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_randf_exponential_invalid_lambda_zero" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_randf_exponential_invalid_lambda_negative" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randf_exponential_invalid_lambda_negative" classname="parameter_validation_test" time="0.038">
 		</testcase>
-		<testcase name="test_randf_erlang_invalid_k_zero" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randf_erlang_invalid_k_zero" classname="parameter_validation_test" time="0.034">
 		</testcase>
-		<testcase name="test_randf_erlang_invalid_k_negative" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randf_erlang_invalid_k_negative" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_erlang_invalid_lambda_zero" classname="parameter_validation_test" time="0.025">
+		<testcase name="test_randf_erlang_invalid_lambda_zero" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_erlang_invalid_lambda_negative" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randf_erlang_invalid_lambda_negative" classname="parameter_validation_test" time="0.033">
 		</testcase>
-		<testcase name="test_randf_normal_invalid_sigma_negative" classname="parameter_validation_test" time="0.034">
+		<testcase name="test_randf_normal_invalid_sigma_negative" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_normal_invalid_sigma_zero" classname="parameter_validation_test" time="0.034">
+		<testcase name="test_randf_normal_invalid_sigma_zero" classname="parameter_validation_test" time="0.038">
 		</testcase>
-		<testcase name="test_randf_cauchy_invalid_scale_zero" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randf_cauchy_invalid_scale_zero" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_cauchy_invalid_scale_negative" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randf_cauchy_invalid_scale_negative" classname="parameter_validation_test" time="0.031">
 		</testcase>
 		<testcase name="test_randv_histogram_empty_values" classname="parameter_validation_test" time="0.032">
 		</testcase>
 		<testcase name="test_randv_histogram_empty_probabilities" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_randv_histogram_mismatched_sizes" classname="parameter_validation_test" time="0.028">
+		<testcase name="test_randv_histogram_mismatched_sizes" classname="parameter_validation_test" time="0.038">
 		</testcase>
-		<testcase name="test_randv_histogram_non_numeric_probability" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randv_histogram_non_numeric_probability" classname="parameter_validation_test" time="0.030">
 		</testcase>
 		<testcase name="test_randv_histogram_negative_probability" classname="parameter_validation_test" time="0.033">
 		</testcase>
-		<testcase name="test_randv_histogram_zero_sum_probabilities" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randv_histogram_zero_sum_probabilities" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_gamma_invalid_shape_zero" classname="parameter_validation_test" time="0.026">
+		<testcase name="test_randf_gamma_invalid_shape_zero" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_gamma_invalid_shape_negative" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randf_gamma_invalid_shape_negative" classname="parameter_validation_test" time="0.037">
 		</testcase>
-		<testcase name="test_randf_gamma_invalid_scale_zero" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randf_gamma_invalid_scale_zero" classname="parameter_validation_test" time="0.034">
 		</testcase>
-		<testcase name="test_randf_gamma_invalid_scale_negative" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randf_gamma_invalid_scale_negative" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_randf_beta_invalid_alpha_zero" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randf_beta_invalid_alpha_zero" classname="parameter_validation_test" time="0.030">
 		</testcase>
-		<testcase name="test_randf_beta_invalid_alpha_negative" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randf_beta_invalid_alpha_negative" classname="parameter_validation_test" time="0.038">
 		</testcase>
 		<testcase name="test_randf_beta_invalid_beta_zero" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_randf_beta_invalid_beta_negative" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randf_beta_invalid_beta_negative" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_randf_triangular_invalid_mode_too_low" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randf_triangular_invalid_mode_too_low" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_triangular_invalid_mode_too_high" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randf_triangular_invalid_mode_too_high" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_triangular_invalid_max_less_than_min" classname="parameter_validation_test" time="0.035">
+		<testcase name="test_randf_triangular_invalid_max_less_than_min" classname="parameter_validation_test" time="0.038">
 		</testcase>
-		<testcase name="test_randf_triangular_invalid_max_equal_min_with_different_mode" classname="parameter_validation_test" time="0.024">
+		<testcase name="test_randf_triangular_invalid_max_equal_min_with_different_mode" classname="parameter_validation_test" time="0.031">
 		</testcase>
 		<testcase name="test_randf_pareto_invalid_scale_zero" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_pareto_invalid_scale_negative" classname="parameter_validation_test" time="0.031">
+		<testcase name="test_randf_pareto_invalid_scale_negative" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_randf_pareto_invalid_shape_zero" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randf_pareto_invalid_shape_zero" classname="parameter_validation_test" time="0.031">
 		</testcase>
-		<testcase name="test_randf_pareto_invalid_shape_negative" classname="parameter_validation_test" time="0.032">
+		<testcase name="test_randf_pareto_invalid_shape_negative" classname="parameter_validation_test" time="0.038">
 		</testcase>
-		<testcase name="test_randf_weibull_invalid_scale_zero" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randf_weibull_invalid_scale_zero" classname="parameter_validation_test" time="0.030">
 		</testcase>
 		<testcase name="test_randf_weibull_invalid_scale_negative" classname="parameter_validation_test" time="0.032">
 		</testcase>
 		<testcase name="test_randf_weibull_invalid_shape_zero" classname="parameter_validation_test" time="0.032">
 		</testcase>
-		<testcase name="test_randf_weibull_invalid_shape_negative" classname="parameter_validation_test" time="0.033">
+		<testcase name="test_randf_weibull_invalid_shape_negative" classname="parameter_validation_test" time="0.032">
 		</testcase>
 	</testsuite>
 </testsuites>
