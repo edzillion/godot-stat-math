@@ -93,4 +93,45 @@ func test_median_absolute_deviation_empty_array() -> void:
 	
 	# Test sentinel return value
 	var result: float = StatMath.BasicStats.median_absolute_deviation([])
-	assert_bool(is_nan(result)).is_true() 
+	assert_bool(is_nan(result)).is_true()
+
+# --- Percentile Parameter Validation Tests ---
+func test_percentile_empty_array() -> void:
+	var test_call: Callable = func():
+		StatMath.BasicStats.percentile([], 50.0)
+	await assert_error(test_call).is_push_error("Cannot calculate percentile of empty array.")
+	
+	# Test sentinel return value
+	var result: float = StatMath.BasicStats.percentile([], 50.0)
+	assert_bool(is_nan(result)).is_true()
+
+func test_percentile_value_out_of_range() -> void:
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	# Test percentile_value < 0.0
+	var test_call_negative: Callable = func():
+		StatMath.BasicStats.percentile(sorted_data, -10.0)
+	await assert_error(test_call_negative).is_push_error("Percentile value must be between 0.0 and 100.0. Received: -10.000000")
+	
+	# Test percentile_value > 100.0
+	var test_call_over_100: Callable = func():
+		StatMath.BasicStats.percentile(sorted_data, 150.0)
+	await assert_error(test_call_over_100).is_push_error("Percentile value must be between 0.0 and 100.0. Received: 150.000000")
+	
+	# Test sentinel return values
+	var result_negative: float = StatMath.BasicStats.percentile(sorted_data, -10.0)
+	assert_bool(is_nan(result_negative)).is_true()
+	
+	var result_over_100: float = StatMath.BasicStats.percentile(sorted_data, 150.0)
+	assert_bool(is_nan(result_over_100)).is_true()
+
+# --- Summary Statistics Parameter Validation Tests ---
+func test_summary_statistics_empty_array() -> void:
+	var test_call: Callable = func():
+		StatMath.BasicStats.summary_statistics([])
+	await assert_error(test_call).is_push_error("Cannot calculate summary statistics of empty array.")
+	
+	# Test sentinel return value
+	var result: Dictionary = StatMath.BasicStats.summary_statistics([])
+	assert_that(result).is_empty() 

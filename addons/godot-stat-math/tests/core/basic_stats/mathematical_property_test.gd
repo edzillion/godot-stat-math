@@ -245,4 +245,51 @@ func test_median_absolute_deviation_basic_properties() -> void:
 	
 	# MAD should be finite
 	assert_that(not is_inf(mad)).is_true()
-	assert_that(not is_nan(mad)).is_true() 
+	assert_that(not is_nan(mad)).is_true()
+
+# --- Percentile Boundary Property Tests ---
+func test_percentile_boundary_properties() -> void:
+	# Test that percentile(data, 0) == minimum(data) and percentile(data, 100) == maximum(data)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	# 0th percentile should equal minimum
+	var percentile_0: float = StatMath.BasicStats.percentile(sorted_data, 0.0)
+	var minimum_value: float = StatMath.BasicStats.minimum(sorted_data)
+	assert_float(percentile_0).is_equal_approx(minimum_value, StatMath.BOUNDARY_TOLERANCE)
+	
+	# 100th percentile should equal maximum
+	var percentile_100: float = StatMath.BasicStats.percentile(sorted_data, 100.0)
+	var maximum_value: float = StatMath.BasicStats.maximum(sorted_data)
+	assert_float(percentile_100).is_equal_approx(maximum_value, StatMath.BOUNDARY_TOLERANCE)
+
+func test_percentile_median_property() -> void:
+	# Test that percentile(data, 50) == median(data)
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	var percentile_50: float = StatMath.BasicStats.percentile(sorted_data, 50.0)
+	var median_value: float = StatMath.BasicStats.median(sorted_data)
+	assert_float(percentile_50).is_equal_approx(median_value, StatMath.BOUNDARY_TOLERANCE)
+
+# --- Summary Statistics Consistency Tests ---
+func test_summary_statistics_consistency() -> void:
+	# Test that the values in the returned dictionary match the results from calling individual functions
+	var test_data: Dictionary = BASIC_STATS_TEST_DATA.VALUES["bimodal_data"]
+	var data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["data"])
+	var sorted_data: Array[float] = StatMath.HelperFunctions.convert_to_float_array(test_data["sorted_data"])
+	
+	var summary: Dictionary = StatMath.BasicStats.summary_statistics(data)
+	
+	# Test that each value in summary matches individual function calls
+	assert_float(summary["mean"]).is_equal_approx(StatMath.BasicStats.mean(data), StatMath.FLOAT_TOLERANCE)
+	assert_float(summary["median"]).is_equal_approx(StatMath.BasicStats.median(sorted_data), StatMath.FLOAT_TOLERANCE)
+	assert_float(summary["variance"]).is_equal_approx(StatMath.BasicStats.variance(data), StatMath.FLOAT_TOLERANCE)
+	assert_float(summary["standard_deviation"]).is_equal_approx(StatMath.BasicStats.standard_deviation(data), StatMath.FLOAT_TOLERANCE)
+	assert_float(summary["sample_variance"]).is_equal_approx(StatMath.BasicStats.sample_variance(data), StatMath.FLOAT_TOLERANCE)
+	assert_float(summary["sample_standard_deviation"]).is_equal_approx(StatMath.BasicStats.sample_standard_deviation(data), StatMath.FLOAT_TOLERANCE)
+	assert_float(summary["median_absolute_deviation"]).is_equal_approx(StatMath.BasicStats.median_absolute_deviation(sorted_data), StatMath.FLOAT_TOLERANCE)
+	assert_float(summary["range"]).is_equal_approx(StatMath.BasicStats.range_spread(data), StatMath.FLOAT_TOLERANCE)
+	assert_float(summary["minimum"]).is_equal_approx(StatMath.BasicStats.minimum(data), StatMath.FLOAT_TOLERANCE)
+	assert_float(summary["maximum"]).is_equal_approx(StatMath.BasicStats.maximum(data), StatMath.FLOAT_TOLERANCE)
+	assert_int(summary["count"]).is_equal(data.size()) 

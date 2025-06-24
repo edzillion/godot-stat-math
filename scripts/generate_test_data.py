@@ -629,6 +629,32 @@ def generate_test_data():
     
     # Helper function test data
     helper_functions_data = {
+        "gamma_function": [
+            # z, expected - Generated using: special.gamma(z)
+            {"params": [1.0], "expected": special.gamma(1.0)},   # 1.0 (Γ(1) = 0!)
+            {"params": [2.0], "expected": special.gamma(2.0)},   # 1.0 (Γ(2) = 1!)
+            {"params": [3.0], "expected": special.gamma(3.0)},   # 2.0 (Γ(3) = 2!)
+            {"params": [4.0], "expected": special.gamma(4.0)},   # 6.0 (Γ(4) = 3!)
+            {"params": [5.0], "expected": special.gamma(5.0)},   # 24.0 (Γ(5) = 4!)
+            {"params": [0.5], "expected": special.gamma(0.5)},   # √π ≈ 1.772453851
+            {"params": [1.5], "expected": special.gamma(1.5)},   # 0.5 * √π ≈ 0.886226925
+            {"params": [2.5], "expected": special.gamma(2.5)},   # 1.5 * 0.5 * √π ≈ 1.329340388
+            {"params": [0.1], "expected": special.gamma(0.1)},   # Large value for small z
+            {"params": [10.0], "expected": special.gamma(10.0)}, # 9! = 362880
+        ],
+        "log_gamma": [
+            # z, expected - Generated using: special.gammaln(z)
+            {"params": [1.0], "expected": special.gammaln(1.0)},   # log(Γ(1)) = log(1) = 0
+            {"params": [2.0], "expected": special.gammaln(2.0)},   # log(Γ(2)) = log(1) = 0
+            {"params": [3.0], "expected": special.gammaln(3.0)},   # log(Γ(3)) = log(2)
+            {"params": [4.0], "expected": special.gammaln(4.0)},   # log(Γ(4)) = log(6)
+            {"params": [5.0], "expected": special.gammaln(5.0)},   # log(Γ(5)) = log(24)
+            {"params": [0.5], "expected": special.gammaln(0.5)},   # log(√π)
+            {"params": [1.5], "expected": special.gammaln(1.5)},   # log(0.5 * √π)
+            {"params": [2.5], "expected": special.gammaln(2.5)},   # log(1.5 * 0.5 * √π)
+            {"params": [10.0], "expected": special.gammaln(10.0)}, # log(9!)
+            {"params": [100.0], "expected": special.gammaln(100.0)}, # Large value to test stability
+        ],
         "binomial_coefficient": [
             # n, r, expected
             {"params": [5, 2], "expected": special.comb(5, 2, exact=True)},  # 10

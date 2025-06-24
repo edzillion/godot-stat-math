@@ -212,4 +212,78 @@ func test_sanitize_numeric_array_with_negative_values() -> void:
 
 func test_sanitize_numeric_array_empty_input() -> void:
 	var result: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array([])
-	assert_array(result).is_empty() 
+	assert_array(result).is_empty()
+
+# --- Convert to Float Array ---
+func test_convert_to_float_array_basic() -> void:
+	var input: Array = [1, 2.5, 3]
+	var result: Array[float] = StatMath.HelperFunctions.convert_to_float_array(input)
+	var expected: Array[float] = [1.0, 2.5, 3.0]
+	assert_array(result).is_equal(expected)
+
+# =============================================================================
+# GAMMA FUNCTION SCIPY VALIDATION TESTS
+# =============================================================================
+
+# --- Gamma Function ---
+func test_gamma_function_scipy_validation() -> void:
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["gamma_function"]
+	for case in test_data:
+		var result: float = StatMath.HelperFunctions.gamma_function(case["params"][0])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
+
+func test_gamma_function_positive_integers() -> void:
+	# Test specific positive integer cases from test data
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["gamma_function"]
+	
+	# Γ(1) = 0! = 1
+	var case_1: Dictionary = test_data[0]  # [1.0] -> 1.0
+	var result_1: float = StatMath.HelperFunctions.gamma_function(case_1["params"][0])
+	assert_float(result_1).is_equal_approx(case_1["expected"], StatMath.FLOAT_TOLERANCE)
+	
+	# Γ(5) = 4! = 24
+	var case_5: Dictionary = test_data[4]  # [5.0] -> 24.0
+	var result_5: float = StatMath.HelperFunctions.gamma_function(case_5["params"][0])
+	assert_float(result_5).is_equal_approx(case_5["expected"], StatMath.FLOAT_TOLERANCE)
+
+func test_gamma_function_half_integers() -> void:
+	# Test half-integer cases involving sqrt(pi)
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["gamma_function"]
+	
+	# Γ(0.5) = √π
+	var case_half: Dictionary = test_data[5]  # [0.5] -> sqrt(pi)
+	var result_half: float = StatMath.HelperFunctions.gamma_function(case_half["params"][0])
+	assert_float(result_half).is_equal_approx(case_half["expected"], StatMath.FLOAT_TOLERANCE)
+	
+	# Γ(1.5) = 0.5 * √π
+	var case_one_half: Dictionary = test_data[6]  # [1.5] -> 0.5 * sqrt(pi)
+	var result_one_half: float = StatMath.HelperFunctions.gamma_function(case_one_half["params"][0])
+	assert_float(result_one_half).is_equal_approx(case_one_half["expected"], StatMath.FLOAT_TOLERANCE)
+
+# --- Log Gamma ---
+func test_log_gamma_scipy_validation() -> void:
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["log_gamma"]
+	for case in test_data:
+		var result: float = StatMath.HelperFunctions.log_gamma(case["params"][0])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
+
+func test_log_gamma_positive_integers() -> void:
+	# Test specific positive integer cases from test data
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["log_gamma"]
+	
+	# log(Γ(1)) = log(1) = 0
+	var case_1: Dictionary = test_data[0]  # [1.0] -> 0.0
+	var result_1: float = StatMath.HelperFunctions.log_gamma(case_1["params"][0])
+	assert_float(result_1).is_equal_approx(case_1["expected"], StatMath.FLOAT_TOLERANCE)
+	
+	# log(Γ(5)) = log(24)
+	var case_5: Dictionary = test_data[4]  # [5.0] -> log(24)
+	var result_5: float = StatMath.HelperFunctions.log_gamma(case_5["params"][0])
+	assert_float(result_5).is_equal_approx(case_5["expected"], StatMath.FLOAT_TOLERANCE)
+
+func test_log_gamma_large_values() -> void:
+	# Test large value stability
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["log_gamma"]
+	var case_large: Dictionary = test_data[9]  # [100.0] -> large value
+	var result: float = StatMath.HelperFunctions.log_gamma(case_large["params"][0])
+	assert_float(result).is_equal_approx(case_large["expected"], StatMath.FLOAT_TOLERANCE) 

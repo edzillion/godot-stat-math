@@ -10,59 +10,59 @@ This document tracks functionality that lacks proper test coverage and needs tes
 
 ### `gamma_function()`
 - **Scipy Validation**:
-    - [ ] `test_gamma_function_scipy_validation()`: Test against `scipy.special.gamma` with various positive float values (e.g., 0.5, 1.5, 2.7).
+    - [*] `test_gamma_function_scipy_validation()`: Test against `scipy.special.gamma` with various positive float values (e.g., 0.5, 1.5, 2.7).
 - **Mathematical Property**:
-    - [ ] `test_gamma_function_factorial_relationship()`: Test `Γ(n) = (n-1)!` for positive integers.
-    - [ ] `test_gamma_function_reflection_formula()`: Test `Γ(z)Γ(1-z) = π/sin(πz)` for non-integer z.
+    - [*] `test_gamma_function_factorial_relationship()`: Test `Γ(n) = (n-1)!` for positive integers.
+    - [*] `test_gamma_function_reflection_formula()`: Test `Γ(z)Γ(1-z) = π/sin(πz)` for non-integer z.
 - **Parameter Validation**:
-    - [ ] `test_gamma_function_poles_at_non_positive_integers()`: Test that `gamma_function(0)`, `gamma_function(-1)`, etc., return `INF`.
+    - [*] `test_gamma_function_poles_at_non_positive_integers()`: Test that `gamma_function(0)`, `gamma_function(-1)`, etc., return `INF`.
 
 ### `log_gamma()`
 - **Scipy Validation**:
-    - [ ] `test_log_gamma_scipy_validation()`: Test against `scipy.special.gammaln` with various positive float values.
+    - [*] `test_log_gamma_scipy_validation()`: Test against `scipy.special.gammaln` with various positive float values.
 - **Mathematical Property**:
-    - [ ] `test_log_gamma_recursion_property()`: Test `log_gamma(z+1) = log_gamma(z) + log(z)`.
+    - [*] `test_log_gamma_recursion_property()`: Test `log_gamma(z+1) = log_gamma(z) + log(z)`.
 - **Parameter Validation**:
-    - [ ] `test_log_gamma_invalid_input_non_positive()`: Test that `z <= 0` pushes an error and returns `NAN`.
+    - [*] `test_log_gamma_invalid_input_non_positive()`: Test that `z <= 0` pushes an error and returns `NAN`.
 
 ### `log_binomial_coef()`
 - **Mathematical Property**:
-    - [ ] `test_log_binomial_coef_symmetry()`: Test `log_binomial_coef(n, k) == log_binomial_coef(n, n-k)`.
+    - [*] `test_log_binomial_coef_symmetry()`: Test `log_binomial_coef(n, k) == log_binomial_coef(n, n-k)`.
 
 ### `log_beta_function_direct()`
 - **Mathematical Property**:
-    - [ ] `test_log_beta_function_direct_symmetry()`: Test `log_beta(a, b) == log_beta(b, a)`.
+    - [*] `test_log_beta_function_direct_symmetry()`: Test `log_beta(a, b) == log_beta(b, a)`.
 
 ### `get_cdf_value()`
 - **Behavioral & Error Tests**:
-    - [ ] `test_get_cdf_value_with_valid_enum()`: Test with `StatMath.SupportedDistributions` enum.
-    - [ ] `test_get_cdf_value_with_valid_string()`: Test with string distribution names.
-    - [ ] `test_get_cdf_value_invalid_distribution_type()`: Test error for invalid type: "Invalid distribution type...".
-    - [ ] `test_get_cdf_value_unimplemented_distribution()`: Test error for unimplemented CDF: "CDF function not implemented...".
+    - [*] `test_get_cdf_value_with_valid_enum()`: Test with `StatMath.SupportedDistributions` enum.
+    - [*] `test_get_cdf_value_with_valid_string()`: Test with string distribution names.
+    - [*] `test_get_cdf_value_invalid_distribution_type()`: Test error for invalid type: "Invalid distribution type...".
+    - [*] `test_get_cdf_value_unimplemented_distribution()`: Test error for unimplemented CDF: "CDF function not implemented...".
 
 ### `get_ppf_value()`
 - **Behavioral & Error Tests**:
-    - [ ] `test_get_ppf_value_with_valid_enum()`: Test with `StatMath.SupportedDistributions` enum.
-    - [ ] `test_get_ppf_value_with_valid_string()`: Test with string distribution names.
-    - [ ] `test_get_ppf_value_invalid_distribution_type()`: Test error for invalid type: "Invalid distribution type...".
-    - [ ] `test_get_ppf_value_unimplemented_distribution()`: Test error for unimplemented PPF: "PPF function not implemented...".
+    - [*] `test_get_ppf_value_with_valid_enum()`: Test with `StatMath.SupportedDistributions` enum.
+    - [*] `test_get_ppf_value_with_valid_string()`: Test with string distribution names.
+    - [*] `test_get_ppf_value_invalid_distribution_type()`: Test error for invalid type: "Invalid distribution type...".
+    - [*] `test_get_ppf_value_unimplemented_distribution()`: Test error for unimplemented PPF: "PPF function not implemented...".
 
 ### `validate_indices()`
 - **Behavioral & Error Tests**:
-    - [ ] `test_validate_indices_valid_samples()`: Test with a valid index array.
-    - [ ] `test_validate_indices_negative_index()`: Test error: "Sample index must be non-negative".
-    - [ ] `test_validate_indices_index_too_large()`: Test error: "Sample index must be less than population size".
+    - [*] `test_validate_indices_valid_samples()`: Test with a valid index array.
+    - [*] `test_validate_indices_negative_index()`: Test error: "Sample index must be non-negative".
+    - [*] `test_validate_indices_index_too_large()`: Test error: "Sample index must be less than population size".
 
 ### `validate_unique_indices()`
 - **Behavioral & Error Tests**:
-    - [ ] `test_validate_unique_indices_valid_unique_samples()`: Test with a valid unique index array.
-    - [ ] `test_validate_unique_indices_duplicate_found()`: Test error: "Sample indices must be unique".
-    - [ ] `test_validate_unique_indices_size_mismatch()`: Test error: "Number of unique indices must equal sample size".
+    - [*] `test_validate_unique_indices_valid_unique_samples()`: Test with a valid unique index array.
+    - [*] `test_validate_unique_indices_duplicate_found()`: Test error: "Sample indices must be unique".
+    - [*] `test_validate_unique_indices_size_mismatch()`: Test error: "Number of unique indices must equal sample size".
 
 ### `convert_to_float_array()`
 - **Property-based Tests**:
-    - [ ] `test_convert_to_float_array_valid_conversion()`: Test `Array` to `Array[float]` conversion.
-    - [ ] `test_convert_to_float_array_preserves_order()`: Test that element order is maintained.
+    - [*] `test_convert_to_float_array_valid_conversion()`: Test `Array` to `Array[float]` conversion.
+    - [*] `test_convert_to_float_array_preserves_order()`: Test that element order is maintained.
 
 ---
 
@@ -70,19 +70,19 @@ This document tracks functionality that lacks proper test coverage and needs tes
 
 ### `percentile()`
 - **Scipy Validation**:
-    - [ ] `test_percentile_scipy_validation()`: Test against `scipy.stats.scoreatpercentile` for various percentiles (e.g., 25th, 75th) on different datasets.
+    - [*] `test_percentile_scipy_validation()`: Test against `scipy.stats.scoreatpercentile` for various percentiles (e.g., 25th, 75th) on different datasets.
 - **Mathematical Property**:
-    - [ ] `test_percentile_boundary_properties()`: Test `percentile(data, 0) == minimum(data)` and `percentile(data, 100) == maximum(data)`.
-    - [ ] `test_percentile_median_property()`: Test `percentile(data, 50) == median(data)`.
+    - [*] `test_percentile_boundary_properties()`: Test `percentile(data, 0) == minimum(data)` and `percentile(data, 100) == maximum(data)`.
+    - [*] `test_percentile_median_property()`: Test `percentile(data, 50) == median(data)`.
 - **Parameter Validation**:
-    - [ ] `test_percentile_empty_array()`: Test that an empty `data` array pushes an error and returns `NAN`.
-    - [ ] `test_percentile_value_out_of_range()`: Test that a `percentile_value` outside `[0, 100]` pushes an error and returns `NAN`.
+    - [*] `test_percentile_empty_array()`: Test that an empty `data` array pushes an error and returns `NAN`.
+    - [*] `test_percentile_value_out_of_range()`: Test that a `percentile_value` outside `[0, 100]` pushes an error and returns `NAN`.
 
 ### `summary_statistics()`
 - **Behavioral & Integration Test**:
-    - [ ] `test_summary_statistics_consistency()`: Test that the values in the returned dictionary match the results from calling the individual functions (`mean`, `median`, `variance`, etc.) on the same dataset.
+    - [*] `test_summary_statistics_consistency()`: Test that the values in the returned dictionary match the results from calling the individual functions (`mean`, `median`, `variance`, etc.) on the same dataset.
 - **Parameter Validation**:
-    - [ ] `test_summary_statistics_empty_array()`: Test that an empty `data` array pushes an error and returns an empty `Dictionary`.
+    - [*] `test_summary_statistics_empty_array()`: Test that an empty `data` array pushes an error and returns an empty `Dictionary`.
 
 ---
 

@@ -4,6 +4,30 @@
 # Generated with: scipy 1.15.3, numpy 2.3.0
 
 const VALUES: Dictionary = {
+	"gamma_function": [  # Generated using: # scipy function call not documented
+		{ "params": [1.0], "expected": 1.00000000 },
+		{ "params": [2.0], "expected": 1.00000000 },
+		{ "params": [3.0], "expected": 2.00000000 },
+		{ "params": [4.0], "expected": 6.00000000 },
+		{ "params": [5.0], "expected": 24.00000000 },
+		{ "params": [0.5], "expected": 1.77245385 },
+		{ "params": [1.5], "expected": 0.88622693 },
+		{ "params": [2.5], "expected": 1.32934039 },
+		{ "params": [0.1], "expected": 9.51350770 },
+		{ "params": [10.0], "expected": 362880.00000000 },
+	],
+	"log_gamma": [  # Generated using: # scipy function call not documented
+		{ "params": [1.0], "expected": 0.00000000 },
+		{ "params": [2.0], "expected": 0.00000000 },
+		{ "params": [3.0], "expected": 0.69314718 },
+		{ "params": [4.0], "expected": 1.79175947 },
+		{ "params": [5.0], "expected": 3.17805383 },
+		{ "params": [0.5], "expected": 0.57236494 },
+		{ "params": [1.5], "expected": -0.12078224 },
+		{ "params": [2.5], "expected": 0.28468287 },
+		{ "params": [10.0], "expected": 12.80182748 },
+		{ "params": [100.0], "expected": 359.13420537 },
+	],
 	"binomial_coefficient": [  # Generated using: special.comb(n, r, exact=True)
 		{ "params": [5, 2], "expected": 10.00000000 },
 		{ "params": [10, 3], "expected": 120.00000000 },
