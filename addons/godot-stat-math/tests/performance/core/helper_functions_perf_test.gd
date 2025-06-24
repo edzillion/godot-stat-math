@@ -126,6 +126,36 @@ func test_sanitize_numeric_array_performance() -> void:
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
 
 
+func test_lower_incomplete_gamma_regularized_performance() -> void:
+	var test_name: String = "lower_incomplete_gamma_regularized"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(PerfTestManager.FUNCTION_CALLS_PER_MEASUREMENT):
+			# Core series expansion calculations - performance critical for Gamma CDF
+			StatMath.HelperFunctions.lower_incomplete_gamma_regularized(2.0, 1.5)
+			StatMath.HelperFunctions.lower_incomplete_gamma_regularized(5.0, 3.0)
+			StatMath.HelperFunctions.lower_incomplete_gamma_regularized(0.5, 2.0)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_log_beta_function_direct_performance() -> void:
+	var test_name: String = "log_beta_function_direct"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(PerfTestManager.FUNCTION_CALLS_PER_MEASUREMENT):
+			# Logarithmic calculations for numerical stability
+			StatMath.HelperFunctions.log_beta_function_direct(2.0, 3.0)
+			StatMath.HelperFunctions.log_beta_function_direct(10.0, 15.0)  # Large values where logs are beneficial
+			StatMath.HelperFunctions.log_beta_function_direct(0.5, 0.5)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
 
 
  

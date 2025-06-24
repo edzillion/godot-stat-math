@@ -90,4 +90,24 @@ func test_min_max_range_performance() -> void:
 			StatMath.BasicStats.range_spread(test_data)
 	)
 	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_percentile_performance() -> void:
+	var test_name: String = "percentile_calculation"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for dataset_size in DATASET_SIZES:
+			var test_data: Array[float] = _generate_test_data(dataset_size)
+			test_data.sort()  # Percentile expects sorted data
+			
+			# Test various percentile values - complex interpolation logic
+			StatMath.BasicStats.percentile(test_data, 5.0)   # 5th percentile
+			StatMath.BasicStats.percentile(test_data, 25.0)  # Q1
+			StatMath.BasicStats.percentile(test_data, 50.0)  # Median (Q2)
+			StatMath.BasicStats.percentile(test_data, 75.0)  # Q3
+			StatMath.BasicStats.percentile(test_data, 95.0)  # 95th percentile
+	)
+	
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data) 

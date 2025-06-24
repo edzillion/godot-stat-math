@@ -169,3 +169,62 @@ func test_negative_binomial_pmf_performance() -> void:
 	)
 	
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_weibull_pdf_performance() -> void:
+	var test_name: String = "weibull_pdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				if x_val > 0:  # Weibull PDF only defined for x > 0
+					StatMath.PmfPdfFunctions.weibull_pdf(x_val, 2.0, 1.5)
+					StatMath.PmfPdfFunctions.weibull_pdf(x_val, 1.0, 2.0)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_pareto_pdf_performance() -> void:
+	var test_name: String = "pareto_pdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				if x_val >= 1.0:  # Pareto PDF only defined for x >= scale_param (using 1.0 as scale)
+					StatMath.PmfPdfFunctions.pareto_pdf(x_val, 1.0, 2.0)
+					StatMath.PmfPdfFunctions.pareto_pdf(x_val, 1.0, 3.0)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_cauchy_pdf_performance() -> void:
+	var test_name: String = "cauchy_pdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				StatMath.PmfPdfFunctions.cauchy_pdf(x_val, 0.0, 1.0)
+				StatMath.PmfPdfFunctions.cauchy_pdf(x_val, 2.0, 0.5)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_lognormal_pdf_performance() -> void:
+	var test_name: String = "lognormal_pdf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for x_val in TEST_VALUES:
+				if x_val > 0:  # Lognormal PDF only defined for x > 0
+					StatMath.PmfPdfFunctions.lognormal_pdf(x_val, 0.0, 1.0)
+					StatMath.PmfPdfFunctions.lognormal_pdf(x_val, 1.0, 0.5)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)

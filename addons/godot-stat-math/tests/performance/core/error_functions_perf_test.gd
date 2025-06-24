@@ -68,4 +68,37 @@ func test_complementary_error_function_inverse_performance() -> void:
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
 
 
+func test_log_gamma_performance() -> void:
+	var test_name: String = "log_gamma"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			# Test various input ranges including edge cases
+			StatMath.ErrorFunctions.log_gamma(0.5)
+			StatMath.ErrorFunctions.log_gamma(1.0)
+			StatMath.ErrorFunctions.log_gamma(2.5)
+			StatMath.ErrorFunctions.log_gamma(10.0)
+			StatMath.ErrorFunctions.log_gamma(100.0)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_gamma_function_performance() -> void:
+	var test_name: String = "gamma_function"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			# Test various input ranges - Lanczos approximation calculations
+			StatMath.ErrorFunctions.gamma(0.5)
+			StatMath.ErrorFunctions.gamma(1.0)
+			StatMath.ErrorFunctions.gamma(2.5)
+			StatMath.ErrorFunctions.gamma(5.0)
+			StatMath.ErrorFunctions.gamma(10.5)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
  

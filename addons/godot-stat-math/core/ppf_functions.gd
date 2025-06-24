@@ -542,7 +542,7 @@ static func binomial_ppf(p: float, n: int, prob_success: float) -> int:
 # Poisson Distribution PPF: poisson_ppf(p, lambda_param)
 # Calculates the PPF for the Poisson distribution (a discrete distribution).
 # Returns the smallest integer k such that CDF(k) >= p.
-# Method: Linear search by summing PMF values (from StatMath.PdfPmfFunctions.poisson_pmf)
+# Method: Linear search by summing PMF values (from StatMath.PmfPdfFunctions.poisson_pmf)
 # starting from k=0 up to a reasonable maximum (lambda + 10*sqrt(lambda) + 20).
 # Parameters:
 #   p: float - The probability value (must be between 0.0 and 1.0).
@@ -578,7 +578,7 @@ static func poisson_ppf(p: float, lambda_param: float) -> int:
 	if lambda_param == 0 : max_k = 1 # already handled, but for safety
 	
 	while k < max_k: # Iterate up to max_k
-		var pmf_val: float = StatMath.PdfPmfFunctions.poisson_pmf(k, lambda_param)
+		var pmf_val: float = StatMath.PmfPdfFunctions.poisson_pmf(k, lambda_param)
 		if is_nan(pmf_val):
 			push_error("poisson_pmf returned NaN during poisson_ppf search.")
 			return -1 # Propagate error
@@ -640,7 +640,7 @@ static func geometric_ppf(p: float, prob_success: float) -> int:
 # Calculates the PPF for the Negative Binomial distribution (discrete distribution).
 # This version defines k as the number of trials to achieve r_successes successes, so k >= r_successes.
 # Returns the smallest integer k (number of trials) such that CDF(k) >= p.
-# Method: Linear search by summing PMF values (from StatMath.PdfPmfFunctions.negative_binomial_pmf)
+# Method: Linear search by summing PMF values (from StatMath.PmfPdfFunctions.negative_binomial_pmf)
 # starting from k = r_successes up to a reasonable maximum.
 # Parameters:
 #   p: float - The probability value (must be between 0.0 and 1.0).
@@ -686,7 +686,7 @@ static func negative_binomial_ppf(p: float, r_successes: int, prob_success: floa
 
 
 	while k_trials < max_k_trials:
-		var pmf_val: float = StatMath.PdfPmfFunctions.negative_binomial_pmf(k_trials, r_successes, prob_success)
+		var pmf_val: float = StatMath.PmfPdfFunctions.negative_binomial_pmf(k_trials, r_successes, prob_success)
 		if is_nan(pmf_val):
 			push_error("negative_binomial_pmf returned NaN during negative_binomial_ppf search (k=%s, r=%s, p=%s)." % [k_trials, r_successes, prob_success])
 			return -1 
