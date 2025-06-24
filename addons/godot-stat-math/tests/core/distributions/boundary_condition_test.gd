@@ -1,8 +1,8 @@
-# res://addons/godot-stat-math/tests/core/distributions/scipy_validation_test.gd
-class_name DistributionsScipyValidationTest extends GdUnitTestSuite
+# res://addons/godot-stat-math/tests/core/distributions/boundary_condition_test.gd
+class_name DistributionsBoundaryConditionTest extends GdUnitTestSuite
 
 # =============================================================================
-# SCIPY VALIDATION TESTS - DATA-DRIVEN
+# BOUNDARY CONDITION TESTS - DETERMINISTIC EDGE CASES
 # =============================================================================
 
 func test_randi_bernoulli_deterministic_cases() -> void:

@@ -83,6 +83,12 @@ func test_f_pdf_basic() -> void:
 	assert_float(result).is_greater(0.0)
 	assert_float(result).is_less(10.0) # Sanity check
 
+func test_f_pdf_scipy_validated() -> void:
+	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["f_pdf"]
+	for case in test_data:
+		var result: float = StatMath.PmfPdfFunctions.f_pdf(case["params"][0], case["params"][1], case["params"][2])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.PROBABILITY_TOLERANCE)
+
 func test_weibull_pdf_scipy_validated() -> void:
 	var test_data: Array = PMF_PDF_TEST_DATA.VALUES["weibull_pdf"]
 	for case in test_data:

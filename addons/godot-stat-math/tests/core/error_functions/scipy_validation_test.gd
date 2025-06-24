@@ -66,4 +66,20 @@ func test_gamma_half_integer() -> void:
 	var test_data: Array = ERROR_FUNCTIONS_TEST_DATA.VALUES["gamma_half_integer"]
 	for case in test_data:
 		var result: float = StatMath.ErrorFunctions.gamma(case["params"][0])
-		assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE) 
+		assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
+
+# --- Inverse Error Function (erf_inv) ---
+func test_erf_inv_scipy_validated() -> void:
+	# Test against scipy.special.erfinv
+	var test_data: Array = ERROR_FUNCTIONS_TEST_DATA.VALUES["erf_inv"]
+	for case in test_data:
+		var result: float = StatMath.ErrorFunctions.erf_inv(case["params"][0])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.ERF_INV_TOLERANCE)
+
+# --- Inverse Complementary Error Function (erfc_inv) ---
+func test_erfc_inv_scipy_validated() -> void:
+	# Test against scipy.special.erfcinv
+	var test_data: Array = ERROR_FUNCTIONS_TEST_DATA.VALUES["erfc_inv"]
+	for case in test_data:
+		var result: float = StatMath.ErrorFunctions.erfc_inv(case["params"][0])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.ERF_INV_TOLERANCE) 

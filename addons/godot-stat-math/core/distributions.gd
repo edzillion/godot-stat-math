@@ -374,6 +374,21 @@ static func randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float:
 	return mu + sigma * randf_gaussian()
 
 
+## Generates a float from a Lognormal distribution.
+##
+## Uses the fundamental relationship: if [code]X ~ Normal(μ, σ)[/code], then [code]exp(X) ~ Lognormal(μ, σ)[/code].
+## The lognormal distribution models positive values and is commonly used for modeling 
+## prices, incomes, and other quantities that cannot be negative.
+##
+## Mathematical Note: [code]E[X] = exp(μ + σ²/2)[/code], [code]Var(X) = [exp(σ²) - 1] × exp(2μ + σ²)[/code]
+static func randf_lognormal(mu: float = 0.0, sigma: float = 1.0) -> float:
+	if not (sigma > 0.0):
+		push_error("Standard deviation (sigma) must be positive for Lognormal distribution. Received: %s" % sigma)
+		return NAN
+	# If X ~ Normal(μ, σ), then exp(X) ~ Lognormal(μ, σ)
+	return exp(randf_normal(mu, sigma))
+
+
 ## Generates a float from a Cauchy (Lorentzian) distribution.
 ##
 ## Uses the ratio of two independent standard normal variates. The Cauchy distribution 

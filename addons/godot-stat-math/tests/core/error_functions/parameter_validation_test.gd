@@ -34,4 +34,34 @@ func test_gamma_invalid_input() -> void:
 
 func test_log_gamma_invalid_input() -> void:
 	assert_that(is_nan(StatMath.ErrorFunctions.log_gamma(0.0))).is_true()
-	assert_that(is_nan(StatMath.ErrorFunctions.log_gamma(-1.5))).is_true() 
+	assert_that(is_nan(StatMath.ErrorFunctions.log_gamma(-1.5))).is_true()
+
+# --- Error Function Special Input Validation ---
+func test_erf_infinity_inputs() -> void:
+	# Test that erf(∞) = 1
+	var result_inf: float = StatMath.ErrorFunctions.erf(INF)
+	assert_float(result_inf).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE)
+	
+	# Test that erf(-∞) = -1  
+	var result_neg_inf: float = StatMath.ErrorFunctions.erf(-INF)
+	assert_float(result_neg_inf).is_equal_approx(-1.0, StatMath.FLOAT_TOLERANCE)
+
+func test_erf_nan_input() -> void:
+	# Test that erf(NAN) = NAN
+	var result: float = StatMath.ErrorFunctions.erf(NAN)
+	assert_that(is_nan(result)).is_true()
+
+# --- Complementary Error Function Special Input Validation ---
+func test_erfc_infinity_inputs() -> void:
+	# Test that erfc(∞) = 0
+	var result_inf: float = StatMath.ErrorFunctions.erfc(INF)
+	assert_float(result_inf).is_equal_approx(0.0, StatMath.FLOAT_TOLERANCE)
+	
+	# Test that erfc(-∞) = 2
+	var result_neg_inf: float = StatMath.ErrorFunctions.erfc(-INF)
+	assert_float(result_neg_inf).is_equal_approx(2.0, StatMath.FLOAT_TOLERANCE)
+
+func test_erfc_nan_input() -> void:
+	# Test that erfc(NAN) = NAN
+	var result: float = StatMath.ErrorFunctions.erfc(NAN)
+	assert_that(is_nan(result)).is_true() 

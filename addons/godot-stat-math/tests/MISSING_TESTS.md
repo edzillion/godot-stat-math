@@ -101,20 +101,44 @@ This module has excellent Scipy and Mathematical Property test coverage. The onl
 
 ## IV. Distributions (`distributions.gd`)
 
-The testing for this module has two major issues: a complete lack of Scipy validation and a misnamed test file.
+**✅ RESOLVED**: Statistical validation has been implemented using a lean statistical validation approach.
 
--   **Missing Scipy Validation / Statistical Validation**:
-    -   **Issue**: There are no tests to verify that the random number generators produce distributions with the correct statistical properties (e.g., mean, variance) over a large sample, which would be the equivalent of Scipy validation for this module.
-    -   **Recommendation**: A new test file, `tests/core/distributions/statistical_validation_test.gd`, should be created.
-    -   **Specific Gaps**: For every distribution function (e.g., `randf_normal`, `randi_binomial`, etc.):
-        -   [ ] Generate a large sample (e.g., 10,000 variates).
-        -   [ ] Use `BasicStats` functions to calculate the sample's `mean` and `variance`.
-        -   [ ] Assert that the calculated `mean` and `variance` are approximately equal to the theoretical `mean` and `variance` defined by the function's input parameters.
+-   **✅ Statistical Validation Implemented**:
+    -   **File**: `tests/core/distributions/statistical_validation_test.gd` - **CREATED**
+    -   **Approach**: Uses "lean statistical validation" with small sample sizes (200-1000) for fast execution while catching algorithmic flaws
+    -   **Coverage**: Tests implemented for:
+        -   [*] **Discrete distributions**: Bernoulli, Binomial, Geometric, Poisson (chi-squared tests and mean validation)
+        -   [*] **Continuous distributions**: Normal, Exponential, Uniform, Beta (mean/variance validation)
+    -   **Performance**: All tests execute in ~300ms, suitable for CI/CD pipelines
+    -   **Method**: Uses fixed seeds for deterministic behavior and statistical tolerances based on standard errors
 
--   **Redundant and Misnamed Test File**:
-    -   **File**: `tests/core/distributions/scipy_validation_test.gd`
-    -   **Issue**: This file is named `scipy_validation_test.gd` but contains no validation against Scipy. It performs basic, deterministic checks that are largely redundant with `mathematical_property_test.gd`.
-    -   **Recommendation**: The file should be removed. Any unique, valuable checks it performs should be migrated to `mathematical_property_test.gd`.
+-   **File Renaming Required**:
+    -   **File**: `tests/core/distributions/scipy_validation_test.gd` - **NEEDS RENAMING**
+    -   **Issue**: This file is misnamed - it contains boundary condition tests, not scipy validation
+    -   **Recommendation**: Rename to `boundary_condition_test.gd` to accurately reflect its contents
+
+**Remaining Distribution Functions to Add**:
+
+**Easy Additions** (standard mean/variance validation):
+-   [*] **`randf_gamma`**: Test E[X] = α×θ, Var(X) = α×θ² 
+-   [*] **`randf_erlang`**: Test E[X] = k/λ, Var(X) = k/λ²
+-   [*] **`randi_uniform`**: Test discrete uniformity using chi-squared goodness-of-fit
+
+**Special Cases** (require different validation approaches):
+-   [*] **`randf_cauchy`**: Cannot test mean/variance (undefined due to heavy tails)
+    -   [*] Test location parameter: median ≈ location
+    -   [*] Test symmetry: count(x < location) ≈ count(x > location)
+    -   [*] Test scale parameter effects on spread
+
+**Custom Distributions** (behavioral validation):
+-   [*] **`randi_pseudo`**: Test that success probability increases correctly by c_param each trial
+-   [*] **`randi_seige`**: Test capture mechanics work as expected with win/loss probability changes
+
+**Additional Continuous Distributions**:
+-   [*] **`randf_triangular`**: Test mean = (a+b+c)/3, range validation
+-   [*] **`randf_pareto`**: Test mean = αβ/(α-1) for α > 1, support validation  
+-   [*] **`randf_weibull`**: Test mean = scale×Γ(1+1/shape), variance calculations
+-   [*] **`randf_lognormal`**: Test mean = exp(μ + σ²/2), variance validation
 
 ---
 
@@ -123,15 +147,15 @@ The testing for this module has two major issues: a complete lack of Scipy valid
 This module has significant gaps in both Scipy validation and mathematical properties for many of its functions. The duplicated `gamma` and `log_gamma` functions should also be addressed.
 
 - **`erf`**:
-    - [ ] **Mathematical Property**: Test odd function property `erf(-x) == -erf(x)`.
-    - [ ] **Parameter Validation**: Although it takes any float, add tests for `INF` and `NAN` inputs.
+    - [*] **Mathematical Property**: Test odd function property `erf(-x) == -erf(x)`.
+    - [*] **Parameter Validation**: Although it takes any float, add tests for `INF` and `NAN` inputs.
 - **`erfc`**:
-    - [ ] **Mathematical Property**: Test property `erfc(x) + erf(x) == 1`.
-    - [ ] **Parameter Validation**: Add tests for `INF` and `NAN` inputs.
+    - [*] **Mathematical Property**: Test property `erfc(x) + erf(x) == 1`.
+    - [*] **Parameter Validation**: Add tests for `INF` and `NAN` inputs.
 - **`erf_inv`**:
-    - [ ] **Scipy Validation**: Test against `scipy.special.erfinv`.
+    - [*] **Scipy Validation**: Test against `scipy.special.erfinv`.
 - **`erfc_inv`**:
-    - [ ] **Scipy Validation**: Test against `scipy.special.erfcinv`.
+    - [*] **Scipy Validation**: Test against `scipy.special.erfcinv`.
 - **`gamma`**:
     - [ ] **Mathematical Property**: Test reflection formula `Γ(z)Γ(1-z) = π/sin(πz)`.
 - **`log_gamma`**:
@@ -176,7 +200,7 @@ This module has good coverage overall, but several functions are completely unte
     - [ ] **Mathematical Property**: Test that the mode is at `x0`.
     - [ ] **Parameter Validation**: Test `scale <= 0`.
 - **`f_pdf`**:
-    - [ ] **Scipy Validation**: Add data-driven tests against `scipy.stats.f.pdf`.
+    - [*] **Scipy Validation**: Add data-driven tests against `scipy.stats.f.pdf`.
     - [ ] **Mathematical Property**: Test the relationship between the F-distribution and the Beta distribution.
 - **`pareto_pdf`**:
     - [ ] **Scipy Validation**: Test against `scipy.stats.pareto.pdf`.

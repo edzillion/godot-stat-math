@@ -53,4 +53,24 @@ func test_log_gamma_consistency() -> void:
 	var x: float = 2.5
 	var log_gamma_val: float = StatMath.ErrorFunctions.log_gamma(x)
 	var gamma_val: float = StatMath.ErrorFunctions.gamma(x)
-	assert_float(log_gamma_val).is_equal_approx(log(gamma_val), StatMath.FLOAT_TOLERANCE) 
+	assert_float(log_gamma_val).is_equal_approx(log(gamma_val), StatMath.FLOAT_TOLERANCE)
+
+# --- Error Function Properties ---
+func test_erf_odd_function_property() -> void:
+	# Test that erf(-x) == -erf(x) for various values
+	var test_values: Array[float] = [0.5, 1.0, 1.5, 2.0, 3.0]
+	
+	for x in test_values:
+		var erf_x: float = StatMath.ErrorFunctions.erf(x)
+		var erf_neg_x: float = StatMath.ErrorFunctions.erf(-x)
+		assert_float(erf_neg_x).is_equal_approx(-erf_x, StatMath.FLOAT_TOLERANCE)
+
+func test_erfc_erf_complementary_property() -> void:
+	# Test that erfc(x) + erf(x) == 1 for various values
+	var test_values: Array[float] = [0.0, 0.5, 1.0, 1.5, 2.0, -0.5, -1.0, -1.5]
+	
+	for x in test_values:
+		var erf_x: float = StatMath.ErrorFunctions.erf(x)
+		var erfc_x: float = StatMath.ErrorFunctions.erfc(x)
+		var sum: float = erf_x + erfc_x
+		assert_float(sum).is_equal_approx(1.0, StatMath.FLOAT_TOLERANCE) 
