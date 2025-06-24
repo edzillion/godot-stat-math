@@ -116,6 +116,34 @@ static func negative_binomial_pmf(k_trials: int, r_successes: int, p_prob: float
 	return exp(log_pmf_val)
 
 
+## Calculates the PMF of a geometric distribution: P(X = k | p).
+##
+## Returns the probability that the first success occurs on exactly the [code]k[/code]-th trial 
+## in independent Bernoulli trials with success probability [code]p[/code].
+## Uses standard parameterization where k ≥ 1.
+##
+## Mathematical Note: [code]P(X = k) = (1-p)^(k-1) * p[/code] for [code]k ≥ 1[/code]
+static func geometric_pmf(k_trial: int, p_prob: float) -> float:
+	if not (p_prob > 0.0 and p_prob <= 1.0):
+		push_error("Success probability (p_prob) must be in (0,1]. Received: %s" % p_prob)
+		return NAN
+	
+	if k_trial < 1:
+		return 0.0  # First success cannot occur before trial 1
+	
+	# Handle edge case where p_prob is 1.0
+	if p_prob == 1.0:
+		return 1.0 if k_trial == 1 else 0.0
+	
+	# Formula: (1-p)^(k-1) * p
+	# Using logarithmic calculation for numerical stability
+	var log_term1: float = float(k_trial - 1) * log(1.0 - p_prob)
+	var log_term2: float = log(p_prob)
+	
+	var log_pmf_val: float = log_term1 + log_term2
+	return exp(log_pmf_val)
+
+
 # =============================================================================
 # CONTINUOUS DISTRIBUTION PDFs
 # =============================================================================
@@ -342,4 +370,51 @@ static func f_pdf(x: float, d1_df: float, d2_df: float) -> float:
 	var log_denominator_term: float = -((d1_df + d2_df) / 2.0) * log(1.0 + (d1_df / d2_df) * x)
 	
 	var log_pdf_val: float = log_beta_term + log_ratio_term + log_x_term + log_denominator_term
+	return exp(log_pdf_val)
+
+
+## Calculates the PDF of a Cauchy (Lorentzian) distribution: f(x; x₀, γ).
+##
+## Returns the probability density at [code]x[/code] for a Cauchy distribution 
+## with location parameter [code]x₀[/code] and scale parameter [code]γ[/code].
+## The Cauchy distribution has undefined mean and variance due to heavy tails.
+##
+## Mathematical Note: [code]f(x) = 1/(πγ(1 + ((x-x₀)/γ)²))[/code]
+static func cauchy_pdf(x: float, location: float = 0.0, scale: float = 1.0) -> float:
+	if not (scale > 0.0):
+		push_error("Scale parameter must be positive. Received: %s" % scale)
+		return NAN
+	
+	# Formula: 1/(π*γ*(1 + ((x-x₀)/γ)²))
+	var normalized_x: float = (x - location) / scale
+	var denominator: float = PI * scale * (1.0 + normalized_x * normalized_x)
+	
+	return 1.0 / denominator
+
+
+## Calculates the PDF of a Pareto distribution: f(x; xₘ, α).
+##
+## Returns the probability density at [code]x[/code] for a Pareto distribution 
+## with scale parameter [code]xₘ[/code] and shape parameter [code]α[/code].
+## Used to model the "80/20 rule" and power-law distributions.
+##
+## Mathematical Note: [code]f(x) = (α×xₘᵅ)/x^(α+1)[/code] for [code]x ≥ xₘ[/code]
+static func pareto_pdf(x: float, scale_param: float, shape_param: float) -> float:
+	if not (scale_param > 0.0):
+		push_error("Scale parameter must be positive. Received: %s" % scale_param)
+		return NAN
+	if not (shape_param > 0.0):
+		push_error("Shape parameter must be positive. Received: %s" % shape_param)
+		return NAN
+	
+	if x < scale_param:
+		return 0.0  # Pareto distribution has support [scale_param, +∞)
+	
+	# Formula: (α*xₘᵅ)/x^(α+1)
+	# Using logs for numerical stability: log(α) + α*log(xₘ) - (α+1)*log(x)
+	var log_coefficient: float = log(shape_param)
+	var log_scale_term: float = shape_param * log(scale_param)
+	var log_x_term: float = -(shape_param + 1.0) * log(x)
+	
+	var log_pdf_val: float = log_coefficient + log_scale_term + log_x_term
 	return exp(log_pdf_val)
