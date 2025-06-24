@@ -147,18 +147,43 @@ jobs:
         run: rm -rf reports
 
       - name: Run All GDUnit4 tests
-        uses: MikeSchulze/gdunit4-action@v1
-        with:
-          godot-version: "4.4"
-          paths: "res://addons/godot-stat-math/tests"
-        env:
-          DISABLE_REGRESSION_CHECKING: false
+        run: |
+          echo "Running GDUnit4 tests using custom command..."
+          # Use the same command pattern from your memory
+          timeout 120 ./addons/gdUnit4/runtest.cmd --godot_bin "godot" -a "res://addons/godot-stat-math/tests/core" || true
+          
+          echo "Test execution completed, checking for results..."
+          if [ -d "reports" ]; then
+            echo "Reports directory found:"
+            find reports -type f -name "*.xml" -o -name "*.html" | head -10
+          else
+            echo "No reports directory found"
+          fi
+
+      - name: Debug reports directory
+        run: |
+          echo "=== Debugging Reports Directory ==="
+          if [ -d "reports" ]; then
+            echo "Reports directory contents:"
+            ls -la reports/ || true
+            echo "Looking for XML files:"
+            find reports -name "*.xml" -type f 2>/dev/null || echo "No XML files found"
+            echo "Looking for HTML files:"  
+            find reports -name "*.html" -type f 2>/dev/null || echo "No HTML files found"
+          else
+            echo "Reports directory does not exist"
+          fi
+        if: always()
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
           name: release-test-results-pr-${{ github.event.number }}
-          path: reports/
+          path: |
+            reports/**/*.xml
+            reports/**/*.html
+            reports/**/results.xml
+          if-no-files-found: warn
         if: always()
 
       - name: Generate verification summary

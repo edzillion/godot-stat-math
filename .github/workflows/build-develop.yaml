@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       runner-triggered: ${{ steps.trigger.outputs.triggered }}
+      instance-id: ${{ steps.trigger.outputs.instance_id }}
     steps:
       - name: Trigger AWS Runner
         id: trigger
@@ -38,7 +39,11 @@ jobs:
           if [ "$http_code" = "200" ] && echo "$body" | grep -q "launched successfully"; then
             echo "triggered=true" >> $GITHUB_OUTPUT
             echo "✅ Runner launched successfully"
-            echo "Instance ID: $(echo "$body" | jq -r '.instance_id' 2>/dev/null || echo 'N/A')"
+            
+            # Extract and store instance ID for later termination
+            instance_id=$(echo "$body" | jq -r '.instance_id' 2>/dev/null || echo 'N/A')
+            echo "instance_id=$instance_id" >> $GITHUB_OUTPUT
+            echo "Instance ID: $instance_id"
           else
             echo "triggered=false" >> $GITHUB_OUTPUT
             echo "❌ Failed to launch runner"
@@ -174,3 +179,38 @@ jobs:
           echo "📥 Download the artifact from the **Actions** tab to test this build." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "⚠️ This is a development build - not for production use." >> $GITHUB_STEP_SUMMARY
+
+  terminate-runner:
+    runs-on: ubuntu-latest
+    needs: [trigger-runner, build-addon]
+    if: always() && needs.trigger-runner.outputs.runner-triggered == 'true'
+    steps:
+      - name: Terminate spot instance
+        run: |
+          echo "Terminating spot instance: ${{ needs.trigger-runner.outputs.instance-id }}"
+          
+          if [ "${{ needs.trigger-runner.outputs.instance-id }}" = "N/A" ] || [ -z "${{ needs.trigger-runner.outputs.instance-id }}" ]; then
+            echo "⚠️ No valid instance ID found, skipping termination"
+            exit 0
+          fi
+          
+          # Terminate the instance
+          aws ec2 terminate-instances --instance-ids ${{ needs.trigger-runner.outputs.instance-id }}
+          echo "✅ Spot instance ${{ needs.trigger-runner.outputs.instance-id }} termination requested"
+          
+          # Wait a moment and check status
+          sleep 10
+          aws ec2 describe-instances --instance-ids ${{ needs.trigger-runner.outputs.instance-id }} \
+            --query 'Reservations[0].Instances[0].State.Name' --output text
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Cleanup summary
+        run: |
+          echo "## 🔧 Spot Instance Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Instance ID**: ${{ needs.trigger-runner.outputs.instance-id }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Termination requested ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Job**: ${{ needs.build-addon.result }}" >> $GITHUB_STEP_SUMMARY
