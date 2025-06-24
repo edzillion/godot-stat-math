@@ -70,5 +70,83 @@ func test_weibull_ppf_performance() -> void:
 	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
 
 
+func test_uniform_exponential_ppf_performance() -> void:
+	var test_name: String = "uniform_exponential_ppf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for p_val in PROBABILITY_VALUES:
+				StatMath.PpfFunctions.uniform_ppf(p_val, 0.0, 10.0)
+				StatMath.PpfFunctions.exponential_ppf(p_val, 1.5)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_chi_square_f_t_ppf_performance() -> void:
+	var test_name: String = "chi_square_f_t_ppf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for p_val in PROBABILITY_VALUES:
+				StatMath.PpfFunctions.chi_square_ppf(p_val, 5.0)
+				StatMath.PpfFunctions.f_ppf(p_val, 3.0, 8.0)
+				StatMath.PpfFunctions.t_ppf(p_val, 10.0)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_pareto_ppf_performance() -> void:
+	var test_name: String = "pareto_ppf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for p_val in PROBABILITY_VALUES:
+				StatMath.PpfFunctions.pareto_ppf(p_val, 1.0, 2.0)
+				StatMath.PpfFunctions.pareto_ppf(p_val, 2.0, 1.5)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_discrete_ppf_performance() -> void:
+	var test_name: String = "discrete_ppf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		for i in range(TEST_ITERATIONS):
+			for p_val in PROBABILITY_VALUES:
+				# Discrete PPF functions with iterative search algorithms
+				StatMath.PpfFunctions.binomial_ppf(p_val, 20, 0.3)
+				StatMath.PpfFunctions.poisson_ppf(p_val, 5.0)
+				StatMath.PpfFunctions.geometric_ppf(p_val, 0.2)
+				StatMath.PpfFunctions.negative_binomial_ppf(p_val, 5, 0.3)
+				StatMath.PpfFunctions.bernoulli_ppf(p_val, 0.7)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
+func test_discrete_histogram_ppf_performance() -> void:
+	var test_name: String = "discrete_histogram_ppf"
+	var baseline_data: Dictionary = _load_baseline()
+	
+	var current_results: Dictionary = _measure_test(test_name, func():
+		# Create test histogram data
+		var values: Array = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+		var probabilities: Array[float] = [0.1, 0.15, 0.2, 0.1, 0.05, 0.1, 0.1, 0.1, 0.05, 0.05]
+		
+		for i in range(TEST_ITERATIONS):
+			for p_val in PROBABILITY_VALUES:
+				StatMath.PpfFunctions.discrete_histogram_ppf(p_val, values, probabilities)
+	)
+	
+	_check_performance_regression(get_module_name(), test_name, current_results, baseline_data)
+
+
 
  
