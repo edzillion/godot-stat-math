@@ -69,6 +69,23 @@ jobs:
                 echo "❌ All attempts failed - no t3.medium spot capacity available"
                 echo "💡 Consider increasing spot price bid or trying again later"
                 echo "   t3.medium spot capacity fluctuates throughout the day"
+                
+                # Log timing info for capacity analysis
+                current_time=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+                echo "⏰ Failed at: $current_time"
+                echo "📊 Capacity availability tends to be higher:"
+                echo "   - During off-peak hours (evenings/nights)"
+                echo "   - On weekends"
+                echo "   - In less popular AWS regions"
+                
+                # Add to step summary for tracking patterns
+                echo "## ⚠️ Spot Capacity Unavailable" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "- **Time**: $current_time" >> $GITHUB_STEP_SUMMARY
+                echo "- **Instance Type**: t3.medium" >> $GITHUB_STEP_SUMMARY
+                echo "- **Attempts**: $max_attempts" >> $GITHUB_STEP_SUMMARY
+                echo "- **Suggestion**: Try again in 30-60 minutes" >> $GITHUB_STEP_SUMMARY
+                
                 exit 1
               fi
               
