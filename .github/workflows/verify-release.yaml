@@ -160,21 +160,6 @@ jobs:
             echo "No reports directory found"
           fi
 
-      - name: Debug reports directory
-        run: |
-          echo "=== Debugging Reports Directory ==="
-          if [ -d "reports" ]; then
-            echo "Reports directory contents:"
-            ls -la reports/ || true
-            echo "Looking for XML files:"
-            find reports -name "*.xml" -type f 2>/dev/null || echo "No XML files found"
-            echo "Looking for HTML files:"  
-            find reports -name "*.html" -type f 2>/dev/null || echo "No HTML files found"
-          else
-            echo "Reports directory does not exist"
-          fi
-        if: always()
-
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:

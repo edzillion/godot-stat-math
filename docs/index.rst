@@ -58,6 +58,7 @@ The StatMath singleton provides access to all functionality through organized mo
 
    unit_testing
    performance
+   testing_standards
 
 **Indices and Tables**
 ----------------------
