@@ -232,4 +232,74 @@ func test_lognormal_pdf_invalid_parameters() -> void:
 	var result1: float = StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, -1.0)
 	var result2: float = StatMath.PmfPdfFunctions.lognormal_pdf(1.0, 0.0, 0.0)
 	assert_bool(is_nan(result1)).is_true()
-	assert_bool(is_nan(result2)).is_true() 
+	assert_bool(is_nan(result2)).is_true()
+
+
+# =============================================================================
+# NEW FUNCTIONS PARAMETER VALIDATION TESTS
+# =============================================================================
+
+func test_geometric_pmf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.geometric_pmf(1, 0.0)
+	await assert_error(test_call1).is_push_error("Success probability (p_prob) must be in (0,1]. Received: 0.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.geometric_pmf(1, -0.1)
+	await assert_error(test_call2).is_push_error("Success probability (p_prob) must be in (0,1]. Received: -0.1")
+	
+	var test_call3: Callable = func():
+		StatMath.PmfPdfFunctions.geometric_pmf(1, 1.1)
+	await assert_error(test_call3).is_push_error("Success probability (p_prob) must be in (0,1]. Received: 1.1")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.geometric_pmf(1, 0.0)
+	var result2: float = StatMath.PmfPdfFunctions.geometric_pmf(1, -0.1)
+	var result3: float = StatMath.PmfPdfFunctions.geometric_pmf(1, 1.1)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+	assert_bool(is_nan(result3)).is_true()
+
+
+func test_cauchy_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.cauchy_pdf(0.0, 0.0, -1.0)
+	await assert_error(test_call1).is_push_error("Scale parameter must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.cauchy_pdf(0.0, 0.0, 0.0)
+	await assert_error(test_call2).is_push_error("Scale parameter must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.cauchy_pdf(0.0, 0.0, -1.0)
+	var result2: float = StatMath.PmfPdfFunctions.cauchy_pdf(0.0, 0.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+
+
+func test_pareto_pdf_invalid_parameters() -> void:
+	var test_call1: Callable = func():
+		StatMath.PmfPdfFunctions.pareto_pdf(1.0, -1.0, 2.0)
+	await assert_error(test_call1).is_push_error("Scale parameter must be positive. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.PmfPdfFunctions.pareto_pdf(1.0, 0.0, 2.0)
+	await assert_error(test_call2).is_push_error("Scale parameter must be positive. Received: 0.0")
+	
+	var test_call3: Callable = func():
+		StatMath.PmfPdfFunctions.pareto_pdf(1.0, 1.0, -1.0)
+	await assert_error(test_call3).is_push_error("Shape parameter must be positive. Received: -1.0")
+	
+	var test_call4: Callable = func():
+		StatMath.PmfPdfFunctions.pareto_pdf(1.0, 1.0, 0.0)
+	await assert_error(test_call4).is_push_error("Shape parameter must be positive. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.PmfPdfFunctions.pareto_pdf(1.0, -1.0, 2.0)
+	var result2: float = StatMath.PmfPdfFunctions.pareto_pdf(1.0, 0.0, 2.0)
+	var result3: float = StatMath.PmfPdfFunctions.pareto_pdf(1.0, 1.0, -1.0)
+	var result4: float = StatMath.PmfPdfFunctions.pareto_pdf(1.0, 1.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+	assert_bool(is_nan(result3)).is_true()
+	assert_bool(is_nan(result4)).is_true() 

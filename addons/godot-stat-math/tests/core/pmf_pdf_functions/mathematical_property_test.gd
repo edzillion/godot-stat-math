@@ -80,6 +80,37 @@ func test_t_pdf_symmetry() -> void:
 		var result2: float = StatMath.PmfPdfFunctions.t_pdf(-x, df_nu)
 		assert_float(result1).is_equal_approx(result2, StatMath.PROBABILITY_TOLERANCE)
 
+# --- F-distribution PDF Mathematical Properties ---
+
+func test_f_pdf_beta_distribution_relationship() -> void:
+	# If X ~ F(d1, d2), then Y = (d1*X)/(d1*X + d2) ~ Beta(d1/2, d2/2)
+	# Testing the equivalence by verifying that transformation is consistent
+	# For simple case: F(2,2) with x=1 should give y=0.5, both distributions symmetric
+	
+	var d1: float = 2.0
+	var d2: float = 2.0
+	var x: float = 1.0
+	
+	# Calculate F-distribution PDF
+	var f_pdf_result: float = StatMath.PmfPdfFunctions.f_pdf(x, d1, d2)
+	
+	# Transform to Beta domain: y = (d1*x)/(d1*x + d2)
+	var y: float = (d1 * x) / (d1 * x + d2)  # Should be 0.5 for symmetric case
+	
+	# Test the transformation point is correct
+	assert_float(y).is_equal_approx(0.5, StatMath.BOUNDARY_TOLERANCE)
+	
+	# For F(2,2) at x=1, this is a special symmetric case
+	# f_F(1; 2,2) = (sqrt((2*1)^2 * 2^2 / (2*1+2)^4)) / (1 * B(1,1))
+	# = sqrt(16/256) / (1 * 1) = sqrt(1/16) = 1/4 = 0.25
+	
+	# Beta(1,1) at y=0.5 should be 1.0 (uniform distribution)
+	var beta_pdf_result: float = StatMath.PmfPdfFunctions.beta_pdf(0.5, 1.0, 1.0)
+	assert_float(beta_pdf_result).is_equal_approx(1.0, StatMath.PROBABILITY_TOLERANCE)
+	
+	# This is a known mathematical identity for this special case
+	assert_float(f_pdf_result).is_equal_approx(0.25, StatMath.PROBABILITY_TOLERANCE)
+
 # --- Gamma PDF Mathematical Properties ---
 
 func test_gamma_pdf_exponential_special_case() -> void:

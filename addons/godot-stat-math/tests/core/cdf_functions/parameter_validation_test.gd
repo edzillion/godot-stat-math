@@ -6,6 +6,16 @@ class_name CdfFunctionsParameterValidationTest extends GdUnitTestSuite
 # PARAMETER VALIDATION TESTS
 # =============================================================================
 
+# --- Uniform CDF Parameter Validation ---
+func test_uniform_cdf_invalid_a_greater_than_b() -> void:
+	var test_call: Callable = func():
+		StatMath.CdfFunctions.uniform_cdf(2.0, 4.0, 1.0)
+	await assert_error(test_call).is_push_error("Parameter a must be less than or equal to b for Uniform CDF. Received a=4.0, b=1.0")
+	
+	# Test return value is NAN
+	var result: float = StatMath.CdfFunctions.uniform_cdf(2.0, 4.0, 1.0)
+	assert_bool(is_nan(result)).is_true()
+
 # --- Normal CDF Parameter Validation ---
 func test_normal_cdf_invalid_sigma_zero() -> void:
 	var test_call: Callable = func():
@@ -142,4 +152,42 @@ func test_weibull_cdf_invalid_scale() -> void:
 
 	var test_call_neg: Callable = func():
 		StatMath.CdfFunctions.weibull_cdf(1.0, -1.0, 1.0)
-	await assert_error(test_call_neg).is_push_error("Scale parameter must be positive for Weibull CDF. Received: -1.0") 
+	await assert_error(test_call_neg).is_push_error("Scale parameter must be positive for Weibull CDF. Received: -1.0")
+
+
+# =============================================================================
+# NEW FUNCTIONS PARAMETER VALIDATION TESTS
+# =============================================================================
+
+# --- Cauchy CDF Parameter Validation ---
+func test_cauchy_cdf_invalid_scale() -> void:
+	var test_call1: Callable = func():
+		StatMath.CdfFunctions.cauchy_cdf(0.0, 0.0, -1.0)
+	await assert_error(test_call1).is_push_error("Scale parameter must be positive for Cauchy CDF. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.CdfFunctions.cauchy_cdf(0.0, 0.0, 0.0)
+	await assert_error(test_call2).is_push_error("Scale parameter must be positive for Cauchy CDF. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.CdfFunctions.cauchy_cdf(0.0, 0.0, -1.0)
+	var result2: float = StatMath.CdfFunctions.cauchy_cdf(0.0, 0.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true()
+
+
+# --- Lognormal CDF Parameter Validation ---
+func test_lognormal_cdf_invalid_sigma() -> void:
+	var test_call1: Callable = func():
+		StatMath.CdfFunctions.lognormal_cdf(1.0, 0.0, -1.0)
+	await assert_error(test_call1).is_push_error("Standard deviation (sigma) must be positive for Lognormal CDF. Received: -1.0")
+	
+	var test_call2: Callable = func():
+		StatMath.CdfFunctions.lognormal_cdf(1.0, 0.0, 0.0)
+	await assert_error(test_call2).is_push_error("Standard deviation (sigma) must be positive for Lognormal CDF. Received: 0.0")
+	
+	# Test return values are NAN
+	var result1: float = StatMath.CdfFunctions.lognormal_cdf(1.0, 0.0, -1.0)
+	var result2: float = StatMath.CdfFunctions.lognormal_cdf(1.0, 0.0, 0.0)
+	assert_bool(is_nan(result1)).is_true()
+	assert_bool(is_nan(result2)).is_true() 

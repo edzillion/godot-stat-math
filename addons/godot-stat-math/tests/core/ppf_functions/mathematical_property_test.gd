@@ -161,3 +161,53 @@ func test_exponential_median_special_value() -> void:
 	var lambda_param: float = 1.0
 	var result: float = StatMath.PpfFunctions.exponential_ppf(0.5, lambda_param)
 	assert_float(result).is_equal_approx(0.6931472, StatMath.SPECIAL_VALUES_TOLERANCE) 
+
+## Tests that CDF and PPF are inverse functions - Pareto Distribution
+func test_pareto_cdf_ppf_round_trip_consistency() -> void:
+	var test_cases: Array[Dictionary] = [
+		{"x": 1.5, "scale": 1.0, "shape": 2.0},
+		{"x": 2.0, "scale": 1.0, "shape": 1.5},
+		{"x": 3.0, "scale": 2.0, "shape": 1.0},
+		{"x": 5.0, "scale": 1.5, "shape": 3.0}
+	]
+	
+	for case in test_cases:
+		# Forward: x -> CDF(x) -> PPF(CDF(x)) should equal x
+		var cdf_value: float = StatMath.CdfFunctions.pareto_cdf(case["x"], case["scale"], case["shape"])
+		var ppf_result: float = StatMath.PpfFunctions.pareto_ppf(cdf_value, case["scale"], case["shape"])
+		assert_float(ppf_result).is_equal_approx(case["x"], StatMath.CDF_PPF_CONSISTENCY_TOLERANCE)
+
+## Tests that PPF and CDF are inverse functions - Pareto Distribution  
+func test_pareto_ppf_cdf_round_trip_consistency() -> void:
+	var test_cases: Array[Dictionary] = [
+		{"p": 0.1, "scale": 1.0, "shape": 2.0},
+		{"p": 0.3, "scale": 1.0, "shape": 1.5},
+		{"p": 0.7, "scale": 2.0, "shape": 1.0},
+		{"p": 0.9, "scale": 1.5, "shape": 3.0}
+	]
+	
+	for case in test_cases:
+		# Reverse: p -> PPF(p) -> CDF(PPF(p)) should equal p
+		var ppf_value: float = StatMath.PpfFunctions.pareto_ppf(case["p"], case["scale"], case["shape"])
+		var cdf_result: float = StatMath.CdfFunctions.pareto_cdf(ppf_value, case["scale"], case["shape"])
+		assert_float(cdf_result).is_equal_approx(case["p"], StatMath.CDF_PPF_CONSISTENCY_TOLERANCE)
+
+## Tests PPF behavior at probability boundaries - Pareto Distribution
+func test_pareto_ppf_boundary_conditions() -> void:
+	var scale: float = 2.0
+	var shape: float = 1.5
+	
+	# Lower boundary (p = 0)
+	var p_zero_result: float = StatMath.PpfFunctions.pareto_ppf(0.0, scale, shape)
+	assert_float(p_zero_result).is_equal_approx(scale, StatMath.FLOAT_TOLERANCE)
+	
+	# Upper boundary (p = 1)
+	var p_one_result: float = StatMath.PpfFunctions.pareto_ppf(1.0, scale, shape)
+	assert_bool(is_inf(p_one_result) and p_one_result > 0.0).is_true()
+	
+	# Test monotonicity - higher probabilities should give higher values
+	var p_low: float = 0.3
+	var p_high: float = 0.7
+	var ppf_low: float = StatMath.PpfFunctions.pareto_ppf(p_low, scale, shape)
+	var ppf_high: float = StatMath.PpfFunctions.pareto_ppf(p_high, scale, shape)
+	assert_float(ppf_high).is_greater(ppf_low) 

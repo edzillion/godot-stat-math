@@ -324,3 +324,43 @@ static func weibull_cdf(x: float, scale_param: float, shape_param: float) -> flo
 	var exp_term: float = exp(-power_term)
 	
 	return 1.0 - exp_term
+
+
+## Calculates the CDF of a Cauchy (Lorentzian) distribution: F(x; x₀, γ).
+##
+## Returns the probability that a random variable from a Cauchy distribution 
+## with location parameter [code]x₀[/code] and scale parameter [code]γ[/code] is less than or equal to x.
+## Uses the closed-form solution involving arctan.
+##
+## Mathematical Note: [code]F(x) = (1/π) * arctan((x - x₀)/γ) + 1/2[/code]
+static func cauchy_cdf(x: float, location: float = 0.0, scale: float = 1.0) -> float:
+	if not (scale > 0.0):
+		push_error("Scale parameter must be positive for Cauchy CDF. Received: %s" % scale)
+		return NAN
+	
+	# Closed-form solution: F(x) = (1/π) * arctan((x - x₀)/γ) + 1/2
+	var normalized_x: float = (x - location) / scale
+	var arctan_term: float = atan(normalized_x)
+	
+	return (1.0 / PI) * arctan_term + 0.5
+
+
+## Calculates the CDF of a lognormal distribution: F(x; μ, σ).
+##
+## Returns the probability that a random variable from a lognormal distribution 
+## with location parameter [code]μ[/code] and scale parameter [code]σ[/code] is less than or equal to x.
+## If X ~ Lognormal(μ, σ), then ln(X) ~ Normal(μ, σ).
+##
+## Mathematical Note: [code]F(x) = Φ((ln(x) - μ)/σ)[/code] where Φ is the standard normal CDF
+static func lognormal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
+	if not (sigma > 0.0):
+		push_error("Standard deviation (sigma) must be positive for Lognormal CDF. Received: %s" % sigma)
+		return NAN
+	
+	if x <= 0.0:
+		return 0.0  # Lognormal distribution has support (0, +∞)
+	
+	# If X ~ Lognormal(μ, σ), then ln(X) ~ Normal(μ, σ)
+	# So F(x) = P(X ≤ x) = P(ln(X) ≤ ln(x)) = Φ((ln(x) - μ)/σ)
+	var ln_x: float = log(x)
+	return normal_cdf(ln_x, mu, sigma)

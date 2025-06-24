@@ -1,25 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuites id="2025-06-24" name="report_2" tests="10" failures="0" skipped="0" flaky="0" time="0.000">
-	<testsuite id="0" name="mathematical_property_test" package="addons/godot-stat-math/tests/core/error_functions" timestamp="2025-06-24T15:23:17" hostname="localhost" tests="10" failures="0" errors="0" skipped="0" flaky="0" time="0.363">
-		<testcase name="test_error_function_inverse_round_trip" classname="mathematical_property_test" time="0.020">
+<testsuites id="2025-06-24" name="report_2" tests="5" failures="0" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="parameter_validation_test" package="addons/godot-stat-math/tests/core/ppf_functions" timestamp="2025-06-24T17:25:27" hostname="localhost" tests="5" failures="0" errors="0" skipped="0" flaky="0" time="0.505">
+		<testcase name="test_normal_ppf_parameter_validation" classname="parameter_validation_test" time="0.072">
 		</testcase>
-		<testcase name="test_error_function_inverse_zero" classname="mathematical_property_test" time="0.015">
+		<testcase name="test_exponential_ppf_parameter_validation" classname="parameter_validation_test" time="0.028">
 		</testcase>
-		<testcase name="test_error_function_inverse_one" classname="mathematical_property_test" time="0.007">
+		<testcase name="test_uniform_ppf_parameter_validation" classname="parameter_validation_test" time="0.054">
 		</testcase>
-		<testcase name="test_error_function_inverse_minus_one" classname="mathematical_property_test" time="0.007">
+		<testcase name="test_pareto_ppf_parameter_validation" classname="parameter_validation_test" time="0.111">
 		</testcase>
-		<testcase name="test_complementary_error_function_inverse_round_trip" classname="mathematical_property_test" time="0.007">
-		</testcase>
-		<testcase name="test_complementary_error_function_inverse_one" classname="mathematical_property_test" time="0.008">
-		</testcase>
-		<testcase name="test_complementary_error_function_inverse_zero" classname="mathematical_property_test" time="0.008">
-		</testcase>
-		<testcase name="test_complementary_error_function_inverse_two" classname="mathematical_property_test" time="0.007">
-		</testcase>
-		<testcase name="test_log_gamma_consistency" classname="mathematical_property_test" time="0.008">
-		</testcase>
-		<testcase name="test_erf_odd_function_property" classname="mathematical_property_test" time="0.011">
+		<testcase name="test_weibull_ppf_parameter_validation" classname="parameter_validation_test" time="0.110">
 		</testcase>
 	</testsuite>
 </testsuites>

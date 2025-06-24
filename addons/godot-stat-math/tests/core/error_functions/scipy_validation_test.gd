@@ -2,6 +2,7 @@
 class_name ErrorFunctionsScipyValidationTest extends GdUnitTestSuite
 
 const ERROR_FUNCTIONS_TEST_DATA = preload("res://addons/godot-stat-math/tables/error_functions_test_data.gd")
+const HELPER_FUNCTIONS_TEST_DATA = preload("res://addons/godot-stat-math/tables/helper_functions_test_data.gd")
 
 # =============================================================================
 # SCIPY VALIDATION TESTS - DATA-DRIVEN
@@ -66,6 +67,14 @@ func test_gamma_half_integer() -> void:
 	var test_data: Array = ERROR_FUNCTIONS_TEST_DATA.VALUES["gamma_half_integer"]
 	for case in test_data:
 		var result: float = StatMath.ErrorFunctions.gamma(case["params"][0])
+		assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
+
+# --- Log Gamma Function ---
+func test_log_gamma_scipy_validation() -> void:
+	# Test against scipy.special.gammaln
+	var test_data: Array = HELPER_FUNCTIONS_TEST_DATA.VALUES["log_gamma"]
+	for case in test_data:
+		var result: float = StatMath.ErrorFunctions.log_gamma(case["params"][0])
 		assert_float(result).is_equal_approx(case["expected"], StatMath.FLOAT_TOLERANCE)
 
 # --- Inverse Error Function (erf_inv) ---

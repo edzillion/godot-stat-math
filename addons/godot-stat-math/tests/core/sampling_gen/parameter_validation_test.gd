@@ -29,6 +29,24 @@ func test_sample_indices_invalid_parameters() -> void:
 		StatMath.SamplingGen.sample_indices(5, 10, StatMath.SamplingGen.SelectionStrategy.FISHER_YATES)
 	await assert_error(test_oversample).is_push_error("Without replacement, draw_count cannot exceed population_size. Received draw_count=10, population_size=5")
 
+## Tests parameter validation for coordinated_batch_shuffles
+func test_coordinated_batch_shuffles_invalid_parameters() -> void:
+	# Test invalid deck_size - negative value
+	var result_negative_deck: Array = StatMath.SamplingGen.coordinated_batch_shuffles(-5, 3)
+	assert_int(result_negative_deck.size()).is_equal(0)  # Should return empty array
+	
+	# Test invalid deck_size - zero value  
+	var result_zero_deck: Array = StatMath.SamplingGen.coordinated_batch_shuffles(0, 3)
+	assert_int(result_zero_deck.size()).is_equal(0)  # Should return empty array
+	
+	# Test invalid n_shuffles - negative value
+	var result_negative_shuffles: Array = StatMath.SamplingGen.coordinated_batch_shuffles(10, -2)
+	assert_int(result_negative_shuffles.size()).is_equal(0)  # Should return empty array
+	
+	# Test invalid n_shuffles - zero value
+	var result_zero_shuffles: Array = StatMath.SamplingGen.coordinated_batch_shuffles(10, 0)
+	assert_int(result_zero_shuffles.size()).is_equal(0)  # Should return empty array
+
 
 # --- HELPER FUNCTIONS ---
 

@@ -55,6 +55,18 @@ func test_log_gamma_consistency() -> void:
 	var gamma_val: float = StatMath.ErrorFunctions.gamma(x)
 	assert_float(log_gamma_val).is_equal_approx(log(gamma_val), StatMath.FLOAT_TOLERANCE)
 
+# --- Gamma Function Properties ---
+func test_gamma_reflection_formula() -> void:
+	# Test reflection formula: Γ(z)Γ(1-z) = π/sin(πz) for non-integer z
+	var test_values: Array[float] = [0.3, 0.7, 0.25, 0.75, 0.1, 0.9]
+	
+	for z in test_values:
+		var gamma_z: float = StatMath.ErrorFunctions.gamma(z)
+		var gamma_1_minus_z: float = StatMath.ErrorFunctions.gamma(1.0 - z)
+		var product: float = gamma_z * gamma_1_minus_z
+		var expected: float = PI / sin(PI * z)
+		assert_float(product).is_equal_approx(expected, StatMath.FLOAT_TOLERANCE)
+
 # --- Error Function Properties ---
 func test_erf_odd_function_property() -> void:
 	# Test that erf(-x) == -erf(x) for various values
