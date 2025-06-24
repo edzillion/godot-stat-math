@@ -1,5 +1,5 @@
 # res://addons/godot-stat-math/tests/core/sampling_gen/scipy_validation_test.gd
-class_name SamplingGenScipyValidationTest extends GdUnitTestSuite
+class_name SamplingGenPropertyTests extends GdUnitTestSuite
 
 # =============================================================================
 # SCIPY VALIDATION TESTS - DATA-DRIVEN
