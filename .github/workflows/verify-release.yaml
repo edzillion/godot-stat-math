@@ -80,6 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       runner-triggered: ${{ steps.trigger.outputs.triggered }}
+      instance-id: ${{ steps.trigger.outputs.instance-id }}
     steps:
       - name: Trigger AWS Runner
         id: trigger
@@ -100,8 +101,10 @@ jobs:
           
           if [ "$http_code" = "200" ] && echo "$body" | grep -q "launched successfully"; then
             echo "triggered=true" >> $GITHUB_OUTPUT
+            instance_id=$(echo "$body" | jq -r '.instance_id' 2>/dev/null || echo 'N/A')
+            echo "instance-id=$instance_id" >> $GITHUB_OUTPUT
             echo "✅ Runner launched successfully"
-            echo "Instance ID: $(echo "$body" | jq -r '.instance_id' 2>/dev/null || echo 'N/A')"
+            echo "Instance ID: $instance_id"
           else
             echo "triggered=false" >> $GITHUB_OUTPUT
             echo "❌ Failed to launch runner"
@@ -250,20 +253,21 @@ jobs:
     steps:
       - name: Terminate spot instance
         run: |
-          echo "Terminating spot instance: ${{ needs.trigger-runner.outputs.instance-id }}"
+          INSTANCE_ID="${{ needs.trigger-runner.outputs.instance-id }}"
+          echo "Terminating spot instance: $INSTANCE_ID"
           
-          if [ "${{ needs.trigger-runner.outputs.instance-id }}" = "N/A" ] || [ -z "${{ needs.trigger-runner.outputs.instance-id }}" ]; then
+          if [ "$INSTANCE_ID" = "N/A" ] || [ -z "$INSTANCE_ID" ]; then
             echo "⚠️ No valid instance ID found, skipping termination"
             exit 0
           fi
           
           # Terminate the instance
-          aws ec2 terminate-instances --instance-ids ${{ needs.trigger-runner.outputs.instance-id }}
-          echo "✅ Spot instance ${{ needs.trigger-runner.outputs.instance-id }} termination requested"
+          aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+          echo "✅ Spot instance $INSTANCE_ID termination requested"
           
           # Wait a moment and check status
           sleep 10
-          aws ec2 describe-instances --instance-ids ${{ needs.trigger-runner.outputs.instance-id }} \
+          aws ec2 describe-instances --instance-ids $INSTANCE_ID \
             --query 'Reservations[0].Instances[0].State.Name' --output text
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -272,8 +276,9 @@ jobs:
 
       - name: Cleanup summary
         run: |
+          INSTANCE_ID="${{ needs.trigger-runner.outputs.instance-id }}"
           echo "## 🔧 Spot Instance Cleanup" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Instance ID**: ${{ needs.trigger-runner.outputs.instance-id }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Instance ID**: $INSTANCE_ID" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: Termination requested ✅" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build Job**: ${{ needs.build-addon.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run Tests Job**: ${{ needs.run-tests.result }}" >> $GITHUB_STEP_SUMMARY

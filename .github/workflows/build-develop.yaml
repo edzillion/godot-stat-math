@@ -160,14 +160,6 @@ jobs:
         run: |
           git checkout ${{ github.ref_name }}
 
-      - name: Check if version bump is needed
-        id: check-bump-needed
-        continue-on-error: true
-        uses: CapsCollective/version-actions/check-version-bump@v1.0
-        with:
-          new-version: ${{ steps.extract-version.outputs.version-string }}
-          old-version: ${{ steps.extract-release-version.outputs.version-string }}
-
       - name: Bump develop version if needed
         id: bump-version
         run: |
@@ -178,11 +170,10 @@ jobs:
           
           echo "Current develop version: $DEV_VERSION"
           echo "Current release version: $REL_VERSION"
-          echo "Version bump check result: ${{ steps.check-bump-needed.outcome }}"
           
-          # If check-version-bump failed, it means versions are equal or develop is behind
-          if [ "${{ steps.check-bump-needed.outcome }}" = "failure" ]; then
-            echo "Version bump needed - develop version is not ahead of release"
+          # Compare versions - bump if develop <= release
+          if [ "$DEV_VERSION" = "$REL_VERSION" ]; then
+            echo "Version bump needed - develop version equals release version"
             if [ -n "${{ env.RELEASE_VERSION_OVERRIDE }}" ]; then
               NEW_VERSION="${{ env.RELEASE_VERSION_OVERRIDE }}"
               echo "Overriding version to $NEW_VERSION"
@@ -193,13 +184,15 @@ jobs:
               echo "Auto-bumping develop version to $NEW_VERSION"
             fi
             
-            # Update the version in the file
+            # Update the version in both files
             sed -i "s/config\/version=\"[^\"]*\"/config\/version=\"$NEW_VERSION\"/" ${{ env.VERSION_FILE }}
+            sed -i "s/version=\"[^\"]*\"/version=\"$NEW_VERSION\"/" addons/godot-stat-math/plugin.cfg
             
             # Commit and push the change
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git config --global user.name "github-actions[bot]"
             git add ${{ env.VERSION_FILE }}
+            git add addons/godot-stat-math/plugin.cfg
             git commit -m "chore: bump develop version to $NEW_VERSION"
             git push origin ${{ github.ref_name }}
             BUMPED=true
