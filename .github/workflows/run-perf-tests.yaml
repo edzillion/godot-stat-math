@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       runner-triggered: ${{ steps.trigger.outputs.triggered }}
+      instance-id: ${{ steps.trigger.outputs.instance_id }}
     steps:
       - name: Trigger AWS Runner
         id: trigger
@@ -25,12 +26,20 @@ jobs:
           echo "Triggering AWS runner for test run..."
           response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
           echo "Response: $response"
-          
+          # Extract instance_id from JSON response (assumes response contains { "instance_id": "i-xxxx", ... })
+          instance_id=$(echo "$response" | jq -r '.instance_id // empty')
+          echo "Extracted instance_id: $instance_id"
           if echo "$response" | grep -q "launched successfully"; then
             echo "triggered=true" >> $GITHUB_OUTPUT
             echo "✅ Runner launched successfully"
+            if [ -n "$instance_id" ]; then
+              echo "instance_id=$instance_id" >> $GITHUB_OUTPUT
+            else
+              echo "instance_id=N/A" >> $GITHUB_OUTPUT
+            fi
           else
             echo "triggered=false" >> $GITHUB_OUTPUT
+            echo "instance_id=N/A" >> $GITHUB_OUTPUT
             echo "❌ Failed to launch runner"
             exit 1
           fi
@@ -147,16 +156,13 @@ jobs:
         run: |
           INSTANCE_ID="${{ needs.trigger-runner.outputs.instance-id }}"
           echo "Terminating spot instance: $INSTANCE_ID"
-          
           if [ "$INSTANCE_ID" = "N/A" ] || [ -z "$INSTANCE_ID" ]; then
             echo "⚠️ No valid instance ID found, skipping termination"
             exit 0
           fi
-          
           # Terminate the instance
           aws ec2 terminate-instances --instance-ids $INSTANCE_ID
           echo "✅ Spot instance $INSTANCE_ID termination requested"
-          
           # Wait a moment and check status
           sleep 10
           aws ec2 describe-instances --instance-ids $INSTANCE_ID \
