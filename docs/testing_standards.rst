@@ -441,14 +441,13 @@ Merge PR into ``release`` (``build-release.yaml``)
 - **Goal**: To automatically build and publish a new release on GitHub. (``verify-release`` tests must pass).
 - **Actions**:
   
-  1. **Trigger AWS Runner**: Spins up the AWS test runner.
-  2. **Extract Release Notes**: Pulls the relevant release notes for the new version from ``CHANGELOG.md``.
-  3. **Create Release Build**: Packages the addon into a clean, versioned-release zip file.
+  1. **Extract Release Notes**: Pulls the relevant release notes for the new version from ``CHANGELOG.md``.
+  2. **Create Release Build**: Packages the addon into a clean, versioned-release zip file.
      
      - Normal release version does not include tests, named ``godot-stat-math-<version>.zip``
-     - Environment var ``RELEASE_DEVELOPER_DIST = true`` will also build the development version, which includes all tests, named ``godot-stat-math-<version>-dev.zip``
+     - Environment var ``RELEASE_DEBUG_DIST = true`` will also build the development version, which includes all tests, named ``godot-stat-math-<version>-debug.zip``
   
-  4. **Create GitHub Pre-Release**: Automatically creates a new release on the project's GitHub Releases page, tagging with the version number, attaching the addon zip, and populating the description with the extracted release notes.
+  3. **Build and Publish Docs**: Builds the documentation and publishes it to the ``gh-pages`` branch.
 
 Key Benefits:
 ^^^^^^^^^^^^^

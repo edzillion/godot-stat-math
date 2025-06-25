@@ -11,7 +11,7 @@ concurrency:
 env:
   VERSION_FILE: project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
-  RELEASE_DEVELOPER_DIST: false
+  RELEASE_DEBUG_DIST: false
   RELEASE_VERSION_OVERRIDE: ""  # Set this to override version, e.g. 1.0.0
 
 jobs:
@@ -34,9 +34,9 @@ jobs:
             edition_name: "Debug"
     steps:
       - name: Skip debug build if not enabled
-        if: ${{ matrix.distribution == 'debug' && env.RELEASE_DEVELOPER_DIST != 'true' }}
+        if: ${{ matrix.distribution == 'debug' && env.RELEASE_DEBUG_DIST != 'true' }}
         run: |
-          echo "Skipping debug build because RELEASE_DEVELOPER_DIST is not true"
+          echo "Skipping debug build because RELEASE_DEBUG_DIST is not true"
           exit 0
 
       - name: Checkout
@@ -48,9 +48,15 @@ jobs:
         with:
           version-file: ${{ env.VERSION_FILE }}
           version-regex: ${{ env.VERSION_REGEX }}
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
 
       - name: Extract release notes from CHANGELOG
         run: |
+          VERSION="${{ steps.get_version.outputs.version-string }}"
+          awk "/^## \\[.*${{ steps.get_version.outputs.version-string }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
           VERSION="${{ steps.get_version.outputs.version-string }}"
           awk "/^## \\[.*${{ steps.get_version.outputs.version-string }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
           if [ ! -s release_notes.md ]; then
@@ -79,8 +85,10 @@ jobs:
       - name: Create addon release zip
         run: |
           echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
+          echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
           cd addons
           if [ "${{ matrix.include_tests }}" == "false" ]; then
+            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
             zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
               -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
               "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
@@ -88,11 +96,14 @@ jobs:
               "godot-stat-math/tests/*"
           else
             zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
+            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
               -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
               "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
               "*ehthumbs.db" "*Thumbs.db"
           fi
           echo "${{ matrix.edition_name }} release zip contents:"
+          zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip
+          FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip)
           zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip
           FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip)
           echo "Zip file size: ${FILE_SIZE} bytes"
@@ -102,7 +113,10 @@ jobs:
         with:
           tag: ${{ steps.get_version.outputs.version-string }}
           name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}
+          tag: ${{ steps.get_version.outputs.version-string }}
+          name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}
           bodyFile: release_notes.md
+          artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip"
           artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip"
           draft: false
           prerelease: true
@@ -111,28 +125,15 @@ jobs:
           allowUpdates: true
           updateOnlyUnreleased: false
 
-      - name: Create reports directory placeholder
-        run: |
-          mkdir -p reports
-          echo "No tests run during release build" > reports/build-info.txt
-        if: always()
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-test-results-${{ matrix.distribution }}-${{ github.run_number }}
-          path: reports/
-        if: always()
-
       - name: Generate build summary
         run: |
           echo "## 🚀 ${{ matrix.edition_name }} Edition Built Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Distribution**: ${{ matrix.edition_name }} Edition" >> $GITHUB_STEP_SUMMARY
           echo "- **Tag**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Tests**: Passed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
+          echo "- **Runner**: GitHub Hosted (ubuntu-latest)" >> $GITHUB_STEP_SUMMARY
           echo "- **Artifact**: godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

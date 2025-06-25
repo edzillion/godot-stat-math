@@ -51,32 +51,64 @@ jobs:
 
       - name: Extract release notes from CHANGELOG
         run: |
-          VERSION="${{ steps.get_version.outputs.version-string }}"
-          awk "/^## \\[.*${{ steps.get_version.outputs.version-string }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
-          if [ ! -s release_notes.md ]; then
-            echo "🎲 **Godot Stat Math Alpha Release**" > release_notes.md
-            echo "" >> release_notes.md
-            echo "A comprehensive statistical functions addon for Godot 4.0+" >> release_notes.md
-            echo "" >> release_notes.md
-            echo "⚠️ **Alpha Software**: API may change without notice." >> release_notes.md
-            echo "" >> release_notes.md
-            echo "## Installation" >> release_notes.md
-            echo "1. Download the addon ZIP file below" >> release_notes.md
-            echo "2. Extract to your project's \`addons/\` folder" >> release_notes.md
-            echo "3. Enable 'Godot Stat Math' in Project Settings → Plugins" >> release_notes.md
-            echo "" >> release_notes.md
-            echo "## Quick Start" >> release_notes.md
-            echo "\`\`\`gdscript" >> release_notes.md
-            echo "# Access statistical functions via StatMath singleton" >> release_notes.md
-            echo "var random_val: float = StatMath.Distributions.randf_normal(0.0, 1.0)" >> release_notes.md
-            echo "var mean_val: float = StatMath.BasicStats.mean([1.0, 2.0, 3.0, 4.0, 5.0])" >> release_notes.md
-            echo "var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples(100, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)" >> release_notes.md
-            echo "\`\`\`" >> release_notes.md
-          fi
-          echo "Release notes extracted:"
-          cat release_notes.md
+          git checkout ${{ github.ref_name }}
 
-      - name: Create addon release zip
+      - name: Bump develop version if needed
+        id: bump-version
+        run: |
+          DEV_VERSION="${{ steps.extract-version.outputs.version-number }}"
+          REL_VERSION="${{ steps.extract-release-version.outputs.version-number }}"
+          NEW_VERSION="$DEV_VERSION"
+          BUMPED=false
+          
+          echo "Current develop version: $DEV_VERSION"
+          echo "Current release version: $REL_VERSION"
+          
+          # Compare versions - bump if develop <= release
+          if [ "$DEV_VERSION" = "$REL_VERSION" ]; then
+            echo "Version bump needed - develop version equals release version"
+            if [ -n "${{ env.RELEASE_VERSION_OVERRIDE }}" ]; then
+              NEW_VERSION="${{ env.RELEASE_VERSION_OVERRIDE }}"
+              echo "Overriding version to $NEW_VERSION"
+            else
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$DEV_VERSION"
+              PATCH=$((PATCH + 1))
+              NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+              echo "Auto-bumping develop version to $NEW_VERSION"
+            fi
+            
+            # Update the version in both files
+            sed -i "s/config\/version=\"[^\"]*\"/config\/version=\"$NEW_VERSION\"/" ${{ env.VERSION_FILE }}
+            sed -i "s/version=\"[^\"]*\"/version=\"$NEW_VERSION\"/" addons/godot-stat-math/plugin.cfg
+            
+            # Commit and push the change
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git config --global user.name "github-actions[bot]"
+            git add ${{ env.VERSION_FILE }}
+            git add addons/godot-stat-math/plugin.cfg
+            git commit -m "chore: bump develop version to $NEW_VERSION"
+            git push origin ${{ github.ref_name }}
+            BUMPED=true
+          else
+            echo "No version bump needed - develop version is already ahead of release"
+          fi
+          
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "bumped=$BUMPED" >> $GITHUB_OUTPUT
+
+      - name: Clean up previous reports
+        run: rm -rf reports
+
+      - name: Run All GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests"
+          upload-report: false
+        env:
+          DISABLE_REGRESSION_CHECKING: true
+
+      - name: Commit test and performance results
         run: |
           echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
           cd addons
