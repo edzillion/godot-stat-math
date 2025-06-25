@@ -176,10 +176,9 @@ jobs:
               if [ -f "$LATEST_REPORT/results.xml" ]; then
                 echo "📊 Found results.xml"
                 
-                # Check if there were any failures in results.xml
-                FAILURES=$(grep -o 'failures="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' || echo "0")
-                ERRORS=$(grep -o 'errors="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' || echo "0")
-                
+                # Correctly parse only the first failures/errors value (summary)
+                FAILURES=$(grep -o 'failures="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' | head -1 || echo "0")
+                ERRORS=$(grep -o 'errors="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' | head -1 || echo "0")
                 echo "Failures: $FAILURES, Errors: $ERRORS"
                 
                 if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
