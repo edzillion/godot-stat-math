@@ -13,7 +13,6 @@ env:
   VERSION_REGEX: '^version\s*=\s*"([^"]*)"'
   RELEASE_DEVELOPER_DIST: false
 
-
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
@@ -32,9 +31,13 @@ jobs:
             include_tests: true
             suffix: "-debug"  
             edition_name: "Debug"
-    # Always build standard, only build debug when flag is enabled
-    if: ${{ matrix.distribution == 'standard' || (matrix.distribution == 'debug' && env.RELEASE_DEVELOPER_DIST == 'true') }}
     steps:
+      - name: Skip debug build if not enabled
+        if: ${{ matrix.distribution == 'debug' && env.RELEASE_DEVELOPER_DIST != 'true' }}
+        run: |
+          echo "Skipping debug build because RELEASE_DEVELOPER_DIST is not true"
+          exit 0
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -54,14 +57,13 @@ jobs:
           version-regex: ${{ env.VERSION_REGEX }}
         id: extract-version
 
-
       - name: Extract release notes from CHANGELOG
         run: |
           # Extract release notes for current version from CHANGELOG.md
           VERSION="v${{ steps.extract-version.outputs.version-string }}"
           
           # Find the section for this version and extract until next version or end
-          awk "/^## \[.*${{ steps.extract-version.outputs.version-string }}\]/{flag=1; next} /^## \[.*\]/{flag=0} flag" CHANGELOG.md > release_notes.md
+          awk "/^## \\[.*${{ steps.extract-version.outputs.version-string }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
           
           # If no specific version found, create basic notes
           if [ ! -s release_notes.md ]; then
@@ -87,7 +89,6 @@ jobs:
           
           echo "Release notes extracted:"
           cat release_notes.md
-
 
       - name: Create addon release zip
         run: |
@@ -173,4 +174,4 @@ jobs:
           target_branch: 'gh-pages'
           pre_build_commands: |
             pip install sphinx_rtd_theme
-            echo "Building docs with version: $(python -c "exec(open('docs/conf.py').read()); print(release)")"
+            echo "Building docs with version: $(python -c \"exec(open('docs/conf.py').read()); print(release)\")\"
