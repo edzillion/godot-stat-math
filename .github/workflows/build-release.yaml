@@ -157,3 +157,19 @@ jobs:
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🎉 Release is now available on the [Releases page](https://github.com/${{ github.repository }}/releases)" >> $GITHUB_STEP_SUMMARY
+
+  build-and-publish-docs:
+    runs-on: ubuntu-latest
+    needs: build-and-release
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build and Publish Sphinx Docs to GitHub Pages
+        uses: totaldebug/sphinx-publish-action@1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}          
+          sphinx_src: 'docs'          
+          target_branch: 'gh-pages'
+          pre_build_commands: |
+            pip install sphinx_rtd_theme
