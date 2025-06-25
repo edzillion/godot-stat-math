@@ -8,11 +8,6 @@ on:
         required: false
         default: false
         type: boolean
-      number_of_runs:
-        description: 'Number of times to run performance tests'
-        required: false
-        default: 15
-        type: number
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -48,6 +43,10 @@ jobs:
   test-and-commit:
     needs: trigger-runner
     runs-on: [self-hosted, linux, x64]
+    strategy:
+      matrix:
+        run_id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] 
+      max-parallel: 1  # Ensures matrix jobs run sequentially
     if: needs.trigger-runner.outputs.runner-triggered == 'true'
     env:
       LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu
@@ -84,14 +83,13 @@ jobs:
           version-regex: config\/version=\"\K[0-9.\-A-z]*
         id: extract-version
       
-      - name: Run GDUnit4 performance tests multiple times
-        run: |
-          for i in $(seq 1 ${{ github.event.inputs.number_of_runs }}); do
-            echo "=== Run #$i ==="
-            godot --headless --path . --script addons/gdUnit4/bin/GdUnitCmdTool.gd -a "res://addons/godot-stat-math/tests/performance" -rc 1
-          done
-        env:
-          DISABLE_REGRESSION_CHECKING: ${{ github.event.inputs.disable_regression_checking }}
+      - name: Run GDUnit4 performance tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests/performance"
+          publish-report: false
+          upload-report: false
 
       - name: Clean up previous reports
         run: rm -rf reports
