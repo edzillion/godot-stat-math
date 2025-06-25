@@ -1,8 +1,8 @@
-name: "Build Release"
+name: "Build Develop"
 
 on:
   push:
-    branches: ["release"]
+    branches: ["develop"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -11,47 +11,162 @@ concurrency:
 env:
   VERSION_FILE: project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
-  RELEASE_DEBUG_DIST: false
-  RELEASE_VERSION_OVERRIDE: ""  # Set this to override version, e.g. 1.0.0
+  RELEASE_VERSION_OVERRIDE: ""  # Set this to override version, e.g. 0.1.0
 
 jobs:
-  build-and-release:
+  trigger-runner:
     runs-on: ubuntu-latest
+    outputs:
+      runner-triggered: ${{ steps.trigger.outputs.triggered }}
+      instance-id: ${{ steps.trigger.outputs.instance_id }}
+    steps:
+      - name: Trigger AWS Runner
+        id: trigger
+        run: |
+          if [ -z "${{ secrets.LAMBDA_FUNCTION_URL }}" ]; then
+            echo "ÔØî LAMBDA_FUNCTION_URL secret is not set"
+            exit 1
+          fi
+          
+          echo "Triggering AWS runner (t3.medium for consistent performance testing)..."
+          echo "Lambda URL: ${{ secrets.LAMBDA_FUNCTION_URL }}"
+          
+          # Retry logic for spot capacity issues
+          max_attempts=3
+          attempt=1
+          
+          while [ $attempt -le $max_attempts ]; do
+            echo "­ƒöä Attempt $attempt of $max_attempts..."
+            
+            response=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
+            echo "Response: $response"
+            
+            http_code=$(echo "$response" | grep "HTTP_CODE:" | cut -d: -f2)
+            body=$(echo "$response" | sed '/HTTP_CODE:/d')
+            
+            if [ "$http_code" = "200" ] && echo "$body" | grep -q "launched successfully"; then
+              echo "triggered=true" >> $GITHUB_OUTPUT
+              echo "Ô£à t3.medium spot instance launched successfully on attempt $attempt"
+              
+              # Extract and store instance ID for later termination
+              instance_id=$(echo "$body" | jq -r '.instance_id' 2>/dev/null || echo 'N/A')
+              echo "instance_id=$instance_id" >> $GITHUB_OUTPUT
+              echo "Instance ID: $instance_id"
+              break
+            else
+              echo "ÔØî Attempt $attempt failed"
+              echo "HTTP Code: $http_code"
+              echo "Response Body: $body"
+              
+              # Check for specific spot capacity error
+              if echo "$body" | grep -q "InsufficientInstanceCapacity"; then
+                echo "ÔÜá´©Å No t3.medium spot capacity available - waiting and retrying..."
+              elif echo "$body" | grep -q "SpotMaxPriceTooLow"; then
+                echo "ÔÜá´©Å Spot price bid too low for t3.medium"
+              fi
+              
+              if [ $attempt -eq $max_attempts ]; then
+                echo "triggered=false" >> $GITHUB_OUTPUT
+                echo "ÔØî All attempts failed - no t3.medium spot capacity available"
+                echo "­ƒÆí Consider increasing spot price bid or trying again later"
+                echo "   t3.medium spot capacity fluctuates throughout the day"
+                
+                # Log timing info for capacity analysis
+                current_time=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
+                echo "ÔÅ░ Failed at: $current_time"
+                echo "­ƒôè Capacity availability tends to be higher:"
+                echo "   - During off-peak hours (evenings/nights)"
+                echo "   - On weekends"
+                echo "   - In less popular AWS regions"
+                
+                # Add to step summary for tracking patterns
+                echo "## ÔÜá´©Å Spot Capacity Unavailable" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "- **Time**: $current_time" >> $GITHUB_STEP_SUMMARY
+                echo "- **Instance Type**: t3.medium" >> $GITHUB_STEP_SUMMARY
+                echo "- **Attempts**: $max_attempts" >> $GITHUB_STEP_SUMMARY
+                echo "- **Suggestion**: Try again in 30-60 minutes" >> $GITHUB_STEP_SUMMARY
+                
+                exit 1
+              fi
+              
+              # Wait before retry (longer waits for capacity to become available)
+              sleep_time=$((attempt * 60))  # 60s, 120s, 180s
+              echo "ÔÅ│ Waiting ${sleep_time}s for t3.medium spot capacity..."
+              sleep $sleep_time
+            fi
+            
+            attempt=$((attempt + 1))
+          done
+          
+      - name: Wait for runner
+        run: |
+          echo "Waiting 60 seconds for runner to come online..."
+          echo "ÔÅ│ Spot instance starting up..."
+          sleep 60
+          echo "Ô£à Proceeding to job execution"
+
+  build-addon:
+    needs: trigger-runner
+    runs-on: [self-hosted, linux, x64]
+    if: needs.trigger-runner.outputs.runner-triggered == 'true'
     permissions:
       checks: write
       actions: read
       contents: write
-    strategy:
-      matrix:
-        include:
-          - distribution: standard
-            include_tests: false
-            suffix: ""
-            edition_name: "Standard"
-          - distribution: debug
-            include_tests: true
-            suffix: "-debug"
-            edition_name: "Debug"
+
     steps:
-      - name: Skip debug build if not enabled
-        if: ${{ matrix.distribution == 'debug' && env.RELEASE_DEBUG_DIST != 'true' }}
-        run: |
-          echo "Skipping debug build because RELEASE_DEBUG_DIST is not true"
-          exit 0
-
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      
+      - name: Synchronize with remote branch
+        run: |
+          echo "Pulling latest changes for branch ${{ github.ref_name }}..."
+          git pull origin ${{ github.ref_name }}
 
-      - name: Get current version
-        id: get_version
+      - name: System info
+        run: |
+          echo "=== Develop Build Environment ==="
+          echo "Timestamp: $(date)"
+          echo "Commit: ${{ github.sha }}"
+          echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
+          echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
+          echo "CPU Cores: $(nproc)"
+          echo "================================="
+
+      - name: Extract version
         uses: CapsCollective/version-actions/extract-version@v1.0
         with:
           version-file: ${{ env.VERSION_FILE }}
           version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-version
 
-      - name: Extract release notes from CHANGELOG
+      - name: Fetch release branch
+        run: |
+          git fetch origin release:release-tmp
+          git checkout release-tmp
+          
+      - name: Extract release version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-release-version
+        
+      - name: Return to develop branch
         run: |
           git checkout ${{ github.ref_name }}
+
+      - name: Check if version bump is needed
+        id: check-bump-needed
+        continue-on-error: true
+        uses: CapsCollective/version-actions/check-version-bump@v1.0
+        with:
+          new-version: ${{ steps.extract-version.outputs.version-string }}
+          old-version: ${{ steps.extract-release-version.outputs.version-string }}
 
       - name: Bump develop version if needed
         id: bump-version
@@ -63,10 +178,11 @@ jobs:
           
           echo "Current develop version: $DEV_VERSION"
           echo "Current release version: $REL_VERSION"
+          echo "Version bump check result: ${{ steps.check-bump-needed.outcome }}"
           
-          # Compare versions - bump if develop <= release
-          if [ "$DEV_VERSION" = "$REL_VERSION" ]; then
-            echo "Version bump needed - develop version equals release version"
+          # If check-version-bump failed, it means versions are equal or develop is behind
+          if [ "${{ steps.check-bump-needed.outcome }}" = "failure" ]; then
+            echo "Version bump needed - develop version is not ahead of release"
             if [ -n "${{ env.RELEASE_VERSION_OVERRIDE }}" ]; then
               NEW_VERSION="${{ env.RELEASE_VERSION_OVERRIDE }}"
               echo "Overriding version to $NEW_VERSION"
@@ -77,15 +193,13 @@ jobs:
               echo "Auto-bumping develop version to $NEW_VERSION"
             fi
             
-            # Update the version in both files
+            # Update the version in the file
             sed -i "s/config\/version=\"[^\"]*\"/config\/version=\"$NEW_VERSION\"/" ${{ env.VERSION_FILE }}
-            sed -i "s/version=\"[^\"]*\"/version=\"$NEW_VERSION\"/" addons/godot-stat-math/plugin.cfg
             
             # Commit and push the change
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git config --global user.name "github-actions[bot]"
             git add ${{ env.VERSION_FILE }}
-            git add addons/godot-stat-math/plugin.cfg
             git commit -m "chore: bump develop version to $NEW_VERSION"
             git push origin ${{ github.ref_name }}
             BUMPED=true
@@ -110,71 +224,111 @@ jobs:
 
       - name: Commit test and performance results
         run: |
-          echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
-          cd addons
-          if [ "${{ matrix.include_tests }}" == "false" ]; then
-            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
-              -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
-              "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
-              "*ehthumbs.db" "*Thumbs.db" \
-              "godot-stat-math/tests/*"
-          else
-            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
-              -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
-              "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
-              "*ehthumbs.db" "*Thumbs.db"
-          fi
-          echo "${{ matrix.edition_name }} release zip contents:"
-          zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip
-          FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip)
-          echo "Zip file size: ${FILE_SIZE} bytes"
+          echo "Committing GDUnit4 test and performance results..."
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
+          REPORTS_DIR="reports"
+          PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+
+          # Add both directories if they exist
+          if [ -d "$REPORTS_DIR" ]; then
+            git add "$REPORTS_DIR/"
+          fi
+          if [ -d "$PERF_RESULTS_DIR" ]; then
+            git add "$PERF_RESULTS_DIR/"
+          fi
+
+          if git diff --staged --quiet; then
+            echo "No new test results to commit"
+          else
+            COMMIT_MSG="­ƒôè Test Results - ${{ github.workflow }} ${{ github.run_number }}"
+            
+            git commit -m "$COMMIT_MSG"
+            git push origin ${{ github.ref_name }}
+            echo "Ô£à Test reports and performance results committed and pushed"
+          fi
+
+      - name: Create addon zip
+        run: |
+          echo "Creating addon zip for version ${{ steps.bump-version.outputs.new_version }}"
+          cd addons
+          
+          # Create development zip with comprehensive file exclusions (includes tests)
+          zip -r ../godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip godot-stat-math/ \
+            -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
+            "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
+            "*ehthumbs.db" "*Thumbs.db"
+          
+          # Create a short commit hash for identification
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-8)
+          
+          echo "Created: godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip"
+          echo "Commit: ${SHORT_SHA}"
+          
+          # Verify zip contents
+          echo "Development zip contents:"
+          zipinfo ../godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip
+
+      - name: Upload development artifact
+        uses: actions/upload-artifact@v4
         with:
-          tag: ${{ steps.get_version.outputs.version-string }}
-          name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}
-          bodyFile: release_notes.md
-          artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip"
-          draft: false
-          prerelease: true
-          generateReleaseNotes: false
-          token: ${{ secrets.GITHUB_TOKEN }}
-          allowUpdates: true
-          updateOnlyUnreleased: false
+          name: godot-stat-math-dev-build
+          path: "godot-stat-math-*-dev.zip"
+          retention-days: 14
+          if-no-files-found: error
+          
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: develop-build-test-results-${{ github.run_number }}
+          path: reports/
+        if: always()
 
       - name: Generate build summary
         run: |
-          echo "## 🚀 ${{ matrix.edition_name }} Edition Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "## ­ƒöº Development Build Created" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Distribution**: ${{ matrix.edition_name }} Edition" >> $GITHUB_STEP_SUMMARY
-          echo "- **Tag**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Runner**: GitHub Hosted (ubuntu-latest)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Artifact**: godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.bump-version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests**: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact**: godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ matrix.include_tests }}" == "true" ]; then
-            echo "📦 **Debug Edition**: Includes full test suite and performance benchmarks for troubleshooting" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "📦 **Standard Edition**: Production-ready, optimized for end users" >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "­ƒôÑ Download the artifact from the **Actions** tab to test this build." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🎉 Release is now available on the [Releases page](https://github.com/${{ github.repository }}/releases)" >> $GITHUB_STEP_SUMMARY
+          echo "ÔÜá´©Å This is a development build - not for production use." >> $GITHUB_STEP_SUMMARY
 
-  build-and-publish-docs:
+  terminate-runner:
     runs-on: ubuntu-latest
-    needs: build-and-release
+    needs: [trigger-runner, build-addon]
+    if: always() && needs.trigger-runner.outputs.runner-triggered == 'true'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Terminate spot instance
+        run: |
+          echo "Terminating spot instance: ${{ needs.trigger-runner.outputs.instance-id }}"
+          
+          if [ "${{ needs.trigger-runner.outputs.instance-id }}" = "N/A" ] || [ -z "${{ needs.trigger-runner.outputs.instance-id }}" ]; then
+            echo "ÔÜá´©Å No valid instance ID found, skipping termination"
+            exit 0
+          fi
+          
+          # Terminate the instance
+          aws ec2 terminate-instances --instance-ids ${{ needs.trigger-runner.outputs.instance-id }}
+          echo "Ô£à Spot instance ${{ needs.trigger-runner.outputs.instance-id }} termination requested"
+          
+          # Wait a moment and check status
+          sleep 10
+          aws ec2 describe-instances --instance-ids ${{ needs.trigger-runner.outputs.instance-id }} \
+            --query 'Reservations[0].Instances[0].State.Name' --output text
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION || 'eu-west-1' }}
 
-      - name: Build and Publish Sphinx Docs to GitHub Pages
-        uses: totaldebug/sphinx-publish-action@1.2.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          sphinx_src: 'docs'
-          target_branch: 'gh-pages'
-          pre_build_commands: |
-            pip install sphinx_rtd_theme
-            echo "Building docs with version: $(python -c \"exec(open('docs/conf.py').read()); print(release)\")" 
+      - name: Cleanup summary
+        run: |
+          echo "## ­ƒöº Spot Instance Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Instance ID**: ${{ needs.trigger-runner.outputs.instance-id }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Termination requested Ô£à" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Job**: ${{ needs.build-addon.result }}" >> $GITHUB_STEP_SUMMARY
