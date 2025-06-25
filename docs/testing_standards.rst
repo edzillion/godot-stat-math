@@ -457,6 +457,12 @@ Key Benefits:
 - **Performance Baselines**: Automated regression detection with snapshot comparisons
 - **Isolated Testing**: Fresh, identical environments for every test run
 
+Other Workflows:
+^^^^^^^^^^^^^^^^
+- **Build and Publish Docs** (`build-and-publish-docs.yaml`): Builds the documentation and publishes it to the ``gh-pages`` branch.
+- **Run Tests** (`run-tests.yaml`): Runs the test suite on a self-hosted runner.
+- **Run Performance Tests** (`run-performance-tests.yaml`): Runs the performance tests on a self-hosted runner.
+
 This infrastructure allows us to focus on mathematical accuracy without worrying about hardware-specific floating-point differences that would otherwise require platform-specific tolerance adjustments.
 
 Testing Workflow
