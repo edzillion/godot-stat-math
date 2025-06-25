@@ -48,10 +48,6 @@ jobs:
         with:
           version-file: ${{ env.VERSION_FILE }}
           version-regex: ${{ env.VERSION_REGEX }}
-        uses: CapsCollective/version-actions/extract-version@v1.0
-        with:
-          version-file: ${{ env.VERSION_FILE }}
-          version-regex: ${{ env.VERSION_REGEX }}
 
       - name: Extract release notes from CHANGELOG
         run: |
@@ -113,10 +109,7 @@ jobs:
         with:
           tag: ${{ steps.get_version.outputs.version-string }}
           name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}
-          tag: ${{ steps.get_version.outputs.version-string }}
-          name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}
           bodyFile: release_notes.md
-          artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip"
           artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip"
           draft: false
           prerelease: true
