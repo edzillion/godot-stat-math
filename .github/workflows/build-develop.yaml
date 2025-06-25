@@ -11,6 +11,7 @@ concurrency:
 env:
   VERSION_FILE: project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
+  RELEASE_VERSION_OVERRIDE: ""  # Set this to override version, e.g. 0.1.0
 
 jobs:
   trigger-runner:
@@ -143,6 +144,41 @@ jobs:
           version-regex: ${{ env.VERSION_REGEX }}
         id: extract-version
 
+      - name: Get latest release version
+        id: get-release-version
+        run: |
+          git fetch origin release:release-tmp
+          RELEASE_VERSION=$(grep -Po '${{ env.VERSION_REGEX }}' $(git show release-tmp:${{ env.VERSION_FILE }}) | head -1)
+          echo "release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Bump develop version if needed
+        id: bump-version
+        run: |
+          DEV_VERSION="${{ steps.extract-version.outputs.version-string }}"
+          REL_VERSION="${{ steps.get-release-version.outputs.release_version }}"
+          NEW_VERSION="$DEV_VERSION"
+          BUMPED=false
+          if [ "$DEV_VERSION" = "$REL_VERSION" ]; then
+            if [ -n "${{ env.RELEASE_VERSION_OVERRIDE }}" ]; then
+              NEW_VERSION="${{ env.RELEASE_VERSION_OVERRIDE }}"
+              echo "Overriding version to $NEW_VERSION"
+            else
+              IFS='.' read -r MAJOR MINOR PATCH <<< "$DEV_VERSION"
+              PATCH=$((PATCH + 1))
+              NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+              echo "Auto-bumping develop version to $NEW_VERSION"
+            fi
+            sed -i "s/${{ env.VERSION_REGEX }}/$NEW_VERSION/" ${{ env.VERSION_FILE }}
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git config --global user.name "github-actions[bot]"
+            git add ${{ env.VERSION_FILE }}
+            git commit -m "chore: bump develop version to $NEW_VERSION"
+            git push origin ${{ github.ref_name }}
+            BUMPED=true
+          fi
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "bumped=$BUMPED" >> $GITHUB_OUTPUT
+
       - name: Clean up previous reports
         run: rm -rf reports
 
@@ -184,11 +220,11 @@ jobs:
 
       - name: Create addon zip
         run: |
-          echo "Creating addon zip for version ${{ steps.extract-version.outputs.version-string }}"
+          echo "Creating addon zip for version ${{ steps.bump-version.outputs.new_version }}"
           cd addons
           
           # Create development zip with comprehensive file exclusions (includes tests)
-          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip godot-stat-math/ \
+          zip -r ../godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip godot-stat-math/ \
             -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
             "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
             "*ehthumbs.db" "*Thumbs.db"
@@ -196,12 +232,12 @@ jobs:
           # Create a short commit hash for identification
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-8)
           
-          echo "Created: godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip"
+          echo "Created: godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip"
           echo "Commit: ${SHORT_SHA}"
           
           # Verify zip contents
           echo "Development zip contents:"
-          zipinfo ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip
+          zipinfo ../godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip
 
       - name: Upload development artifact
         uses: actions/upload-artifact@v4
@@ -222,10 +258,10 @@ jobs:
         run: |
           echo "## 🔧 Development Build Created" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.bump-version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Tests**: Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- **Artifact**: godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact**: godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📥 Download the artifact from the **Actions** tab to test this build." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
