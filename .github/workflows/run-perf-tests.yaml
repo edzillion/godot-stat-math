@@ -142,7 +142,7 @@ jobs:
 
   terminate-runner:
     runs-on: ubuntu-latest
-    needs: [trigger-runner, run-tests]
+    needs: [trigger-runner, test-and-commit]
     if: always() && needs.trigger-runner.outputs.runner-triggered == 'true'
     steps:
       - name: Terminate spot instance
