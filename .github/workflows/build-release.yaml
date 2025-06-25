@@ -49,35 +49,10 @@ jobs:
           echo "Current version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Determine next version
-        id: next_version
-        run: |
-          if [ -n "${{ env.RELEASE_VERSION_OVERRIDE }}" ]; then
-            NEXT_VERSION="${{ env.RELEASE_VERSION_OVERRIDE }}"
-            echo "Overriding version to $NEXT_VERSION"
-          else
-            CURR_VERSION="${{ steps.get_version.outputs.version }}"
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$CURR_VERSION"
-            PATCH=$((PATCH + 1))
-            NEXT_VERSION="$MAJOR.$MINOR.$PATCH"
-            echo "Auto-incremented version: $NEXT_VERSION"
-          fi
-          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Update version in project file
-        run: |
-          sed -i 's/${{ env.VERSION_REGEX }}/version="${{ steps.next_version.outputs.next_version }}"/' ${{ env.VERSION_FILE }}
-          echo "Updated version in ${{ env.VERSION_FILE }} to ${{ steps.next_version.outputs.next_version }}"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-          git add ${{ env.VERSION_FILE }}
-          git commit -m "chore: bump version to ${{ steps.next_version.outputs.next_version }}"
-          git push
-
       - name: Extract release notes from CHANGELOG
         run: |
-          VERSION="v${{ steps.next_version.outputs.next_version }}"
-          awk "/^## \\[.*${{ steps.next_version.outputs.next_version }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
+          VERSION="v${{ steps.get_version.outputs.version }}"
+          awk "/^## \\[.*${{ steps.get_version.outputs.version }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
           if [ ! -s release_notes.md ]; then
             echo "🎲 **Godot Stat Math Alpha Release**" > release_notes.md
             echo "" >> release_notes.md
@@ -103,32 +78,32 @@ jobs:
 
       - name: Create addon release zip
         run: |
-          echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.next_version.outputs.next_version }}"
+          echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.get_version.outputs.version }}"
           cd addons
           if [ "${{ matrix.include_tests }}" == "false" ]; then
-            zip -r ../godot-stat-math-${{ steps.next_version.outputs.next_version }}${{ matrix.suffix }}.zip godot-stat-math/ \
+            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version }}${{ matrix.suffix }}.zip godot-stat-math/ \
               -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
               "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
               "*ehthumbs.db" "*Thumbs.db" \
               "godot-stat-math/tests/*"
           else
-            zip -r ../godot-stat-math-${{ steps.next_version.outputs.next_version }}${{ matrix.suffix }}.zip godot-stat-math/ \
+            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version }}${{ matrix.suffix }}.zip godot-stat-math/ \
               -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
               "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
               "*ehthumbs.db" "*Thumbs.db"
           fi
           echo "${{ matrix.edition_name }} release zip contents:"
-          zipinfo ../godot-stat-math-${{ steps.next_version.outputs.next_version }}${{ matrix.suffix }}.zip
-          FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.next_version.outputs.next_version }}${{ matrix.suffix }}.zip)
+          zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version }}${{ matrix.suffix }}.zip
+          FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version }}${{ matrix.suffix }}.zip)
           echo "Zip file size: ${FILE_SIZE} bytes"
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ steps.next_version.outputs.next_version }}
-          name: Godot Stat Math ${{ steps.next_version.outputs.next_version }}
+          tag: ${{ steps.get_version.outputs.version }}
+          name: Godot Stat Math ${{ steps.get_version.outputs.version }}
           bodyFile: release_notes.md
-          artifacts: "godot-stat-math-${{ steps.next_version.outputs.next_version }}${{ matrix.suffix }}.zip"
+          artifacts: "godot-stat-math-${{ steps.get_version.outputs.version }}${{ matrix.suffix }}.zip"
           draft: false
           prerelease: true
           generateReleaseNotes: false
@@ -147,12 +122,12 @@ jobs:
         run: |
           echo "## 🚀 ${{ matrix.edition_name }} Edition Built Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: ${{ steps.next_version.outputs.next_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.get_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Distribution**: ${{ matrix.edition_name }} Edition" >> $GITHUB_STEP_SUMMARY
-          echo "- **Tag**: ${{ steps.next_version.outputs.next_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag**: ${{ steps.get_version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
           echo "- **Tests**: Passed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
-          echo "- **Artifact**: godot-stat-math-${{ steps.next_version.outputs.next_version }}${{ matrix.suffix }}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact**: godot-stat-math-${{ steps.get_version.outputs.version }}${{ matrix.suffix }}.zip" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ matrix.include_tests }}" == "true" ]; then
