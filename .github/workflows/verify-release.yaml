@@ -149,38 +149,131 @@ jobs:
       - name: Run All GDUnit4 tests
         run: |
           echo "Running GDUnit4 tests using custom command..."
-          # Use the same command pattern from your memory
-          timeout 120 ./addons/gdUnit4/runtest.cmd --godot_bin "godot" -a "res://addons/godot-stat-math/tests/core" || true
+          
+          # Clean any existing reports first
+          rm -rf reports
+          
+          # Run tests with proper timeout (80 seconds as per memory)
+          timeout 80 ./addons/gdUnit4/runtest.cmd --godot_bin "godot" -a "res://addons/godot-stat-math/tests/core" || true
           
           echo "Test execution completed, checking for results..."
+          echo "Looking for test completion indicator..."
+          
+          # Wait a moment for reports to be written
+          sleep 5
+          
           if [ -d "reports" ]; then
             echo "Reports directory found:"
             find reports -type f -name "*.xml" -o -name "*.html" | head -10
+            
+            # Find the highest numbered report folder
+            LATEST_REPORT=$(find reports -type d -name "report_*" | sort -V | tail -1)
+            echo "Latest report folder: $LATEST_REPORT"
+            
+            if [ -n "$LATEST_REPORT" ]; then
+              echo "Contents of latest report:"
+              ls -la "$LATEST_REPORT"
+            fi
           else
             echo "No reports directory found"
+            echo "Checking current directory structure:"
+            ls -la
           fi
 
-      - name: Upload test results
+      - name: Check test completion and results
+        id: test-results
+        run: |
+          echo "=== Test Results Analysis ==="
+          
+          # Default to failed state
+          echo "tests-passed=false" >> $GITHUB_OUTPUT
+          
+          if [ -d "reports" ]; then
+            echo "✅ Reports directory exists"
+            
+            # Find latest report directory
+            LATEST_REPORT=$(find reports -type d -name "report_*" | sort -V | tail -1)
+            
+            if [ -n "$LATEST_REPORT" ]; then
+              echo "📁 Latest report: $LATEST_REPORT"
+              
+              # Check for results.xml
+              if [ -f "$LATEST_REPORT/results.xml" ]; then
+                echo "📊 Found results.xml"
+                
+                # Check test completion indicator and for failures
+                if grep -q "Run tests ends with 0" "$LATEST_REPORT"/*.txt 2>/dev/null; then
+                  # Check if there were any failures in results.xml
+                  FAILURES=$(grep -o 'failures="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' || echo "0")
+                  ERRORS=$(grep -o 'errors="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' || echo "0")
+                  
+                  echo "Failures: $FAILURES, Errors: $ERRORS"
+                  
+                  if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
+                    echo "✅ Tests completed successfully with no failures"
+                    echo "tests-passed=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "❌ Tests completed but with $FAILURES failures and $ERRORS errors"
+                    echo "tests-passed=false" >> $GITHUB_OUTPUT
+                  fi
+                else
+                  echo "⚠️  Test completion indicator not found - assuming failure"
+                  echo "tests-passed=false" >> $GITHUB_OUTPUT
+                fi
+                
+                # Show test summary
+                echo "Test summary from results.xml:"
+                grep -E "(tests=|failures=|skipped=|errors=)" "$LATEST_REPORT/results.xml" || true
+              else
+                echo "❌ No results.xml found in $LATEST_REPORT"
+                echo "Contents:"
+                ls -la "$LATEST_REPORT"
+                echo "tests-passed=false" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "❌ No report_* directories found"
+              echo "Reports directory contents:"
+              ls -la reports/
+              echo "tests-passed=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "❌ No reports directory found"
+            echo "Root directory contents:"
+            ls -la
+            echo "tests-passed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload test results (failures only)
         uses: actions/upload-artifact@v4
         with:
-          name: release-test-results-pr-${{ github.event.number }}
-          path: |
-            reports/**/*.xml
-            reports/**/*.html
-            reports/**/results.xml
+          name: release-test-results-FAILED-pr-${{ github.event.number }}
+          path: reports/
           if-no-files-found: warn
-        if: always()
+        if: always() && steps.test-results.outputs.tests-passed == 'false'
 
       - name: Generate verification summary
         run: |
-          echo "## ✅ Release Verification Complete" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
-          echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
-          echo "- **Tests**: Passed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
-          echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🚀 Ready to merge and release!" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.test-results.outputs.tests-passed }}" = "true" ]; then
+            echo "## ✅ Release Verification Complete" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
+            echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
+            echo "- **Tests**: ✅ Passed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
+            echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Test Reports**: Not uploaded (tests passed)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🚀 Ready to merge and release!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Release Verification Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
+            echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
+            echo "- **Tests**: ❌ Failed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
+            echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Test Reports**: 📁 Uploaded as artifact for investigation" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🔧 Fix test failures before merging!" >> $GITHUB_STEP_SUMMARY
+          fi
 
   terminate-runner:
     runs-on: ubuntu-latest

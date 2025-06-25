@@ -186,7 +186,12 @@ jobs:
         run: |
           echo "Creating addon zip for version ${{ steps.extract-version.outputs.version-string }}"
           cd addons
-          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip godot-stat-math/ -x "*.uid"
+          
+          # Create development zip with comprehensive file exclusions (includes tests)
+          zip -r ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip godot-stat-math/ \
+            -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
+            "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
+            "*ehthumbs.db" "*Thumbs.db"
           
           # Create a short commit hash for identification
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-8)
@@ -194,8 +199,8 @@ jobs:
           echo "Created: godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip"
           echo "Commit: ${SHORT_SHA}"
           
-          # List contents for verification
-          echo "Zip contents:"
+          # Verify zip contents
+          echo "Development zip contents:"
           zipinfo ../godot-stat-math-${{ steps.extract-version.outputs.version-string }}-dev.zip
 
       - name: Upload development artifact

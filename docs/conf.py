@@ -9,7 +9,26 @@
 project = 'Godot Stat Math'
 copyright = '2025, edzillion'
 author = 'edzillion'
-release = '0.0.5'
+
+# Read version from plugin.cfg
+import re
+import os
+
+def get_version_from_plugin_cfg():
+    """Extract version from addons/godot-stat-math/plugin.cfg"""
+    plugin_cfg_path = os.path.join(os.path.dirname(__file__), '..', 'addons', 'godot-stat-math', 'plugin.cfg')
+    try:
+        with open(plugin_cfg_path, 'r') as f:
+            content = f.read()
+        match = re.search(r'^version\s*=\s*"([^"]*)"', content, re.MULTILINE)
+        if match:
+            return match.group(1)
+    except (FileNotFoundError, AttributeError):
+        pass
+    return '0.0.0'  # Fallback version
+
+release = get_version_from_plugin_cfg()
+version = release  # Short version (same as release for this project)
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
