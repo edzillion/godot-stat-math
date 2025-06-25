@@ -146,39 +146,14 @@ jobs:
       - name: Clean up previous reports
         run: rm -rf reports
 
-      - name: Run All GDUnit4 tests
-        run: |
-          echo "Running GDUnit4 tests using custom command..."
-          
-          # Clean any existing reports first
-          rm -rf reports
-          
-          # Run tests with proper timeout (80 seconds as per memory)
-          timeout 80 ./addons/gdUnit4/runtest.cmd --godot_bin "godot" -a "res://addons/godot-stat-math/tests/core" || true
-          
-          echo "Test execution completed, checking for results..."
-          echo "Looking for test completion indicator..."
-          
-          # Wait a moment for reports to be written
-          sleep 5
-          
-          if [ -d "reports" ]; then
-            echo "Reports directory found:"
-            find reports -type f -name "*.xml" -o -name "*.html" | head -10
-            
-            # Find the highest numbered report folder
-            LATEST_REPORT=$(find reports -type d -name "report_*" | sort -V | tail -1)
-            echo "Latest report folder: $LATEST_REPORT"
-            
-            if [ -n "$LATEST_REPORT" ]; then
-              echo "Contents of latest report:"
-              ls -la "$LATEST_REPORT"
-            fi
-          else
-            echo "No reports directory found"
-            echo "Checking current directory structure:"
-            ls -la
-          fi
+      - name: Run Core GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests/core"
+          upload-report: false
+        env:
+          DISABLE_REGRESSION_CHECKING: true
 
       - name: Check test completion and results
         id: test-results
@@ -201,23 +176,17 @@ jobs:
               if [ -f "$LATEST_REPORT/results.xml" ]; then
                 echo "📊 Found results.xml"
                 
-                # Check test completion indicator and for failures
-                if grep -q "Run tests ends with 0" "$LATEST_REPORT"/*.txt 2>/dev/null; then
-                  # Check if there were any failures in results.xml
-                  FAILURES=$(grep -o 'failures="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' || echo "0")
-                  ERRORS=$(grep -o 'errors="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' || echo "0")
-                  
-                  echo "Failures: $FAILURES, Errors: $ERRORS"
-                  
-                  if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
-                    echo "✅ Tests completed successfully with no failures"
-                    echo "tests-passed=true" >> $GITHUB_OUTPUT
-                  else
-                    echo "❌ Tests completed but with $FAILURES failures and $ERRORS errors"
-                    echo "tests-passed=false" >> $GITHUB_OUTPUT
-                  fi
+                # Check if there were any failures in results.xml
+                FAILURES=$(grep -o 'failures="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' || echo "0")
+                ERRORS=$(grep -o 'errors="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' || echo "0")
+                
+                echo "Failures: $FAILURES, Errors: $ERRORS"
+                
+                if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
+                  echo "✅ Tests completed successfully with no failures"
+                  echo "tests-passed=true" >> $GITHUB_OUTPUT
                 else
-                  echo "⚠️  Test completion indicator not found - assuming failure"
+                  echo "❌ Tests completed but with $FAILURES failures and $ERRORS errors"
                   echo "tests-passed=false" >> $GITHUB_OUTPUT
                 fi
                 
