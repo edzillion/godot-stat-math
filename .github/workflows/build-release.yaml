@@ -28,12 +28,12 @@ jobs:
             include_tests: false
             suffix: ""
             edition_name: "Standard"
-          - distribution: developer
+          - distribution: debug
             include_tests: true
-            suffix: "-dev"  
-            edition_name: "Developer"
-    # Always build standard, only build developer when flag is enabled
-    if: ${{ matrix.distribution == 'standard' || (matrix.distribution == 'developer' && env.RELEASE_DEVELOPER_DIST == 'true') }}
+            suffix: "-debug"  
+            edition_name: "Debug"
+    # Always build standard, only build debug when flag is enabled
+    if: ${{ matrix.distribution == 'standard' || (matrix.distribution == 'debug' && env.RELEASE_DEVELOPER_DIST == 'true') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -151,7 +151,7 @@ jobs:
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ matrix.include_tests }}" == "true" ]; then
-            echo "📦 **Developer Edition**: Includes full test suite and performance benchmarks" >> $GITHUB_STEP_SUMMARY
+            echo "📦 **Debug Edition**: Includes full test suite and performance benchmarks for troubleshooting" >> $GITHUB_STEP_SUMMARY
           else
             echo "📦 **Standard Edition**: Production-ready, optimized for end users" >> $GITHUB_STEP_SUMMARY
           fi
@@ -173,3 +173,4 @@ jobs:
           target_branch: 'gh-pages'
           pre_build_commands: |
             pip install sphinx_rtd_theme
+            echo "Building docs with version: $(python -c "exec(open('docs/conf.py').read()); print(release)")"
