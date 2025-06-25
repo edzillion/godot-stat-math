@@ -15,8 +15,19 @@ env:
   RELEASE_VERSION_OVERRIDE: ""  # Set this to override version, e.g. 1.0.0
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      release_debug_dist: ${{ steps.setflag.outputs.release_debug_dist }}
+    steps:
+      - id: setflag
+        run: echo "release_debug_dist=${RELEASE_DEBUG_DIST}" >> $GITHUB_OUTPUT
+        env:
+          RELEASE_DEBUG_DIST: ${{ env.RELEASE_DEBUG_DIST }}
+
   build-standard:
     runs-on: ubuntu-latest
+    needs: setup
     permissions:
       checks: write
       actions: read
@@ -74,6 +85,7 @@ jobs:
           echo "Zip file size: ${FILE_SIZE} bytes"
 
       - name: Create GitHub Release (Standard)
+        if: ${{ success() }}
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.get_version.outputs.version-string }}
@@ -104,7 +116,8 @@ jobs:
 
   build-debug:
     runs-on: ubuntu-latest
-    if: ${{ fromJSON(env.RELEASE_DEBUG_DIST) }}
+    needs: setup
+    if: ${{ needs.setup.outputs.release_debug_dist == 'true' }}
     permissions:
       checks: write
       actions: read
@@ -161,6 +174,7 @@ jobs:
           echo "Zip file size: ${FILE_SIZE} bytes"
 
       - name: Create GitHub Release (Debug)
+        if: ${{ success() }}
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ steps.get_version.outputs.version-string }}-debug
