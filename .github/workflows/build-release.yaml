@@ -15,31 +15,13 @@ env:
   RELEASE_VERSION_OVERRIDE: ""  # Set this to override version, e.g. 1.0.0
 
 jobs:
-  build-and-release:
+  build-standard:
     runs-on: ubuntu-latest
-    if: ${{ matrix.distribution != 'debug' || fromJSON(env.RELEASE_DEBUG_DIST) }}
     permissions:
       checks: write
       actions: read
       contents: write
-    strategy:
-      matrix:
-        include:
-          - distribution: standard
-            include_tests: false
-            suffix: ""
-            edition_name: "Standard"
-          - distribution: debug
-            include_tests: true
-            suffix: "-debug"
-            edition_name: "Debug"
     steps:
-      - name: Skip debug build if not enabled
-        if: ${{ matrix.distribution == 'debug' && !fromJSON(env.RELEASE_DEBUG_DIST) }}
-        run: |
-          echo "Skipping debug build because RELEASE_DEBUG_DIST is not true"
-          exit 0
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -77,34 +59,27 @@ jobs:
           echo "Release notes extracted:"
           cat release_notes.md
 
-      - name: Create addon release zip
+      - name: Create addon release zip (Standard)
         run: |
-          echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
+          echo "Creating Standard release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
           cd addons
-          if [ "${{ matrix.include_tests }}" == "false" ]; then
-            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
-              -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
-              "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
-              "*ehthumbs.db" "*Thumbs.db" \
-              "godot-stat-math/tests/*"
-          else
-            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
-              -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
-              "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
-              "*ehthumbs.db" "*Thumbs.db"
-          fi
-          echo "${{ matrix.edition_name }} release zip contents:"
-          zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip
-          FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip)
+          zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}.zip godot-stat-math/ \
+            -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
+            "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
+            "*ehthumbs.db" "*Thumbs.db" \
+            "godot-stat-math/tests/*"
+          echo "Standard release zip contents:"
+          zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}.zip
+          FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}.zip)
           echo "Zip file size: ${FILE_SIZE} bytes"
 
-      - name: Create GitHub Release
+      - name: Create GitHub Release (Standard)
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}
-          name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}
+          tag: ${{ steps.get_version.outputs.version-string }}
+          name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}
           bodyFile: release_notes.md
-          artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip"
+          artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}.zip"
           draft: false
           prerelease: true
           generateReleaseNotes: false
@@ -112,28 +87,111 @@ jobs:
           allowUpdates: true
           updateOnlyUnreleased: false
 
-      - name: Generate build summary
+      - name: Generate build summary (Standard)
         run: |
-          echo "## 🚀 ${{ matrix.edition_name }} Edition Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Standard Edition Built Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Distribution**: ${{ matrix.edition_name }} Edition" >> $GITHUB_STEP_SUMMARY
+          echo "- **Distribution**: Standard Edition" >> $GITHUB_STEP_SUMMARY
           echo "- **Tag**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Runner**: GitHub Hosted (ubuntu-latest)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Artifact**: godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact**: godot-stat-math-${{ steps.get_version.outputs.version-string }}.zip" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ matrix.include_tests }}" == "true" ]; then
-            echo "📦 **Debug Edition**: Includes full test suite and performance benchmarks for troubleshooting" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "📦 **Standard Edition**: Production-ready, optimized for end users" >> $GITHUB_STEP_SUMMARY
+          echo "📦 **Standard Edition**: Production-ready, optimized for end users" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 Release is now available on the [Releases page](https://github.com/${{ github.repository }}/releases)" >> $GITHUB_STEP_SUMMARY
+
+  build-debug:
+    runs-on: ubuntu-latest
+    if: ${{ fromJSON(env.RELEASE_DEBUG_DIST) }}
+    permissions:
+      checks: write
+      actions: read
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get current version
+        id: get_version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+
+      - name: Extract release notes from CHANGELOG
+        run: |
+          VERSION="${{ steps.get_version.outputs.version-string }}"
+          awk "/^## \\[.*${{ steps.get_version.outputs.version-string }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
+          if [ ! -s release_notes.md ]; then
+            echo "🎲 **Godot Stat Math Alpha Release**" > release_notes.md
+            echo "" >> release_notes.md
+            echo "A comprehensive statistical functions addon for Godot 4.0+" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "⚠️ **Alpha Software**: API may change without notice." >> release_notes.md
+            echo "" >> release_notes.md
+            echo "## Installation" >> release_notes.md
+            echo "1. Download the addon ZIP file below" >> release_notes.md
+            echo "2. Extract to your project's \`addons/\` folder" >> release_notes.md
+            echo "3. Enable 'Godot Stat Math' in Project Settings → Plugins" >> release_notes.md
+            echo "" >> release_notes.md
+            echo "## Quick Start" >> release_notes.md
+            echo "\`\`\`gdscript" >> release_notes.md
+            echo "# Access statistical functions via StatMath singleton" >> release_notes.md
+            echo "var random_val: float = StatMath.Distributions.randf_normal(0.0, 1.0)" >> release_notes.md
+            echo "var mean_val: float = StatMath.BasicStats.mean([1.0, 2.0, 3.0, 4.0, 5.0])" >> release_notes.md
+            echo "var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples(100, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)" >> release_notes.md
+            echo "\`\`\`" >> release_notes.md
           fi
+          echo "Release notes extracted:"
+          cat release_notes.md
+
+      - name: Create addon release zip (Debug)
+        run: |
+          echo "Creating Debug release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
+          cd addons
+          zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}-debug.zip godot-stat-math/ \
+            -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
+            "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
+            "*ehthumbs.db" "*Thumbs.db"
+          echo "Debug release zip contents:"
+          zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}-debug.zip
+          FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}-debug.zip)
+          echo "Zip file size: ${FILE_SIZE} bytes"
+
+      - name: Create GitHub Release (Debug)
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.get_version.outputs.version-string }}-debug
+          name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}-debug
+          bodyFile: release_notes.md
+          artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}-debug.zip"
+          draft: false
+          prerelease: true
+          generateReleaseNotes: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          allowUpdates: true
+          updateOnlyUnreleased: false
+
+      - name: Generate build summary (Debug)
+        run: |
+          echo "## 🚀 Debug Edition Built Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Distribution**: Debug Edition" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tag**: ${{ steps.get_version.outputs.version-string }}-debug" >> $GITHUB_STEP_SUMMARY
+          echo "- **Runner**: GitHub Hosted (ubuntu-latest)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact**: godot-stat-math-${{ steps.get_version.outputs.version-string }}-debug.zip" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📦 **Debug Edition**: Includes full test suite and performance benchmarks for troubleshooting" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🎉 Release is now available on the [Releases page](https://github.com/${{ github.repository }}/releases)" >> $GITHUB_STEP_SUMMARY
 
   build-and-publish-docs:
     runs-on: ubuntu-latest
-    needs: build-and-release
+    needs: [build-standard, build-debug]
     permissions:
       contents: write
     steps:
