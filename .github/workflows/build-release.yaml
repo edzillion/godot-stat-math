@@ -145,4 +145,4 @@ jobs:
           target_branch: 'gh-pages'
           pre_build_commands: |
             pip install sphinx_rtd_theme
-            echo "Building docs with version: $(python -c \"exec(open('docs/conf.py').read()); print(release)\")" 
+            echo "Building docs with version: `python -c \"exec(open('docs/conf.py').read()); print(release)\"`"
