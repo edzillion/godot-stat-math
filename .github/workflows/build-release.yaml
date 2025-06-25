@@ -206,6 +206,7 @@ jobs:
   build-and-publish-docs:
     runs-on: ubuntu-latest
     needs: [build-standard, build-debug]
+    if: always()
     permissions:
       contents: write
     steps:
