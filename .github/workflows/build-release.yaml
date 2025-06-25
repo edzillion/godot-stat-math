@@ -48,9 +48,15 @@ jobs:
         with:
           version-file: ${{ env.VERSION_FILE }}
           version-regex: ${{ env.VERSION_REGEX }}
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
 
       - name: Extract release notes from CHANGELOG
         run: |
+          VERSION="${{ steps.get_version.outputs.version-string }}"
+          awk "/^## \\[.*${{ steps.get_version.outputs.version-string }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
           VERSION="${{ steps.get_version.outputs.version-string }}"
           awk "/^## \\[.*${{ steps.get_version.outputs.version-string }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
           if [ ! -s release_notes.md ]; then
@@ -79,8 +85,10 @@ jobs:
       - name: Create addon release zip
         run: |
           echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
+          echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
           cd addons
           if [ "${{ matrix.include_tests }}" == "false" ]; then
+            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
             zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
               -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
               "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
@@ -88,11 +96,14 @@ jobs:
               "godot-stat-math/tests/*"
           else
             zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
+            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
               -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
               "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
               "*ehthumbs.db" "*Thumbs.db"
           fi
           echo "${{ matrix.edition_name }} release zip contents:"
+          zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip
+          FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip)
           zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip
           FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip)
           echo "Zip file size: ${FILE_SIZE} bytes"
@@ -102,7 +113,10 @@ jobs:
         with:
           tag: ${{ steps.get_version.outputs.version-string }}
           name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}
+          tag: ${{ steps.get_version.outputs.version-string }}
+          name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}
           bodyFile: release_notes.md
+          artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip"
           artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip"
           draft: false
           prerelease: true
@@ -115,6 +129,7 @@ jobs:
         run: |
           echo "## 🚀 ${{ matrix.edition_name }} Edition Built Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Version**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Distribution**: ${{ matrix.edition_name }} Edition" >> $GITHUB_STEP_SUMMARY
           echo "- **Tag**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
