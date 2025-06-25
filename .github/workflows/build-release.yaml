@@ -34,7 +34,7 @@ jobs:
             edition_name: "Debug"
     steps:
       - name: Skip debug build if not enabled
-        if: ${{ matrix.distribution == 'debug' && env.RELEASE_DEBUG_DIST != 'true' }}
+        if: ${{ matrix.distribution == 'debug' && !fromJSON(env.RELEASE_DEBUG_DIST) }}
         run: |
           echo "Skipping debug build because RELEASE_DEBUG_DIST is not true"
           exit 0
@@ -51,8 +51,6 @@ jobs:
 
       - name: Extract release notes from CHANGELOG
         run: |
-          VERSION="${{ steps.get_version.outputs.version-string }}"
-          awk "/^## \\[.*${{ steps.get_version.outputs.version-string }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
           VERSION="${{ steps.get_version.outputs.version-string }}"
           awk "/^## \\[.*${{ steps.get_version.outputs.version-string }}\\]/{flag=1; next} /^## \\[.*\\]/{flag=0} flag" CHANGELOG.md > release_notes.md
           if [ ! -s release_notes.md ]; then
@@ -81,17 +79,14 @@ jobs:
       - name: Create addon release zip
         run: |
           echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
-          echo "Creating ${{ matrix.edition_name }} release zip for Godot Stat Math ${{ steps.get_version.outputs.version-string }}"
           cd addons
           if [ "${{ matrix.include_tests }}" == "false" ]; then
-            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
             zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
               -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
               "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
               "*ehthumbs.db" "*Thumbs.db" \
               "godot-stat-math/tests/*"
           else
-            zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
             zip -r ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip godot-stat-math/ \
               -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
               "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
@@ -100,15 +95,13 @@ jobs:
           echo "${{ matrix.edition_name }} release zip contents:"
           zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip
           FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip)
-          zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip
-          FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip)
           echo "Zip file size: ${FILE_SIZE} bytes"
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ steps.get_version.outputs.version-string }}
-          name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}
+          tag: ${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}
+          name: Godot Stat Math ${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}
           bodyFile: release_notes.md
           artifacts: "godot-stat-math-${{ steps.get_version.outputs.version-string }}${{ matrix.suffix }}.zip"
           draft: false
@@ -122,7 +115,6 @@ jobs:
         run: |
           echo "## 🚀 ${{ matrix.edition_name }} Edition Built Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Version**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Distribution**: ${{ matrix.edition_name }} Edition" >> $GITHUB_STEP_SUMMARY
           echo "- **Tag**: ${{ steps.get_version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY

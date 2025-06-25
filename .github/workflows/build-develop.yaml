@@ -24,7 +24,7 @@ jobs:
         id: trigger
         run: |
           if [ -z "${{ secrets.LAMBDA_FUNCTION_URL }}" ]; then
-            echo "ÔØî LAMBDA_FUNCTION_URL secret is not set"
+            echo "❌ LAMBDA_FUNCTION_URL secret is not set"
             exit 1
           fi
           
@@ -36,7 +36,7 @@ jobs:
           attempt=1
           
           while [ $attempt -le $max_attempts ]; do
-            echo "­ƒöä Attempt $attempt of $max_attempts..."
+            echo "🔄 Attempt $attempt of $max_attempts..."
             
             response=$(curl -s -w "\nHTTP_CODE:%{http_code}" -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
             echo "Response: $response"
@@ -46,7 +46,7 @@ jobs:
             
             if [ "$http_code" = "200" ] && echo "$body" | grep -q "launched successfully"; then
               echo "triggered=true" >> $GITHUB_OUTPUT
-              echo "Ô£à t3.medium spot instance launched successfully on attempt $attempt"
+              echo "✅ t3.medium spot instance launched successfully on attempt $attempt"
               
               # Extract and store instance ID for later termination
               instance_id=$(echo "$body" | jq -r '.instance_id' 2>/dev/null || echo 'N/A')
@@ -54,33 +54,33 @@ jobs:
               echo "Instance ID: $instance_id"
               break
             else
-              echo "ÔØî Attempt $attempt failed"
+              echo "❌ Attempt $attempt failed"
               echo "HTTP Code: $http_code"
               echo "Response Body: $body"
               
               # Check for specific spot capacity error
               if echo "$body" | grep -q "InsufficientInstanceCapacity"; then
-                echo "ÔÜá´©Å No t3.medium spot capacity available - waiting and retrying..."
+                echo "⚠️ No t3.medium spot capacity available - waiting and retrying..."
               elif echo "$body" | grep -q "SpotMaxPriceTooLow"; then
-                echo "ÔÜá´©Å Spot price bid too low for t3.medium"
+                echo "⚠️ Spot price bid too low for t3.medium"
               fi
               
               if [ $attempt -eq $max_attempts ]; then
                 echo "triggered=false" >> $GITHUB_OUTPUT
-                echo "ÔØî All attempts failed - no t3.medium spot capacity available"
-                echo "­ƒÆí Consider increasing spot price bid or trying again later"
+                echo "❌ All attempts failed - no t3.medium spot capacity available"
+                echo "💡 Consider increasing spot price bid or trying again later"
                 echo "   t3.medium spot capacity fluctuates throughout the day"
                 
                 # Log timing info for capacity analysis
                 current_time=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
-                echo "ÔÅ░ Failed at: $current_time"
-                echo "­ƒôè Capacity availability tends to be higher:"
+                echo "🕒 Failed at: $current_time"
+                echo "📊 Capacity availability tends to be higher:"
                 echo "   - During off-peak hours (evenings/nights)"
                 echo "   - On weekends"
                 echo "   - In less popular AWS regions"
                 
                 # Add to step summary for tracking patterns
-                echo "## ÔÜá´©Å Spot Capacity Unavailable" >> $GITHUB_STEP_SUMMARY
+                echo "## ⚠️ Spot Capacity Unavailable" >> $GITHUB_STEP_SUMMARY
                 echo "" >> $GITHUB_STEP_SUMMARY
                 echo "- **Time**: $current_time" >> $GITHUB_STEP_SUMMARY
                 echo "- **Instance Type**: t3.medium" >> $GITHUB_STEP_SUMMARY
@@ -92,7 +92,7 @@ jobs:
               
               # Wait before retry (longer waits for capacity to become available)
               sleep_time=$((attempt * 60))  # 60s, 120s, 180s
-              echo "ÔÅ│ Waiting ${sleep_time}s for t3.medium spot capacity..."
+              echo "⏳ Waiting ${sleep_time}s for t3.medium spot capacity..."
               sleep $sleep_time
             fi
             
@@ -102,9 +102,9 @@ jobs:
       - name: Wait for runner
         run: |
           echo "Waiting 60 seconds for runner to come online..."
-          echo "ÔÅ│ Spot instance starting up..."
+          echo "⏳ Spot instance starting up..."
           sleep 60
-          echo "Ô£à Proceeding to job execution"
+          echo "✅ Proceeding to job execution"
 
   build-addon:
     needs: trigger-runner
@@ -242,11 +242,11 @@ jobs:
           if git diff --staged --quiet; then
             echo "No new test results to commit"
           else
-            COMMIT_MSG="­ƒôè Test Results - ${{ github.workflow }} ${{ github.run_number }}"
+            COMMIT_MSG="📊 Test Results - ${{ github.workflow }} ${{ github.run_number }}"
             
             git commit -m "$COMMIT_MSG"
             git push origin ${{ github.ref_name }}
-            echo "Ô£à Test reports and performance results committed and pushed"
+            echo "✅ Test reports and performance results committed and pushed"
           fi
 
       - name: Create addon zip
@@ -287,16 +287,16 @@ jobs:
 
       - name: Generate build summary
         run: |
-          echo "## ­ƒöº Development Build Created" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Development Build Created" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Version**: ${{ steps.bump-version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Tests**: Passed" >> $GITHUB_STEP_SUMMARY
           echo "- **Artifact**: godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "­ƒôÑ Download the artifact from the **Actions** tab to test this build." >> $GITHUB_STEP_SUMMARY
+          echo "📥 Download the artifact from the **Actions** tab to test this build." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "ÔÜá´©Å This is a development build - not for production use." >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ This is a development build - not for production use." >> $GITHUB_STEP_SUMMARY
 
   terminate-runner:
     runs-on: ubuntu-latest
@@ -308,13 +308,13 @@ jobs:
           echo "Terminating spot instance: ${{ needs.trigger-runner.outputs.instance-id }}"
           
           if [ "${{ needs.trigger-runner.outputs.instance-id }}" = "N/A" ] || [ -z "${{ needs.trigger-runner.outputs.instance-id }}" ]; then
-            echo "ÔÜá´©Å No valid instance ID found, skipping termination"
+            echo "⚠️ No valid instance ID found, skipping termination"
             exit 0
           fi
           
           # Terminate the instance
           aws ec2 terminate-instances --instance-ids ${{ needs.trigger-runner.outputs.instance-id }}
-          echo "Ô£à Spot instance ${{ needs.trigger-runner.outputs.instance-id }} termination requested"
+          echo "✅ Spot instance ${{ needs.trigger-runner.outputs.instance-id }} termination requested"
           
           # Wait a moment and check status
           sleep 10
@@ -327,8 +327,8 @@ jobs:
 
       - name: Cleanup summary
         run: |
-          echo "## ­ƒöº Spot Instance Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Spot Instance Cleanup" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Instance ID**: ${{ needs.trigger-runner.outputs.instance-id }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: Termination requested Ô£à" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Termination requested ✅" >> $GITHUB_STEP_SUMMARY
           echo "- **Build Job**: ${{ needs.build-addon.result }}" >> $GITHUB_STEP_SUMMARY
