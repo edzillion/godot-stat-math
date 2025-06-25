@@ -144,21 +144,45 @@ jobs:
           version-regex: ${{ env.VERSION_REGEX }}
         id: extract-version
 
-      - name: Get latest release version
-        id: get-release-version
+      - name: Fetch release branch
         run: |
           git fetch origin release:release-tmp
-          RELEASE_VERSION=$(grep -Po '${{ env.VERSION_REGEX }}' $(git show release-tmp:${{ env.VERSION_FILE }}) | head -1)
-          echo "release_version=$RELEASE_VERSION" >> $GITHUB_OUTPUT
+          git checkout release-tmp
+          
+      - name: Extract release version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: ${{ env.VERSION_FILE }}
+          version-regex: ${{ env.VERSION_REGEX }}
+        id: extract-release-version
+        
+      - name: Return to develop branch
+        run: |
+          git checkout ${{ github.ref_name }}
+
+      - name: Check if version bump is needed
+        id: check-bump-needed
+        continue-on-error: true
+        uses: CapsCollective/version-actions/check-version-bump@v1.0
+        with:
+          new-version: ${{ steps.extract-version.outputs.version-string }}
+          old-version: ${{ steps.extract-release-version.outputs.version-string }}
 
       - name: Bump develop version if needed
         id: bump-version
         run: |
-          DEV_VERSION="${{ steps.extract-version.outputs.version-string }}"
-          REL_VERSION="${{ steps.get-release-version.outputs.release_version }}"
+          DEV_VERSION="${{ steps.extract-version.outputs.version-number }}"
+          REL_VERSION="${{ steps.extract-release-version.outputs.version-number }}"
           NEW_VERSION="$DEV_VERSION"
           BUMPED=false
-          if [ "$DEV_VERSION" = "$REL_VERSION" ]; then
+          
+          echo "Current develop version: $DEV_VERSION"
+          echo "Current release version: $REL_VERSION"
+          echo "Version bump check result: ${{ steps.check-bump-needed.outcome }}"
+          
+          # If check-version-bump failed, it means versions are equal or develop is behind
+          if [ "${{ steps.check-bump-needed.outcome }}" = "failure" ]; then
+            echo "Version bump needed - develop version is not ahead of release"
             if [ -n "${{ env.RELEASE_VERSION_OVERRIDE }}" ]; then
               NEW_VERSION="${{ env.RELEASE_VERSION_OVERRIDE }}"
               echo "Overriding version to $NEW_VERSION"
@@ -168,14 +192,21 @@ jobs:
               NEW_VERSION="$MAJOR.$MINOR.$PATCH"
               echo "Auto-bumping develop version to $NEW_VERSION"
             fi
-            sed -i "s/${{ env.VERSION_REGEX }}/$NEW_VERSION/" ${{ env.VERSION_FILE }}
+            
+            # Update the version in the file
+            sed -i "s/config\/version=\"[^\"]*\"/config\/version=\"$NEW_VERSION\"/" ${{ env.VERSION_FILE }}
+            
+            # Commit and push the change
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git config --global user.name "github-actions[bot]"
             git add ${{ env.VERSION_FILE }}
             git commit -m "chore: bump develop version to $NEW_VERSION"
             git push origin ${{ github.ref_name }}
             BUMPED=true
+          else
+            echo "No version bump needed - develop version is already ahead of release"
           fi
+          
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "bumped=$BUMPED" >> $GITHUB_OUTPUT
 
