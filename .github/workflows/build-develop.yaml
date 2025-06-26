@@ -220,6 +220,7 @@ jobs:
         with:
           godot-version: "4.4"
           paths: "res://addons/godot-stat-math/tests"
+          upload-report: false
         env:
           DISABLE_REGRESSION_CHECKING: true
 
