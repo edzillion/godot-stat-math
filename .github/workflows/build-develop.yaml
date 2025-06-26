@@ -302,6 +302,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [trigger-runner, build-addon]
     if: always() && needs.trigger-runner.outputs.runner-triggered == 'true'
+    
     steps:
       - name: Terminate spot instance
         run: |
