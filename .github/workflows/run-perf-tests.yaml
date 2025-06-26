@@ -59,7 +59,7 @@ jobs:
     runs-on: [self-hosted, linux, x64]
     strategy:
       matrix:
-        run_id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] 
+        run_id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] 
       max-parallel: 1  # Ensures matrix jobs run sequentially
     if: needs.trigger-runner.outputs.runner-triggered == 'true'
     env:
@@ -104,20 +104,22 @@ jobs:
           paths: "res://addons/godot-stat-math/tests/performance"
           publish-report: false
           upload-report: false
-
+          
+      - name: Set up SSH for deploy key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY_FOR_ACTIONS }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          
       - name: Commit test and performance results
         run: |
-          echo "Committing GDUnit4 test and performance results..."
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          echo "Committing GDUnit4 test and performance results ..."
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
 
-          REPORTS_DIR="reports"
           PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
 
-          # Add both directories if they exist
-          if [ -d "$REPORTS_DIR" ]; then
-            git add "$REPORTS_DIR/"
-          fi
           if [ -d "$PERF_RESULTS_DIR" ]; then
             git add "$PERF_RESULTS_DIR/"
           fi
@@ -125,10 +127,9 @@ jobs:
           if git diff --staged --quiet; then
             echo "No new test results to commit"
           else
-            COMMIT_MSG="📊 Test Results - ${{ github.workflow }} ${{ matrix.run_id }}"
-            
+            COMMIT_MSG="📊 Performance Test Results - ${{ github.workflow }} ${{ github.run_number }}"
             git commit -m "$COMMIT_MSG"
-            git push origin ${{ github.ref_name }}
+            git push git@github.com:${{ github.repository }}.git HEAD:develop
             echo "✅ Test reports and performance results committed and pushed"
           fi
           
