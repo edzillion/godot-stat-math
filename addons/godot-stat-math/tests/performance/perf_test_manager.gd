@@ -324,7 +324,7 @@ static func _get_confidence_level(sample_size: int) -> String:
 ## Simple file-based completion tracking that works with GDUnit's test runner
 ## This replaces the signal-based approach which doesn't work in GDUnit context
 static var _run_timestamp: String = ""
-static var _disable_regression_checking: bool = true
+static var _disable_regression_checking: bool = false
 static var _completion_tracker_initialized: bool = false
 
 ## Initialize completion tracking system
@@ -334,7 +334,7 @@ static func _initialize_completion_tracker() -> void:
 	
 	# Read regression checking setting from environment variable ONCE
 	var regression_check_env: String = OS.get_environment("DISABLE_REGRESSION_CHECKING").to_lower()
-	_disable_regression_checking = regression_check_env == "true" or _disable_regression_checking == true
+	_disable_regression_checking = regression_check_env == "true"
 	
 	_run_timestamp = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 	_completion_tracker_initialized = true
