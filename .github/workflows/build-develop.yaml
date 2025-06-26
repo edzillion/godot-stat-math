@@ -222,11 +222,18 @@ jobs:
         env:
           DISABLE_REGRESSION_CHECKING: true
 
+      - name: Set up SSH for deploy key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ACTIONS_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
       - name: Commit test and performance results
         run: |
           echo "Committing GDUnit4 test and performance results..."
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
 
           REPORTS_DIR="reports"
           PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
@@ -243,9 +250,8 @@ jobs:
             echo "No new test results to commit"
           else
             COMMIT_MSG="📊 Test Results - ${{ github.workflow }} ${{ github.run_number }}"
-            
             git commit -m "$COMMIT_MSG"
-            git push origin ${{ github.ref_name }}
+            git push git@github.com:${{ github.repository }}.git HEAD:develop
             echo "✅ Test reports and performance results committed and pushed"
           fi
 
@@ -297,6 +303,14 @@ jobs:
           echo "📥 Download the artifact from the **Actions** tab to test this build." >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "⚠️ This is a development build - not for production use." >> $GITHUB_STEP_SUMMARY
+
+      - name: Push changes
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add .
+          git commit -m "Automated update"
+          git push git@github.com:${{ github.repository }}.git HEAD:develop
 
   terminate-runner:
     runs-on: ubuntu-latest
