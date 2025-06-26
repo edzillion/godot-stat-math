@@ -5,7 +5,7 @@ on:
     branches: ["develop"]
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.head_commit.author.name == 'GitHub Actions' && 'bot' || 'user' }}
   cancel-in-progress: true
 
 env:

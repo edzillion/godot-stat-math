@@ -29,3 +29,5 @@ output.log
 
 # Documentation build artifacts
 docs/_build/
+
+# Testing build artifacts
