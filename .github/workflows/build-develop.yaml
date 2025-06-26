@@ -220,7 +220,6 @@ jobs:
         with:
           godot-version: "4.4"
           paths: "res://addons/godot-stat-math/tests"
-          upload-report: true
         env:
           DISABLE_REGRESSION_CHECKING: true
 
@@ -280,6 +279,13 @@ jobs:
           path: "godot-stat-math-*-dev.zip"
           retention-days: 14
           if-no-files-found: error
+          
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: develop-build-test-results-${{ github.run_number }}
+          path: reports/
+        if: always()
 
       - name: Generate build summary
         run: |
