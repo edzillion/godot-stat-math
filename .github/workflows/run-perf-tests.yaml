@@ -6,13 +6,8 @@ on:
       disable_regression_checking:
         description: 'Disable performance regression checking'
         required: false
-        default: false
+        default: true
         type: boolean
-      number_of_runs:
-        description: 'Number of times to run performance tests'
-        required: false
-        default: 15
-        type: number
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
