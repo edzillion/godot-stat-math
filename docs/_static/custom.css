@@ -48,4 +48,22 @@
 
 .performance-dashboard .chart-row.status-disabled {
     opacity: 0.6;
+}
+
+/* Custom styles for version display */
+
+/* CSS variables for version (fallback values) */
+:root {
+    --version-string: " VERSION_PLACEHOLDER";
+}
+
+/* Add version to sidebar home icon only */
+.wy-side-nav-search .icon-home:after {
+    content: var(--version-string);
+    font-weight: normal;
+}
+
+/* Add version to active breadcrumb */
+.breadcrumb-item.active:after {
+    content: var(--version-string);
 } 

@@ -11,7 +11,7 @@ concurrency:
 env:
   VERSION_FILE: project.godot
   VERSION_REGEX: config\/version=\"\K[0-9.\-A-z]*
-  RELEASE_DEBUG_DIST: false
+  RELEASE_DEBUG_DIST: true
   RELEASE_VERSION_OVERRIDE: ""  # Set this to override version, e.g. 1.0.0
 
 jobs:
@@ -221,4 +221,7 @@ jobs:
           target_branch: 'gh-pages'
           pre_build_commands: |
             pip install sphinx_rtd_theme
-            echo "Building docs with version: `python -c \"exec(open('docs/conf.py').read()); print(release)\"`"
+            VERSION=$(python -c "import re; content=open('addons/godot-stat-math/plugin.cfg').read(); match=re.search(r'^version\s*=\s*\"([^\"]*)\"', content, re.MULTILINE); print(match.group(1) if match else '0.0.0')")
+            echo "Building docs with version: $VERSION"
+            sed -i "s/VERSION_PLACEHOLDER/v$VERSION/g" docs/_static/custom.css
+            echo "Updated CSS with version: $VERSION"

@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       runner-triggered: ${{ steps.trigger.outputs.triggered }}
+      instance-id: ${{ steps.trigger.outputs.instance_id }}
     steps:
       - name: Trigger AWS Runner
         id: trigger
@@ -30,12 +31,20 @@ jobs:
           echo "Triggering AWS runner for test run..."
           response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
           echo "Response: $response"
-          
+          # Extract instance_id from JSON response (assumes response contains { "instance_id": "i-xxxx", ... })
+          instance_id=$(echo "$response" | jq -r '.instance_id // empty')
+          echo "Extracted instance_id: $instance_id"
           if echo "$response" | grep -q "launched successfully"; then
             echo "triggered=true" >> $GITHUB_OUTPUT
             echo "✅ Runner launched successfully"
+            if [ -n "$instance_id" ]; then
+              echo "instance_id=$instance_id" >> $GITHUB_OUTPUT
+            else
+              echo "instance_id=N/A" >> $GITHUB_OUTPUT
+            fi
           else
             echo "triggered=false" >> $GITHUB_OUTPUT
+            echo "instance_id=N/A" >> $GITHUB_OUTPUT
             echo "❌ Failed to launch runner"
             exit 1
           fi
@@ -48,6 +57,10 @@ jobs:
   test-and-commit:
     needs: trigger-runner
     runs-on: [self-hosted, linux, x64]
+    strategy:
+      matrix:
+        run_id: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15] 
+      max-parallel: 1  # Ensures matrix jobs run sequentially
     if: needs.trigger-runner.outputs.runner-triggered == 'true'
     env:
       LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu
@@ -84,17 +97,13 @@ jobs:
           version-regex: config\/version=\"\K[0-9.\-A-z]*
         id: extract-version
       
-      - name: Run GDUnit4 performance tests multiple times
-        run: |
-          for i in $(seq 1 ${{ github.event.inputs.number_of_runs }}); do
-            echo "=== Run #$i ==="
-            godot --headless --path . --script addons/gdUnit4/bin/GdUnitCmdTool.gd -a "res://addons/godot-stat-math/tests/performance" -rc 1
-          done
-        env:
-          DISABLE_REGRESSION_CHECKING: ${{ github.event.inputs.disable_regression_checking }}
-
-      - name: Clean up previous reports
-        run: rm -rf reports
+      - name: Run GDUnit4 performance tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests/performance"
+          publish-report: false
+          upload-report: false
 
       - name: Commit test and performance results
         run: |
@@ -116,7 +125,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No new test results to commit"
           else
-            COMMIT_MSG="📊 Test Results - ${{ github.workflow }} ${{ github.run_number }}"
+            COMMIT_MSG="📊 Test Results - ${{ github.workflow }} ${{ matrix.run_id }}"
             
             git commit -m "$COMMIT_MSG"
             git push origin ${{ github.ref_name }}
@@ -142,23 +151,22 @@ jobs:
 
   terminate-runner:
     runs-on: ubuntu-latest
-    needs: [trigger-runner, run-tests]
+    needs: [trigger-runner, test-and-commit]
     if: always() && needs.trigger-runner.outputs.runner-triggered == 'true'
     steps:
       - name: Terminate spot instance
         run: |
           INSTANCE_ID="${{ needs.trigger-runner.outputs.instance-id }}"
           echo "Terminating spot instance: $INSTANCE_ID"
-          
           if [ "$INSTANCE_ID" = "N/A" ] || [ -z "$INSTANCE_ID" ]; then
             echo "⚠️ No valid instance ID found, skipping termination"
             exit 0
           fi
-          
+
           # Terminate the instance
           aws ec2 terminate-instances --instance-ids $INSTANCE_ID
           echo "✅ Spot instance $INSTANCE_ID termination requested"
-          
+
           # Wait a moment and check status
           sleep 10
           aws ec2 describe-instances --instance-ids $INSTANCE_ID \
@@ -176,3 +184,4 @@ jobs:
           echo "- **Instance ID**: $INSTANCE_ID" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: Termination requested ✅" >> $GITHUB_STEP_SUMMARY
           echo "- **Run Tests Job**: ${{ needs.run-tests.result }}" >> $GITHUB_STEP_SUMMARY
+
