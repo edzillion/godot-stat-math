@@ -31,3 +31,4 @@ output.log
 docs/_build/
 
 # Testing build artifacts
+reports/
