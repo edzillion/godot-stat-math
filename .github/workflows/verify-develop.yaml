@@ -58,6 +58,7 @@ jobs:
         uses: MikeSchulze/gdunit4-action@v1
         with:
           godot-version: "${{ env.GODOT_VERSION }}"
+          upload-report: false
           paths: |
             res://addons/godot-stat-math/tests/core
             res://addons/godot-stat-math/tests/stat_math_test.gd
