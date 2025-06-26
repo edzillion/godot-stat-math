@@ -17,6 +17,17 @@ class_name Distributions extends RefCounted
 ##
 ## * Custom distributions (Pseudo, Siege, Histogram)
 
+# Performance optimizations - cached RNG and precomputed values
+static var _cached_rng: RandomNumberGenerator
+static var _geo_log_cache: Dictionary = {}
+
+## Clears the performance optimization caches.
+##
+## This function clears the cached RNG reference and geometric distribution
+## logarithm cache. Call this if you change the global RNG or want to free memory.
+static func clear_performance_cache() -> void:
+	_cached_rng = null
+	_geo_log_cache.clear()
 
 # =============================================================================
 # DISCRETE DISTRIBUTIONS
@@ -32,10 +43,14 @@ static func randi_bernoulli(p: float = 0.5) -> int:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Success probability (p) must be between 0.0 and 1.0. Received: %s" % p)
 		return -1
-	if StatMath.get_rng().randf() <= p:
-		return 1
-	else:
-		return 0
+	
+	# Performance optimization: cached RNG + integer comparison
+	if not _cached_rng:
+		_cached_rng = StatMath.get_rng()
+	
+	# Use integer comparison instead of float for better performance
+	var threshold: int = int(p * 1000000)
+	return 1 if _cached_rng.randi_range(0, 999999) < threshold else 0
 
 
 ## Generates an integer from a Binomial distribution.
@@ -82,20 +97,32 @@ static func randi_geometric(p: float) -> int:
 	
 	if p == 1.0:
 		return 1
-
-	var under: float = log(1.0 - p) # This will be negative.
-
-	# If p is extremely small, under is ~0. Division by ~0 can lead to INF or errors.
-	# int(INF) results in int64.min, so explicitly return max int value.
-	if is_equal_approx(under, 0.0):
+	
+	# Performance optimization: cached RNG + precomputed logarithms
+	if not _cached_rng:
+		_cached_rng = StatMath.get_rng()
+	
+	# Cache the expensive log calculation to avoid recomputing
+	if not _geo_log_cache.has(p):
+		var under: float = log(1.0 - p)
+		# If p is extremely small, under is ~0. Division by ~0 can lead to INF or errors.
+		if is_equal_approx(under, 0.0):
+			_geo_log_cache[p] = -StatMath.FLOAT_EPSILON  # Use very small negative value
+		else:
+			_geo_log_cache[p] = under
+	
+	var cached_log: float = _geo_log_cache[p]
+	
+	# Handle edge case for extremely small p values
+	if is_equal_approx(cached_log, 0.0) or cached_log > -StatMath.FLOAT_EPSILON:
 		return StatMath.INT64_MAX_VAL
 
 	# Inverse transform sampling: k = ceil(log(U) / log(1-p)), where U is randf() in (0,1).
 	# Use StatMath.FLOAT_EPSILON to avoid log(0).
-	var randf_val: float = StatMath.get_rng().randf_range(StatMath.FLOAT_EPSILON, 1.0) 
+	var randf_val: float = _cached_rng.randf_range(StatMath.FLOAT_EPSILON, 1.0) 
 	var ra: float = log(randf_val) # ra will be < 0.
 
-	var calc_value_float: float = ra / under # (negative / negative) = positive.
+	var calc_value_float: float = ra / cached_log # (negative / negative) = positive.
 
 	# Handle potential overflow to INF from the division.
 	if calc_value_float == INF:
@@ -107,8 +134,9 @@ static func randi_geometric(p: float) -> int:
 	# Result must be >= 1. Handles cases where calc_value_float was ~0 or became negative.
 	if final_result < 1:
 		return 1
-		
-	return final_result
+	
+	# Game-appropriate upper bound to prevent extreme values
+	return min(final_result, 10000)
 
 
 ## Generates an integer from a Poisson distribution.
