@@ -225,7 +225,7 @@ jobs:
       - name: Set up SSH for deploy key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.ACTIONS_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.DEPLOY_KEY_FOR_ACTIONS }}" > ~/.ssh/deploy-key-for-actions
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
