@@ -161,21 +161,33 @@ jobs:
       - name: Clean up previous reports
         run: rm -rf reports
 
-      - name: Run Core GDUnit4 tests
+      - name: Run Unit Tests
         uses: MikeSchulze/gdunit4-action@v1
         with:
           godot-version: "4.4"
-          paths: "res://addons/godot-stat-math/tests/core"
+          paths: |
+            res://addons/godot-stat-math/tests/core
+            res://addons/godot-stat-math/tests/stat_math_test.gd
+          publish-report: false
           upload-report: false
+          report-name: "unit-tests.xml"
         env:
           DISABLE_REGRESSION_CHECKING: false
 
-      - name: Generate badge data
-        run: |
-          echo "Generating badge data from test results..."
-          python scripts/extract_badge_data.py
+      - name: Run Performance Tests
+        if: always()
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests/performance"
+          publish-report: false
+          upload-report: false
+          report-name: "performance-tests.xml"
+        env:
+          DISABLE_REGRESSION_CHECKING: false
 
       - name: Check test completion and results
+        if: always()
         id: test-results
         run: |
           echo "=== Test Results Analysis ==="
@@ -239,19 +251,45 @@ jobs:
           if-no-files-found: warn
         if: always() && steps.test-results.outputs.tests-passed == 'false'
 
+      - name: Generate badge data
+        if: always()
+        run: |
+          echo "=== Generating Badge Data ==="
+          echo "Python version: $(python3 --version)"
+          echo "Current directory: $(pwd)"
+          echo "Making script executable..."
+          chmod +x scripts/extract_badge_data.py
+          echo "Running badge data extraction..."
+          python3 scripts/extract_badge_data.py
+
+      - name: Set up SSH for deploy key
+        if: always()
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY_FOR_ACTIONS }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
       - name: Commit badge data
         if: always()
         run: |
+          echo "=== Committing Badge Data ==="
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           
           if [ -d "docs/_static/badges" ]; then
+            echo "Badge directory exists, checking for changes..."
             git add docs/_static/badges/
             
             if ! git diff --staged --quiet; then
+              echo "Badge data has changes, committing..."
               git commit -m "📊 Update badge data - Release verification"
-              git push origin HEAD:${{ github.head_ref }}
-              echo "✅ Badge data updated and pushed"
+              
+              # Push to source branch (develop) - updates the PR
+              echo "Pushing badge data to source branch: ${{ github.head_ref }}"
+              git push git@github.com:${{ github.repository }}.git HEAD:${{ github.head_ref }}
+              
+              echo "✅ Badge data updated and pushed to PR branch"
             else
               echo "ℹ️ No badge data changes to commit"
             fi
@@ -260,6 +298,7 @@ jobs:
           fi
 
       - name: Generate verification summary
+        if: always()
         run: |
           if [ "${{ steps.test-results.outputs.tests-passed }}" = "true" ]; then
             echo "## ✅ Release Verification Complete" >> $GITHUB_STEP_SUMMARY
