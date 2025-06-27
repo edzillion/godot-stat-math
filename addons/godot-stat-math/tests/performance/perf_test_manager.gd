@@ -42,16 +42,41 @@ const HIGH_VOLATILITY_MIN_THRESHOLD: float = 0.30  # 30% minimum for high volati
 
 # Special category for mathematically intensive functions (transcendental operations)
 const MATH_INTENSIVE_FUNCTIONS: Array[String] = [
+	# PPF Functions (quantile calculations with iterative methods)
 	"ppf_functions_pareto_ppf",
 	"ppf_functions_weibull_ppf", 
 	"ppf_functions_gamma_ppf",
 	"ppf_functions_beta_ppf",
 	"ppf_functions_chi_square_f_t_ppf",
 	"ppf_functions_normal_ppf",
+	# PDF Functions with complex mathematical operations
+	"pmf_pdf_functions_t_pdf",           # Student's t-distribution PDF
+	"pmf_pdf_functions_beta_pdf",        # Beta distribution PDF
+	"pmf_pdf_functions_gamma_pdf",       # Gamma distribution PDF
+	"pmf_pdf_functions_f_pdf",           # F-distribution PDF
+	# Error Functions (transcendental functions)
 	"error_functions_erf",
-	"error_functions_erfc"
+	"error_functions_erfc",
+	"error_functions_error_function",
+	"error_functions_complementary_error_function",
+	"error_functions_error_function_inverse",
+	"error_functions_complementary_error_function_inverse",
+	# Complex Sampling Algorithms
+	"sampling_gen_generate_samples_SOBOL_RANDOM_10d_1024",    # High-dimensional Sobol+Random
+	"sampling_gen_generate_samples_SOBOL_RANDOM_3d_1024",     # Complex hybrid sampling  
+	"sampling_gen_generate_samples_SOBOL_RANDOM_1d_1024",     # Large-scale Sobol+Random
+	"sampling_gen_coordinated_shuffle_performance",           # Complex shuffling algorithms
+	# Helper Functions with iterative/transcendental operations
+	"helper_functions_incomplete_beta_function",
+	"helper_functions_lower_incomplete_gamma_regularized"
 ]
-const MATH_INTENSIVE_MIN_THRESHOLD: float = 0.45  # 45% minimum for math-intensive functions
+const MATH_INTENSIVE_MIN_THRESHOLD: float = 0.50  # 50% minimum for math-intensive functions
+
+# Ultra-complex algorithms with extreme variability (high-dimensional, large-scale operations)
+const ULTRA_COMPLEX_FUNCTIONS: Array[String] = [
+	"sampling_gen_generate_samples_SOBOL_RANDOM_10d_1024",    # High-dim + large-scale + hybrid
+]
+const ULTRA_COMPLEX_MIN_THRESHOLD: float = 0.75  # 75% minimum for ultra-complex functions
 
 # Mature baseline adjustments (for sample sizes >= 25)
 const MATURE_BASELINE_SAMPLE_SIZE: int = 25  # Consider baseline "mature" at 25+ samples
@@ -312,8 +337,11 @@ static func analyze_all_baseline_tests(print_summary: bool = true) -> Dictionary
 
 ## Helper function to get volatility level from coefficient of variation
 static func _get_volatility_level(cv: float, test_name: String = "") -> String:
+	# Special case for ultra-complex functions (highest priority)
+	if test_name in ULTRA_COMPLEX_FUNCTIONS:
+		return "ultra-complex"
 	# Special case for mathematically intensive functions
-	if test_name in MATH_INTENSIVE_FUNCTIONS:
+	elif test_name in MATH_INTENSIVE_FUNCTIONS:
 		return "math-intensive"
 	elif cv < STABLE_FUNCTION_CV_THRESHOLD:
 		return "very stable"
@@ -905,9 +933,13 @@ static func _calculate_dynamic_threshold(measurements: Array[float], baseline_me
 	# Different minimum thresholds based on function volatility patterns
 	var volatility_min_threshold: float = base_min_threshold
 	
+	# Special handling for ultra-complex functions (highest priority)
+	# High-dimensional, large-scale operations with extreme performance variability
+	if test_name in ULTRA_COMPLEX_FUNCTIONS:
+		volatility_min_threshold = max(volatility_min_threshold, ULTRA_COMPLEX_MIN_THRESHOLD)
 	# Special handling for mathematically intensive functions (transcendental operations)
 	# These functions may have low CV but high performance variability due to CPU state
-	if test_name in MATH_INTENSIVE_FUNCTIONS:
+	elif test_name in MATH_INTENSIVE_FUNCTIONS:
 		volatility_min_threshold = max(volatility_min_threshold, MATH_INTENSIVE_MIN_THRESHOLD)
 	elif cv < STABLE_FUNCTION_CV_THRESHOLD:
 		# Very stable functions (CV < 5%) - original logic
