@@ -331,11 +331,14 @@ static var _completion_tracker_initialized: bool = false
 static func _initialize_completion_tracker() -> void:
 	if _completion_tracker_initialized:
 		return
-	
+
+	_disable_regression_checking = false
 	# Read regression checking setting from environment variable ONCE
 	var regression_check_env: String = OS.get_environment("DISABLE_REGRESSION_CHECKING").to_lower()
 	_disable_regression_checking = regression_check_env == "true"
 	
+	print("DEBUG: DISABLE_REGRESSION_CHECKING env = '%s', _disable_regression_checking = %s" % [regression_check_env, _disable_regression_checking])
+
 	_run_timestamp = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 	_completion_tracker_initialized = true
 	
