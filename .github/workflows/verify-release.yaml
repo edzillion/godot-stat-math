@@ -165,7 +165,7 @@ jobs:
         uses: MikeSchulze/gdunit4-action@v1
         with:
           godot-version: "4.4"
-          paths: "res://addons/godot-stat-math/tests/core"
+          paths: "res://addons/godot-stat-math/tests"
           upload-report: false
         env:
           DISABLE_REGRESSION_CHECKING: false
@@ -239,16 +239,30 @@ jobs:
           if-no-files-found: warn
         if: always() && steps.test-results.outputs.tests-passed == 'false'
 
+      - name: Generate badge data
+        if: always()
+        run: |
+          echo "=== Generating Badge Data ==="
+          echo "Python version: $(python3 --version)"
+          echo "Current directory: $(pwd)"
+          echo "Making script executable..."
+          chmod +x scripts/extract_badge_data.py
+          echo "Running badge data extraction..."
+          python3 scripts/extract_badge_data.py
+
       - name: Commit badge data
         if: always()
         run: |
+          echo "=== Committing Badge Data ==="
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
           
           if [ -d "docs/_static/badges" ]; then
+            echo "Badge directory exists, checking for changes..."
             git add docs/_static/badges/
             
             if ! git diff --staged --quiet; then
+              echo "Badge data has changes, committing..."
               git commit -m "📊 Update badge data - Release verification"
               git push origin HEAD:${{ github.head_ref }}
               echo "✅ Badge data updated and pushed"
