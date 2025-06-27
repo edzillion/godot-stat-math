@@ -103,6 +103,7 @@ jobs:
           DISABLE_REGRESSION_CHECKING: ${{ github.event.inputs.disable_regression_checking }}
           
       - name: Set up SSH for deploy key
+        if: always()
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY_FOR_ACTIONS }}" > ~/.ssh/id_ed25519
@@ -110,6 +111,7 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
           
       - name: Commit test and performance results
+        if: always()
         run: |
           echo "Committing GDUnit4 test and performance results ..."
           git config --global user.name "GitHub Actions"
@@ -131,6 +133,7 @@ jobs:
           fi
           
       - name: Generate test summary
+        if: always()
         run: |
           echo "## 🧪 Test Run Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
