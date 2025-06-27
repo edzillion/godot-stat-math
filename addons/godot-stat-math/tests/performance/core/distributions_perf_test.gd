@@ -162,7 +162,7 @@ func test_custom_discrete_distributions_performance() -> void:
 	var current_results: Dictionary = _measure_test(test_name, func():
 		for i in range(TEST_ITERATIONS):
 			# Custom algorithms with potential loop-heavy implementations
-			StatMath.Distributions.randi_pseudo(2.5)
+			StatMath.Distributions.randi_pseudo(0.5)
 			StatMath.Distributions.randi_seige(0.8, 0.1, 0.05, 0.02)
 	)
 	
