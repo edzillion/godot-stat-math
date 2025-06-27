@@ -29,8 +29,8 @@ static func mean(data: Array[float]) -> float:
 	for value in data:
 		sum_val += value
 	
-	# # TEMPORARY: Intentional delay to test performance failure collection
-	# OS.delay_msec(100)
+	# TEMPORARY: Intentional delay to test performance failure collection
+	#OS.delay_msec(100)
 	
 	return sum_val / float(data.size())
 
