@@ -29,20 +29,20 @@ const MEDIUM_CONFIDENCE_SAMPLES: int = 15  # 15+ samples = medium confidence
 # Threshold refinement parameters
 const THRESHOLD_SAFETY_BUFFER: float = 1.1  # 10% buffer for borderline cases
 const STABLE_FUNCTION_CV_THRESHOLD: float = 0.05  # CV threshold for considering function "very stable"
-const STABLE_FUNCTION_MIN_THRESHOLD: float = 0.12  # 12% minimum for very stable functions
+const STABLE_FUNCTION_MIN_THRESHOLD: float = 0.18  # 18% minimum for very stable functions (was 0.12)
 const FAST_FUNCTION_THRESHOLD_MS: float = 0.5  # Functions under 0.5ms get special handling
 const FAST_FUNCTION_MIN_THRESHOLD: float = 0.15  # 15% minimum for very fast functions
 
 # Advanced threshold refinement for different volatility levels
 const LOW_VOLATILITY_CV_THRESHOLD: float = 0.08  # Functions with CV < 8% are low volatility
 const MEDIUM_VOLATILITY_CV_THRESHOLD: float = 0.15  # Functions with CV < 15% are medium volatility
-const LOW_VOLATILITY_MIN_THRESHOLD: float = 0.15  # 15% minimum for low volatility functions
-const MEDIUM_VOLATILITY_MIN_THRESHOLD: float = 0.20  # 20% minimum for medium volatility functions
-const HIGH_VOLATILITY_MIN_THRESHOLD: float = 0.25  # 25% minimum for high volatility functions
+const LOW_VOLATILITY_MIN_THRESHOLD: float = 0.20  # 20% minimum for low volatility functions (was 0.15)
+const MEDIUM_VOLATILITY_MIN_THRESHOLD: float = 0.25  # 25% minimum for medium volatility functions (was 0.20)
+const HIGH_VOLATILITY_MIN_THRESHOLD: float = 0.30  # 30% minimum for high volatility functions (was 0.25)
 
 # Mature baseline adjustments (for sample sizes >= 25)
 const MATURE_BASELINE_SAMPLE_SIZE: int = 25  # Consider baseline "mature" at 25+ samples
-const MATURE_BASELINE_MULTIPLIER: float = 1.3  # 30% higher thresholds for mature baselines
+const MATURE_BASELINE_MULTIPLIER: float = 1.2  # 20% higher thresholds for mature baselines (was 1.3)
 
 # Percentile-based threshold parameters
 const PERCENTILE_THRESHOLD: float = 95.0  # Use 95th percentile (only 5% of runs slower)
