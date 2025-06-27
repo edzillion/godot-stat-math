@@ -345,6 +345,7 @@ static func _initialize_completion_tracker() -> void:
 	print("🎯 Performance test run initialized:")
 	print("   Run timestamp: %s" % _run_timestamp)
 	print("   Regression Checking Disabled: %s" % _disable_regression_checking)
+	print("   Number of iterations: %d, calls per iteration: %d" % [MEASUREMENT_ITERATIONS, FUNCTION_CALLS_PER_MEASUREMENT])
 
 ## Discover all test suite modules from the core directory
 static func _discover_test_modules() -> Array[String]:
