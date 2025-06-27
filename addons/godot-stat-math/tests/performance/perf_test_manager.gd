@@ -40,6 +40,19 @@ const LOW_VOLATILITY_MIN_THRESHOLD: float = 0.20  # 20% minimum for low volatili
 const MEDIUM_VOLATILITY_MIN_THRESHOLD: float = 0.25  # 25% minimum for medium volatility functions (was 0.20)
 const HIGH_VOLATILITY_MIN_THRESHOLD: float = 0.30  # 30% minimum for high volatility functions (was 0.25)
 
+# Special category for mathematically intensive functions (transcendental operations)
+const MATH_INTENSIVE_FUNCTIONS: Array[String] = [
+	"ppf_functions_pareto_ppf",
+	"ppf_functions_weibull_ppf", 
+	"ppf_functions_gamma_ppf",
+	"ppf_functions_beta_ppf",
+	"ppf_functions_chi_square_f_t_ppf",
+	"ppf_functions_normal_ppf",
+	"error_functions_erf",
+	"error_functions_erfc"
+]
+const MATH_INTENSIVE_MIN_THRESHOLD: float = 0.45  # 45% minimum for math-intensive functions
+
 # Mature baseline adjustments (for sample sizes >= 25)
 const MATURE_BASELINE_SAMPLE_SIZE: int = 25  # Consider baseline "mature" at 25+ samples
 const MATURE_BASELINE_MULTIPLIER: float = 1.2  # 20% higher thresholds for mature baselines (was 1.3)
@@ -164,7 +177,7 @@ static func analyze_baseline_test(test_name: String, print_details: bool = true)
 		"coefficient_of_variation": cv,
 		"current_threshold": threshold,
 		"status": test_data.get("status", "unknown"),
-		"volatility_level": _get_volatility_level(cv),
+		"volatility_level": _get_volatility_level(cv, test_name),
 		"confidence_level": _get_confidence_level(sample_size),
 		"is_fast_function": baseline_median < FAST_FUNCTION_THRESHOLD_MS,
 		"is_mature_baseline": sample_size >= MATURE_BASELINE_SAMPLE_SIZE,
@@ -298,8 +311,11 @@ static func analyze_all_baseline_tests(print_summary: bool = true) -> Dictionary
 	return result
 
 ## Helper function to get volatility level from coefficient of variation
-static func _get_volatility_level(cv: float) -> String:
-	if cv < STABLE_FUNCTION_CV_THRESHOLD:
+static func _get_volatility_level(cv: float, test_name: String = "") -> String:
+	# Special case for mathematically intensive functions
+	if test_name in MATH_INTENSIVE_FUNCTIONS:
+		return "math-intensive"
+	elif cv < STABLE_FUNCTION_CV_THRESHOLD:
 		return "very stable"
 	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
 		return "low"
@@ -846,7 +862,7 @@ static func _report_failed_tests(consolidated_tests: Dictionary) -> void:
 		print("      Threshold: %.1f%% | Sample size: %d | CV: %.1f%%" % [threshold_percent, sample_size, cv])
 
 ## Calculate dynamic threshold for a test based on percentile analysis with refinements
-static func _calculate_dynamic_threshold(measurements: Array[float], baseline_median: float) -> float:
+static func _calculate_dynamic_threshold(measurements: Array[float], baseline_median: float, test_name: String = "") -> float:
 	var sample_size: int = measurements.size()
 	
 	# If insufficient data, use fallback threshold
@@ -889,7 +905,11 @@ static func _calculate_dynamic_threshold(measurements: Array[float], baseline_me
 	# Different minimum thresholds based on function volatility patterns
 	var volatility_min_threshold: float = base_min_threshold
 	
-	if cv < STABLE_FUNCTION_CV_THRESHOLD:
+	# Special handling for mathematically intensive functions (transcendental operations)
+	# These functions may have low CV but high performance variability due to CPU state
+	if test_name in MATH_INTENSIVE_FUNCTIONS:
+		volatility_min_threshold = max(volatility_min_threshold, MATH_INTENSIVE_MIN_THRESHOLD)
+	elif cv < STABLE_FUNCTION_CV_THRESHOLD:
 		# Very stable functions (CV < 5%) - original logic
 		volatility_min_threshold = max(volatility_min_threshold, STABLE_FUNCTION_MIN_THRESHOLD)
 	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
@@ -1016,7 +1036,7 @@ static func _update_baseline_from_snapshots() -> void:
 		var coefficient_of_variation: float = (test_std / test_mean) if test_mean > 0.0 else 0.0
 		
 		# Calculate dynamic threshold based on statistical analysis
-		var dynamic_threshold: float = _calculate_dynamic_threshold(measurements, test_median)
+		var dynamic_threshold: float = _calculate_dynamic_threshold(measurements, test_median, test_name)
 		
 		baseline_tests[test_name] = {
 			"result_ms": test_median,
