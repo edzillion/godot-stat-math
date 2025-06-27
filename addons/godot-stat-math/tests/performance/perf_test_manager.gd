@@ -1020,9 +1020,7 @@ static func _update_baseline_from_snapshots() -> void:
 		
 		baseline_tests[test_name] = {
 			"result_ms": test_median,
-			"baseline_ms": test_median, 
-			"diff_percent": 0.0,
-			"status": "pass",
+			"baseline_ms": test_median,
 			"threshold_percent": dynamic_threshold,
 			"sample_size": measurements.size(),
 			"coefficient_of_variation": coefficient_of_variation
