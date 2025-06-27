@@ -15,7 +15,7 @@ const IMPROVEMENT_WARNING_THRESHOLD: float = 0.30  # 30% improvement triggers "c
 const WARMUP_ITERATIONS: int = 10
 const MEASUREMENT_ITERATIONS: int = 5
 const FUNCTION_CALLS_PER_MEASUREMENT: int = 1000
-const KEEP_PREVIOUS_FAILURES: bool = false
+const KEEP_PREVIOUS_FAILURES: bool = true
 const MAX_SNAPSHOTS: int = 50  # Keep 50 most recent snapshots for robust statistics
 
 # Dynamic threshold calculation parameters
