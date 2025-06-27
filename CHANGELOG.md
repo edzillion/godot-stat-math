@@ -1,10 +1,61 @@
 # Changelog - Godot Stat Math
 
-I want to make a changelog for our cominmg release v0.0.5
+## [0.0.5] - 2024-12-26
 
-Can you check the workflow so that we get the snytax right, so that the relevant changelog can be added to the build notes. 
+### 🎉 Initial Alpha Release
 
+**Godot Stat Math** - A comprehensive statistical functions addon for Godot 4.0+
 
-@build-release.yaml
+### ✨ Features
 
-add a changelog for v0.0.5
+#### Core Statistical Modules
+- **Basic Statistics** - Essential statistical measures (mean, median, mode, variance, standard deviation, skewness, kurtosis)
+- **Probability Distributions** - Support for normal, uniform, exponential, gamma, beta, chi-squared, and more
+- **Cumulative Distribution Functions (CDF)** - Probability calculations for various distributions
+- **Probability Mass/Density Functions (PMF/PDF)** - Probability function implementations
+- **Percent Point Functions (PPF)** - Inverse CDF calculations (quantile functions)
+- **Error Functions** - Mathematical error functions including erf, erfc, and inverse variants
+- **Sampling & Generation** - Advanced sampling methods including Sobol sequences and Latin Hypercube
+
+#### Advanced Sampling Methods
+- **Sobol Sequences** - Low-discrepancy quasi-random sampling
+- **Latin Hypercube Sampling** - Efficient stratified sampling for multidimensional spaces
+- **Random Sampling** - Traditional pseudo-random number generation
+- **Halton Sequences** - Another quasi-random sampling method
+
+#### Utility Functions
+- **Helper Functions** - Array sanitization, validation, and mathematical utilities
+- **Statistical Validation** - Input parameter validation and error handling
+
+### 🔧 Technical Features
+- **Type Safety** - Full static typing throughout the codebase
+- **Performance Optimized** - Efficient implementations suitable for game development
+- **Global Access** - Available through `StatMath` singleton autoload
+- **Comprehensive Testing** - Extensive test suite with mathematical property validation
+- **Documentation** - Complete API documentation with examples
+
+### 📦 Distribution Formats
+- **Standard Edition** - Production-ready, optimized for end users
+- **Debug Edition** - Includes full test suite and performance benchmarks
+
+### 🎮 Game Development Focus
+This library is designed specifically for game developers who need statistical functions for:
+- Procedural generation algorithms
+- Random event systems
+- Statistical analysis of gameplay data
+- AI behavior modeling
+- Monte Carlo simulations
+
+### ⚠️ Alpha Release Notes
+- API may change without notice in future versions
+- Designed for game development use cases (not scientific accuracy)
+- For scientific applications, use dedicated Python libraries like SciPy
+
+### 🚀 Quick Start
+```gdscript
+# Access statistical functions via StatMath singleton
+var random_val: float = StatMath.Distributions.randf_normal(0.0, 1.0)
+var mean_val: float = StatMath.BasicStats.mean([1.0, 2.0, 3.0, 4.0, 5.0])
+var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples(100, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)
+```
+

@@ -170,6 +170,11 @@ jobs:
         env:
           DISABLE_REGRESSION_CHECKING: false
 
+      - name: Generate badge data
+        run: |
+          echo "Generating badge data from test results..."
+          python scripts/extract_badge_data.py
+
       - name: Check test completion and results
         id: test-results
         run: |
@@ -233,6 +238,26 @@ jobs:
           path: reports/
           if-no-files-found: warn
         if: always() && steps.test-results.outputs.tests-passed == 'false'
+
+      - name: Commit badge data
+        if: always()
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          if [ -d "docs/_static/badges" ]; then
+            git add docs/_static/badges/
+            
+            if ! git diff --staged --quiet; then
+              git commit -m "📊 Update badge data - Release verification"
+              git push origin HEAD:${{ github.head_ref }}
+              echo "✅ Badge data updated and pushed"
+            else
+              echo "ℹ️ No badge data changes to commit"
+            fi
+          else
+            echo "⚠️ No badge data directory found"
+          fi
 
       - name: Generate verification summary
         run: |

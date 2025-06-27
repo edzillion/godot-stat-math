@@ -195,13 +195,14 @@ jobs:
               echo "Auto-bumping develop version to $NEW_VERSION"
             fi
             
-            # Update the version in the file
+            # Update the version in both files
             sed -i "s/config\/version=\"[^\"]*\"/config\/version=\"$NEW_VERSION\"/" ${{ env.VERSION_FILE }}
+            sed -i "s/version=\"[^\"]*\"/version=\"$NEW_VERSION\"/" addons/godot-stat-math/plugin.cfg
             
             # Commit and push the change
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git config --global user.name "github-actions[bot]"
-            git add ${{ env.VERSION_FILE }}
+            git add ${{ env.VERSION_FILE }} addons/godot-stat-math/plugin.cfg
             git commit -m "chore: bump develop version to $NEW_VERSION"
             git push origin ${{ github.ref_name }}
             BUMPED=true
