@@ -222,7 +222,7 @@ jobs:
           paths: "res://addons/godot-stat-math/tests"
           upload-report: false
         env:
-          DISABLE_REGRESSION_CHECKING: true
+          DISABLE_REGRESSION_CHECKING: false
 
       - name: Set up SSH for deploy key
         run: |
