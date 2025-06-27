@@ -212,9 +212,6 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "bumped=$BUMPED" >> $GITHUB_OUTPUT
 
-      - name: Clean up previous reports
-        run: rm -rf reports
-
       - name: Run All GDUnit4 tests
         uses: MikeSchulze/gdunit4-action@v1
         with:
@@ -225,6 +222,7 @@ jobs:
           DISABLE_REGRESSION_CHECKING: false
 
       - name: Set up SSH for deploy key
+        if: always()
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.DEPLOY_KEY_FOR_ACTIONS }}" > ~/.ssh/id_ed25519
@@ -232,6 +230,7 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Commit test and performance results
+        if: always()
         run: |
           echo "Committing GDUnit4 test and performance results ..."
           git config --global user.name "GitHub Actions"
