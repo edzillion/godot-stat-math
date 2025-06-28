@@ -44,9 +44,6 @@ def parse_test_results(xml_file: Path) -> Tuple[int, int, int]:
     Parse GDUnit4 XML results file.
     Returns: (total_tests, failures, skipped)
     """
-    if not xml_file.exists():
-        print(f"XML file does not exist: {xml_file}")
-        return 0, 0, 0
     
     try:
         tree = ET.parse(xml_file)
