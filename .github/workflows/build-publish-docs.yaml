@@ -1,0 +1,24 @@
+name: Build and Publish Docs
+
+on: [workflow_dispatch]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build and Publish Sphinx Docs to GitHub Pages
+        uses: totaldebug/sphinx-publish-action@1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}          
+          sphinx_src: 'docs'          
+          target_branch: 'gh-pages'
+          pre_build_commands: |
+            pip install sphinx_rtd_theme
