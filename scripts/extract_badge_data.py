@@ -37,22 +37,6 @@ def find_test_reports() -> Tuple[Optional[Path], Optional[Path]]:
         print(f"❌ Performance tests XML not found: {perf_xml}")
         perf_xml = None
     
-    # Fallback: check reports directory (for local testing or other workflows)
-    if unit_xml is None or perf_xml is None:
-        print("Checking fallback reports directory...")
-        reports_dir = Path("reports")
-        if reports_dir.exists():
-            report_dirs = sorted(reports_dir.glob("report_*"), key=lambda x: x.name)
-            if report_dirs:
-                latest_report_dir = report_dirs[-1]
-                print(f"Using latest report directory: {latest_report_dir}")
-                
-                if unit_xml is None:
-                    results_xml = latest_report_dir / "results.xml"
-                    if results_xml.exists():
-                        print(f"Found fallback results XML: {results_xml}")
-                        unit_xml = results_xml
-    
     return unit_xml, perf_xml
 
 def parse_test_results(xml_file: Path) -> Tuple[int, int, int]:
@@ -79,75 +63,6 @@ def parse_test_results(xml_file: Path) -> Tuple[int, int, int]:
         print(f"Error parsing {xml_file}: {e}")
         return 0, 0, 0
 
-def count_performance_tests_from_source() -> int:
-    """
-    Count performance tests by scanning the source files directly.
-    """
-    perf_test_count = 0
-    
-    # Count tests in performance directory
-    perf_dir = Path("addons/godot-stat-math/tests/performance/core")
-    if perf_dir.exists():
-        print(f"Scanning performance directory: {perf_dir}")
-        for gd_file in perf_dir.rglob("*.gd"):
-            try:
-                with open(gd_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    # Count functions that start with "func test_"
-                    file_test_count = content.count("func test_")
-                    perf_test_count += file_test_count
-                    if file_test_count > 0:
-                        print(f"  {gd_file.name}: {file_test_count} tests")
-            except Exception as e:
-                print(f"Warning: Could not read {gd_file}: {e}")
-    else:
-        print(f"Performance directory not found: {perf_dir}")
-    
-    print(f"Total performance tests counted from source: {perf_test_count}")
-    return perf_test_count
-
-def count_unit_tests_from_source() -> int:
-    """
-    Count unit tests by scanning the source files directly.
-    This provides a fallback count when XML reports aren't available.
-    """
-    unit_test_count = 0
-    
-    # Count tests in core directory
-    core_dir = Path("addons/godot-stat-math/tests/core")
-    if core_dir.exists():
-        print(f"Scanning core directory: {core_dir}")
-        for gd_file in core_dir.rglob("*.gd"):
-            try:
-                with open(gd_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                    # Count functions that start with "func test_"
-                    file_test_count = content.count("func test_")
-                    unit_test_count += file_test_count
-                    if file_test_count > 0:
-                        print(f"  {gd_file.name}: {file_test_count} tests")
-            except Exception as e:
-                print(f"Warning: Could not read {gd_file}: {e}")
-    else:
-        print(f"Core directory not found: {core_dir}")
-    
-    # Count tests in stat_math_test.gd
-    stat_math_test = Path("addons/godot-stat-math/tests/stat_math_test.gd")
-    if stat_math_test.exists():
-        try:
-            with open(stat_math_test, 'r', encoding='utf-8') as f:
-                content = f.read()
-                file_test_count = content.count("func test_")
-                unit_test_count += file_test_count
-                print(f"  {stat_math_test.name}: {file_test_count} tests")
-        except Exception as e:
-            print(f"Warning: Could not read stat_math_test.gd: {e}")
-    else:
-        print(f"stat_math_test.gd not found: {stat_math_test}")
-    
-    print(f"Total unit tests counted from source: {unit_test_count}")
-    return unit_test_count
-
 def generate_badge_data():
     """Generate badge data JSON files for shields.io consumption."""
     print("=== Starting Badge Data Generation ===")
@@ -167,10 +82,7 @@ def generate_badge_data():
         unit_tests_passed = total - failures
         print(f"Unit tests from XML: {unit_tests_passed}/{unit_tests_total}")
     else:
-        # Fall back to source code counting
-        unit_tests_total = count_unit_tests_from_source()
-        unit_tests_passed = unit_tests_total  # Assume passing since release requires passing tests
-        print(f"Unit tests from source files: {unit_tests_passed}/{unit_tests_total}")
+        print("No unit tests XML found - using 0 count")
     
     # Process performance tests
     if perf_xml:
@@ -179,10 +91,7 @@ def generate_badge_data():
         performance_tests_passed = total - failures
         print(f"Performance tests from XML: {performance_tests_passed}/{performance_tests_total}")
     else:
-        # Fall back to source code counting
-        performance_tests_total = count_performance_tests_from_source()
-        performance_tests_passed = performance_tests_total  # Assume passing since tests succeeded in workflow
-        print(f"Performance tests from source files: {performance_tests_passed}/{performance_tests_total}")
+        print("No performance tests XML found - using 0 count")
     
     # Create output directory
     output_dir = Path("docs/_static/badges")
