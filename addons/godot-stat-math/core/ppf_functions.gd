@@ -1,21 +1,36 @@
 # res://addons/godot-stat-math/core/ppf_functions.gd
-extends RefCounted
+class_name PpfFunctions extends RefCounted
 
-# Inverse Cumulative Distribution Functions (ICDF), also known as Percentile Point Functions (PPF)
-# or Quantile Functions. These functions return the value x such that CDF(x) = p.
+const ACKLAM_COEFFICIENTS = preload("res://addons/godot-stat-math/tables/acklam_normal_ppf_coefficients.gd")
 
-# Constants MAX_ITERATIONS and EPSILON are now accessed via StatMath
+## Inverse Cumulative Distribution Functions (PPF/Quantile Functions)
+##
+## This class provides static methods to calculate Percentile Point Functions (PPF), 
+## also known as Inverse Cumulative Distribution Functions (ICDF) or quantile functions.
+## These functions return the value [code]x[/code] such that [code]CDF(x) = p[/code].
+##
+## Distribution Categories:
+##
+## * Continuous distributions (Normal, Exponential, Gamma, Beta, etc.)
+##
+## * Discrete distributions (Binomial, Poisson, Geometric, etc.)
+##
+## * Special distributions (Chi-Square, F-distribution, Student's t)
+##
+## * Heavy-tailed distributions (Pareto, Weibull)
+##
+## * Custom distributions (Discrete Histogram)
 
-# Probability Density Functions (PDF)
 
-# Uniform Distribution PPF: uniform_ppf(p, a, b)
-# Calculates the Percentile Point Function (inverse of the CDF) for the Uniform distribution.
-# Returns the value x in [a, b] such that P(X <= x) = p.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   a: float - The lower bound of the distribution.
-#   b: float - The upper bound of the distribution (must be >= a).
-# Returns: float - The value x, or NAN if parameters are invalid.
+# =============================================================================
+# CONTINUOUS DISTRIBUTION PPFs
+# =============================================================================
+
+## Calculates the PPF of a uniform distribution: inverse of F(x; a, b).
+##
+## Returns the value [code]x[/code] in [code][a, b][/code] such that [code]P(X ≤ x) = p[/code].
+##
+## Mathematical Note: [code]PPF(p) = a + p(b-a)[/code]
 static func uniform_ppf(p: float, a: float, b: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -26,16 +41,13 @@ static func uniform_ppf(p: float, a: float, b: float) -> float:
 	
 	return a + p * (b - a)
 
-# Normal Distribution PPF: normal_ppf(p, mu, sigma)
-# Calculates the PPF for the Normal (Gaussian) distribution.
-# Returns the value x such that P(X <= x) = p for a N(mu, sigma) distribution.
-# Uses Acklam's algorithm (an accurate approximation) for the standard normal N(0,1),
-# then transforms it using x_transformed = mu + sigma * x_standard.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   mu: float - The mean of the distribution (default: 0.0).
-#   sigma: float - The standard deviation of the distribution (must be > 0.0, default: 1.0).
-# Returns: float - The value x. Returns -INF if p=0, INF if p=1, or NAN for invalid sigma.
+## Calculates the PPF of a normal distribution: inverse of F(x; μ, σ).
+##
+## Returns the value [code]x[/code] such that [code]P(X ≤ x) = p[/code] for a normal distribution 
+## with mean [code]μ[/code] and standard deviation [code]σ[/code]. Uses Acklam's algorithm 
+## for the standard normal, then transforms the result.
+##
+## Mathematical Note: Uses [code]x = μ + σ * z[/code] where [code]z[/code] is the standard normal quantile
 static func normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -50,57 +62,36 @@ static func normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 	if p == 1.0:
 		return INF
 	
-	# Coefficients for the approximation (Acklam, 2010)
-	# For p_low < p < p_high
-	const A1 := -3.969683028665376e+01
-	const A2 := 2.209460984245205e+02
-	const A3 := -2.759285104469687e+02
-	const A4 := 1.383577518672690e+02
-	const A5 := -3.066479806614716e+01
-	const A6 := 2.506628277459239e+00
-	
-	const B1 := -5.447609879822406e+01
-	const B2 := 1.615858368580409e+02
-	const B3 := -1.556989798598866e+02
-	const B4 := 6.680131188771972e+01
-	const B5 := -1.328068155288572e+01
-	
-	# For p <= p_low or p >= p_high
-	const C1 := -7.784894002430293e-03
-	const C2 := -3.223964580411365e-01
-	const C3 := -2.400758277161838e+00
-	const C4 := -2.549732539343734e+00
-	const C5 := 4.374664141464968e+00
-	const C6 := 2.938163982698783e+00
-	
-	const D1 := 7.784695709041462e-03
-	const D2 := 3.224671290700398e-01
-	const D3 := 2.445134137142996e+00
-	const D4 := 3.754408661907416e+00
-	
-	const P_LOW := 0.02425
-	const P_HIGH := 1.0 - P_LOW
+	# Load Acklam algorithm coefficients from data table
+	# Reference: https://gist.github.com/roguetrainer/8188638
+	var coeffs: Dictionary = ACKLAM_COEFFICIENTS.VALUES["acklam_coefficients"]
+	var a: Array = coeffs["central_numerator"]
+	var b: Array = coeffs["central_denominator"]
+	var c: Array = coeffs["tail_numerator"]
+	var d: Array = coeffs["tail_denominator"]
+	var p_low: float = coeffs["breakpoints"]["p_low"]
+	var p_high: float = coeffs["breakpoints"]["p_high"]
 	
 	var x: float
 	
-	if p < P_LOW: # Left tail
+	if p < p_low: # Left tail
 		var q := sqrt(-2.0 * log(p))
-		x = (((((C1 * q + C2) * q + C3) * q + C4) * q + C5) * q + C6) / \
-			((((D1 * q + D2) * q + D3) * q + D4) * q + 1.0)
-	elif p <= P_HIGH: # Central region
+		x = (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / \
+			((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0)
+	elif p <= p_high: # Central region
 		var q := p - 0.5
 		var r := q * q
-		x = (((((A1 * r + A2) * r + A3) * r + A4) * r + A5) * r + A6) * q / \
-			(((((B1 * r + B2) * r + B3) * r + B4) * r + B5) * r + 1.0)
-	else: # Right tail (p > P_HIGH)
+		x = (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / \
+			(((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1.0)
+	else: # Right tail (p > p_high)
 		var q := sqrt(-2.0 * log(1.0 - p))
-		x = -(((((C1 * q + C2) * q + C3) * q + C4) * q + C5) * q + C6) / \
-			((((D1 * q + D2) * q + D3) * q + D4) * q + 1.0)
+		x = -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / \
+			((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1.0)
 
 	# One refinement step for additional precision (optional, but good practice for Acklam's algorithm)
 	# Using Normal CDF: 0.5 * (1 + erf(x / sqrt(2)))
 	if abs(x) < 10: # Refinement is more effective for non-extreme values
-		var cdf_val := 0.5 * (1.0 + StatMath.ErrorFunctions.error_function(x / sqrt(2.0)))
+		var cdf_val := 0.5 * (1.0 + StatMath.ErrorFunctions.erf(x / sqrt(2.0)))
 		var error_in_cdf := cdf_val - p
 		var pdf_val := (1.0 / sqrt(2.0 * PI)) * exp(-0.5 * x * x)
 		if pdf_val > 1e-10: # Avoid division by zero or very small numbers
@@ -108,14 +99,13 @@ static func normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 	
 	return mu + sigma * x
 
-# Exponential Distribution PPF: exponential_ppf(p, lambda_param)
-# Calculates the PPF for the Exponential distribution.
-# Returns the value x such that P(X <= x) = p.
-# Uses the closed-form solution: -log(1-p) / lambda_param.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   lambda_param: float - The rate parameter of the distribution (must be > 0.0).
-# Returns: float - The value x. Returns 0.0 if p=0, INF if p=1, or NAN for invalid lambda_param.
+
+## Calculates the PPF of an exponential distribution: inverse of F(x; λ).
+##
+## Returns the value [code]x[/code] such that [code]P(X ≤ x) = p[/code] for an exponential 
+## distribution with rate parameter [code]λ[/code]. Uses the closed-form solution.
+##
+## Mathematical Note: [code]PPF(p) = -ln(1-p) / λ[/code]
 static func exponential_ppf(p: float, lambda_param: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -131,15 +121,14 @@ static func exponential_ppf(p: float, lambda_param: float) -> float:
 	
 	return -log(1.0 - p) / lambda_param
 
-# Beta Distribution PPF: beta_ppf(p, alpha_shape, beta_shape)
-# Calculates the PPF for the Beta distribution.
-# Returns the value x in [0,1] such that P(X <= x) = p.
-# Uses a numerical binary search (bisection) method, as a closed-form solution is not generally available.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   alpha_shape: float - The alpha shape parameter (must be > 0.0).
-#   beta_shape: float - The beta shape parameter (must be > 0.0).
-# Returns: float - The value x. Returns 0.0 if p=0, 1.0 if p=1, or NAN for invalid parameters or if search fails.
+
+## Calculates the PPF of a beta distribution: inverse of F(x; α, β).
+##
+## Returns the value [code]x[/code] in [code][0,1][/code] such that [code]P(X ≤ x) = p[/code] 
+## for a beta distribution with shape parameters [code]α[/code] and [code]β[/code].
+## Uses numerical methods as no closed-form solution exists.
+##
+## Mathematical Note: Uses binary search or Newton's method for [code]Beta(2,2)[/code]
 static func beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -503,16 +492,18 @@ static func t_ppf(p: float, df: float) -> float:
 	
 	return x
 
-# Binomial Distribution PPF: binomial_ppf(p, n, prob_success)
-# Calculates the PPF for the Binomial distribution (a discrete distribution).
-# Returns the smallest integer k (number of successes) such that CDF(k) >= p.
-# Method: Linear search through possible values of k (0 to n), summing PMF values
-# from StatMath.PdfPmfFunctions.binomial_pmf until the cumulative probability meets or exceeds p.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   n: int - The number of trials (must be non-negative).
-#   prob_success: float - The probability of success on each trial (must be between 0.0 and 1.0).
-# Returns: int - The smallest k. Returns 0 if p=0, n if p=1, or -1 for invalid parameters or if search fails.
+
+# =============================================================================
+# DISCRETE DISTRIBUTION PPFs
+# =============================================================================
+
+## Calculates the PPF of a binomial distribution: inverse of F(k; n, p).
+##
+## Returns the smallest integer [code]k[/code] (number of successes) such that [code]CDF(k) ≥ p[/code] 
+## for a binomial distribution with [code]n[/code] trials and success probability [code]p[/code].
+## Uses linear search through possible values.
+##
+## Mathematical Note: [code]P(X ≤ k) = Σᵢ₌₀ᵏ (n choose i) p^i (1-p)^(n-i)[/code]
 static func binomial_ppf(p: float, n: int, prob_success: float) -> int:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -551,7 +542,7 @@ static func binomial_ppf(p: float, n: int, prob_success: float) -> int:
 # Poisson Distribution PPF: poisson_ppf(p, lambda_param)
 # Calculates the PPF for the Poisson distribution (a discrete distribution).
 # Returns the smallest integer k such that CDF(k) >= p.
-# Method: Linear search by summing PMF values (from StatMath.PdfPmfFunctions.poisson_pmf)
+# Method: Linear search by summing PMF values (from StatMath.PmfPdfFunctions.poisson_pmf)
 # starting from k=0 up to a reasonable maximum (lambda + 10*sqrt(lambda) + 20).
 # Parameters:
 #   p: float - The probability value (must be between 0.0 and 1.0).
@@ -587,7 +578,7 @@ static func poisson_ppf(p: float, lambda_param: float) -> int:
 	if lambda_param == 0 : max_k = 1 # already handled, but for safety
 	
 	while k < max_k: # Iterate up to max_k
-		var pmf_val: float = StatMath.PdfPmfFunctions.poisson_pmf(k, lambda_param)
+		var pmf_val: float = StatMath.PmfPdfFunctions.poisson_pmf(k, lambda_param)
 		if is_nan(pmf_val):
 			push_error("poisson_pmf returned NaN during poisson_ppf search.")
 			return -1 # Propagate error
@@ -649,7 +640,7 @@ static func geometric_ppf(p: float, prob_success: float) -> int:
 # Calculates the PPF for the Negative Binomial distribution (discrete distribution).
 # This version defines k as the number of trials to achieve r_successes successes, so k >= r_successes.
 # Returns the smallest integer k (number of trials) such that CDF(k) >= p.
-# Method: Linear search by summing PMF values (from StatMath.PdfPmfFunctions.negative_binomial_pmf)
+# Method: Linear search by summing PMF values (from StatMath.PmfPdfFunctions.negative_binomial_pmf)
 # starting from k = r_successes up to a reasonable maximum.
 # Parameters:
 #   p: float - The probability value (must be between 0.0 and 1.0).
@@ -695,7 +686,7 @@ static func negative_binomial_ppf(p: float, r_successes: int, prob_success: floa
 
 
 	while k_trials < max_k_trials:
-		var pmf_val: float = StatMath.PdfPmfFunctions.negative_binomial_pmf(k_trials, r_successes, prob_success)
+		var pmf_val: float = StatMath.PmfPdfFunctions.negative_binomial_pmf(k_trials, r_successes, prob_success)
 		if is_nan(pmf_val):
 			push_error("negative_binomial_pmf returned NaN during negative_binomial_ppf search (k=%s, r=%s, p=%s)." % [k_trials, r_successes, prob_success])
 			return -1 
@@ -788,15 +779,17 @@ static func discrete_histogram_ppf(p: float, values: Array, probabilities: Array
 	push_error("discrete_histogram_ppf: Failed to find a value. This state should be unreachable.")
 	return null
 
-# Pareto Distribution PPF: pareto_ppf(p, scale_param, shape_param)
-# Calculates the PPF for the Pareto distribution.
-# Returns the value x such that P(X <= x) = p.
-# Uses the closed-form solution: x = scale / (1-p)^(1/shape) for 0 ≤ p < 1.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   scale_param: float - The scale parameter (minimum possible value, must be > 0.0).
-#   shape_param: float - The shape parameter (controls tail heaviness, must be > 0.0).
-# Returns: float - The value x. Returns scale_param if p=0, INF if p=1, or NAN for invalid parameters.
+
+# =============================================================================
+# HEAVY-TAILED DISTRIBUTION PPFs
+# =============================================================================
+
+## Calculates the PPF of a Pareto distribution: inverse of F(x; scale, shape).
+##
+## Returns the value [code]x[/code] such that [code]P(X ≤ x) = p[/code] for a Pareto distribution 
+## with scale parameter (minimum value) and shape parameter. Uses closed-form solution.
+##
+## Mathematical Note: [code]PPF(p) = scale / (1-p)^(1/shape)[/code]
 static func pareto_ppf(p: float, scale_param: float, shape_param: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -824,16 +817,14 @@ static func pareto_ppf(p: float, scale_param: float, shape_param: float) -> floa
 	
 	return scale_param / exp_term
 
-# Weibull Distribution PPF: weibull_ppf(p, scale_param, shape_param)
-# Calculates the PPF for the Weibull distribution.
-# Returns the value x such that P(X <= x) = p.
-# Uses the closed-form solution: x = λ * (-ln(1-p))^(1/k) for 0 ≤ p < 1.
-# Widely used for reliability analysis, survival modeling, and failure rate calculations.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   scale_param: float - The scale parameter λ (characteristic life, must be > 0.0).
-#   shape_param: float - The shape parameter k (controls distribution shape, must be > 0.0).
-# Returns: float - The value x. Returns 0.0 if p=0, INF if p=1, or NAN for invalid parameters.
+
+## Calculates the PPF of a Weibull distribution: inverse of F(x; λ, k).
+##
+## Returns the value [code]x[/code] such that [code]P(X ≤ x) = p[/code] for a Weibull distribution 
+## with scale parameter [code]λ[/code] and shape parameter [code]k[/code]. Uses closed-form solution.
+## Widely used for reliability analysis and survival modeling.
+##
+## Mathematical Note: [code]PPF(p) = λ * (-ln(1-p))^(1/k)[/code]
 static func weibull_ppf(p: float, scale_param: float, shape_param: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
