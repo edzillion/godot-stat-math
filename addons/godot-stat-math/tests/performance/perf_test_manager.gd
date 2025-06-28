@@ -62,6 +62,7 @@ const FUNCTION_THRESHOLDS: Dictionary = {
 	"distributions_randv_histogram": ThresholdLevel.MODERATE,
 	"sampling_gen_generate_samples_HALTON_3d_1024": ThresholdLevel.MODERATE,
 	"sampling_gen_coordinated_shuffle_performance": ThresholdLevel.MODERATE,
+	"sampling_gen_generate_samples_SOBOL_RANDOM_3d_32": ThresholdLevel.MODERATE,
 	
 	# COMPLEX (60%) - Iterative/transcendental operations
 	"pmf_pdf_functions_t_pdf": ThresholdLevel.COMPLEX,
@@ -77,6 +78,8 @@ const FUNCTION_THRESHOLDS: Dictionary = {
 	
 	# EXTREME (80%) - High-dimensional, large-scale operations
 	"sampling_gen_generate_samples_SOBOL_RANDOM_10d_1024": ThresholdLevel.EXTREME,
+	"sampling_gen_generate_samples_RANDOM_3d_1024": ThresholdLevel.EXTREME,
+	
 }
 
 # Mature baseline adjustments (for sample sizes >= 25)
