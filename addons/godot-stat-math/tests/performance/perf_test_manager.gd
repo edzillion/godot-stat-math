@@ -17,6 +17,9 @@ const MEASUREMENT_ITERATIONS: int = 5
 const FUNCTION_CALLS_PER_MEASUREMENT: int = 1000
 const KEEP_PREVIOUS_FAILURES: bool = true
 const MAX_SNAPSHOTS: int = 50  # Keep 50 most recent snapshots for robust statistics
+const FORCE_THRESHOLD_UPDATE: bool = true  # Set to true to update thresholds even when tests fail
+                                            # When true: test failures will still update thresholds (but NOT baseline measurements)
+                                            # Useful for breaking out of outdated threshold deadlock situations
 
 # Dynamic threshold calculation parameters
 const MIN_SAMPLES_FOR_DYNAMIC_THRESHOLD: int = 5  # Minimum samples needed for dynamic thresholds
@@ -28,55 +31,53 @@ const MEDIUM_CONFIDENCE_SAMPLES: int = 15  # 15+ samples = medium confidence
 
 # Threshold refinement parameters
 const THRESHOLD_SAFETY_BUFFER: float = 1.1  # 10% buffer for borderline cases
-const STABLE_FUNCTION_CV_THRESHOLD: float = 0.05  # CV threshold for considering function "very stable"
-const STABLE_FUNCTION_MIN_THRESHOLD: float = 0.18  # 18% minimum for very stable functions (was 0.12)
 const FAST_FUNCTION_THRESHOLD_MS: float = 0.5  # Functions under 0.5ms get special handling
 const FAST_FUNCTION_MIN_THRESHOLD: float = 0.15  # 15% minimum for very fast functions
 
-# Advanced threshold refinement for different volatility levels
-const LOW_VOLATILITY_CV_THRESHOLD: float = 0.08  # Functions with CV < 8% are low volatility
-const MEDIUM_VOLATILITY_CV_THRESHOLD: float = 0.15  # Functions with CV < 15% are medium volatility
-const LOW_VOLATILITY_MIN_THRESHOLD: float = 0.20  # 20% minimum for low volatility functions (was 0.15)
-const MEDIUM_VOLATILITY_MIN_THRESHOLD: float = 0.25  # 25% minimum for medium volatility functions (was 0.20)
-const HIGH_VOLATILITY_MIN_THRESHOLD: float = 0.30  # 30% minimum for high volatility functions (was 0.25)
+# Clean 5-Threshold System
+enum ThresholdLevel {
+	ULTRA_STABLE = 0,  # 15% - Very fast, simple operations
+	STABLE = 1,        # 25% - Standard mathematical functions  
+	MODERATE = 2,      # 40% - Some computational complexity
+	COMPLEX = 3,       # 60% - Iterative algorithms, transcendental functions
+	EXTREME = 4        # 80% - High-dimensional, large-scale, highly variable
+}
 
-# Special category for mathematically intensive functions (transcendental operations)
-const MATH_INTENSIVE_FUNCTIONS: Array[String] = [
-	# PPF Functions (quantile calculations with iterative methods)
-	"ppf_functions_pareto_ppf",
-	"ppf_functions_weibull_ppf", 
-	"ppf_functions_gamma_ppf",
-	"ppf_functions_beta_ppf",
-	"ppf_functions_chi_square_f_t_ppf",
-	"ppf_functions_normal_ppf",
-	# PDF Functions with complex mathematical operations
-	"pmf_pdf_functions_t_pdf",           # Student's t-distribution PDF
-	"pmf_pdf_functions_beta_pdf",        # Beta distribution PDF
-	"pmf_pdf_functions_gamma_pdf",       # Gamma distribution PDF
-	"pmf_pdf_functions_f_pdf",           # F-distribution PDF
-	# Error Functions (transcendental functions)
-	"error_functions_erf",
-	"error_functions_erfc",
-	"error_functions_error_function",
-	"error_functions_complementary_error_function",
-	"error_functions_error_function_inverse",
-	"error_functions_complementary_error_function_inverse",
-	# Complex Sampling Algorithms
-	"sampling_gen_generate_samples_SOBOL_RANDOM_10d_1024",    # High-dimensional Sobol+Random
-	"sampling_gen_generate_samples_SOBOL_RANDOM_3d_1024",     # Complex hybrid sampling  
-	"sampling_gen_generate_samples_SOBOL_RANDOM_1d_1024",     # Large-scale Sobol+Random
-	"sampling_gen_coordinated_shuffle_performance",           # Complex shuffling algorithms
-	# Helper Functions with iterative/transcendental operations
-	"helper_functions_incomplete_beta_function",
-	"helper_functions_lower_incomplete_gamma_regularized"
-]
-const MATH_INTENSIVE_MIN_THRESHOLD: float = 0.50  # 50% minimum for math-intensive functions
+const THRESHOLD_VALUES: Array[float] = [0.15, 0.25, 0.40, 0.60, 0.80]
+const DEFAULT_THRESHOLD_LEVEL: ThresholdLevel = ThresholdLevel.STABLE
 
-# Ultra-complex algorithms with extreme variability (high-dimensional, large-scale operations)
-const ULTRA_COMPLEX_FUNCTIONS: Array[String] = [
-	"sampling_gen_generate_samples_SOBOL_RANDOM_10d_1024",    # High-dim + large-scale + hybrid
-]
-const ULTRA_COMPLEX_MIN_THRESHOLD: float = 0.75  # 75% minimum for ultra-complex functions
+# Function-to-threshold mapping
+const FUNCTION_THRESHOLDS: Dictionary = {
+	# ULTRA_STABLE (15%) - Fast, simple operations
+	"distributions_randf_uniform": ThresholdLevel.ULTRA_STABLE,
+	"distributions_randi_uniform": ThresholdLevel.ULTRA_STABLE,
+	"cdf_functions_exponential_cdf": ThresholdLevel.ULTRA_STABLE,
+	"cdf_functions_geometric_cdf": ThresholdLevel.ULTRA_STABLE,
+	"cdf_functions_pareto_cdf": ThresholdLevel.ULTRA_STABLE,
+	
+	# STABLE (25%) - Standard functions (DEFAULT - most functions fall here)
+	
+	# MODERATE (40%) - Some complexity
+	"basic_stats_percentile_calculation": ThresholdLevel.MODERATE,
+	"distributions_randv_histogram": ThresholdLevel.MODERATE,
+	"sampling_gen_generate_samples_HALTON_3d_1024": ThresholdLevel.MODERATE,
+	"sampling_gen_coordinated_shuffle_performance": ThresholdLevel.MODERATE,
+	
+	# COMPLEX (60%) - Iterative/transcendental operations
+	"pmf_pdf_functions_t_pdf": ThresholdLevel.COMPLEX,
+	"pmf_pdf_functions_beta_pdf": ThresholdLevel.COMPLEX,
+	"pmf_pdf_functions_f_pdf": ThresholdLevel.COMPLEX,
+	"ppf_functions_beta_ppf": ThresholdLevel.COMPLEX,
+	"ppf_functions_gamma_ppf": ThresholdLevel.COMPLEX,
+	"ppf_functions_chi_square_f_t_ppf": ThresholdLevel.COMPLEX,
+	"error_functions_error_function_inverse": ThresholdLevel.COMPLEX,
+	"error_functions_complementary_error_function_inverse": ThresholdLevel.COMPLEX,
+	"helper_functions_incomplete_beta_function": ThresholdLevel.COMPLEX,
+	"helper_functions_lower_incomplete_gamma_regularized": ThresholdLevel.COMPLEX,
+	
+	# EXTREME (80%) - High-dimensional, large-scale operations
+	"sampling_gen_generate_samples_SOBOL_RANDOM_10d_1024": ThresholdLevel.EXTREME,
+}
 
 # Mature baseline adjustments (for sample sizes >= 25)
 const MATURE_BASELINE_SAMPLE_SIZE: int = 25  # Consider baseline "mature" at 25+ samples
@@ -119,13 +120,13 @@ static func analyze_measurements(measurements: Array[float], baseline_median: fl
 	# Calculate dynamic threshold
 	var dynamic_threshold: float = _calculate_dynamic_threshold(measurements, baseline_median)
 	
-	# Determine volatility level
+	# Determine volatility level (simplified CV-based fallback for analysis)
 	var volatility_level: String = "high"
-	if cv < STABLE_FUNCTION_CV_THRESHOLD:
+	if cv < 0.05:
 		volatility_level = "very stable"
-	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
+	elif cv < 0.08:
 		volatility_level = "low"
-	elif cv < MEDIUM_VOLATILITY_CV_THRESHOLD:
+	elif cv < 0.15:
 		volatility_level = "medium"
 	
 	# Determine confidence level
@@ -335,22 +336,23 @@ static func analyze_all_baseline_tests(print_summary: bool = true) -> Dictionary
 	
 	return result
 
-## Helper function to get volatility level from coefficient of variation
+## Helper function to get volatility level from threshold assignment
 static func _get_volatility_level(cv: float, test_name: String = "") -> String:
-	# Special case for ultra-complex functions (highest priority)
-	if test_name in ULTRA_COMPLEX_FUNCTIONS:
-		return "ultra-complex"
-	# Special case for mathematically intensive functions
-	elif test_name in MATH_INTENSIVE_FUNCTIONS:
-		return "math-intensive"
-	elif cv < STABLE_FUNCTION_CV_THRESHOLD:
-		return "very stable"
-	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
-		return "low"
-	elif cv < MEDIUM_VOLATILITY_CV_THRESHOLD:
-		return "medium"
-	else:
-		return "high"
+	var threshold_level: ThresholdLevel = FUNCTION_THRESHOLDS.get(test_name, DEFAULT_THRESHOLD_LEVEL)
+	
+	match threshold_level:
+		ThresholdLevel.ULTRA_STABLE:
+			return "ultra-stable"
+		ThresholdLevel.STABLE:
+			return "stable"
+		ThresholdLevel.MODERATE:
+			return "moderate"
+		ThresholdLevel.COMPLEX:
+			return "complex"
+		ThresholdLevel.EXTREME:
+			return "extreme"
+		_:
+			return "stable"
 
 ## Helper function to get confidence level from sample size
 static func _get_confidence_level(sample_size: int) -> String:
@@ -553,10 +555,16 @@ static func _consolidate_run_results_immediate() -> void:
 	# Clean up intermediate files immediately - THIS IS THE KEY FIX!
 	_cleanup_intermediate_files_immediate(intermediate_files, dir)
 	
-	# Update baseline if successful
+	# Update baseline and/or thresholds based on test results and configuration
 	if not has_failures:
+		# Tests passed - update full baseline (measurements + thresholds)
 		_update_baseline_from_snapshots()
 		_cleanup_old_snapshots()
+	elif FORCE_THRESHOLD_UPDATE:
+		# Tests failed but forced threshold update - update ONLY thresholds, not baseline measurements
+		print("🔧 FORCE_THRESHOLD_UPDATE enabled - updating thresholds only (not baseline measurements)")
+		_update_thresholds_only()
+		# Don't cleanup snapshots when tests fail - we want to keep the failure data
 	
 	print("🎉 Performance test run completed successfully!")
 	print("   📊 Results saved in: %s" % RESULTS_DIR)
@@ -929,30 +937,13 @@ static func _calculate_dynamic_threshold(measurements: Array[float], baseline_me
 	if baseline_median < FAST_FUNCTION_THRESHOLD_MS:
 		base_min_threshold = max(base_min_threshold, FAST_FUNCTION_MIN_THRESHOLD)
 	
-	# REFINEMENT 4: Advanced CV-based threshold scaling with volatility levels
-	# Different minimum thresholds based on function volatility patterns
-	var volatility_min_threshold: float = base_min_threshold
+	# REFINEMENT 4: Clean threshold lookup system
+	# Get threshold level for this function (default to STABLE if not specified)
+	var threshold_level: ThresholdLevel = FUNCTION_THRESHOLDS.get(test_name, DEFAULT_THRESHOLD_LEVEL)
+	var function_threshold: float = THRESHOLD_VALUES[threshold_level]
 	
-	# Special handling for ultra-complex functions (highest priority)
-	# High-dimensional, large-scale operations with extreme performance variability
-	if test_name in ULTRA_COMPLEX_FUNCTIONS:
-		volatility_min_threshold = max(volatility_min_threshold, ULTRA_COMPLEX_MIN_THRESHOLD)
-	# Special handling for mathematically intensive functions (transcendental operations)
-	# These functions may have low CV but high performance variability due to CPU state
-	elif test_name in MATH_INTENSIVE_FUNCTIONS:
-		volatility_min_threshold = max(volatility_min_threshold, MATH_INTENSIVE_MIN_THRESHOLD)
-	elif cv < STABLE_FUNCTION_CV_THRESHOLD:
-		# Very stable functions (CV < 5%) - original logic
-		volatility_min_threshold = max(volatility_min_threshold, STABLE_FUNCTION_MIN_THRESHOLD)
-	elif cv < LOW_VOLATILITY_CV_THRESHOLD:
-		# Low volatility functions (CV 5-8%) - need higher thresholds
-		volatility_min_threshold = max(volatility_min_threshold, LOW_VOLATILITY_MIN_THRESHOLD)
-	elif cv < MEDIUM_VOLATILITY_CV_THRESHOLD:
-		# Medium volatility functions (CV 8-15%) - moderate thresholds
-		volatility_min_threshold = max(volatility_min_threshold, MEDIUM_VOLATILITY_MIN_THRESHOLD)
-	else:
-		# High volatility functions (CV > 15%) - standard thresholds
-		volatility_min_threshold = max(volatility_min_threshold, HIGH_VOLATILITY_MIN_THRESHOLD)
+	# Apply the function-specific threshold
+	var volatility_min_threshold: float = max(base_min_threshold, function_threshold)
 	
 	# REFINEMENT 5: Mature baseline adjustment
 	# With 25+ samples, we have high confidence in the baseline but need more tolerance
@@ -1093,6 +1084,129 @@ static func _update_baseline_from_snapshots() -> void:
 	
 	_save_json_file(BASELINE_FILE, baseline_data)
 	print("💾 Updated baseline from %d successful runs (%d tests)" % [recent_files.size(), baseline_tests.size()])
+
+## Update ONLY thresholds in existing baseline (keep baseline measurements unchanged)
+## Used when FORCE_THRESHOLD_UPDATE is true but tests failed
+static func _update_thresholds_only() -> void:
+	# Load existing baseline
+	var existing_baseline: Dictionary = _load_json_file(BASELINE_FILE)
+	if existing_baseline.is_empty() or not existing_baseline.has("tests"):
+		push_error("Cannot update thresholds - no existing baseline found at: " + BASELINE_FILE)
+		return
+	
+	var existing_tests: Dictionary = existing_baseline.get("tests", {})
+	var existing_meta: Dictionary = existing_baseline.get("meta", {})
+	
+	# Get successful snapshots for threshold calculation
+	var dir: DirAccess = DirAccess.open(RESULTS_DIR)
+	if dir == null:
+		push_error("Cannot access results directory: " + RESULTS_DIR)
+		return
+	
+	var pass_files: Array[String] = []
+	dir.list_dir_begin()
+	var current_file: String = dir.get_next()
+	
+	while current_file != "":
+		if current_file.begins_with("pass_") and current_file.ends_with(".json"):
+			pass_files.append(current_file)
+		current_file = dir.get_next()
+	
+	if pass_files.is_empty():
+		print("⚠️  No successful test runs found - cannot update thresholds")
+		return
+	
+	# Sort and use up to MAX_SNAPSHOTS most recent successful runs
+	pass_files.sort()
+	var recent_files: Array[String] = pass_files.slice(-MAX_SNAPSHOTS) if pass_files.size() > MAX_SNAPSHOTS else pass_files
+	
+	print("🔧 Updating thresholds only from %d successful test runs" % recent_files.size())
+	
+	# Load and accumulate results for threshold calculation
+	var test_data_arrays: Dictionary = {}  # test_name -> Array[float] of measurements
+	
+	for results_file in recent_files:
+		var file_path: String = RESULTS_DIR + results_file
+		var file_data: Dictionary = _load_json_file(file_path)
+		if file_data.is_empty() or not file_data.has("tests"):
+			continue
+		
+		# Collect measurements for threshold calculation
+		for test_name in file_data.tests:
+			var test_data = file_data.tests[test_name]
+			var execution_time: float = test_data.result_ms
+			
+			if not test_data_arrays.has(test_name):
+				test_data_arrays[test_name] = []
+			
+			test_data_arrays[test_name].append(execution_time)
+	
+	if test_data_arrays.is_empty():
+		print("❌ No valid test data found in successful runs")
+		return
+	
+	var updated_tests: Dictionary = {}
+	var thresholds_updated: int = 0
+	
+	# Update thresholds for existing baseline tests
+	for test_name in existing_tests:
+		var existing_test: Dictionary = existing_tests[test_name]
+		
+		# Keep existing baseline measurements unchanged
+		var updated_test: Dictionary = {
+			"result_ms": existing_test.get("result_ms", 0.0),
+			"baseline_ms": existing_test.get("baseline_ms", 0.0),
+		}
+		
+		# Recalculate threshold if we have successful snapshot data for this test
+		if test_data_arrays.has(test_name):
+			var measurements: Array[float] = []
+			for measurement: float in test_data_arrays[test_name]:
+				measurements.append(measurement)
+			
+			if not measurements.is_empty():
+				var baseline_median: float = existing_test.get("result_ms", 0.0)
+				var test_mean: float = StatMath.BasicStats.mean(measurements)
+				var test_std: float = StatMath.BasicStats.standard_deviation(measurements) if measurements.size() > 1 else 0.0
+				var coefficient_of_variation: float = (test_std / test_mean) if test_mean > 0.0 else 0.0
+				
+				# Calculate new dynamic threshold
+				var new_threshold: float = _calculate_dynamic_threshold(measurements, baseline_median, test_name)
+				
+				updated_test["threshold_percent"] = new_threshold
+				updated_test["sample_size"] = measurements.size()
+				updated_test["coefficient_of_variation"] = coefficient_of_variation
+				thresholds_updated += 1
+			else:
+				# Keep existing threshold data if no new measurements
+				updated_test["threshold_percent"] = existing_test.get("threshold_percent", REGRESSION_THRESHOLD)
+				updated_test["sample_size"] = existing_test.get("sample_size", 1)
+				updated_test["coefficient_of_variation"] = existing_test.get("coefficient_of_variation", 0.0)
+		else:
+			# Keep existing threshold data if no snapshot data for this test
+			updated_test["threshold_percent"] = existing_test.get("threshold_percent", REGRESSION_THRESHOLD)
+			updated_test["sample_size"] = existing_test.get("sample_size", 1)
+			updated_test["coefficient_of_variation"] = existing_test.get("coefficient_of_variation", 0.0)
+		
+		updated_tests[test_name] = updated_test
+	
+	# Update baseline with new thresholds but existing measurements
+	var updated_baseline: Dictionary = {
+		"tests": updated_tests,
+		"meta": {
+			"expected_regressions": existing_meta.get("expected_regressions", []),
+			"type": "threshold_only_update",
+			"generated_at": Time.get_datetime_string_from_system(),
+			"total_tests": updated_tests.size(),
+			"thresholds_updated": thresholds_updated,
+			"source_snapshots": recent_files.size(),
+			"statistical_method": "percentile_based_thresholds_only",
+			"baseline_measurements_preserved": true
+		}
+	}
+	
+	_save_json_file(BASELINE_FILE, updated_baseline)
+	print("💾 Updated %d thresholds (baseline measurements preserved)" % thresholds_updated)
 
 ## Clean up old snapshot files to maintain MAX_SNAPSHOTS limit
 static func _cleanup_old_snapshots() -> void:
