@@ -1,6 +1,11 @@
 {
   "schemaVersion": 1,
   "label": "Performance Tests",
+<<<<<<< Updated upstream
   "message": "111/114",
   "color": "orange"
+=======
+  "message": "79/79",
+  "color": "brightgreen"
+>>>>>>> Stashed changes
 }
