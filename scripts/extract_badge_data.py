@@ -18,11 +18,11 @@ def find_test_reports() -> Tuple[Optional[Path], Optional[Path]]:
     GDScript tests using gdUnit4-action save XML files directly in the project root
     with the filename specified by the 'report-name' parameter.
     """
-    print("Looking for XML reports in project root...")
+    print("Looking for XML reports in parent directory...")
     
-    # GDScript tests save XML files directly in the project root with custom names
-    unit_xml = Path("unit-tests.xml")
-    perf_xml = Path("performance-tests.xml")
+    # GDScript tests save XML files in the parent directory
+    unit_xml = Path("../unit-tests.xml")
+    perf_xml = Path("../performance-tests.xml")
     
     # Check if the files exist
     if unit_xml.exists():
