@@ -17,7 +17,7 @@ const MEASUREMENT_ITERATIONS: int = 5
 const FUNCTION_CALLS_PER_MEASUREMENT: int = 1000
 const KEEP_PREVIOUS_FAILURES: bool = true
 const MAX_SNAPSHOTS: int = 50  # Keep 50 most recent snapshots for robust statistics
-const FORCE_THRESHOLD_UPDATE: bool = true  # Set to true to update thresholds even when tests fail
+const FORCE_THRESHOLD_UPDATE: bool = false  # Set to true to update thresholds even when tests fail
                                             # When true: test failures will still update thresholds (but NOT baseline measurements)
                                             # Useful for breaking out of outdated threshold deadlock situations
 
