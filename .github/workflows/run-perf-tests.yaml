@@ -1,0 +1,188 @@
+name: Run Performance Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      disable_regression_checking:
+        description: 'Disable performance regression checking'
+        required: false
+        default: true
+        type: boolean
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  trigger-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      runner-triggered: ${{ steps.trigger.outputs.triggered }}
+      instance-id: ${{ steps.trigger.outputs.instance_id }}
+    steps:
+      - name: Trigger AWS Runner
+        id: trigger
+        run: |
+          echo "Triggering AWS runner for test run..."
+          response=$(curl -s -X POST "${{ secrets.LAMBDA_FUNCTION_URL }}")
+          echo "Response: $response"
+          # Extract instance_id from JSON response (assumes response contains { "instance_id": "i-xxxx", ... })
+          instance_id=$(echo "$response" | jq -r '.instance_id // empty')
+          echo "Extracted instance_id: $instance_id"
+          if echo "$response" | grep -q "launched successfully"; then
+            echo "triggered=true" >> $GITHUB_OUTPUT
+            echo "✅ Runner launched successfully"
+            if [ -n "$instance_id" ]; then
+              echo "instance_id=$instance_id" >> $GITHUB_OUTPUT
+            else
+              echo "instance_id=N/A" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "triggered=false" >> $GITHUB_OUTPUT
+            echo "instance_id=N/A" >> $GITHUB_OUTPUT
+            echo "❌ Failed to launch runner"
+            exit 1
+          fi
+          
+      - name: Wait for runner
+        run: |
+          echo "Waiting 30 seconds for runner to come online..."
+          sleep 30
+
+  test-and-commit:
+    needs: trigger-runner
+    runs-on: [self-hosted, linux, x64]
+    strategy:
+      matrix:
+        run_id: [1, 2, 3] 
+      max-parallel: 1  # Ensures matrix jobs run sequentially
+    if: needs.trigger-runner.outputs.runner-triggered == 'true'
+    env:
+      LD_LIBRARY_PATH: /usr/lib/x86_64-linux-gnu
+    timeout-minutes: 60
+    permissions:
+      checks: write
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+        
+      - name: Synchronize with remote branch
+        run: |
+          echo "Pulling latest changes for branch ${{ github.ref_name }}..."
+          git pull origin ${{ github.ref_name }}
+          
+      - name: System info
+        run: |
+          echo "=== Test Run Environment ==="
+          echo "Timestamp: $(date)"
+          echo "Commit: ${{ github.sha }}"
+          echo "Instance ID: $(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
+          echo "Instance Type: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
+          echo "=========================="
+
+      - name: Extract version
+        uses: CapsCollective/version-actions/extract-version@v1.0
+        with:
+          version-file: project.godot
+          version-regex: config\/version=\"\K[0-9.\-A-z]*
+        id: extract-version
+      
+      - name: Run GDUnit4 performance tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests/performance"
+          publish-report: false
+          upload-report: false
+        env:
+          DISABLE_REGRESSION_CHECKING: ${{ github.event.inputs.disable_regression_checking }}
+          
+      - name: Set up SSH for deploy key
+        if: always()
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY_FOR_ACTIONS }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          
+      - name: Commit test and performance results
+        if: always()
+        run: |
+          echo "Committing GDUnit4 test and performance results ..."
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+
+          if [ -d "$PERF_RESULTS_DIR" ]; then
+            git add "$PERF_RESULTS_DIR/"
+          fi
+
+          if git diff --staged --quiet; then
+            echo "No new test results to commit"
+          else
+            COMMIT_MSG="📊 Performance Test Results - ${{ github.workflow }} ${{ github.run_number }}"
+            git commit -m "$COMMIT_MSG"
+            git push git@github.com:${{ github.repository }}.git HEAD:develop
+            echo "✅ Test reports and performance results committed and pushed"
+          fi
+          
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Run Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ steps.extract-version.outputs.version-string }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test results committed to branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Regression Checking Disabled**: ${{ github.event.inputs.disable_regression_checking }}" >> $GITHUB_STEP_SUMMARY
+          
+          PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+          if [ -d "$PERF_RESULTS_DIR" ]; then
+            PASS_FILES=$(find "$PERF_RESULTS_DIR" -name "pass_*.json" | wc -l)
+            FAIL_FILES=$(find "$PERF_RESULTS_DIR" -name "fail_*.json" | wc -l)
+            echo "- **Performance Snapshots**: $PASS_FILES pass, $FAIL_FILES fail" >> $GITHUB_STEP_SUMMARY
+          fi 
+
+
+  terminate-runner:
+    runs-on: ubuntu-latest
+    needs: [trigger-runner, test-and-commit]
+    if: always() && needs.trigger-runner.outputs.runner-triggered == 'true'
+    steps:
+      - name: Terminate spot instance
+        run: |
+          INSTANCE_ID="${{ needs.trigger-runner.outputs.instance-id }}"
+          echo "Terminating spot instance: $INSTANCE_ID"
+          if [ "$INSTANCE_ID" = "N/A" ] || [ -z "$INSTANCE_ID" ]; then
+            echo "⚠️ No valid instance ID found, skipping termination"
+            exit 0
+          fi
+
+          # Terminate the instance
+          aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+          echo "✅ Spot instance $INSTANCE_ID termination requested"
+
+          # Wait a moment and check status
+          sleep 10
+          aws ec2 describe-instances --instance-ids $INSTANCE_ID \
+            --query 'Reservations[0].Instances[0].State.Name' --output text
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION || 'eu-west-1' }}
+
+      - name: Cleanup summary
+        run: |
+          INSTANCE_ID="${{ needs.trigger-runner.outputs.instance-id }}"
+          echo "## 🔧 Spot Instance Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Instance ID**: $INSTANCE_ID" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Termination requested ✅" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run Tests Job**: ${{ needs.run-tests.result }}" >> $GITHUB_STEP_SUMMARY
+
