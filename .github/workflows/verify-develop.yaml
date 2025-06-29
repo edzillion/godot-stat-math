@@ -54,6 +54,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Clean up previous reports
+        run: rm -rf reports
+
       - name: Run GDUnit4 tests
         uses: MikeSchulze/gdunit4-action@v1
         with:
