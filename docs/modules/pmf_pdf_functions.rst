@@ -14,6 +14,8 @@ Distribution Categories:
 * PDF for continuous distributions (Normal, Exponential, Uniform, Gamma, Beta, Chi-squared, Student's t, F-distribution)
 
 * Uses logarithmic calculations for numerical stability
+Calculates the PMF of a binomial distribution: P(X = k | n, p).
+Returns the probability of observing exactly ``k`` successes in ``n``
 
 Usage
 -----

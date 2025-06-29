@@ -16,6 +16,7 @@ Distribution Categories:
 * Specialized distributions (Triangular, Pareto, Weibull, Cauchy)
 
 * Custom distributions (Pseudo, Siege, Histogram)
+Generates an integer from a Bernoulli distribution.
 
 Usage
 -----
