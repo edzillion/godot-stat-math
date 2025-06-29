@@ -259,11 +259,21 @@ jobs:
           if-no-files-found: warn
         if: always() && steps.test-results.outputs.tests-passed == 'false'
 
+      - name: Debug XML file locations
+        if: always()
+        run: |
+          echo "=== Debugging XML File Locations ==="
+          echo "Python version: $(python3 --version)"
+          echo "Current directory: $(pwd)"
+          echo "Making debug script executable..."
+          chmod +x scripts/find_xml_reports.py
+          echo "Running XML file location debug..."
+          python3 scripts/find_xml_reports.py
+
       - name: Generate badge data
         if: always()
         run: |
           echo "=== Generating Badge Data ==="
-          echo "Python version: $(python3 --version)"
           echo "Current directory: $(pwd)"
           echo "Making script executable..."
           chmod +x scripts/extract_badge_data.py
@@ -278,31 +288,44 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      - name: Commit badge data
+      - name: Commit badge data and reports
         if: always()
         run: |
-          echo "=== Committing Badge Data ==="
+          echo "=== Committing Badge Data and Test Reports ==="
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
+          # Add badge data if it exists
           if [ -d "docs/_static/badges" ]; then
-            echo "Badge directory exists, checking for changes..."
+            echo "Badge directory exists, adding to staging..."
             git add docs/_static/badges/
-            
-            if ! git diff --staged --quiet; then
-              echo "Badge data has changes, committing..."
-              git commit -m "📊 Update badge data - Release verification"
-              
-              # Push to source branch (develop) - updates the PR
-              echo "Pushing badge data to source branch: ${{ github.head_ref }}"
-              git push git@github.com:${{ github.repository }}.git HEAD:${{ github.head_ref }}
-              
-              echo "✅ Badge data updated and pushed to PR branch"
-            else
-              echo "ℹ️ No badge data changes to commit"
-            fi
           else
             echo "⚠️ No badge data directory found"
+          fi
+          
+          # Add reports directory if it exists
+          REPORTS_DIR="reports"
+          if [ -d "$REPORTS_DIR" ]; then
+            echo "Reports directory exists, adding to staging..."
+            git add "$REPORTS_DIR/"
+            echo "📁 Reports directory contents:"
+            find "$REPORTS_DIR" -type f -name "*.xml" | head -10
+          else
+            echo "⚠️ No reports directory found"
+          fi
+          
+          # Check if there are any changes to commit
+          if ! git diff --staged --quiet; then
+            echo "Changes detected, committing..."
+            git commit -m "📊 Update badge data and test reports - Release verification"
+            
+            # Push to source branch (develop) - updates the PR
+            echo "Pushing badge data and reports to source branch: ${{ github.head_ref }}"
+            git push git@github.com:${{ github.repository }}.git HEAD:${{ github.head_ref }}
+            
+            echo "✅ Badge data and test reports updated and pushed to PR branch"
+          else
+            echo "ℹ️ No changes to commit"
           fi
 
       - name: Generate verification summary
