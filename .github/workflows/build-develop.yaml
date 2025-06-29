@@ -15,7 +15,6 @@ env:
 
 jobs:
   trigger-runner:
-    if: github.event.head_commit.author.name != 'github-actions[bot]'
     runs-on: ubuntu-latest
     outputs:
       runner-triggered: ${{ steps.trigger.outputs.triggered }}
@@ -108,7 +107,7 @@ jobs:
           echo "✅ Proceeding to job execution"
 
   build-addon:
-    if: needs.trigger-runner.outputs.runner-triggered == 'true' && github.event.head_commit.author.name != 'github-actions[bot]'
+    if: needs.trigger-runner.outputs.runner-triggered == 'true'
     needs: trigger-runner
     runs-on: [self-hosted, linux, x64]
     
@@ -314,7 +313,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No new test results to commit"
           else
-            COMMIT_MSG="📊 Test Results & Performance Data - ${{ github.workflow }} ${{ github.run_number }}"
+            COMMIT_MSG="📊 Test Results & Performance Data - ${{ github.workflow }} ${{ github.run_number }} [skip ci]"
             git commit -m "$COMMIT_MSG"
             git push git@github.com:${{ github.repository }}.git HEAD:develop
             echo "✅ Test reports and performance results committed and pushed"

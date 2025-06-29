@@ -47,7 +47,8 @@ def parse_test_results(xml_file: Path) -> Tuple[int, int, int]:
     """
     
     try:
-        tree = ET.parse(xml_file)
+        with open(xml_file, 'r', encoding='utf-8') as f:
+            tree = ET.parse(f)
         root = tree.getroot()
         
         # Get counts from testsuites root element
