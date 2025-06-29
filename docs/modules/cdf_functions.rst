@@ -16,6 +16,7 @@ Distribution Categories:
 * Special distributions (Chi-Square, F-distribution, Student's t)
 
 * Heavy-tailed distributions (Pareto, Weibull)
+Calculates the CDF of a uniform distribution: F(x; a, b).
 
 Usage
 -----
@@ -163,4 +164,24 @@ Functions
    Uses the closed-form solution. Widely used for reliability analysis.
 
    Mathematical Note: ``F(x) = 1 - exp(-(x/λ)^k)`` for ``x ≥ 0``
+
+.. function:: cauchy_cdf(x: float, location: float = 0.0, scale: float = 1.0) -> float:
+
+   Calculates the CDF of a Cauchy (Lorentzian) distribution: F(x; x₀, γ).
+
+   Returns the probability that a random variable from a Cauchy distribution
+   with location parameter ``x₀`` and scale parameter ``γ`` is less than or equal to x.
+   Uses the closed-form solution involving arctan.
+
+   Mathematical Note: ``F(x) = (1/π) * arctan((x - x₀)/γ) + 1/2``
+
+.. function:: lognormal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
+
+   Calculates the CDF of a lognormal distribution: F(x; μ, σ).
+
+   Returns the probability that a random variable from a lognormal distribution
+   with location parameter ``μ`` and scale parameter ``σ`` is less than or equal to x.
+   If X ~ Lognormal(μ, σ), then ln(X) ~ Normal(μ, σ).
+
+   Mathematical Note: ``F(x) = Φ((ln(x) - μ)/σ)`` where Φ is the standard normal CDF
 
