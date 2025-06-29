@@ -170,7 +170,6 @@ jobs:
             res://addons/godot-stat-math/tests/stat_math_test.gd
           publish-report: false
           upload-report: false
-          report-name: "unit-tests.xml"
         env:
           DISABLE_REGRESSION_CHECKING: false
 
@@ -190,7 +189,6 @@ jobs:
           paths: "res://addons/godot-stat-math/tests/performance"
           publish-report: false
           upload-report: false
-          report-name: "performance-tests.xml"
         env:
           DISABLE_REGRESSION_CHECKING: false
 
