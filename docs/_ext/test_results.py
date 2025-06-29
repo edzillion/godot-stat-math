@@ -22,53 +22,30 @@ class TestResultsDirective(SphinxDirective):
     def run(self):
         env = self.state.document.settings.env
         
-        # Get the reports directory relative to source directory  
+        # Get the unit test report directory - hardcoded path
         source_dir = Path(env.srcdir)
-        reports_dir = source_dir.parent / 'reports'
+        unit_test_report = source_dir.parent / 'reports' / 'report_1'
         
-        # Find the latest report (highest numbered folder)
-        latest_report = self._find_latest_report(reports_dir)
-        
-        if not latest_report:
+        if not unit_test_report.exists():
             # Return a message if no reports found
             warning_html = '''
             <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 10px 0;">
-                <strong>⚠️ No Test Reports Found</strong><br>
-                No GDUnit4 test reports were found in the reports directory.
+                <strong>⚠️ No Unit Test Report Found</strong><br>
+                Unit test report not found at reports/report_1/.
                 Run tests to generate a report.
             </div>
             '''
             return [nodes.raw('', warning_html, format='html')]
         
         # Copy the report to the build directory and create an iframe
-        self._copy_report_to_build(latest_report, env)
+        self._copy_report_to_build(unit_test_report, env)
         
         # Generate iframe HTML to embed the report
-        iframe_html = self._generate_iframe_html(latest_report.name)
+        iframe_html = self._generate_iframe_html(unit_test_report.name)
         
         return [nodes.raw('', iframe_html, format='html')]
     
-    def _find_latest_report(self, reports_dir: Path):
-        """Find the latest report directory (highest number)"""
-        if not reports_dir.exists():
-            return None
-            
-        report_dirs = []
-        for item in reports_dir.iterdir():
-            if item.is_dir() and item.name.startswith('report_'):
-                try:
-                    # Extract number from report_N
-                    number = int(item.name.split('_')[1])
-                    report_dirs.append((number, item))
-                except (IndexError, ValueError):
-                    continue
-        
-        if not report_dirs:
-            return None
-            
-        # Sort by number and return the highest
-        report_dirs.sort(key=lambda x: x[0], reverse=True)
-        return report_dirs[0][1]
+
     
     def _copy_report_to_build(self, report_dir: Path, env):
         """Copy the report directory to the build output and modify for compact layout"""

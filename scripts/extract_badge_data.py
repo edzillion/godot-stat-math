@@ -15,83 +15,29 @@ def find_test_reports() -> Tuple[Optional[Path], Optional[Path]]:
     """Find unit test and performance test XML reports.
     Returns: (unit_xml_path, performance_xml_path)
     
-    GDScript tests using gdUnit4-action save XML files, but the exact location may vary.
-    This function searches in multiple possible locations.
+    Hardcoded paths - gdUnit4 creates reports in predictable locations:
+    - reports/report_1/results.xml (unit tests, ~648 tests)
+    - reports/report_2/results.xml (performance tests, ~114 tests)
     """
-    print("Looking for XML reports in multiple locations...")
+    print("=== Looking for test reports in known locations ===")
     
-    # Possible locations to search
-    search_locations = [
-        Path("../unit-tests.xml"),           # Parent directory (original expectation)
-        Path("./unit-tests.xml"),            # Current directory
-        Path("unit-tests.xml"),              # Current directory (alternative)
-        Path("../../unit-tests.xml"),        # Grandparent directory
-        Path("reports/unit-tests.xml"),      # Reports subdirectory
-    ]
+    unit_xml_path = Path("reports/report_1/results.xml")
+    perf_xml_path = Path("reports/report_2/results.xml")
     
-    perf_locations = [
-        Path("../performance-tests.xml"),    # Parent directory (original expectation)
-        Path("./performance-tests.xml"),     # Current directory
-        Path("performance-tests.xml"),       # Current directory (alternative)
-        Path("../../performance-tests.xml"), # Grandparent directory
-        Path("reports/performance-tests.xml"), # Reports subdirectory
-    ]
+    unit_xml = unit_xml_path if unit_xml_path.exists() else None
+    perf_xml = perf_xml_path if perf_xml_path.exists() else None
     
-    # Search for unit tests XML
-    unit_xml = None
-    for location in search_locations:
-        if location.exists():
-            print(f"✅ Found unit tests XML: {location.absolute()}")
-            unit_xml = location
-            break
-        else:
-            print(f"❌ Unit tests XML not found: {location.absolute()}")
-    
-    # Search for performance tests XML
-    perf_xml = None
-    for location in perf_locations:
-        if location.exists():
-            print(f"✅ Found performance tests XML: {location.absolute()}")
-            perf_xml = location
-            break
-        else:
-            print(f"❌ Performance tests XML not found: {location.absolute()}")
-    
-    # If still not found, do a broader search
-    if unit_xml is None or perf_xml is None:
-        print("\n🔍 Performing broader search for XML files...")
-        import glob
+    # Report findings
+    if unit_xml:
+        print(f"✅ Unit tests XML: {unit_xml}")
+    else:
+        print(f"❌ Unit tests XML not found: {unit_xml_path}")
         
-        # Search for any XML files that might be test reports
-        xml_files = []
-        for pattern in ["*.xml", "../*.xml", "../../*.xml", "reports/*.xml"]:
-            xml_files.extend(glob.glob(pattern))
+    if perf_xml:
+        print(f"✅ Performance tests XML: {perf_xml}")  
+    else:
+        print(f"❌ Performance tests XML not found: {perf_xml_path}")
         
-        if xml_files:
-            print("Found XML files:")
-            for xml_file in xml_files:
-                abs_path = Path(xml_file).absolute()
-                size = abs_path.stat().st_size if abs_path.exists() else 0
-                print(f"  - {abs_path} ({size} bytes)")
-                
-                # Check if it might be a test report by looking at the content
-                try:
-                    with open(xml_file, 'r', encoding='utf-8') as f:
-                        content = f.read(200)
-                        if any(keyword in content.lower() for keyword in ['testsuites', 'testsuite', 'testcase']):
-                            print(f"    📋 This looks like a test report!")
-                            if unit_xml is None and 'unit' in xml_file.lower():
-                                unit_xml = Path(xml_file)
-                            elif perf_xml is None and 'performance' in xml_file.lower():
-                                perf_xml = Path(xml_file)
-                except Exception as e:
-                    print(f"    ❌ Could not read file: {e}")
-        else:
-            print("No XML files found in search locations.")
-    
-    # Print current working directory for debugging
-    print(f"\nCurrent working directory: {Path.cwd()}")
-    
     return unit_xml, perf_xml
 
 def parse_test_results(xml_file: Path) -> Tuple[int, int, int]:
