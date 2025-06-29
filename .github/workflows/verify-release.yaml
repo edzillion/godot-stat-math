@@ -29,6 +29,18 @@ jobs:
     needs: enforce-develop-source
     runs-on: ubuntu-latest
     steps:
+      - name: Set pending status
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+            -d '{
+              "state": "pending",
+              "description": "Version bump validation in progress",
+              "context": "check-version-bump"
+            }'
+
       - name: Checkout base branch
         uses: actions/checkout@v4
         with:
@@ -52,10 +64,37 @@ jobs:
         id: extract-version-new
 
       - name: Check semantic version bump
+        id: version-check
         uses: CapsCollective/version-actions/check-version-bump@v1.0
         with:
           new-version: ${{ steps.extract-version-new.outputs.version-string }}
           old-version: ${{ steps.extract-version-old.outputs.version-string }}
+
+      - name: Set success status
+        if: success()
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+            -d '{
+              "state": "success",
+              "description": "Version bump validation passed",
+              "context": "check-version-bump"
+            }'
+
+      - name: Set failure status
+        if: failure()
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
+            -d '{
+              "state": "failure",
+              "description": "Version bump validation failed",
+              "context": "check-version-bump"
+            }'
 
   validate-addon-structure:
     needs: [enforce-develop-source, check-version-bump]
@@ -292,7 +331,7 @@ jobs:
           # Check if there are any changes to commit
           if ! git diff --staged --quiet; then
             echo "Changes detected, committing..."
-            git commit -m "📊 Update badge data, test reports and performance data - Release verification"
+            git commit -m "📊 Update badge, test and performance data - Release verification"
             
             # Push to source branch (develop) - updates the PR
             echo "Pushing badge data, reports and performance data to source branch: ${{ github.head_ref }}"
