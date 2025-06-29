@@ -213,14 +213,68 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "bumped=$BUMPED" >> $GITHUB_OUTPUT
 
-      - name: Run All GDUnit4 tests
+      - name: Clean up previous reports
+        run: rm -rf reports
+
+      - name: Run Unit Tests
         uses: MikeSchulze/gdunit4-action@v1
         with:
           godot-version: "4.4"
-          paths: "res://addons/godot-stat-math/tests"
+          paths: |
+            res://addons/godot-stat-math/tests/core
+            res://addons/godot-stat-math/tests/stat_math_test.gd
           upload-report: false
         env:
           DISABLE_REGRESSION_CHECKING: false
+
+      - name: Clean up GdUnit4 installation artifacts
+        if: always()
+        run: |
+          echo "Cleaning up GdUnit4 installation artifacts..."
+          rm -rf ./.install-gdunit4
+          rm -rf ./addons/gdUnit4
+          echo "✅ Cleanup completed"
+
+      - name: Run Performance Tests
+        if: always()
+        continue-on-error: true
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "4.4"
+          paths: "res://addons/godot-stat-math/tests/performance"
+          upload-report: false
+        env:
+          DISABLE_REGRESSION_CHECKING: false
+
+      - name: Check unit test results
+        if: always()
+        id: unit-test-results
+        run: |
+          echo "=== Unit Test Results Analysis ==="
+          
+          # Default to failed state
+          echo "unit-tests-passed=false" >> $GITHUB_OUTPUT
+          
+          UNIT_TEST_REPORT="reports/report_1/results.xml"
+          
+          if [ -f "$UNIT_TEST_REPORT" ]; then
+            echo "📊 Found unit test results at $UNIT_TEST_REPORT"
+            
+            FAILURES=$(grep -o 'failures="[0-9]*"' "$UNIT_TEST_REPORT" | grep -o '[0-9]*' | head -1 || echo "0")
+            ERRORS=$(grep -o 'errors="[0-9]*"' "$UNIT_TEST_REPORT" | grep -o '[0-9]*' | head -1 || echo "0")
+            echo "Unit Test Failures: $FAILURES, Errors: $ERRORS"
+            
+            if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
+              echo "✅ Unit tests completed successfully"
+              echo "unit-tests-passed=true" >> $GITHUB_OUTPUT
+            else
+              echo "❌ Unit tests failed with $FAILURES failures and $ERRORS errors"
+              echo "unit-tests-passed=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "❌ Unit test results not found at $UNIT_TEST_REPORT"
+            echo "unit-tests-passed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set up SSH for deploy key
         if: always()
@@ -240,16 +294,41 @@ jobs:
           PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
 
           if [ -d "$PERF_RESULTS_DIR" ]; then
+            echo "Performance results directory exists, adding to staging..."
             git add "$PERF_RESULTS_DIR/"
+          else
+            echo "⚠️ No performance results directory found"
+          fi
+
+          # Add reports directory if it exists (force add to override .gitignore)
+          REPORTS_DIR="reports"
+          if [ -d "$REPORTS_DIR" ]; then
+            echo "Reports directory exists, force adding to staging (overriding gitignore)..."
+            git add -f "$REPORTS_DIR/"
+            echo "📁 Reports directory contents:"
+            find "$REPORTS_DIR" -type f -name "*.xml" | head -10
+          else
+            echo "⚠️ No reports directory found"
           fi
 
           if git diff --staged --quiet; then
             echo "No new test results to commit"
           else
-            COMMIT_MSG="📊 Performance Test Results - ${{ github.workflow }} ${{ github.run_number }}"
+            COMMIT_MSG="📊 Test Results & Performance Data - ${{ github.workflow }} ${{ github.run_number }}"
             git commit -m "$COMMIT_MSG"
             git push git@github.com:${{ github.repository }}.git HEAD:develop
             echo "✅ Test reports and performance results committed and pushed"
+          fi
+
+      - name: Check build status
+        if: always()
+        run: |
+          if [ "${{ steps.unit-test-results.outputs.unit-tests-passed }}" = "false" ]; then
+            echo "❌ Build failed due to unit test failures"
+            exit 1
+          else
+            echo "✅ Build passed - unit tests successful"
+            echo "ℹ️ Performance test results saved regardless of outcome"
           fi
 
       - name: Create addon zip
@@ -289,17 +368,31 @@ jobs:
         if: always()
 
       - name: Generate build summary
+        if: always()
         run: |
-          echo "## 🚀 Development Build Created" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: ${{ steps.bump-version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Tests**: Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- **Artifact**: godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📥 Download the artifact from the **Actions** tab to test this build." >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "⚠️ This is a development build - not for production use." >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.unit-test-results.outputs.unit-tests-passed }}" = "true" ]; then
+            echo "## 🚀 Development Build Created" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Version**: ${{ steps.bump-version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Unit Tests**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+            echo "- **Performance Tests**: 📊 Data collected (non-blocking)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Artifact**: godot-stat-math-${{ steps.bump-version.outputs.new_version }}-dev.zip" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "📥 Download the artifact from the **Actions** tab to test this build." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ This is a development build - not for production use." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Development Build Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Version**: ${{ steps.bump-version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Unit Tests**: ❌ Failed" >> $GITHUB_STEP_SUMMARY
+            echo "- **Performance Tests**: 📊 Data collected (non-blocking)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Artifact**: ❌ Not created due to test failures" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🔧 Fix unit test failures before building!" >> $GITHUB_STEP_SUMMARY
+          fi
 
   terminate-runner:
   
