@@ -314,7 +314,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No new test results to commit"
           else
-            COMMIT_MSG="📊 Test Results & Performance Data - ${{ github.workflow }} ${{ github.run_number }}"
+            COMMIT_MSG="📊 Test Results & Performance Data - ${{ github.workflow }} ${{ github.run_number }} [skip ci]"
             git commit -m "$COMMIT_MSG"
             git push git@github.com:${{ github.repository }}.git HEAD:develop
             echo "✅ Test reports and performance results committed and pushed"
