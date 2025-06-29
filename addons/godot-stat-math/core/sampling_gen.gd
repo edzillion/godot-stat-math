@@ -1,28 +1,49 @@
 # res://addons/godot-stat-math/core/sampling_gen.gd
-class_name SamplingGen
+class_name SamplingGen extends RefCounted
 
+## Advanced Sampling and Quasi-Random Number Generation
+##
+## This class provides sophisticated sampling methods including quasi-random sequences, 
+## Latin hypercube sampling, and coordinated shuffling for statistical simulations.
+## Designed for high-performance multi-dimensional sampling with threading support.
+##
+## Features:
+##
+## * Quasi-random sequences (Sobol, Halton) for low-discrepancy sampling
+##
+## * Latin Hypercube sampling for space-filling designs
+##
+## * Coordinated shuffling with statistical guarantees
+##
+## * Memory pooling and threading for performance optimization
+##
+## * Multiple selection strategies (with/without replacement)
+
+## Defines the available sampling methods for generating random sequences.
 enum SamplingMethod {
-	RANDOM,           # Pseudo-random sampling
-	SOBOL,            # Sobol quasi-random sequence
-	SOBOL_RANDOM,     # Randomized Sobol sequence
-	HALTON,           # Halton quasi-random sequence
-	HALTON_RANDOM,    # Randomized Halton sequence
-	LATIN_HYPERCUBE   # Latin Hypercube space-filling design
+	RANDOM,           ## Pseudo-random sampling using standard RNG
+	SOBOL,            ## Sobol quasi-random sequence for low-discrepancy
+	SOBOL_RANDOM,     ## Randomized Sobol sequence combining QMC benefits with randomization
+	HALTON,           ## Halton quasi-random sequence based on prime numbers
+	HALTON_RANDOM,    ## Randomized Halton sequence with random offsets
+	LATIN_HYPERCUBE   ## Latin Hypercube space-filling design for stratified sampling
 }
 
+## Defines strategies for selecting samples from populations.
 enum SelectionStrategy {
-	WITH_REPLACEMENT,          # Allow duplicates (like rolling dice, bootstrap sampling)
-	FISHER_YATES,              # Without replacement - shuffle then draw
-	RESERVOIR,                 # Without replacement - when draw count unknown
-	SELECTION_TRACKING,        # Without replacement - memory efficient
-	COORDINATED_FISHER_YATES   # Without replacement - multi-dimensional coordinated shuffle
+	WITH_REPLACEMENT,          ## Allow duplicates (bootstrap sampling, rolling dice)
+	FISHER_YATES,              ## Without replacement using Fisher-Yates shuffle
+	RESERVOIR,                 ## Without replacement using reservoir algorithm
+	SELECTION_TRACKING         ## Without replacement with memory-efficient tracking
 }
 
+const _SOBOL_DATA = preload("res://addons/godot-stat-math/tables/sobol_data.gd")
+const _PRIME_DATA = preload("res://addons/godot-stat-math/tables/prime_numbers_data.gd")
 const _SOBOL_BITS: int = 30
 const _SOBOL_MAX_VAL_FLOAT: float = float(1 << _SOBOL_BITS)
 
-# Enhanced Sobol direction vectors system for arbitrary dimensions
-# Each dimension uses a primitive polynomial to generate direction vectors
+# Enhanced Sobol direction vectors system using authoritative Joe-Kuo data
+# Supports up to 1024 dimensions with optimal low-discrepancy properties
 static var _sobol_direction_vectors_cache: Dictionary = {}  # dimension -> Array[int]
 static var _max_cached_dimension: int = -1
 
@@ -35,67 +56,12 @@ static var _pool_mutex: Mutex = Mutex.new()
 # Pool configuration
 const MAX_POOLED_DECKS_PER_SIZE: int = 16
 
-# Primitive polynomials for Sobol sequence generation (up to 100 dimensions)
-# Format: [degree, a1, a2, ..., a_degree-1] where polynomial is x^degree + a1*x^(degree-1) + ... + a_degree-1*x + 1
-const _PRIMITIVE_POLYNOMIALS: Array[Array] = [
-	[1],                    # Dimension 0: x (degree 1)
-	[2, 1],                 # Dimension 1: x^2 + x + 1
-	[3, 1],                 # Dimension 2: x^3 + x + 1
-	[3, 2],                 # Dimension 3: x^3 + x^2 + 1
-	[4, 1],                 # Dimension 4: x^4 + x + 1
-	[4, 3],                 # Dimension 5: x^4 + x^3 + 1
-	[4, 1, 3],              # Dimension 6: x^4 + x^3 + x + 1
-	[4, 3, 1],              # Dimension 7: x^4 + x^3 + x^2 + 1
-	[5, 2],                 # Dimension 8: x^5 + x^2 + 1
-	[5, 4],                 # Dimension 9: x^5 + x^4 + 1
-	[5, 1, 2],              # Dimension 10: x^5 + x^2 + x + 1
-	[5, 1, 4],              # Dimension 11: x^5 + x^4 + x + 1
-	[5, 3, 1],              # Dimension 12: x^5 + x^3 + x^2 + 1
-	[5, 4, 3],              # Dimension 13: x^5 + x^4 + x^3 + 1
-	[5, 1, 4, 2],           # Dimension 14: x^5 + x^4 + x^2 + x + 1
-	[5, 3, 4, 1],           # Dimension 15: x^5 + x^4 + x^3 + x^2 + 1
-	[6, 1],                 # Dimension 16: x^6 + x + 1
-	[6, 5],                 # Dimension 17: x^6 + x^5 + 1
-	[6, 1, 5],              # Dimension 18: x^6 + x^5 + x + 1
-	[6, 5, 1],              # Dimension 19: x^6 + x^5 + x^2 + 1
-	[6, 4, 1],              # Dimension 20: x^6 + x^4 + x^2 + 1
-	[7, 1],                 # Dimension 21: x^7 + x + 1
-	[7, 4],                 # Dimension 22: x^7 + x^4 + 1
-	[7, 4, 3, 1],           # Dimension 23: x^7 + x^4 + x^3 + x^2 + 1
-	[7, 6, 1],              # Dimension 24: x^7 + x^6 + x^2 + 1
-	[7, 5, 2],              # Dimension 25: x^7 + x^5 + x^2 + 1
-	[7, 6, 5, 2],           # Dimension 26: x^7 + x^6 + x^5 + x^2 + 1
-	[7, 5, 4, 3, 2, 1],     # Dimension 27: x^7 + x^5 + x^4 + x^3 + x^2 + x + 1
-	[7, 6, 5, 4, 2, 1],     # Dimension 28: x^7 + x^6 + x^5 + x^4 + x^2 + x + 1
-	[7, 6, 3, 1],           # Dimension 29: x^7 + x^6 + x^3 + x + 1
-	[8, 4, 3, 2],           # Dimension 30: x^8 + x^4 + x^3 + x^2 + 1
-	[8, 6, 5, 3],           # Dimension 31: x^8 + x^6 + x^5 + x^3 + 1
-	[8, 6, 5, 1],           # Dimension 32: x^8 + x^6 + x^5 + x + 1
-	[8, 5, 3, 1],           # Dimension 33: x^8 + x^5 + x^3 + x + 1
-	[8, 4, 3, 1],           # Dimension 34: x^8 + x^4 + x^3 + x + 1
-	[8, 7, 2, 1],           # Dimension 35: x^8 + x^7 + x^2 + x + 1
-	[8, 7, 4, 2],           # Dimension 36: x^8 + x^7 + x^4 + x^2 + 1
-	[8, 7, 6, 1],           # Dimension 37: x^8 + x^7 + x^6 + x + 1
-	[8, 6, 4, 3, 2, 1],     # Dimension 38: x^8 + x^6 + x^4 + x^3 + x^2 + x + 1
-	[8, 7, 6, 5, 2, 1],     # Dimension 39: x^8 + x^7 + x^6 + x^5 + x^2 + x + 1
-	[9, 4],                 # Dimension 40: x^9 + x^4 + 1
-	[9, 6, 4, 2],           # Dimension 41: x^9 + x^6 + x^4 + x^2 + 1
-	[9, 5, 3, 2],           # Dimension 42: x^9 + x^5 + x^3 + x^2 + 1
-	[9, 6, 5, 4, 2, 1],     # Dimension 43: x^9 + x^6 + x^5 + x^4 + x^2 + x + 1
-	[9, 7, 6, 4, 3, 1],     # Dimension 44: x^9 + x^7 + x^6 + x^4 + x^3 + x + 1
-	[9, 8, 7, 6, 2, 1],     # Dimension 45: x^9 + x^8 + x^7 + x^6 + x^2 + x + 1
-	[9, 8, 7, 2],           # Dimension 46: x^9 + x^8 + x^7 + x^2 + 1
-	[9, 8, 6, 5, 3, 2],     # Dimension 47: x^9 + x^8 + x^6 + x^5 + x^3 + x^2 + 1
-	[9, 8, 3, 2],           # Dimension 48: x^9 + x^8 + x^3 + x^2 + 1
-	[9, 5, 4, 3, 2, 1],     # Dimension 49: x^9 + x^5 + x^4 + x^3 + x^2 + x + 1
-	[10, 3],                # Dimension 50: x^10 + x^3 + 1
-	[10, 8, 3, 2],          # Dimension 51: x^10 + x^8 + x^3 + x^2 + 1
-	# This gives us 52 dimensions (0-51), enough for a 52-card deck
-]
-
-
 func _init() -> void:
-	_ensure_sobol_vectors_initialized(51)  # Initialize up to 51 dimensions for 52-card deck support
+	var start_time: int = Time.get_ticks_usec()
+	_ensure_sobol_vectors_initialized(_SOBOL_DATA.get_max_dimension())  # Initialize all available dimensions
+	var end_time: int = Time.get_ticks_usec()
+	var duration_ms: float = (end_time - start_time) / 1000.0
+	print("SamplingGen: Initialized %d Sobol dimensions in %.2f ms" % [_SOBOL_DATA.get_max_dimension(), duration_ms])
 
 
 # --- MEMORY POOL MANAGEMENT ---
@@ -149,30 +115,24 @@ static func _return_pooled_deck(deck: Array[int], deck_size: int) -> void:
 
 ## Ensures Sobol direction vectors are initialized up to the specified dimension.
 ## This method is idempotent and safe to call multiple times.
-## Thread-safe: Uses a simple mutex-like approach via static variables.
+## SINGLE-THREADED: Should only be called from main thread before spawning workers.
 static func _ensure_sobol_vectors_initialized(max_dimension: int) -> void:
 	if max_dimension <= _max_cached_dimension:
 		return
 		
-	# Basic thread safety: if another thread is already initializing higher dimensions,
-	# we don't need to do anything (the cache check above handles this)
 	var start_dim: int = max(_max_cached_dimension + 1, 0)
 	
 	for dim in range(start_dim, max_dimension + 1):
-		if dim >= _PRIMITIVE_POLYNOMIALS.size():
-			printerr("SamplingGen: No primitive polynomial available for dimension ", dim)
-			break
-			
-		# Only generate if not already in cache (thread safety)
+		# Only generate if not already in cache
 		if not _sobol_direction_vectors_cache.has(dim):
 			_generate_direction_vectors_for_dimension(dim)
 	
-	# Update the maximum cached dimension atomically
+	# Update the maximum cached dimension
 	if max_dimension > _max_cached_dimension:
 		_max_cached_dimension = max_dimension
 
 
-## Generates direction vectors for a specific dimension using its primitive polynomial.
+## Generates direction vectors for a specific dimension using authoritative Joe-Kuo direction numbers.
 static func _generate_direction_vectors_for_dimension(dimension: int) -> void:
 	if _sobol_direction_vectors_cache.has(dimension):
 		return
@@ -180,41 +140,44 @@ static func _generate_direction_vectors_for_dimension(dimension: int) -> void:
 	var direction_vectors: Array[int] = []
 	direction_vectors.resize(_SOBOL_BITS)
 	
-	if dimension >= _PRIMITIVE_POLYNOMIALS.size():
-		printerr("SamplingGen: No primitive polynomial available for dimension ", dimension)
-		return
-	
-	var poly: Array = _PRIMITIVE_POLYNOMIALS[dimension]
-	
-	if poly.is_empty():
-		printerr("SamplingGen: Empty polynomial for dimension ", dimension)
-		return
-		
-	var degree: int = poly[0]
-	
 	if dimension == 0:
-		# Special case for dimension 0: polynomial x (degree 1)
+		# Special case for dimension 0: use powers of 2 for the first dimension
 		for j in range(_SOBOL_BITS):
 			direction_vectors[j] = 1 << (_SOBOL_BITS - 1 - j)
+	elif dimension == 1:
+		# Special case for dimension 1: simple alternating pattern
+		for j in range(_SOBOL_BITS):
+			direction_vectors[j] = 1 << (_SOBOL_BITS - 1 - j)
+			if j % 2 == 1:
+				direction_vectors[j] = 0
 	else:
-		# Initialize first 'degree' direction vectors with powers of 2
-		for i in range(degree):
-			if i < _SOBOL_BITS:
-				direction_vectors[i] = 1 << (_SOBOL_BITS - 1 - i)
+		# Use authoritative Joe-Kuo direction numbers from SobolData
+		if not _SOBOL_DATA.has_dimension(dimension):
+			printerr("SamplingGen: No direction numbers available for dimension ", dimension)
+			return
 		
-		# Generate remaining direction vectors using recurrence relation
-		for j in range(degree, _SOBOL_BITS):
-			var v: int = direction_vectors[j - degree]
-			
-			# Apply polynomial coefficients
-			for k in range(1, poly.size()):
-				var coeff: int = poly[k]
-				if coeff > 0 and j - coeff >= 0:
-					v ^= direction_vectors[j - coeff]
-			
-			# Apply the shift operation
-			v ^= (direction_vectors[j - degree] >> degree)
-			direction_vectors[j] = v
+		var direction_numbers: Array = _SOBOL_DATA.get_direction_numbers(dimension)
+		if direction_numbers.is_empty():
+			printerr("SamplingGen: Empty direction numbers for dimension ", dimension)
+			return
+		
+		# Convert direction numbers (m_i values) to direction vectors (V_i = m_i / 2^i)
+		# First, set the initial direction vectors from the direction numbers
+		for i in range(min(direction_numbers.size(), _SOBOL_BITS)):
+			var m_i: int = direction_numbers[i]
+			# Convert m_i to direction vector: V_i = m_i / 2^(i+1) represented as integer
+			# Since we work with integer representation: V_i = m_i * 2^(_SOBOL_BITS - i - 1)
+			direction_vectors[i] = m_i << (_SOBOL_BITS - i - 1)
+		
+		# If we need more direction vectors, generate them using recurrence relation
+		# This should rarely be needed with proper Joe-Kuo data
+		var s: int = direction_numbers.size()
+		for j in range(s, _SOBOL_BITS):
+			# Use a simple doubling pattern as fallback
+			if j - s >= 0:
+				direction_vectors[j] = direction_vectors[j - s] << 1
+				if direction_vectors[j] >= (1 << _SOBOL_BITS):
+					direction_vectors[j] = direction_vectors[j] ^ (1 << _SOBOL_BITS) ^ 1
 	
 	_sobol_direction_vectors_cache[dimension] = direction_vectors
 
@@ -252,16 +215,39 @@ static func _generate_dimension_samples_worker(task: SobolDimensionTask) -> void
 				
 		SamplingMethod.SOBOL:
 			var sobol_samples = _generate_sobol_1d(task.n_draws, task.dimension, task.starting_index)
+			var has_errors: bool = false
 			for i in range(task.n_draws):
-				task.result_samples[i] = sobol_samples[i] if i < sobol_samples.size() else -1.0
+				if i < sobol_samples.size() and sobol_samples[i] != -1.0:
+					task.result_samples[i] = sobol_samples[i]
+				else:
+					has_errors = true
+					break
+			
+			# Fallback to random if Sobol sequence hits limits
+			if has_errors:
+				print("SOBOL fallback for dimension ", task.dimension, " due to sequence limits")
+				var fallback_rng = RandomNumberGenerator.new()
+				fallback_rng.seed = hash(str(task.dimension) + str(task.starting_index) + "fallback")
+				for i in range(task.n_draws):
+					task.result_samples[i] = fallback_rng.randf()
 				
 		SamplingMethod.SOBOL_RANDOM:
 			var sobol_integers = _get_sobol_1d_integers(task.n_draws, task.dimension, task.starting_index)
+			var has_errors: bool = false
 			for i in range(task.n_draws):
-				if sobol_integers[i] != -1:
+				if i < sobol_integers.size() and sobol_integers[i] != -1:
 					task.result_samples[i] = float(sobol_integers[i] ^ task.random_mask) / _SOBOL_MAX_VAL_FLOAT
 				else:
-					task.result_samples[i] = -1.0
+					has_errors = true
+					break
+			
+			# Fallback to random if Sobol sequence hits limits
+			if has_errors:
+				print("SOBOL_RANDOM fallback for dimension ", task.dimension, " due to sequence limits")
+				var fallback_rng = RandomNumberGenerator.new()
+				fallback_rng.seed = hash(str(task.dimension) + str(task.starting_index) + "fallback")
+				for i in range(task.n_draws):
+					task.result_samples[i] = fallback_rng.randf()
 					
 		SamplingMethod.HALTON:
 			var halton_samples = _generate_halton_1d(task.n_draws, task.halton_base, task.starting_index)
@@ -304,6 +290,18 @@ static func _generate_samples_nd(
 		samples[i] = []
 		samples[i].resize(dimensions)
 	
+	# Check for practical limits with Sobol sequences
+	var max_sobol_index: int = (1 << _SOBOL_BITS) - 1  # 2^30 - 1
+	var total_sequence_length: int = n_draws + starting_index
+	
+	if (method == SamplingMethod.SOBOL or method == SamplingMethod.SOBOL_RANDOM) and total_sequence_length > max_sobol_index:
+		print("WARNING: Sobol sequence request (", total_sequence_length, ") exceeds practical limit (", max_sobol_index, "). Consider using RANDOM method for very large batches.")
+	
+	# Pre-initialize ALL Sobol dimensions needed BEFORE spawning threads
+	# This ensures true parallelization - threads only READ, never write to cache
+	if method == SamplingMethod.SOBOL or method == SamplingMethod.SOBOL_RANDOM:
+		_ensure_sobol_vectors_initialized(dimensions - 1)
+	
 	# Pre-generate random values for methods that need them
 	var random_masks: Array = []
 	var random_offsets: Array = []
@@ -341,11 +339,12 @@ static func _generate_samples_nd(
 		var task_id = WorkerThreadPool.add_task(Callable(_generate_dimension_samples_worker).bind(task))
 		task_ids.append(task_id)
 	
-	# Collect results from threads
+	# Wait for all tasks to complete first (parallel execution)
+	for task_id in task_ids:
+		WorkerThreadPool.wait_for_task_completion(task_id)
+	
+	# Then collect results from all completed tasks
 	for d in range(dimensions):
-		WorkerThreadPool.wait_for_task_completion(task_ids[d])
-		# Note: WorkerThreadPool doesn't return task results directly in Godot
-		# We need to use a different approach - shared result storage
 		var dim_samples: Array[float] = tasks[d].result_samples
 		for i in range(n_draws):
 			samples[i][d] = dim_samples[i] if i < dim_samples.size() else -1.0
@@ -503,10 +502,8 @@ static func _coordinated_shuffle_with_samples(deck_size: int, sobol_point: Array
 		var dim_index: int = deck_size - 1 - i
 		var raw_random_val: float = sobol_point[dim_index] if dim_index < sobol_point.size() else 0.5
 		
-		# Use proper Beta(2,2) PPF transformation
-		var beta_val: float = StatMath.PpfFunctions.beta_ppf(raw_random_val, 2.0, 2.0)
-		
-		var j: int = int(beta_val * float(i + 1))
+		# Direct uniform mapping ensures proper distribution across the deck
+		var j: int = int(raw_random_val * float(i + 1))
 		j = clamp(j, 0, i)  # Ensure j is always in valid range [0, i]
 		
 		# Swap deck[i] and deck[j]
@@ -534,12 +531,11 @@ static func _coordinated_shuffle_worker(task: BatchShuffleTask) -> void:
 
 ## Unified interface for generating samples in 1, 2, or N dimensions.
 ##
-## @param n_draws: int The number of samples to draw.
-## @param dimensions: int The number of dimensions (1, 2, or N).
-## @param method: SamplingMethod The sampling method to use.
-## @param starting_index: int Starting index for deterministic sequences (default 0).
-## @param sample_seed: int The random seed (optional, uses global RNG if -1).
-## @return Variant Returns Array[float] for 1D, Array[Vector2] for 2D, Array[Array[float]] for ND.
+## Returns different types based on dimensions: [code]Array[float][/code] for 1D, 
+## [code]Array[Vector2][/code] for 2D, [code]Array[Array[float]][/code] for N-D.
+## Supports all sampling methods including quasi-random sequences.
+##
+## Mathematical Note: For quasi-random methods, low-discrepancy sequences provide better coverage than pseudo-random
 static func generate_samples(
 	n_draws: int, 
 	dimensions: int = 1,
@@ -547,15 +543,19 @@ static func generate_samples(
 	starting_index: int = 0,
 	sample_seed: int = -1
 ) -> Variant:
-	if n_draws <= 0:
-		match dimensions:
-			1: return Array([], TYPE_FLOAT, "", null)
-			2: return Array([], TYPE_VECTOR2, "", null)
-			_: return Array([], TYPE_ARRAY, "", null)
+	if n_draws < 0:
+		push_error("n_draws must be non-negative. Received: " + str(n_draws))
+		return null
 	
 	if dimensions < 1:
 		push_error("dimensions must be >= 1. Received: " + str(dimensions))
 		return null
+	
+	if n_draws == 0:
+		match dimensions:
+			1: return Array([], TYPE_FLOAT, "", null)
+			2: return Array([], TYPE_VECTOR2, "", null)
+			_: return Array([], TYPE_ARRAY, "", null)
 	
 	# Use the unified N-dimensional generation for all cases
 	var nd_samples: Array = generate_samples_nd(n_draws, dimensions, method, starting_index, sample_seed)
@@ -588,12 +588,10 @@ static func generate_samples(
 
 ## Generates N-dimensional samples using the specified method.
 ##
-## @param n_draws: int The number of samples to draw.
-## @param dimensions: int The number of dimensions.
-## @param method: SamplingMethod The sampling method to use.
-## @param starting_index: int Starting index for deterministic sequences.
-## @param sample_seed: int The random seed (optional, uses global RNG if -1).
-## @return Array An array of n_draws samples, each with 'dimensions' values (Array[Array[float]] conceptually).
+## Returns an array of samples where each sample is an array of [code]dimensions[/code] values.
+## Uses threading for dimensions ≥ 3 for optimal performance. Supports all sampling methods.
+##
+## Mathematical Note: Quasi-random sequences maintain uniformity across all dimensions simultaneously
 static func generate_samples_nd(
 	n_draws: int, 
 	dimensions: int, 
@@ -609,7 +607,9 @@ static func generate_samples_nd(
 	if sample_seed != -1:
 		rng_to_use.seed = sample_seed
 	
-	_ensure_sobol_vectors_initialized(dimensions - 1)
+	# Pre-initialize Sobol dimensions if needed
+	if method == SamplingMethod.SOBOL or method == SamplingMethod.SOBOL_RANDOM:
+		_ensure_sobol_vectors_initialized(dimensions - 1)
 	
 	# Always use threading for dimensions >= 3 (cleaner, simpler, and faster)
 	if dimensions >= 3:
@@ -630,8 +630,19 @@ static func generate_samples_nd(
 		SamplingMethod.SOBOL:
 			for d in range(dimensions):
 				var dim_samples = _generate_sobol_1d(n_draws, d, starting_index)
+				var has_errors: bool = false
 				for i in range(n_draws):
-					samples[i][d] = dim_samples[i] if i < dim_samples.size() else -1.0
+					if i < dim_samples.size() and dim_samples[i] != -1.0:
+						samples[i][d] = dim_samples[i]
+					else:
+						has_errors = true
+						break
+				
+				# Fallback to random if Sobol sequence hits limits
+				if has_errors:
+					print("SOBOL fallback for dimension ", d, " due to sequence limits")
+					for i in range(n_draws):
+						samples[i][d] = rng_to_use.randf()
 		
 		SamplingMethod.SOBOL_RANDOM:
 			var random_masks = []
@@ -641,10 +652,18 @@ static func generate_samples_nd(
 			
 			for d in range(dimensions):
 				var sobol_integers = _get_sobol_1d_integers(n_draws, d, starting_index)
+				var has_errors: bool = false
 				for i in range(n_draws):
-					if sobol_integers[i] != -1:
+					if i < sobol_integers.size() and sobol_integers[i] != -1:
 						samples[i][d] = float(sobol_integers[i] ^ random_masks[d]) / _SOBOL_MAX_VAL_FLOAT
 					else:
+						has_errors = true
+						break
+				
+				# Fallback to random if Sobol sequence hits limits
+				if has_errors:
+					print("SOBOL_RANDOM fallback for dimension ", d, " due to sequence limits")
+					for i in range(n_draws):
 						samples[i][d] = rng_to_use.randf()
 		
 		SamplingMethod.HALTON:
@@ -684,14 +703,13 @@ static func generate_samples_nd(
 	return samples
 
 
-## Performs a complete coordinated shuffle of a deck using multi-dimensional sampling.
-## This is the key method for your coordinated Fisher-Yates approach.
+## Performs a complete coordinated shuffle using multi-dimensional sampling.
 ##
-## @param deck_size: int Size of the deck to shuffle.
-## @param method: SamplingMethod The sampling method to use for coordination.
-## @param point_index: int Which point in the sequence to use (for deterministic sequences).
-## @param sample_seed: int The random seed (optional, uses global RNG if -1).
-## @return Array[int] The shuffled deck as indices [0, deck_size-1].
+## Uses a single multi-dimensional point to drive the Fisher-Yates shuffle algorithm,
+## ensuring statistical guarantees across the entire shuffle operation. 
+## This is the core method for coordinated shuffling.
+##
+## Mathematical Note: Uses [code](deck_size-1)[/code] dimensional point for Fisher-Yates coordination
 static func coordinated_shuffle(
 	deck_size: int, 
 	method: SamplingMethod = SamplingMethod.SOBOL,
@@ -717,6 +735,10 @@ static func coordinated_shuffle(
 	# We need (deck_size - 1) dimensions for Fisher-Yates
 	var shuffle_dimensions: int = deck_size - 1
 	
+	# Pre-initialize Sobol dimensions if needed
+	if method == SamplingMethod.SOBOL or method == SamplingMethod.SOBOL_RANDOM:
+		_ensure_sobol_vectors_initialized(shuffle_dimensions - 1)
+	
 	# Generate a single multi-dimensional point using multithreading
 	var nd_samples: Array = _generate_samples_nd(1, shuffle_dimensions, method, point_index, rng_to_use)
 	
@@ -731,12 +753,8 @@ static func coordinated_shuffle(
 		var dim_index: int = deck_size - 1 - i
 		var raw_random_val: float = sobol_point[dim_index]
 		
-		# FINAL FIX: Use proper Beta(2,2) PPF transformation
-		# Now that incomplete_beta is implemented, we can use the mathematical approach
-		# Beta(2,2) creates a symmetric bell curve that avoids extremes while preserving uniformity
-		var beta_val: float = StatMath.PpfFunctions.beta_ppf(raw_random_val, 2.0, 2.0)
-		
-		var j: int = int(beta_val * float(i + 1))
+		# Direct uniform mapping ensures proper distribution across the deck
+		var j: int = int(raw_random_val * float(i + 1))
 		j = clamp(j, 0, i)  # Ensure j is always in valid range [0, i]
 		
 		# Swap deck[i] and deck[j]
@@ -750,12 +768,10 @@ static func coordinated_shuffle(
 
 ## Generates multiple coordinated shuffles efficiently.
 ##
-## @param deck_size: int Size of each deck to shuffle.
-## @param n_shuffles: int Number of shuffles to generate.
-## @param method: SamplingMethod The sampling method to use.
-## @param starting_index: int Starting point in the sequence.
-## @param sample_seed: int The random seed (optional, uses global RNG if -1).
-## @return Array Array of shuffled decks (Array[Array[int]] conceptually).
+## Creates multiple shuffles using sequential points from the specified sampling sequence.
+## Uses threading for [code]n_shuffles ≥ 2[/code] to maximize performance with batch operations.
+##
+## Mathematical Note: Each shuffle uses consecutive points from the quasi-random sequence for coordination
 static func coordinated_batch_shuffles(
 	deck_size: int,
 	n_shuffles: int, 
@@ -785,16 +801,13 @@ static func coordinated_batch_shuffles(
 
 # --- DISCRETE INDEX SAMPLING (for finite populations, card games, bootstrap) ---
 
-## Enhanced interface for sampling indices from a finite population.
-## Combines sampling methods (how to generate random numbers) with selection strategies 
-## (how to use those numbers to select indices).
+## Samples indices from a finite population using advanced selection strategies.
 ##
-## @param population_size: int The size of the population to sample from (0 to population_size-1).
-## @param draw_count: int The number of indices to draw.
-## @param selection_strategy: SelectionStrategy How to select indices (with/without replacement).
-## @param sampling_method: SamplingMethod How to generate the underlying random numbers.
-## @param sample_seed: int The random seed (optional, uses global RNG if -1).
-## @return Array[int] An Array of integers representing selected indices. Empty if invalid parameters.
+## Combines sampling methods (how to generate random numbers) with selection strategies 
+## (how to use those numbers for population sampling). Supports both replacement and 
+## non-replacement sampling with various optimization strategies.
+##
+## Mathematical Note: Selection strategies optimize for different use cases - bootstrap (with replacement), surveys (without replacement)
 static func sample_indices(
 	population_size: int, 
 	draw_count: int, 
@@ -807,6 +820,9 @@ static func sample_indices(
 		return []
 	if population_size < 0:
 		push_error("population_size cannot be negative. Received: " + str(population_size))
+		return []
+	if population_size == 0:
+		push_error("population_size must be positive. Received: " + str(population_size))
 		return []
 	if selection_strategy != SelectionStrategy.WITH_REPLACEMENT and draw_count > population_size:
 		push_error("Without replacement, draw_count cannot exceed population_size. Received draw_count=" + str(draw_count) + ", population_size=" + str(population_size))
@@ -825,8 +841,6 @@ static func sample_indices(
 			return _reservoir_draw(population_size, draw_count, sampling_method, rng_to_use)
 		SelectionStrategy.SELECTION_TRACKING:
 			return _selection_tracking_draw(population_size, draw_count, sampling_method, rng_to_use)
-		SelectionStrategy.COORDINATED_FISHER_YATES:
-			return _coordinated_fisher_yates_draw(population_size, draw_count, sampling_method, rng_to_use)
 	
 	push_error("Unsupported selection strategy: " + str(SelectionStrategy.keys()[selection_strategy]))
 	return []
@@ -1014,56 +1028,41 @@ static func _selection_tracking_draw(population_size: int, draw_count: int, samp
 	return result
 
 
-## Coordinated Fisher-Yates shuffle for multi-dimensional sampling.
-## This performs a complete coordinated shuffle and returns the first draw_count elements.
-static func _coordinated_fisher_yates_draw(population_size: int, draw_count: int, sampling_method: SamplingMethod, rng: RandomNumberGenerator) -> Array[int]:
-	# For coordinated Fisher-Yates, we perform a complete shuffle and return the first draw_count elements
-	var shuffled_deck: Array[int] = coordinated_shuffle(population_size, sampling_method, 0, rng.get_seed() if rng.get_seed() != 0 else -1)
-	
-	var result: Array[int] = []
-	result.resize(draw_count)
-	
-	for i in range(draw_count):
-		if i < shuffled_deck.size():
-			result[i] = shuffled_deck[i]
-		else:
-			result[i] = i  # Fallback in case of error
-	
-	return result
-
-
 # --- SOBOL SEQUENCE IMPLEMENTATION ---
 
-## Returns nth prime number for Halton sequences
+## Returns the nth prime number using the PrimeNumbersData table.
+## Used for Halton sequence base selection.
 static func _get_nth_prime(n: int) -> int:
-	const PRIMES: Array[int] = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
-	if n < PRIMES.size():
-		return PRIMES[n]
-	else:
-		# Simple fallback for higher dimensions (not optimized)
-		return 2 + n  # This is not correct but prevents crashes
+	return _PRIME_DATA.get_nth_prime(n)
 
 
 ## Generates Sobol sequence integers for a specific dimension.
+## ASSUMES: Direction vectors for dimension_index are already initialized.
 static func _get_sobol_1d_integers(ndraws: int, dimension_index: int, starting_index: int = 0) -> Array[int]:
 	var integers: Array[int] = []
 	if ndraws <= 0:
 		return integers
 	integers.resize(ndraws)
-
-	_ensure_sobol_vectors_initialized(dimension_index)
 	
-	if dimension_index < 0 or dimension_index >= _PRIMITIVE_POLYNOMIALS.size():
-		printerr("Sobol: Invalid dimension_index: ", dimension_index)
+	if dimension_index < 0 or dimension_index > _SOBOL_DATA.get_max_dimension():
+		printerr("Sobol: Invalid dimension_index: ", dimension_index, " (max supported: ", _SOBOL_DATA.get_max_dimension(), ")")
 		for i in range(ndraws): integers[i] = -1 # Signal error
 		return integers
 
 	# Retrieve the cached direction vectors for the specified dimension
 	var direction_vectors: Array[int] = _sobol_direction_vectors_cache[dimension_index]
 	
+	# Check for reasonable bounds - Sobol sequences have practical limits
+	var max_sobol_index: int = (1 << _SOBOL_BITS) - 1  # 2^30 - 1
+	var total_needed: int = ndraws + starting_index
+	
+	if total_needed > max_sobol_index:
+		printerr("Sobol: Requested sequence length (%d) exceeds maximum Sobol index (%d) for dimension %d" % [total_needed, max_sobol_index, dimension_index])
+		for i in range(ndraws): integers[i] = -1 # Signal error
+		return integers
+	
 	# Generate Sobol integers starting from starting_index
 	var temp_integers: Array[int] = []
-	var total_needed: int = ndraws + starting_index
 	temp_integers.resize(total_needed)
 	
 	var current_sobol_integer: int = 0
@@ -1073,8 +1072,9 @@ static func _get_sobol_1d_integers(ndraws: int, dimension_index: int, starting_i
 	for i in range(1, total_needed):
 		var c: int = 0
 		var temp_i: int = i
-		while (temp_i & 1) == 0:
-			if temp_i == 0: break
+		
+		# Count trailing zeros (ctz) - find rightmost 1 bit position
+		while (temp_i & 1) == 0 and temp_i > 0:
 			temp_i >>= 1
 			c += 1
 		
@@ -1082,7 +1082,8 @@ static func _get_sobol_1d_integers(ndraws: int, dimension_index: int, starting_i
 		if c >= direction_vectors.size(): 
 			printerr("Sobol sequence ctz index c (%d) is out of range for direction_vectors.size() (%d) at point index i=%d for dim %d." % [c, direction_vectors.size(), i, dimension_index])
 			# This is an error state; fill remaining integers and return to avoid further issues.
-			for k in range(i, total_needed): temp_integers[k] = -1 # Signal error from this point
+			for k in range(i, total_needed): 
+				temp_integers[k] = -1 # Signal error from this point
 			break
 			
 		current_sobol_integer = current_sobol_integer ^ direction_vectors[c]
@@ -1091,7 +1092,7 @@ static func _get_sobol_1d_integers(ndraws: int, dimension_index: int, starting_i
 	# Extract the requested slice
 	for i in range(ndraws):
 		var source_index: int = starting_index + i
-		if source_index < temp_integers.size():
+		if source_index < temp_integers.size() and temp_integers[source_index] != -1:
 			integers[i] = temp_integers[source_index]
 		else:
 			integers[i] = -1  # Error signal
