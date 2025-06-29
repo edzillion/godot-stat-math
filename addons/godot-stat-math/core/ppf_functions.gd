@@ -1,8 +1,6 @@
 # res://addons/godot-stat-math/core/ppf_functions.gd
 class_name PpfFunctions extends RefCounted
 
-const ACKLAM_COEFFICIENTS = preload("res://addons/godot-stat-math/tables/acklam_normal_ppf_coefficients.gd")
-
 ## Inverse Cumulative Distribution Functions (PPF/Quantile Functions)
 ##
 ## This class provides static methods to calculate Percentile Point Functions (PPF), 
@@ -20,6 +18,8 @@ const ACKLAM_COEFFICIENTS = preload("res://addons/godot-stat-math/tables/acklam_
 ## * Heavy-tailed distributions (Pareto, Weibull)
 ##
 ## * Custom distributions (Discrete Histogram)
+
+const ACKLAM_COEFFICIENTS = preload("res://addons/godot-stat-math/tables/acklam_normal_ppf_coefficients.gd")
 
 
 # =============================================================================
