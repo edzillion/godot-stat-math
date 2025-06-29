@@ -257,17 +257,6 @@ jobs:
           if-no-files-found: warn
         if: always() && steps.test-results.outputs.tests-passed == 'false'
 
-      - name: Debug XML file locations
-        if: always()
-        run: |
-          echo "=== Debugging XML File Locations ==="
-          echo "Python version: $(python3 --version)"
-          echo "Current directory: $(pwd)"
-          echo "Making debug script executable..."
-          chmod +x scripts/find_xml_reports.py
-          echo "Running XML file location debug..."
-          python3 scripts/find_xml_reports.py
-
       - name: Generate badge data
         if: always()
         run: |
