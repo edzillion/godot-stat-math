@@ -303,11 +303,11 @@ jobs:
             echo "⚠️ No badge data directory found"
           fi
           
-          # Add reports directory if it exists
+          # Add reports directory if it exists (force add to override .gitignore)
           REPORTS_DIR="reports"
           if [ -d "$REPORTS_DIR" ]; then
-            echo "Reports directory exists, adding to staging..."
-            git add "$REPORTS_DIR/"
+            echo "Reports directory exists, force adding to staging (overriding gitignore)..."
+            git add -f "$REPORTS_DIR/"
             echo "📁 Reports directory contents:"
             find "$REPORTS_DIR" -type f -name "*.xml" | head -10
           else
