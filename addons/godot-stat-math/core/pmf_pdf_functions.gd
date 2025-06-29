@@ -1,15 +1,32 @@
 # res://addons/godot-stat-math/core/pmf_pdf_functions.gd
-extends RefCounted
+class_name PmfPdfFunctions extends RefCounted
 
-# Probability Mass Functions (PMF) and Probability Density Functions (PDF)
-# This script provides static methods to calculate the PMF for discrete distributions
-# and PDF for continuous distributions. The PMF/PDF gives the probability (or density)
-# of a random variable taking on a specific value.
+## Probability Mass Functions (PMF) and Probability Density Functions (PDF)
+##
+## This class provides static methods to calculate probability mass functions for discrete 
+## distributions and probability density functions for continuous distributions. The PMF/PDF 
+## gives the probability (or density) of a random variable taking on a specific value.
+##
+## Distribution Categories:
+##
+## * PMF for discrete distributions (Binomial, Poisson, Negative Binomial)
+##
+## * PDF for continuous distributions (Normal, Exponential, Uniform, Gamma, Beta, Chi-squared, Student's t, F-distribution)
+##
+## * Uses logarithmic calculations for numerical stability
 
-# Binomial Distribution PMF: P(X=k_successes | n_trials, p_prob)
-# Calculates the probability of observing exactly k_successes in n_trials independent
-# Bernoulli trials, each with a success probability p_prob.
-# Uses logarithms for numerical stability with potentially large combinations or small probabilities.
+
+# =============================================================================
+# DISCRETE DISTRIBUTION PMFs
+# =============================================================================
+
+## Calculates the PMF of a binomial distribution: P(X = k | n, p).
+##
+## Returns the probability of observing exactly [code]k[/code] successes in [code]n[/code] 
+## independent Bernoulli trials, each with success probability [code]p[/code].
+## Uses logarithmic calculations for numerical stability.
+##
+## Mathematical Note: [code]P(X = k) = (n choose k) p^k (1-p)^(n-k)[/code]
 static func binomial_pmf(k_successes: int, n_trials: int, p_prob: float) -> float:
 	if not (n_trials >= 0):
 		push_error("Number of trials (n_trials) must be non-negative. Received: %s" % n_trials)
@@ -37,10 +54,13 @@ static func binomial_pmf(k_successes: int, n_trials: int, p_prob: float) -> floa
 	return exp(log_pmf_val)
 
 
-# Poisson Distribution PMF: P(X=k_events | lambda_param)
-# Calculates the probability of observing exactly k_events in a fixed interval,
-# given an average rate lambda_param of events.
-# Uses logarithms for numerical stability.
+## Calculates the PMF of a Poisson distribution: P(X = k | λ).
+##
+## Returns the probability of observing exactly [code]k[/code] events in a fixed interval, 
+## given an average rate [code]λ[/code] of events. Uses logarithmic calculations for 
+## numerical stability.
+##
+## Mathematical Note: [code]P(X = k) = (λ^k e^(-λ)) / k![/code]
 static func poisson_pmf(k_events: int, lambda_param: float) -> float:
 	if not (lambda_param >= 0.0):
 		push_error("Rate parameter (lambda_param) must be non-negative. Received: %s" % lambda_param)
@@ -62,10 +82,13 @@ static func poisson_pmf(k_events: int, lambda_param: float) -> float:
 	return exp(log_pmf_val)
 
 
-# Negative Binomial Distribution PMF: P(X=k_trials | r_successes, p_prob)
-# Calculates the probability that the r_successes-th success occurs on exactly the k_trials-th trial
-# in a series of independent Bernoulli trials with success probability p_prob.
-# Uses logarithms for numerical stability.
+## Calculates the PMF of a negative binomial distribution: P(X = k | r, p).
+##
+## Returns the probability that the [code]r[/code]-th success occurs on exactly the 
+## [code]k[/code]-th trial in independent Bernoulli trials with success probability [code]p[/code].
+## Uses logarithmic calculations for numerical stability.
+##
+## Mathematical Note: [code]P(X = k) = (k-1 choose r-1) p^r (1-p)^(k-r)[/code]
 static func negative_binomial_pmf(k_trials: int, r_successes: int, p_prob: float) -> float:
 	if not (r_successes > 0):
 		push_error("Number of required successes (r_successes) must be positive. Received: %s" % r_successes)
@@ -93,12 +116,305 @@ static func negative_binomial_pmf(k_trials: int, r_successes: int, p_prob: float
 	return exp(log_pmf_val)
 
 
-# --- Probability Density Functions (PDF) ---
-# (PDF functions will be added here later)
-# Example:
-# static func normal_pdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
-#     assert(sigma > 0.0, "Standard deviation (sigma) must be positive for Normal PDF.")
-#     var variance: float = sigma * sigma
-#     var term1: float = 1.0 / (sigma * sqrt(2.0 * PI))
-#     var term2: float = exp(-(pow(x - mu, 2.0)) / (2.0 * variance))
-#     return term1 * term2
+## Calculates the PMF of a geometric distribution: P(X = k | p).
+##
+## Returns the probability that the first success occurs on exactly the [code]k[/code]-th trial 
+## in independent Bernoulli trials with success probability [code]p[/code].
+## Uses standard parameterization where k ≥ 1.
+##
+## Mathematical Note: [code]P(X = k) = (1-p)^(k-1) * p[/code] for [code]k ≥ 1[/code]
+static func geometric_pmf(k_trial: int, p_prob: float) -> float:
+	if not (p_prob > 0.0 and p_prob <= 1.0):
+		push_error("Success probability (p_prob) must be in (0,1]. Received: %s" % p_prob)
+		return NAN
+	
+	if k_trial < 1:
+		return 0.0  # First success cannot occur before trial 1
+	
+	# Handle edge case where p_prob is 1.0
+	if p_prob == 1.0:
+		return 1.0 if k_trial == 1 else 0.0
+	
+	# Formula: (1-p)^(k-1) * p
+	# Using logarithmic calculation for numerical stability
+	var log_term1: float = float(k_trial - 1) * log(1.0 - p_prob)
+	var log_term2: float = log(p_prob)
+	
+	var log_pmf_val: float = log_term1 + log_term2
+	return exp(log_pmf_val)
+
+
+# =============================================================================
+# CONTINUOUS DISTRIBUTION PDFs
+# =============================================================================
+
+## Calculates the PDF of a normal distribution: f(x; μ, σ).
+##
+## Returns the probability density at [code]x[/code] for a normal (Gaussian) distribution 
+## with mean [code]μ[/code] and standard deviation [code]σ[/code].
+##
+## Mathematical Note: [code]f(x) = (1/σ√(2π)) e^(-(x-μ)²/(2σ²))[/code]
+static func normal_pdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
+	if not (sigma > 0.0):
+		push_error("Standard deviation (sigma) must be positive. Received: %s" % sigma)
+		return NAN
+	
+	var variance: float = sigma * sigma
+	var term1: float = 1.0 / (sigma * sqrt(2.0 * PI))
+	var term2: float = exp(-pow(x - mu, 2.0) / (2.0 * variance))
+	return term1 * term2
+
+
+## Calculates the PDF of an exponential distribution: f(x; λ).
+##
+## Returns the probability density at [code]x[/code] for an exponential distribution 
+## with rate parameter [code]λ[/code]. Used for modeling waiting times and decay processes.
+##
+## Mathematical Note: [code]f(x) = λe^(-λx)[/code] for [code]x ≥ 0[/code], [code]0[/code] otherwise
+static func exponential_pdf(x: float, lambda_param: float) -> float:
+	if not (lambda_param > 0.0):
+		push_error("Rate parameter (lambda_param) must be positive. Received: %s" % lambda_param)
+		return NAN
+	
+	if x < 0.0:
+		return 0.0
+	
+	return lambda_param * exp(-lambda_param * x)
+
+
+## Calculates the PDF of a uniform distribution: f(x; a, b).
+##
+## Returns the probability density at [code]x[/code] for a uniform distribution 
+## on the interval [code][a, b][/code].
+##
+## Mathematical Note: [code]f(x) = 1/(b-a)[/code] for [code]a ≤ x ≤ b[/code], [code]0[/code] otherwise
+static func uniform_pdf(x: float, a: float, b: float) -> float:
+	if not (b > a):
+		push_error("Parameter b must be greater than a. Received a=%s, b=%s" % [a, b])
+		return NAN
+	
+	if x < a or x > b:
+		return 0.0
+	
+	return 1.0 / (b - a)
+
+
+## Calculates the PDF of a gamma distribution: f(x; k, θ).
+##
+## Returns the probability density at [code]x[/code] for a gamma distribution 
+## with shape parameter [code]k[/code] and scale parameter [code]θ[/code].
+##
+## Mathematical Note: [code]f(x) = (1/(Γ(k)θ^k)) x^(k-1) e^(-x/θ)[/code] for [code]x ≥ 0[/code]
+static func gamma_pdf(x: float, k_shape: float, theta_scale: float) -> float:
+	if not (k_shape > 0.0):
+		push_error("Shape parameter (k_shape) must be positive. Received: %s" % k_shape)
+		return NAN
+	if not (theta_scale > 0.0):
+		push_error("Scale parameter (theta_scale) must be positive. Received: %s" % theta_scale)
+		return NAN
+	
+	if x <= 0.0:
+		return 0.0
+	
+	# Formula: (1/(Γ(k)θ^k)) * x^(k-1) * e^(-x/θ)
+	# Using logs for numerical stability
+	var log_gamma_k: float = StatMath.HelperFunctions.log_gamma(k_shape)
+	var log_term1: float = -log_gamma_k - k_shape * log(theta_scale)
+	var log_term2: float = (k_shape - 1.0) * log(x)
+	var log_term3: float = -x / theta_scale
+	
+	var log_pdf_val: float = log_term1 + log_term2 + log_term3
+	return exp(log_pdf_val)
+
+
+## Calculates the PDF of a beta distribution: f(x; α, β).
+##
+## Returns the probability density at [code]x[/code] for a beta distribution 
+## with shape parameters [code]α[/code] and [code]β[/code]. Defined on [0, 1].
+##
+## Mathematical Note: [code]f(x) = (Γ(α+β)/(Γ(α)Γ(β))) x^(α-1) (1-x)^(β-1)[/code]
+static func beta_pdf(x: float, alpha: float, beta_param: float) -> float:
+	if not (alpha > 0.0 and beta_param > 0.0):
+		push_error("Shape parameters (alpha, beta_param) must be positive. Received alpha=%s, beta_param=%s" % [alpha, beta_param])
+		return NAN
+	
+	if x <= 0.0 or x >= 1.0:
+		return 0.0
+	
+	# Formula: (Γ(α+β)/(Γ(α)Γ(β))) * x^(α-1) * (1-x)^(β-1)
+	# Using logs for numerical stability
+	var log_beta_func: float = StatMath.HelperFunctions.log_gamma(alpha) + StatMath.HelperFunctions.log_gamma(beta_param) - StatMath.HelperFunctions.log_gamma(alpha + beta_param)
+	var log_term1: float = -log_beta_func
+	var log_term2: float = (alpha - 1.0) * log(x)
+	var log_term3: float = (beta_param - 1.0) * log(1.0 - x)
+	
+	var log_pdf_val: float = log_term1 + log_term2 + log_term3
+	return exp(log_pdf_val)
+
+
+## Calculates the PDF of a Weibull distribution: f(x; λ, k).
+##
+## Returns the probability density at [code]x[/code] for a Weibull distribution 
+## with scale parameter [code]λ[/code] and shape parameter [code]k[/code].
+## Widely used in reliability analysis, survival analysis, and failure modeling.
+##
+## Mathematical Note: [code]f(x) = (k/λ)(x/λ)^(k-1) e^(-(x/λ)^k)[/code] for [code]x ≥ 0[/code]
+static func weibull_pdf(x: float, scale_param: float, shape_param: float) -> float:
+	if not (scale_param > 0.0):
+		push_error("Scale parameter (scale_param) must be positive. Received: %s" % scale_param)
+		return NAN
+	if not (shape_param > 0.0):
+		push_error("Shape parameter (shape_param) must be positive. Received: %s" % shape_param)
+		return NAN
+	
+	if x < 0.0:
+		return 0.0
+	
+	# Handle special case at x=0
+	if x == 0.0:
+		if shape_param < 1.0:
+			return INF  # PDF approaches infinity for shape < 1
+		elif shape_param == 1.0:
+			return shape_param / scale_param  # Exponential case
+		else:  # shape_param > 1.0
+			return 0.0
+	
+	# Formula: (k/λ) * (x/λ)^(k-1) * exp(-(x/λ)^k)
+	# Using logs for numerical stability when possible
+	var x_over_lambda: float = x / scale_param
+	var log_coefficient: float = log(shape_param) - log(scale_param)
+	var log_power_term: float = (shape_param - 1.0) * log(x_over_lambda)
+	var exponential_term: float = -pow(x_over_lambda, shape_param)
+	
+	var log_pdf_val: float = log_coefficient + log_power_term + exponential_term
+	return exp(log_pdf_val)
+
+
+## Calculates the PDF of a lognormal distribution: f(x; μ, σ).
+##
+## Returns the probability density at [code]x[/code] for a lognormal distribution 
+## with location parameter [code]μ[/code] and scale parameter [code]σ[/code].
+## If X ~ Lognormal(μ, σ), then ln(X) ~ Normal(μ, σ).
+##
+## Mathematical Note: [code]f(x) = (1/(xσ√(2π))) e^(-((ln(x)-μ)²)/(2σ²))[/code] for [code]x > 0[/code]
+static func lognormal_pdf(x: float, mu: float, sigma: float) -> float:
+	if not (sigma > 0.0):
+		push_error("Standard deviation (sigma) must be positive. Received: %s" % sigma)
+		return NAN
+	
+	if x <= 0.0:
+		return 0.0  # Lognormal distribution has support (0, +∞)
+	
+	# Formula: (1/(x*σ*√(2π))) * exp(-((ln(x)-μ)²)/(2σ²))
+	# Equivalent to: Normal PDF of ln(x) divided by x
+	var ln_x: float = log(x)
+	var normal_result: float = normal_pdf(ln_x, mu, sigma)
+	return normal_result / x
+
+
+## Calculates the PDF of a chi-squared distribution: f(x; k).
+##
+## Returns the probability density at [code]x[/code] for a chi-squared distribution 
+## with [code]k[/code] degrees of freedom. This is a special case of the gamma PDF. See [method PmfPdfFunctions.gamma_pdf] for the general gamma PDF implementation.
+##
+## Mathematical Note: [code]f(x) = (1/(2^(k/2)Γ(k/2))) x^(k/2-1) e^(-x/2)[/code] for [code]x ≥ 0[/code]
+static func chi_squared_pdf(x: float, k_df: float) -> float:
+	if not (k_df > 0.0):
+		push_error("Degrees of freedom (k_df) must be positive. Received: %s" % k_df)
+		return NAN
+	
+	# Chi-squared is Gamma(k/2, 2), so use gamma_pdf with appropriate parameters
+	return gamma_pdf(x, k_df / 2.0, 2.0)
+
+
+## Calculates the PDF of a Student's t-distribution: f(x; ν).
+##
+## Returns the probability density at [code]x[/code] for a Student's t-distribution 
+## with [code]ν[/code] (nu) degrees of freedom.
+##
+## Mathematical Note: [code]f(x) = (Γ((ν+1)/2)/(√(νπ)Γ(ν/2))) (1 + x²/ν)^(-(ν+1)/2)[/code]
+static func t_pdf(x: float, df_nu: float) -> float:
+	if not (df_nu > 0.0):
+		push_error("Degrees of freedom (df_nu) must be positive. Received: %s" % df_nu)
+		return NAN
+	
+	# Formula: (Γ((ν+1)/2)/(√(νπ)Γ(ν/2))) * (1 + x²/ν)^(-(ν+1)/2)
+	# Using logs for numerical stability
+	var log_gamma_term: float = StatMath.HelperFunctions.log_gamma((df_nu + 1.0) / 2.0) - StatMath.HelperFunctions.log_gamma(df_nu / 2.0)
+	var log_normalizer: float = log_gamma_term - 0.5 * log(df_nu * PI)
+	var log_power_term: float = -(df_nu + 1.0) / 2.0 * log(1.0 + (x * x) / df_nu)
+	
+	var log_pdf_val: float = log_normalizer + log_power_term
+	return exp(log_pdf_val)
+
+
+## Calculates the PDF of an F-distribution: f(x; d1, d2).
+##
+## Returns the probability density at [code]x[/code] for an F-distribution 
+## with numerator degrees of freedom [code]d1[/code] and denominator degrees of freedom [code]d2[/code].
+##
+## Mathematical Note: Uses [method HelperFunctions.beta_function] relationship for numerical stability
+static func f_pdf(x: float, d1_df: float, d2_df: float) -> float:
+	if not (d1_df > 0.0 and d2_df > 0.0):
+		push_error("Degrees of freedom (d1_df, d2_df) must be positive. Received d1_df=%s, d2_df=%s" % [d1_df, d2_df])
+		return NAN
+	
+	if x <= 0.0:
+		return 0.0
+	
+	# Formula using beta function relationship
+	# f(x) = (Γ((d1+d2)/2)/(Γ(d1/2)Γ(d2/2))) * (d1/d2)^(d1/2) * x^(d1/2-1) * (1 + (d1/d2)x)^(-(d1+d2)/2)
+	var log_beta_term: float = StatMath.HelperFunctions.log_gamma((d1_df + d2_df) / 2.0) - StatMath.HelperFunctions.log_gamma(d1_df / 2.0) - StatMath.HelperFunctions.log_gamma(d2_df / 2.0)
+	var log_ratio_term: float = (d1_df / 2.0) * log(d1_df / d2_df)
+	var log_x_term: float = (d1_df / 2.0 - 1.0) * log(x)
+	var log_denominator_term: float = -((d1_df + d2_df) / 2.0) * log(1.0 + (d1_df / d2_df) * x)
+	
+	var log_pdf_val: float = log_beta_term + log_ratio_term + log_x_term + log_denominator_term
+	return exp(log_pdf_val)
+
+
+## Calculates the PDF of a Cauchy (Lorentzian) distribution: f(x; x₀, γ).
+##
+## Returns the probability density at [code]x[/code] for a Cauchy distribution 
+## with location parameter [code]x₀[/code] and scale parameter [code]γ[/code].
+## The Cauchy distribution has undefined mean and variance due to heavy tails.
+##
+## Mathematical Note: [code]f(x) = 1/(πγ(1 + ((x-x₀)/γ)²))[/code]
+static func cauchy_pdf(x: float, location: float = 0.0, scale: float = 1.0) -> float:
+	if not (scale > 0.0):
+		push_error("Scale parameter must be positive. Received: %s" % scale)
+		return NAN
+	
+	# Formula: 1/(π*γ*(1 + ((x-x₀)/γ)²))
+	var normalized_x: float = (x - location) / scale
+	var denominator: float = PI * scale * (1.0 + normalized_x * normalized_x)
+	
+	return 1.0 / denominator
+
+
+## Calculates the PDF of a Pareto distribution: f(x; xₘ, α).
+##
+## Returns the probability density at [code]x[/code] for a Pareto distribution 
+## with scale parameter [code]xₘ[/code] and shape parameter [code]α[/code].
+## Used to model the "80/20 rule" and power-law distributions.
+##
+## Mathematical Note: [code]f(x) = (α×xₘᵅ)/x^(α+1)[/code] for [code]x ≥ xₘ[/code]
+static func pareto_pdf(x: float, scale_param: float, shape_param: float) -> float:
+	if not (scale_param > 0.0):
+		push_error("Scale parameter must be positive. Received: %s" % scale_param)
+		return NAN
+	if not (shape_param > 0.0):
+		push_error("Shape parameter must be positive. Received: %s" % shape_param)
+		return NAN
+	
+	if x < scale_param:
+		return 0.0  # Pareto distribution has support [scale_param, +∞)
+	
+	# Formula: (α*xₘᵅ)/x^(α+1)
+	# Using logs for numerical stability: log(α) + α*log(xₘ) - (α+1)*log(x)
+	var log_coefficient: float = log(shape_param)
+	var log_scale_term: float = shape_param * log(scale_param)
+	var log_x_term: float = -(shape_param + 1.0) * log(x)
+	
+	var log_pdf_val: float = log_coefficient + log_scale_term + log_x_term
+	return exp(log_pdf_val)

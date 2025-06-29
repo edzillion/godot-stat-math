@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://div08tcoct14p"]
+
+[ext_resource type="Script" uid="uid://dpcx7ugcbwxtc" path="res://addons/godot-stat-math/tests/performance/analyze_baseline_cli.gd" id="1_coab1"]
+
+[node name="AnalyzeBaselineCli" type="Node"]
+script = ExtResource("1_coab1")

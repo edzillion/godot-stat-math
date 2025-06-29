@@ -1,8 +1,9 @@
 # Godot Stat Math
 
-![Release](https://img.shields.io/github/v/release/edzillion/godot-stat-math?sort=semver)
-![Build](https://github.com/edzillion/godot-stat-math/actions/workflows/build-release.yaml/badge.svg)
-![Tests](https://github.com/edzillion/godot-stat-math/actions/workflows/verify-release.yaml/badge.svg)
+[![Release](https://img.shields.io/github/v/release/edzillion/godot-stat-math?sort=semver)](https://github.com/edzillion/godot-stat-math/releases)
+[![Build Dev](https://github.com/edzillion/godot-stat-math/actions/workflows/build-develop.yaml/badge.svg)](https://github.com/edzillion/godot-stat-math/actions/workflows/build-develop.yaml)
+[![Unit Tests](https://img.shields.io/endpoint?url=https://edzillion.github.io/godot-stat-math/_static/badges/unit_tests.json)](https://edzillion.github.io/godot-stat-math/unit_testing.html)
+[![Performance Tests](https://img.shields.io/endpoint?url=https://edzillion.github.io/godot-stat-math/_static/badges/performance_tests.json)](https://edzillion.github.io/godot-stat-math/performance.html)
 ![Godot 4.x](https://img.shields.io/badge/Godot-4.x-blue?logo=godot-engine)
 
 **Godot Stat Math** is a Godot 4 addon providing common statistical functions for game developers, exposed via the global `StatMath` autoload singleton. It is designed for practical, game-oriented use—if you need scientific-grade accuracy, consider a dedicated scientific library.
@@ -12,155 +13,46 @@
 
 ## Features
 
-- Random variate generation for common distributions (Bernoulli, Binomial, Poisson, Normal, Exponential, Gamma, Beta, Weibull, Pareto, Cauchy, Triangular, etc.)
-- CDF, PMF, and PPF functions for many distributions
-- Special functions: error function, gamma, beta, incomplete beta, incomplete gamma, and more
-- Basic statistical analysis functions (mean, median, variance, standard deviation, etc.)
-- Advanced sampling methods (Sobol, Halton, Latin Hypercube)
+- **Random variate generation** for 17+ distributions:
+  - Discrete: Bernoulli, Binomial, Poisson, Geometric, Negative Binomial
+  - Continuous: Normal, Log-normal, Exponential, Gamma, Beta, Weibull, Pareto, Cauchy, Triangular, Chi-squared, Student's t, F-distribution
+  - Game-specific: Pseudo (capture mechanics), Siege (warfare mechanics), Erlang
+- **Distribution functions**: CDF, PMF, PDF, and PPF (quantile) functions for statistical analysis
+- **Special mathematical functions**: Error functions, Gamma, Beta, incomplete variants, combinatorial functions
+- **Comprehensive statistical analysis**: Mean, median, variance, standard deviation, percentiles, quantiles, median absolute deviation, sample vs population statistics, and summary statistics
+- **Advanced sampling methods**: Sobol sequences, Halton sequences, Latin Hypercube sampling, reservoir sampling, Fisher-Yates shuffling
+- **Mathematical utilities**: Array preprocessing, combinatorial calculations, logarithmic functions for numerical stability
 - All functions and constants are accessible via the `StatMath` singleton
 
-## Example Usage
+## Quick Start
 
 ```gdscript
-# Generate random numbers from various distributions
+# Generate random numbers from distributions
 var normal_val: float = StatMath.Distributions.randf_normal(0.0, 1.0)
-var weibull_val: float = StatMath.Distributions.randf_weibull(2.0, 1.5)
-var binomial_val: int = StatMath.Distributions.randi_binomial(0.3, 10)
+var mean_val: float = StatMath.BasicStats.mean([1.0, 2.0, 3.0, 4.0, 5.0])
+var samples: Array[Vector2] = StatMath.SamplingGen.generate_samples(100, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)
 
-# Compute CDFs (cumulative distribution functions)
-var normal_cdf: float = StatMath.CdfFunctions.normal_cdf(1.0, 0.0, 1.0)
-var weibull_cdf: float = StatMath.CdfFunctions.weibull_cdf(2.0, 2.0, 1.5)
+# Compute CDFs and quantiles
+var cdf_value: float = StatMath.CdfFunctions.normal_cdf(1.96, 0.0, 1.0)
+var quantile: float = StatMath.PpfFunctions.normal_ppf(0.975, 0.0, 1.0)
 
-# Compute PPFs (percent point functions / quantiles)
-var normal_quantile: float = StatMath.PpfFunctions.normal_ppf(0.95, 0.0, 1.0)
-var weibull_quantile: float = StatMath.PpfFunctions.weibull_ppf(0.95, 2.0, 1.5)
-
-# Mathematical helper functions
-var binom_coeff: float = StatMath.HelperFunctions.binomial_coefficient(10, 3)
-var gamma_val: float = StatMath.HelperFunctions.gamma_function(2.5)
-var erf_val: float = StatMath.ErrorFunctions.error_function(1.0)
-
-# Basic statistics - analyze player scores
-var raw_scores = [95.5, "invalid", 87.2, null, 92.1, 88.8, 90.0]
-var clean_scores: Array[float] = StatMath.HelperFunctions.sanitize_numeric_array(raw_scores)
-var avg_score: float = StatMath.BasicStats.mean(clean_scores)
-var score_std_dev: float = StatMath.BasicStats.standard_deviation(clean_scores)
-var summary: Dictionary = StatMath.BasicStats.summary_statistics(clean_scores)
-
-# Advanced sampling for procedural generation
-var sobol_samples_1d: Array[float] = StatMath.SamplingGen.generate_samples(100, 1, StatMath.SamplingGen.SamplingMethod.SOBOL)
-var sobol_samples_2d: Array[Vector2] = StatMath.SamplingGen.generate_samples(100, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)
-var sobol_samples_3d: Array = StatMath.SamplingGen.generate_samples(100, 3, StatMath.SamplingGen.SamplingMethod.SOBOL)
+# Statistical analysis
+var data = [95.5, 87.2, 92.1, 88.8, 90.0]
+var summary: Dictionary = StatMath.BasicStats.summary_statistics(data)
 ```
 
-## API Reference (Selected)
+## Documentation
 
-All modules are accessed as `StatMath.ModuleName.function_name(...)`.  
-See the source for full documentation and comments.
+📚 **Complete API Documentation**: [https://edzillion.github.io/godot-stat-math/](https://edzillion.github.io/godot-stat-math/)
 
-### Distributions
+The full documentation includes:
+- **Installation Guide** - Step-by-step setup instructions
+- **API Reference** - Complete function documentation for all 8 modules
+- **Usage Examples** - Practical examples for game development
+- **Testing Standards** - Information about our comprehensive test suite
+- **Performance Benchmarks** - Performance analysis and optimization details
 
-**Integer Distributions:**
-```gdscript
-randi_bernoulli(p: float) -> int          # Returns 1 with probability p, 0 otherwise
-randi_binomial(p: float, n: int) -> int   # Number of successes in n Bernoulli trials
-randi_geometric(p: float) -> int          # Number of trials until first success
-randi_poisson(lambda_param: float) -> int # Number of events in fixed interval
-```
-
-**Continuous Distributions:**
-```gdscript
-randf_uniform(a: float, b: float) -> float                                    # Uniform distribution on [a, b]
-randf_normal(mu: float = 0.0, sigma: float = 1.0) -> float                   # Normal (Gaussian) distribution
-randf_exponential(lambda_param: float) -> float                              # Exponential distribution
-randf_gamma(shape: float, scale: float = 1.0) -> float                       # Gamma distribution
-randf_beta(alpha: float, beta_param: float) -> float                         # Beta distribution
-randf_weibull(scale_param: float, shape_param: float) -> float               # Weibull distribution
-randf_pareto(scale_param: float, shape_param: float) -> float                # Pareto distribution
-randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float             # Cauchy distribution
-randf_triangular(min_value: float, max_value: float, mode_value: float) -> float # Triangular distribution
-```
-
-### CDF Functions
-
-```gdscript
-uniform_cdf(x: float, a: float, b: float) -> float                           # Uniform CDF
-normal_cdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float          # Normal CDF
-exponential_cdf(x: float, lambda_param: float) -> float                     # Exponential CDF
-gamma_cdf(x: float, k_shape: float, theta_scale: float) -> float            # Gamma CDF
-beta_cdf(x: float, alpha: float, beta_param: float) -> float                # Beta CDF
-weibull_cdf(x: float, scale_param: float, shape_param: float) -> float      # Weibull CDF
-pareto_cdf(x: float, scale_param: float, shape_param: float) -> float       # Pareto CDF
-binomial_cdf(k: int, n: int, p: float) -> float                             # Binomial CDF
-poisson_cdf(k: int, lambda_param: float) -> float                           # Poisson CDF
-```
-
-### PPF Functions (Quantiles/Inverse CDFs)
-
-```gdscript
-uniform_ppf(p: float, a: float, b: float) -> float                           # Uniform quantile function
-normal_ppf(p: float, mu: float = 0.0, sigma: float = 1.0) -> float          # Normal quantile function
-exponential_ppf(p: float, lambda_param: float) -> float                     # Exponential quantile function
-gamma_ppf(p: float, k_shape: float, theta_scale: float) -> float            # Gamma quantile function
-beta_ppf(p: float, alpha_shape: float, beta_shape: float) -> float          # Beta quantile function
-weibull_ppf(p: float, scale_param: float, shape_param: float) -> float      # Weibull quantile function
-pareto_ppf(p: float, scale_param: float, shape_param: float) -> float       # Pareto quantile function
-binomial_ppf(p: float, n: int, prob_success: float) -> int                  # Binomial quantile function
-poisson_ppf(p: float, lambda_param: float) -> int                           # Poisson quantile function
-```
-
-### Helper Functions
-
-```gdscript
-binomial_coefficient(n: int, r: int) -> float                                # Number of ways to choose r from n
-gamma_function(z: float) -> float                                            # Gamma function Γ(z)
-beta_function(a: float, b: float) -> float                                   # Beta function B(a,b)
-incomplete_beta(x_val: float, a: float, b: float) -> float                  # Regularized incomplete beta function
-lower_incomplete_gamma_regularized(a: float, z: float) -> float             # Regularized lower incomplete gamma function
-sanitize_numeric_array(input_array: Array) -> Array[float]                  # Cleans and sorts an array, keeping only numeric values
-```
-
-### Basic Statistics
-
-```gdscript
-mean(data: Array[float]) -> float                                            # Arithmetic mean (average) of the dataset
-median(data: Array[float]) -> float                                          # Middle value of a sorted dataset
-variance(data: Array[float]) -> float                                        # Population variance of the dataset
-standard_deviation(data: Array[float]) -> float                              # Population standard deviation of the dataset
-sample_variance(data: Array[float]) -> float                                 # Sample variance (with Bessel's correction)
-sample_standard_deviation(data: Array[float]) -> float                       # Sample standard deviation
-median_absolute_deviation(data: Array[float]) -> float                       # Robust measure of variability using median of absolute deviations
-summary_statistics(data: Array[float]) -> Dictionary                         # Comprehensive statistical summary including all basic statistics
-```
-
-### Error Functions
-
-```gdscript
-error_function(x: float) -> float                                            # Computes erf(x)
-complementary_error_function(x: float) -> float                              # Computes erfc(x) = 1 - erf(x)
-error_function_inverse(y: float) -> float                                    # Inverse error function
-complementary_error_function_inverse(y: float) -> float                      # Inverse complementary error function
-```
-
-### Sampling (via StatMath.SamplingGen)
-
-```gdscript
-# Unified sampling function that returns Array[float] for 1D, Array[Vector2] for 2D, or Array[Array[float]] for higher dimensions
-generate_samples(n_draws: int, dimensions: int = 1, method: SamplingMethod = SamplingMethod.RANDOM, 
-                starting_index: int = 0, sample_seed: int = -1) -> Variant
-
-# Performs coordinated Fisher-Yates shuffle using multi-dimensional sampling
-coordinated_shuffle(deck_size: int, method: SamplingMethod = SamplingMethod.SOBOL, 
-                   point_index: int = 0, sample_seed: int = -1) -> Array[int]
-```
-
-**Sampling Methods:**
-- `RANDOM` - Pseudo-random sampling
-- `SOBOL` - Sobol quasi-random sequence
-- `SOBOL_RANDOM` - Randomized Sobol sequence
-- `HALTON` - Halton quasi-random sequence
-- `HALTON_RANDOM` - Randomized Halton sequence
-- `LATIN_HYPERCUBE` - Latin Hypercube space-filling design
+*Documentation is built with Sphinx from the `/docs` directory and automatically updated with each release.*
 
 ## Reproducible Results (Seeding the RNG)
 
@@ -203,10 +95,14 @@ By controlling the seed, you control the sequence of pseudo-random numbers gener
 *   **Testing:** Ensures tests that rely on random data behave consistently.
 *   **Gameplay:** Can be used to create "daily challenges" with the same layout/events for all players, or to allow players to share seeds for specific game setups.
 
-## Documentation
+## Installation
 
-All functions are well-commented in the source code.  
-For full details, see the scripts in `addons/godot-stat-math/core/`.
+1. Download the latest release from the [Releases page](https://github.com/edzillion/godot-stat-math/releases)
+2. Extract the ZIP file to your project's `addons/` folder
+3. Enable "Godot Stat Math" in Project Settings → Plugins
+4. The `StatMath` singleton will be automatically available in your project
+
+For detailed installation instructions, see the [Installation Guide](https://edzillion.github.io/godot-stat-math/installation.html).
 
 ## License
 
