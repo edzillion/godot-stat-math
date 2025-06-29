@@ -11,24 +11,6 @@ env:
   GODOT_VERSION: 4.4
 
 jobs:
-  run-gdunit-tests:
-    runs-on: ubuntu-22.04
-    permissions:
-      checks: write
-      actions: read
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Run GDUnit4 tests
-        uses: MikeSchulze/gdunit4-action@v1
-        with:
-          godot-version: "${{ env.GODOT_VERSION }}"
-          paths: "res://addons/godot-stat-math/tests"
-
   validate-addon-structure:
     runs-on: ubuntu-latest
     steps:
@@ -57,3 +39,33 @@ jobs:
           fi
           
           echo "✅ Addon structure validation passed"
+
+  run-gdunit-tests:
+    needs: [validate-addon-structure]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      checks: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GDUnit4 tests
+        uses: MikeSchulze/gdunit4-action@v1
+        with:
+          godot-version: "${{ env.GODOT_VERSION }}"
+          upload-report: false
+          paths: |
+            res://addons/godot-stat-math/tests/core
+            res://addons/godot-stat-math/tests/stat_math_test.gd
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-pr-${{ github.event.number }}
+          path: reports/
+        if: always()
