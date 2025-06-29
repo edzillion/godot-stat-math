@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites id="2025-06-29" name="report_2" tests="114" failures="2" skipped="0" flaky="0" time="0.000">
+	<testsuite id="0" name="ppf_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-29T21:21:17" hostname="localhost" tests="9" failures="0" errors="0" skipped="0" flaky="0" time="27.682">
+		<testcase name="test_normal_ppf_performance" classname="ppf_functions_perf_test" time="0.055">
+		</testcase>
+		<testcase name="test_gamma_ppf_performance" classname="ppf_functions_perf_test" time="2.574">
+		</testcase>
+		<testcase name="test_beta_ppf_performance" classname="ppf_functions_perf_test" time="11.826">
+		</testcase>
+		<testcase name="test_weibull_ppf_performance" classname="ppf_functions_perf_test" time="0.030">
+		</testcase>
+		<testcase name="test_uniform_exponential_ppf_performance" classname="ppf_functions_perf_test" time="0.035">
+		</testcase>
+		<testcase name="test_chi_square_f_t_ppf_performance" classname="ppf_functions_perf_test" time="12.674">
+		</testcase>
+		<testcase name="test_pareto_ppf_performance" classname="ppf_functions_perf_test" time="0.033">
+		</testcase>
+		<testcase name="test_discrete_ppf_performance" classname="ppf_functions_perf_test" time="0.292">
+		</testcase>
+		<testcase name="test_discrete_histogram_ppf_performance" classname="ppf_functions_perf_test" time="0.031">
+		</testcase>
+	</testsuite>
+	<testsuite id="1" name="sampling_gen_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-29T21:21:44" hostname="localhost" tests="38" failures="2" errors="0" skipped="0" flaky="0" time="6.314">
+		<testcase name="test_generate_samples:0 (SamplingGen.SamplingMethod.RANDOM, 1, 32)" classname="sampling_gen_perf_test" time="0.079">
+		</testcase>
+		<testcase name="test_generate_samples:1 (SamplingGen.SamplingMethod.RANDOM, 1, 256)" classname="sampling_gen_perf_test" time="0.076">
+		</testcase>
+		<testcase name="test_generate_samples:2 (SamplingGen.SamplingMethod.RANDOM, 1, 1024)" classname="sampling_gen_perf_test" time="0.090">
+		</testcase>
+		<testcase name="test_generate_samples:3 (SamplingGen.SamplingMethod.RANDOM, 3, 32)" classname="sampling_gen_perf_test" time="0.075">
+		</testcase>
+		<testcase name="test_generate_samples:4 (SamplingGen.SamplingMethod.RANDOM, 3, 256)" classname="sampling_gen_perf_test" time="0.081">
+		</testcase>
+		<testcase name="test_generate_samples:5 (SamplingGen.SamplingMethod.RANDOM, 3, 1024)" classname="sampling_gen_perf_test" time="0.101">
+		</testcase>
+		<testcase name="test_generate_samples:6 (SamplingGen.SamplingMethod.RANDOM, 10, 32)" classname="sampling_gen_perf_test" time="0.077">
+		</testcase>
+		<testcase name="test_generate_samples:7 (SamplingGen.SamplingMethod.RANDOM, 10, 256)" classname="sampling_gen_perf_test" time="0.097">
+		</testcase>
+		<testcase name="test_generate_samples:8 (SamplingGen.SamplingMethod.RANDOM, 10, 1024)" classname="sampling_gen_perf_test" time="0.168">
+		</testcase>
+		<testcase name="test_generate_samples:9 (SamplingGen.SamplingMethod.SOBOL, 1, 32)" classname="sampling_gen_perf_test" time="0.073">
+		</testcase>
+		<testcase name="test_generate_samples:10 (SamplingGen.SamplingMethod.SOBOL, 1, 256)" classname="sampling_gen_perf_test" time="0.079">
+		</testcase>
+		<testcase name="test_generate_samples:11 (SamplingGen.SamplingMethod.SOBOL, 1, 1024)" classname="sampling_gen_perf_test" time="0.099">
+		</testcase>
+		<testcase name="test_generate_samples:12 (SamplingGen.SamplingMethod.SOBOL, 3, 32)" classname="sampling_gen_perf_test" time="0.071">
+		</testcase>
+		<testcase name="test_generate_samples:13 (SamplingGen.SamplingMethod.SOBOL, 3, 256)" classname="sampling_gen_perf_test" time="0.089">
+		</testcase>
+		<testcase name="test_generate_samples:14 (SamplingGen.SamplingMethod.SOBOL, 3, 1024)" classname="sampling_gen_perf_test" time="0.147">
+		</testcase>
+		<testcase name="test_generate_samples:15 (SamplingGen.SamplingMethod.SOBOL, 10, 32)" classname="sampling_gen_perf_test" time="0.077">
+		</testcase>
+		<testcase name="test_generate_samples:16 (SamplingGen.SamplingMethod.SOBOL, 10, 256)" classname="sampling_gen_perf_test" time="0.132">
+		</testcase>
+		<testcase name="test_generate_samples:17 (SamplingGen.SamplingMethod.SOBOL, 10, 1024)" classname="sampling_gen_perf_test" time="0.284">
+		</testcase>
+		<testcase name="test_generate_samples:18 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 32)" classname="sampling_gen_perf_test" time="0.069">
+		</testcase>
+		<testcase name="test_generate_samples:19 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 256)" classname="sampling_gen_perf_test" time="0.075">
+		</testcase>
+		<testcase name="test_generate_samples:20 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 1, 1024)" classname="sampling_gen_perf_test" time="0.097">
+		</testcase>
+		<testcase name="test_generate_samples:21 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 32)" classname="sampling_gen_perf_test" time="0.075">
+		</testcase>
+		<testcase name="test_generate_samples:22 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 256)" classname="sampling_gen_perf_test" time="0.087">
+			<failure message="FAILED: res://addons/godot-stat-math/tests/performance/core/sampling_gen_perf_test.gd:46" type="FAILURE">
+<![CDATA[
+Performance regression detected for 'generate_samples_SOBOL_RANDOM_3d_256'
+]]>
+			</failure>
+		</testcase>
+		<testcase name="test_generate_samples:23 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 3, 1024)" classname="sampling_gen_perf_test" time="0.138">
+		</testcase>
+		<testcase name="test_generate_samples:24 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 32)" classname="sampling_gen_perf_test" time="0.082">
+		</testcase>
+		<testcase name="test_generate_samples:25 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 256)" classname="sampling_gen_perf_test" time="0.128">
+		</testcase>
+		<testcase name="test_generate_samples:26 (SamplingGen.SamplingMethod.SOBOL_RANDOM, 10, 1024)" classname="sampling_gen_perf_test" time="0.277">
+		</testcase>
+		<testcase name="test_generate_samples:27 (SamplingGen.SamplingMethod.HALTON, 1, 32)" classname="sampling_gen_perf_test" time="0.074">
+		</testcase>
+		<testcase name="test_generate_samples:28 (SamplingGen.SamplingMethod.HALTON, 1, 256)" classname="sampling_gen_perf_test" time="0.082">
+		</testcase>
+		<testcase name="test_generate_samples:29 (SamplingGen.SamplingMethod.HALTON, 1, 1024)" classname="sampling_gen_perf_test" time="0.112">
+		</testcase>
+		<testcase name="test_generate_samples:30 (SamplingGen.SamplingMethod.HALTON, 3, 32)" classname="sampling_gen_perf_test" time="0.075">
+		</testcase>
+		<testcase name="test_generate_samples:31 (SamplingGen.SamplingMethod.HALTON, 3, 256)" classname="sampling_gen_perf_test" time="0.092">
+		</testcase>
+		<testcase name="test_generate_samples:32 (SamplingGen.SamplingMethod.HALTON, 3, 1024)" classname="sampling_gen_perf_test" time="0.160">
+		</testcase>
+		<testcase name="test_generate_samples:33 (SamplingGen.SamplingMethod.HALTON, 10, 32)" classname="sampling_gen_perf_test" time="0.083">
+		</testcase>
+		<testcase name="test_generate_samples:34 (SamplingGen.SamplingMethod.HALTON, 10, 256)" classname="sampling_gen_perf_test" time="0.126">
+		</testcase>
+		<testcase name="test_generate_samples:35 (SamplingGen.SamplingMethod.HALTON, 10, 1024)" classname="sampling_gen_perf_test" time="0.282">
+		</testcase>
+		<testcase name="test_coordinated_shuffle_performance" classname="sampling_gen_perf_test" time="1.690">
+			<failure message="FAILED: res://addons/godot-stat-math/tests/performance/core/sampling_gen_perf_test.gd:46" type="FAILURE">
+<![CDATA[
+Performance regression detected for 'coordinated_shuffle_performance'
+]]>
+			</failure>
+		</testcase>
+		<testcase name="test_sample_indices_performance" classname="sampling_gen_perf_test" time="0.036">
+		</testcase>
+	</testsuite>
+	<testsuite id="2" name="distributions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-29T21:21:51" hostname="localhost" tests="17" failures="0" errors="0" skipped="0" flaky="0" time="0.656">
+		<testcase name="test_normal_distribution_performance" classname="distributions_perf_test" time="0.027">
+		</testcase>
+		<testcase name="test_gamma_distribution_performance" classname="distributions_perf_test" time="0.021">
+		</testcase>
+		<testcase name="test_beta_distribution_performance" classname="distributions_perf_test" time="0.025">
+		</testcase>
+		<testcase name="test_binomial_distribution_performance" classname="distributions_perf_test" time="0.035">
+		</testcase>
+		<testcase name="test_poisson_distribution_performance" classname="distributions_perf_test" time="0.022">
+		</testcase>
+		<testcase name="test_weibull_distribution_performance" classname="distributions_perf_test" time="0.020">
+		</testcase>
+		<testcase name="test_uniform_int_distribution_performance" classname="distributions_perf_test" time="0.019">
+		</testcase>
+		<testcase name="test_uniform_float_distribution_performance" classname="distributions_perf_test" time="0.033">
+		</testcase>
+		<testcase name="test_exponential_distribution_performance" classname="distributions_perf_test" time="0.019">
+		</testcase>
+		<testcase name="test_pareto_distribution_performance" classname="distributions_perf_test" time="0.020">
+		</testcase>
+		<testcase name="test_cauchy_distribution_performance" classname="distributions_perf_test" time="0.021">
+		</testcase>
+		<testcase name="test_triangular_distribution_performance" classname="distributions_perf_test" time="0.019">
+		</testcase>
+		<testcase name="test_custom_discrete_distributions_performance" classname="distributions_perf_test" time="0.037">
+		</testcase>
+		<testcase name="test_simple_discrete_distributions_performance" classname="distributions_perf_test" time="0.021">
+		</testcase>
+		<testcase name="test_advanced_continuous_distributions_performance" classname="distributions_perf_test" time="0.031">
+		</testcase>
+		<testcase name="test_gaussian_distribution_performance" classname="distributions_perf_test" time="0.020">
+		</testcase>
+		<testcase name="test_histogram_distribution_performance" classname="distributions_perf_test" time="0.032">
+		</testcase>
+	</testsuite>
+	<testsuite id="3" name="error_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-29T21:21:51" hostname="localhost" tests="6" failures="0" errors="0" skipped="0" flaky="0" time="0.278">
+		<testcase name="test_error_function_performance" classname="error_functions_perf_test" time="0.031">
+		</testcase>
+		<testcase name="test_complementary_error_function_performance" classname="error_functions_perf_test" time="0.026">
+		</testcase>
+		<testcase name="test_error_function_inverse_performance" classname="error_functions_perf_test" time="0.038">
+		</testcase>
+		<testcase name="test_complementary_error_function_inverse_performance" classname="error_functions_perf_test" time="0.041">
+		</testcase>
+		<testcase name="test_log_gamma_performance" classname="error_functions_perf_test" time="0.033">
+		</testcase>
+		<testcase name="test_gamma_function_performance" classname="error_functions_perf_test" time="0.035">
+		</testcase>
+	</testsuite>
+	<testsuite id="4" name="cdf_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-29T21:21:52" hostname="localhost" tests="13" failures="0" errors="0" skipped="0" flaky="0" time="2.085">
+		<testcase name="test_normal_cdf_performance" classname="cdf_functions_perf_test" time="0.047">
+		</testcase>
+		<testcase name="test_gamma_cdf_performance" classname="cdf_functions_perf_test" time="0.075">
+		</testcase>
+		<testcase name="test_beta_cdf_performance" classname="cdf_functions_perf_test" time="0.708">
+		</testcase>
+		<testcase name="test_weibull_cdf_performance" classname="cdf_functions_perf_test" time="0.029">
+		</testcase>
+		<testcase name="test_exponential_cdf_performance" classname="cdf_functions_perf_test" time="0.022">
+		</testcase>
+		<testcase name="test_chi_square_cdf_performance" classname="cdf_functions_perf_test" time="0.050">
+		</testcase>
+		<testcase name="test_f_cdf_performance" classname="cdf_functions_perf_test" time="0.290">
+		</testcase>
+		<testcase name="test_t_cdf_performance" classname="cdf_functions_perf_test" time="0.435">
+		</testcase>
+		<testcase name="test_binomial_cdf_performance" classname="cdf_functions_perf_test" time="0.078">
+		</testcase>
+		<testcase name="test_poisson_cdf_performance" classname="cdf_functions_perf_test" time="0.046">
+		</testcase>
+		<testcase name="test_geometric_cdf_performance" classname="cdf_functions_perf_test" time="0.026">
+		</testcase>
+		<testcase name="test_negative_binomial_cdf_performance" classname="cdf_functions_perf_test" time="0.076">
+		</testcase>
+		<testcase name="test_pareto_cdf_performance" classname="cdf_functions_perf_test" time="0.028">
+		</testcase>
+	</testsuite>
+	<testsuite id="5" name="basic_stats_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-29T21:21:54" hostname="localhost" tests="6" failures="0" errors="0" skipped="0" flaky="0" time="0.437">
+		<testcase name="test_mean_variance_performance" classname="basic_stats_perf_test" time="0.055">
+		</testcase>
+		<testcase name="test_median_performance" classname="basic_stats_perf_test" time="0.051">
+		</testcase>
+		<testcase name="test_median_absolute_deviation_performance" classname="basic_stats_perf_test" time="0.095">
+		</testcase>
+		<testcase name="test_sample_statistics_performance" classname="basic_stats_perf_test" time="0.044">
+		</testcase>
+		<testcase name="test_min_max_range_performance" classname="basic_stats_perf_test" time="0.033">
+		</testcase>
+		<testcase name="test_percentile_performance" classname="basic_stats_perf_test" time="0.050">
+		</testcase>
+	</testsuite>
+	<testsuite id="6" name="helper_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-29T21:21:54" hostname="localhost" tests="10" failures="0" errors="0" skipped="0" flaky="0" time="3.389">
+		<testcase name="test_gamma_function_performance" classname="helper_functions_perf_test" time="0.090">
+		</testcase>
+		<testcase name="test_beta_function_performance" classname="helper_functions_perf_test" time="0.221">
+		</testcase>
+		<testcase name="test_incomplete_beta_function_performance" classname="helper_functions_perf_test" time="1.375">
+		</testcase>
+		<testcase name="test_binomial_coefficient_performance" classname="helper_functions_perf_test" time="0.109">
+		</testcase>
+		<testcase name="test_log_gamma_function_performance" classname="helper_functions_perf_test" time="0.084">
+		</testcase>
+		<testcase name="test_log_factorial_performance" classname="helper_functions_perf_test" time="0.137">
+		</testcase>
+		<testcase name="test_log_binomial_coefficient_performance" classname="helper_functions_perf_test" time="0.141">
+		</testcase>
+		<testcase name="test_sanitize_numeric_array_performance" classname="helper_functions_perf_test" time="0.131">
+		</testcase>
+		<testcase name="test_lower_incomplete_gamma_regularized_performance" classname="helper_functions_perf_test" time="0.758">
+		</testcase>
+		<testcase name="test_log_beta_function_direct_performance" classname="helper_functions_perf_test" time="0.219">
+		</testcase>
+	</testsuite>
+	<testsuite id="7" name="pmf_pdf_functions_perf_test" package="addons/godot-stat-math/tests/performance/core" timestamp="2025-06-29T21:21:58" hostname="localhost" tests="15" failures="0" errors="0" skipped="0" flaky="0" time="0.948">
+		<testcase name="test_normal_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.032">
+		</testcase>
+		<testcase name="test_exponential_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.031">
+		</testcase>
+		<testcase name="test_uniform_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.024">
+		</testcase>
+		<testcase name="test_gamma_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.044">
+		</testcase>
+		<testcase name="test_beta_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.097">
+		</testcase>
+		<testcase name="test_binomial_pmf_performance" classname="pmf_pdf_functions_perf_test" time="0.027">
+		</testcase>
+		<testcase name="test_poisson_pmf_performance" classname="pmf_pdf_functions_perf_test" time="0.023">
+		</testcase>
+		<testcase name="test_chi_squared_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.048">
+		</testcase>
+		<testcase name="test_t_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.061">
+		</testcase>
+		<testcase name="test_f_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.081">
+		</testcase>
+		<testcase name="test_negative_binomial_pmf_performance" classname="pmf_pdf_functions_perf_test" time="0.023">
+		</testcase>
+		<testcase name="test_weibull_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.034">
+		</testcase>
+		<testcase name="test_pareto_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.023">
+		</testcase>
+		<testcase name="test_cauchy_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.030">
+		</testcase>
+		<testcase name="test_lognormal_pdf_performance" classname="pmf_pdf_functions_perf_test" time="0.035">
+		</testcase>
+	</testsuite>
+</testsuites>
