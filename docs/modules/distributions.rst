@@ -51,7 +51,7 @@ Functions
    Generates an integer from a Geometric distribution.
 
    Returns the number of Bernoulli trials needed to get one success (always ≥ 1).
-   Uses inverse transform sampling for efficiency.
+   Uses fast direct sampling for optimal performance.
 
    Mathematical Note: ``E[X] = 1/p``, ``Var(X) = (1-p)/p²``
 
@@ -148,6 +148,16 @@ Functions
    Defaults to ``N(0,1)`` if parameters are not provided.
 
    Mathematical Note: ``E[X] = μ``, ``Var(X) = σ²``
+
+.. function:: randf_lognormal(mu: float = 0.0, sigma: float = 1.0) -> float:
+
+   Generates a float from a Lognormal distribution.
+
+   Uses the fundamental relationship: if ``X ~ Normal(μ, σ)``, then ``exp(X) ~ Lognormal(μ, σ)``.
+   The lognormal distribution models positive values and is commonly used for modeling
+   prices, incomes, and other quantities that cannot be negative.
+
+   Mathematical Note: ``E[X] = exp(μ + σ²/2)``, ``Var(X) = [exp(σ²) - 1] × exp(2μ + σ²)``
 
 .. function:: randf_cauchy(location: float = 0.0, scale: float = 1.0) -> float:
 

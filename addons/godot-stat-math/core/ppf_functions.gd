@@ -237,16 +237,13 @@ static func _beta_2_2_ppf_fast(p: float) -> float:
 	return clamp(x, 0.0, 1.0)
 
 
-# Gamma Distribution PPF: gamma_ppf(p, k_shape, theta_scale)
-# Calculates the PPF for the Gamma distribution.
-# Returns the value x such that P(X <= x) = p.
-# Uses a numerical binary search (bisection) method with an initial guess often derived
-# from the Wilson-Hilferty transformation (for k_shape > 1) or other approximations.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   k_shape: float - The shape parameter k (must be > 0.0).
-#   theta_scale: float - The scale parameter theta (must be > 0.0).
-# Returns: float - The value x. Returns 0.0 if p=0, INF if p=1, or NAN for invalid parameters or if search fails.
+## Calculates the PPF of a gamma distribution: inverse of F(x; k, θ).
+##
+## Returns the value [code]x[/code] such that [code]P(X ≤ x) = p[/code] for a gamma distribution 
+## with shape parameter [code]k[/code] and scale parameter [code]θ[/code]. Uses binary search 
+## with Wilson-Hilferty approximation for initial guess when [code]k > 1[/code].
+##
+## Mathematical Note: Uses Wilson-Hilferty transformation [code]k(1 - 1/(9k) + z/(3√k))³[/code] for initial guess
 static func gamma_ppf(p: float, k_shape: float, theta_scale: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -328,15 +325,13 @@ static func gamma_ppf(p: float, k_shape: float, theta_scale: float) -> float:
 	
 	return x
 
-# Chi-Square Distribution PPF: chi_square_ppf(p, k_df)
-# Calculates the PPF for the Chi-Square distribution.
-# Returns the value x such that P(X <= x) = p.
-# This is derived from the Gamma distribution PPF, as ChiSquare(k_df) is equivalent
-# to Gamma(shape = k_df/2, scale = 2.0).
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   k_df: float - The degrees of freedom (must be > 0.0).
-# Returns: float - The value x. Inherits return behavior (0.0 for p=0, INF for p=1, NAN for errors) from gamma_ppf.
+## Calculates the PPF of a chi-square distribution: inverse of F(x; k).
+##
+## Returns the value [code]x[/code] such that [code]P(X ≤ x) = p[/code] for a chi-square 
+## distribution with [code]k[/code] degrees of freedom. Derived from gamma distribution 
+## as [code]χ²(k) = Gamma(k/2, 2)[/code].
+##
+## Mathematical Note: [code]χ²(k) ≡ Gamma(shape=k/2, scale=2)[/code]
 static func chi_square_ppf(p: float, k_df: float) -> float:
 	# Chi-square with k_df degrees of freedom is Gamma(shape=k_df/2, scale=2)
 	if not (p >= 0.0 and p <= 1.0):
@@ -348,16 +343,13 @@ static func chi_square_ppf(p: float, k_df: float) -> float:
 		
 	return gamma_ppf(p, k_df / 2.0, 2.0)
 
-# F Distribution PPF: f_ppf(p, d1, d2)
-# Calculates the PPF for the F distribution.
-# Returns the value x such that P(X <= x) = p.
-# Uses a numerical binary search (bisection) method. An initial guess for x can be
-# derived from the Beta distribution PPF due to their relationship.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   d1: float - The numerator degrees of freedom (must be > 0.0).
-#   d2: float - The denominator degrees of freedom (must be > 0.0).
-# Returns: float - The value x. Returns 0.0 if p=0, INF if p=1, or NAN for invalid parameters or if search fails.
+## Calculates the PPF of an F-distribution: inverse of F(x; d₁, d₂).
+##
+## Returns the value [code]x[/code] such that [code]P(X ≤ x) = p[/code] for an F-distribution 
+## with numerator degrees of freedom [code]d₁[/code] and denominator degrees of freedom [code]d₂[/code].
+## Uses binary search with beta distribution relationship for initial guess.
+##
+## Mathematical Note: Related to Beta distribution via [code]F = (d₂Y)/(d₁(1-Y))[/code] where [code]Y ~ Beta(d₁/2, d₂/2)[/code]
 static func f_ppf(p: float, d1: float, d2: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -424,15 +416,13 @@ static func f_ppf(p: float, d1: float, d2: float) -> float:
 
 	return x
 
-# Student's t Distribution PPF: t_ppf(p, df)
-# Calculates the PPF for the Student's t distribution.
-# Returns the value x such that P(T <= x) = p.
-# Uses a numerical binary search (bisection) method. For large degrees of freedom (df > 1000),
-# it approximates using the Normal PPF. Utilizes symmetry for p > 0.5 (T_p(df) = -T_{1-p}(df)).
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   df: float - The degrees of freedom (must be > 0.0).
-# Returns: float - The value x. Returns -INF if p=0, 0.0 if p=0.5, INF if p=1, or NAN for invalid df.
+## Calculates the PPF of a Student's t-distribution: inverse of F(x; ν).
+##
+## Returns the value [code]x[/code] such that [code]P(T ≤ x) = p[/code] for a t-distribution 
+## with [code]ν[/code] degrees of freedom. Uses symmetry and approximates with normal 
+## distribution for large degrees of freedom ([code]ν > 1000[/code]).
+##
+## Mathematical Note: Uses symmetry [code]t_p(ν) = -t_{1-p}(ν)[/code] and normal approximation for large ν
 static func t_ppf(p: float, df: float) -> float:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -539,16 +529,13 @@ static func binomial_ppf(p: float, n: int, prob_success: float) -> int:
 	
 	return n  # Fallback: should be reached if p is very close to 1.0 and cum_prob sums up to slightly less due to precision.
 
-# Poisson Distribution PPF: poisson_ppf(p, lambda_param)
-# Calculates the PPF for the Poisson distribution (a discrete distribution).
-# Returns the smallest integer k such that CDF(k) >= p.
-# Method: Linear search by summing PMF values (from StatMath.PmfPdfFunctions.poisson_pmf)
-# starting from k=0 up to a reasonable maximum (lambda + 10*sqrt(lambda) + 20).
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   lambda_param: float - The average rate of events (lambda, must be non-negative).
-# Returns: int - The smallest k. Returns 0 if p=0 or lambda_param=0. Returns -1 for invalid parameters
-# or if PMF calculation fails. May return a capped k if p is very close to 1.
+## Calculates the PPF of a Poisson distribution: inverse of F(k; λ).
+##
+## Returns the smallest integer [code]k[/code] such that [code]CDF(k) ≥ p[/code] for a Poisson 
+## distribution with average rate [code]λ[/code]. Uses linear search by summing PMF values 
+## up to [code]λ + 10√λ + 20[/code] for practical bounds.
+##
+## Mathematical Note: [code]P(X ≤ k) = Σᵢ₌₀ᵏ e^(-λ)λⁱ/i![/code]
 static func poisson_ppf(p: float, lambda_param: float) -> int:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -595,17 +582,13 @@ static func poisson_ppf(p: float, lambda_param: float) -> int:
 		push_warning("Poisson PPF search reached max_k (%s) for p=%s, lambda=%s. cum_prob=%s. Result might be capped." % [max_k, p, lambda_param, cumulative_prob])
 	return k # Return the last k, which is max_k. This is the best guess within the search limit.
 
-# Geometric Distribution PPF: geometric_ppf(p, prob_success)
-# Calculates the PPF for the Geometric distribution (discrete distribution for k >= 1).
-# This version defines k as the number of Bernoulli trials needed to get one success.
-# Returns the smallest integer k (number of trials) such that CDF(k) >= p.
-# Uses the closed-form formula: ceil(log(1-p) / log(1-prob_success)) for 0 < p < 1.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   prob_success: float - The probability of success on each trial (must be in (0.0, 1.0]).
-# Returns: int - The smallest k. Returns 1 if p=0 or prob_success=1.
-# Returns StatMath.INT_MAX_REPRESENTING_INF if p=1.0 and prob_success < 1.0.
-# Returns -1 for invalid parameters.
+## Calculates the PPF of a geometric distribution: inverse of F(k; p).
+##
+## Returns the smallest integer [code]k[/code] (number of trials) such that [code]CDF(k) ≥ p[/code] 
+## for a geometric distribution with success probability [code]p[/code]. Uses closed-form 
+## solution for efficiency.
+##
+## Mathematical Note: [code]PPF(p) = ⌈ln(1-p) / ln(1-p_success)⌉[/code]
 static func geometric_ppf(p: float, prob_success: float) -> int:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -636,19 +619,13 @@ static func geometric_ppf(p: float, prob_success: float) -> int:
 
 	return int(ceil(log_1_minus_p / log_1_minus_pr))
 
-# Negative Binomial Distribution PPF: negative_binomial_ppf(p, r_successes, prob_success)
-# Calculates the PPF for the Negative Binomial distribution (discrete distribution).
-# This version defines k as the number of trials to achieve r_successes successes, so k >= r_successes.
-# Returns the smallest integer k (number of trials) such that CDF(k) >= p.
-# Method: Linear search by summing PMF values (from StatMath.PmfPdfFunctions.negative_binomial_pmf)
-# starting from k = r_successes up to a reasonable maximum.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   r_successes: int - The target number of successes (must be > 0).
-#   prob_success: float - The probability of success on each trial (must be in (0.0, 1.0]).
-# Returns: int - The smallest k. Returns r_successes if p=0 or prob_success=1.
-# Returns StatMath.INT_MAX_REPRESENTING_INF if p=1.0 and prob_success < 1.0.
-# Returns -1 for invalid parameters or if PMF calculation fails. May return a capped k.
+## Calculates the PPF of a negative binomial distribution: inverse of F(k; r, p).
+##
+## Returns the smallest integer [code]k[/code] (number of trials) such that [code]CDF(k) ≥ p[/code] 
+## for a negative binomial distribution with [code]r[/code] required successes and success 
+## probability [code]p[/code]. Uses linear search with mean-based bounds.
+##
+## Mathematical Note: Mean trials = [code]r/p[/code], searches up to [code]mean + 10σ[/code]
 static func negative_binomial_ppf(p: float, r_successes: int, prob_success: float) -> int:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -701,14 +678,13 @@ static func negative_binomial_ppf(p: float, r_successes: int, prob_success: floa
 		push_warning("Negative Binomial PPF search reached max_k_trials (%s) for p=%s, r=%s, pr=%s. cum_prob=%s. Result might be capped." % [max_k_trials, p, r_successes, prob_success, cumulative_prob])
 	return k_trials # Return last k_trials (max_k_trials) as best guess.
 
-# Bernoulli Distribution PPF: bernoulli_ppf(p, prob_success)
-# Calculates the PPF for the Bernoulli distribution (a discrete distribution).
-# This is a special case of the Binomial distribution where n (number of trials) is 1.
-# Returns 0 (failure) or 1 (success) such that CDF(k) >= p.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   prob_success: float - The probability of success (must be between 0.0 and 1.0).
-# Returns: int - 0 or 1. Returns -1 for invalid parameters.
+## Calculates the PPF of a Bernoulli distribution: inverse of F(k; p).
+##
+## Returns [code]0[/code] (failure) or [code]1[/code] (success) such that [code]CDF(k) ≥ p[/code] 
+## for a Bernoulli distribution with success probability [code]p[/code]. Special case 
+## of binomial distribution with [code]n = 1[/code].
+##
+## Mathematical Note: [code]PPF(p) = 0[/code] if [code]p ≤ 1-p_success[/code], otherwise [code]1[/code]
 static func bernoulli_ppf(p: float, prob_success: float) -> int:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)
@@ -721,15 +697,13 @@ static func bernoulli_ppf(p: float, prob_success: float) -> int:
 	# binomial_ppf(p, 1, prob_success) will return 0 or 1.
 	return binomial_ppf(p, 1, prob_success)
 
-# Discrete Histogram PPF: discrete_histogram_ppf(p, values, probabilities)
-# Calculates the PPF for a user-defined discrete distribution represented by a histogram.
-# Returns the value from the 'values' array corresponding to the smallest cumulative probability >= p.
-# Assumes 'values' and 'probabilities' are correctly ordered if a specific order is meaningful.
-# Parameters:
-#   p: float - The probability value (must be between 0.0 and 1.0).
-#   values: Array - An array of outcome values (can be Variant types).
-#   probabilities: Array[float] - An array of corresponding probabilities for each outcome.
-# Returns: Variant - The outcome value from the 'values' array. Returns null for invalid parameters or errors.
+## Calculates the PPF of a discrete histogram distribution: inverse of F(x; values, probabilities).
+##
+## Returns the value from [code]values[/code] array corresponding to the smallest cumulative 
+## probability [code]≥ p[/code]. Creates a user-defined discrete distribution from 
+## provided values and their associated probabilities.
+##
+## Mathematical Note: Implements inverse transform sampling for discrete distributions
 static func discrete_histogram_ppf(p: float, values: Array, probabilities: Array[float]) -> Variant:
 	if not (p >= 0.0 and p <= 1.0):
 		push_error("Probability p must be between 0.0 and 1.0 (inclusive). Received: %s" % p)

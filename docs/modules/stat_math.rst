@@ -16,6 +16,30 @@ var poisson_sample = StatMath.Distributions.randi_poisson(3.5)
 var data = [1.0, 2.0, 3.0, 4.0, 5.0]
 var mean = StatMath.BasicStats.mean(data)
 var variance = StatMath.BasicStats.variance(data)
+# Use distribution functions
+var cdf_value = StatMath.CdfFunctions.normal_cdf(1.96, 0.0, 1.0)
+var quantile = StatMath.PpfFunctions.normal_ppf(0.975, 0.0, 1.0)
+# Advanced sampling
+var samples = StatMath.SamplingGen.generate_samples(100, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)
+[/codeblock]
+Module Organization:
+
+* ``BasicStats`` - Descriptive statistics (mean, variance, quantiles, etc.)
+
+* ``Distributions`` - Random number generation from various distributions
+
+* ``CdfFunctions`` - Cumulative distribution functions
+
+* ``PpfFunctions`` - Inverse CDF/quantile functions
+
+* ``PmfPdfFunctions`` - Probability mass/density functions
+
+* ``ErrorFunctions`` - Error functions and special mathematical functions
+
+* ``HelperFunctions`` - Core mathematical utilities
+
+* ``SamplingGen`` - Advanced sampling and quasi-random sequences
+Project setting name for global random seed configuration.
 
 Usage
 -----
