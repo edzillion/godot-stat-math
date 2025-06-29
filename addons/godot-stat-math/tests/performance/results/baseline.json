@@ -2,7 +2,7 @@
 	"meta": {
 		"baseline_measurements_preserved": true,
 		"expected_regressions": [],
-		"generated_at": "2025-06-29T17:14:16",
+		"generated_at": "2025-06-29T17:19:47",
 		"source_snapshots": 45,
 		"statistical_method": "percentile_based_thresholds_only",
 		"thresholds_updated": 114,
