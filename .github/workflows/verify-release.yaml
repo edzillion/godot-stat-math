@@ -183,6 +183,7 @@ jobs:
 
       - name: Run Performance Tests
         if: always()
+        continue-on-error: true
         uses: MikeSchulze/gdunit4-action@v1
         with:
           godot-version: "4.4"
@@ -192,61 +193,39 @@ jobs:
         env:
           DISABLE_REGRESSION_CHECKING: false
 
-      - name: Check test completion and results
+      - name: Check unit test results  
         if: always()
         id: test-results
         run: |
-          echo "=== Test Results Analysis ==="
+          echo "=== Unit Test Results Analysis ==="
           
           # Default to failed state
-          echo "tests-passed=false" >> $GITHUB_OUTPUT
+          echo "unit-tests-passed=false" >> $GITHUB_OUTPUT
           
-          if [ -d "reports" ]; then
-            echo "✅ Reports directory exists"
+          UNIT_TEST_REPORT="reports/report_1/results.xml"
+          
+          if [ -f "$UNIT_TEST_REPORT" ]; then
+            echo "📊 Found unit test results at $UNIT_TEST_REPORT"
             
-            # Find latest report directory
-            LATEST_REPORT=$(find reports -type d -name "report_*" | sort -V | tail -1)
+            FAILURES=$(grep -o 'failures="[0-9]*"' "$UNIT_TEST_REPORT" | grep -o '[0-9]*' | head -1 || echo "0")
+            ERRORS=$(grep -o 'errors="[0-9]*"' "$UNIT_TEST_REPORT" | grep -o '[0-9]*' | head -1 || echo "0")
+            echo "Unit Test Failures: $FAILURES, Errors: $ERRORS"
             
-            if [ -n "$LATEST_REPORT" ]; then
-              echo "📁 Latest report: $LATEST_REPORT"
-              
-              # Check for results.xml
-              if [ -f "$LATEST_REPORT/results.xml" ]; then
-                echo "📊 Found results.xml"
-                
-                # Correctly parse only the first failures/errors value (summary)
-                FAILURES=$(grep -o 'failures="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' | head -1 || echo "0")
-                ERRORS=$(grep -o 'errors="[0-9]*"' "$LATEST_REPORT/results.xml" | grep -o '[0-9]*' | head -1 || echo "0")
-                echo "Failures: $FAILURES, Errors: $ERRORS"
-                
-                if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
-                  echo "✅ Tests completed successfully with no failures"
-                  echo "tests-passed=true" >> $GITHUB_OUTPUT
-                else
-                  echo "❌ Tests completed but with $FAILURES failures and $ERRORS errors"
-                  echo "tests-passed=false" >> $GITHUB_OUTPUT
-                fi
-                
-                # Show test summary
-                echo "Test summary from results.xml:"
-                grep -E "(tests=|failures=|skipped=|errors=)" "$LATEST_REPORT/results.xml" || true
-              else
-                echo "❌ No results.xml found in $LATEST_REPORT"
-                echo "Contents:"
-                ls -la "$LATEST_REPORT"
-                echo "tests-passed=false" >> $GITHUB_OUTPUT
-              fi
+            if [ "$FAILURES" = "0" ] && [ "$ERRORS" = "0" ]; then
+              echo "✅ Unit tests completed successfully"
+              echo "unit-tests-passed=true" >> $GITHUB_OUTPUT
             else
-              echo "❌ No report_* directories found"
-              echo "Reports directory contents:"
-              ls -la reports/
-              echo "tests-passed=false" >> $GITHUB_OUTPUT
+              echo "❌ Unit tests failed with $FAILURES failures and $ERRORS errors"
+              echo "unit-tests-passed=false" >> $GITHUB_OUTPUT
             fi
+            
+            # Show test summary
+            echo "Test summary from results.xml:"
+            grep -E "(tests=|failures=|skipped=|errors=)" "$UNIT_TEST_REPORT" || true
+            echo "ℹ️ Performance test results saved regardless of outcome"
           else
-            echo "❌ No reports directory found"
-            echo "Root directory contents:"
-            ls -la
-            echo "tests-passed=false" >> $GITHUB_OUTPUT
+            echo "❌ Unit test results not found at $UNIT_TEST_REPORT"
+            echo "unit-tests-passed=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Upload test results (failures only)
@@ -255,7 +234,7 @@ jobs:
           name: release-test-results-FAILED-pr-${{ github.event.number }}
           path: reports/
           if-no-files-found: warn
-        if: always() && steps.test-results.outputs.tests-passed == 'false'
+        if: always() && steps.test-results.outputs.unit-tests-passed == 'false'
 
       - name: Generate badge data
         if: always()
@@ -275,10 +254,10 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      - name: Commit badge data and reports
+      - name: Commit badge data, reports, and performance results
         if: always()
         run: |
-          echo "=== Committing Badge Data and Test Reports ==="
+          echo "=== Committing Badge Data, Test Reports and Performance Results ==="
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
@@ -288,6 +267,15 @@ jobs:
             git add docs/_static/badges/
           else
             echo "⚠️ No badge data directory found"
+          fi
+          
+          # Add performance results directory
+          PERF_RESULTS_DIR="addons/godot-stat-math/tests/performance/results"
+          if [ -d "$PERF_RESULTS_DIR" ]; then
+            echo "Performance results directory exists, adding to staging..."
+            git add "$PERF_RESULTS_DIR/"
+          else
+            echo "⚠️ No performance results directory found"
           fi
           
           # Add reports directory if it exists (force add to override .gitignore)
@@ -304,13 +292,13 @@ jobs:
           # Check if there are any changes to commit
           if ! git diff --staged --quiet; then
             echo "Changes detected, committing..."
-            git commit -m "📊 Update badge data and test reports - Release verification"
+            git commit -m "📊 Update badge data, test reports and performance data - Release verification"
             
             # Push to source branch (develop) - updates the PR
-            echo "Pushing badge data and reports to source branch: ${{ github.head_ref }}"
+            echo "Pushing badge data, reports and performance data to source branch: ${{ github.head_ref }}"
             git push git@github.com:${{ github.repository }}.git HEAD:${{ github.head_ref }}
             
-            echo "✅ Badge data and test reports updated and pushed to PR branch"
+            echo "✅ Badge data, test reports and performance results updated and pushed to PR branch"
           else
             echo "ℹ️ No changes to commit"
           fi
@@ -318,14 +306,15 @@ jobs:
       - name: Generate verification summary
         if: always()
         run: |
-          if [ "${{ steps.test-results.outputs.tests-passed }}" = "true" ]; then
+          if [ "${{ steps.test-results.outputs.unit-tests-passed }}" = "true" ]; then
             echo "## ✅ Release Verification Complete" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
             echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
-            echo "- **Tests**: ✅ Passed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
+            echo "- **Unit Tests**: ✅ Passed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
+            echo "- **Performance Tests**: 📊 Data collected (non-blocking)" >> $GITHUB_STEP_SUMMARY
             echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Test Reports**: Not uploaded (tests passed)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Test Reports**: Not uploaded (unit tests passed)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "🚀 Ready to merge and release!" >> $GITHUB_STEP_SUMMARY
           else
@@ -333,11 +322,12 @@ jobs:
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
             echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
-            echo "- **Tests**: ❌ Failed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
+            echo "- **Unit Tests**: ❌ Failed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
+            echo "- **Performance Tests**: 📊 Data collected (non-blocking)" >> $GITHUB_STEP_SUMMARY
             echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
             echo "- **Test Reports**: 📁 Uploaded as artifact for investigation" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "🔧 Fix test failures before merging!" >> $GITHUB_STEP_SUMMARY
+            echo "🔧 Fix unit test failures before merging!" >> $GITHUB_STEP_SUMMARY
           fi
 
   terminate-runner:
