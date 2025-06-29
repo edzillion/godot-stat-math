@@ -4,7 +4,6 @@ on:
   pull_request:
     branches: ["release"]
     types: [opened, reopened]
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -237,53 +236,6 @@ jobs:
           if-no-files-found: warn
         if: always() && steps.test-results.outputs.unit-tests-passed == 'false'
 
-
-
-      - name: Generate verification summary
-        if: always()
-        run: |
-          if [ "${{ steps.test-results.outputs.unit-tests-passed }}" = "true" ]; then
-            echo "## ✅ Release Verification Complete" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
-            echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
-            echo "- **Unit Tests**: ✅ Passed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
-            echo "- **Performance Tests**: 📊 Data collected (non-blocking)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Test Reports**: Not uploaded (unit tests passed)" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "🚀 Ready to merge and release!" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "## ❌ Release Verification Failed" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
-            echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
-            echo "- **Unit Tests**: ❌ Failed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
-            echo "- **Performance Tests**: 📊 Data collected (non-blocking)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Test Reports**: 📁 Uploaded as artifact for investigation" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "🔧 Fix unit test failures before merging!" >> $GITHUB_STEP_SUMMARY
-          fi
-
-  commit-results:
-    needs: [enforce-develop-source, check-version-bump, validate-addon-structure, trigger-runner, run-tests]
-    runs-on: ubuntu-latest
-    if: always() && needs.trigger-runner.outputs.runner-triggered == 'true'
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-
-      - name: Download test artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: ./
-        continue-on-error: true
-
       - name: Generate badge data
         if: always()
         run: |
@@ -340,7 +292,7 @@ jobs:
           # Check if there are any changes to commit
           if ! git diff --staged --quiet; then
             echo "Changes detected, committing..."
-            git commit -m "📊 Update badge, test and performance data - Release verification [skip ci]"
+            git commit -m "📊 Update badge data, test reports and performance data - Release verification"
             
             # Push to source branch (develop) - updates the PR
             echo "Pushing badge data, reports and performance data to source branch: ${{ github.head_ref }}"
@@ -351,9 +303,36 @@ jobs:
             echo "ℹ️ No changes to commit"
           fi
 
+      - name: Generate verification summary
+        if: always()
+        run: |
+          if [ "${{ steps.test-results.outputs.unit-tests-passed }}" = "true" ]; then
+            echo "## ✅ Release Verification Complete" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
+            echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
+            echo "- **Unit Tests**: ✅ Passed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
+            echo "- **Performance Tests**: 📊 Data collected (non-blocking)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Test Reports**: Not uploaded (unit tests passed)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🚀 Ready to merge and release!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Release Verification Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "- **Version Bump**: Validated" >> $GITHUB_STEP_SUMMARY
+            echo "- **Addon Structure**: Valid" >> $GITHUB_STEP_SUMMARY
+            echo "- **Unit Tests**: ❌ Failed on AWS Spot Instance" >> $GITHUB_STEP_SUMMARY
+            echo "- **Performance Tests**: 📊 Data collected (non-blocking)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Instance Type**: $(curl -s http://169.254.169.254/latest/meta-data/instance-type)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Test Reports**: 📁 Uploaded as artifact for investigation" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🔧 Fix unit test failures before merging!" >> $GITHUB_STEP_SUMMARY
+          fi
+
   terminate-runner:
     runs-on: ubuntu-latest
-    needs: [enforce-develop-source, trigger-runner, run-tests, commit-results]
+    needs: [enforce-develop-source, trigger-runner, run-tests]
     if: always() && needs.trigger-runner.outputs.runner-triggered == 'true'
     steps:
       - name: Terminate spot instance
