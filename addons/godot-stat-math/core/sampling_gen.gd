@@ -68,7 +68,11 @@ func _init() -> void:
 # Only deck pooling is implemented - provides significant performance gains
 # for shuffle operations without the complexity of full sample pooling
 
-## Gets a deck array from the pool or creates a new one
+## Retrieves a deck array from the memory pool or creates a new one.
+##
+## Provides significant performance improvements for shuffle operations by reusing 
+## pre-allocated arrays. Thread-safe implementation with mutex protection.
+## Automatically resets deck to default state [0, 1, 2, ..., deck_size-1].
 static func _get_pooled_deck(deck_size: int) -> Array[int]:
 	_pool_mutex.lock()
 	
@@ -96,7 +100,11 @@ static func _get_pooled_deck(deck_size: int) -> Array[int]:
 	return deck
 
 
-## Returns a deck array to the pool for reuse
+## Returns a deck array to the memory pool for future reuse.
+##
+## Enables efficient memory recycling for shuffle operations. Only stores a limited 
+## number of decks per size to prevent unlimited memory growth. Thread-safe with 
+## mutex protection for concurrent access.
 static func _return_pooled_deck(deck: Array[int], deck_size: int) -> void:
 	_pool_mutex.lock()
 	
@@ -114,8 +122,12 @@ static func _return_pooled_deck(deck: Array[int], deck_size: int) -> void:
 
 
 ## Ensures Sobol direction vectors are initialized up to the specified dimension.
-## This method is idempotent and safe to call multiple times.
-## SINGLE-THREADED: Should only be called from main thread before spawning workers.
+##
+## This method is idempotent and safe to call multiple times. Direction vectors are 
+## cached for performance, using authoritative Joe-Kuo data for optimal low-discrepancy 
+## properties. Should only be called from main thread before spawning workers.
+##
+## Mathematical Note: Uses Joe-Kuo direction numbers for superior uniformity compared to primitive polynomials
 static func _ensure_sobol_vectors_initialized(max_dimension: int) -> void:
 	if max_dimension <= _max_cached_dimension:
 		return
@@ -133,6 +145,12 @@ static func _ensure_sobol_vectors_initialized(max_dimension: int) -> void:
 
 
 ## Generates direction vectors for a specific dimension using authoritative Joe-Kuo direction numbers.
+##
+## Converts Joe-Kuo direction numbers (m_i values) to direction vectors using the relationship
+## V_i = m_i / 2^(i+1). For dimensions without Joe-Kuo data, uses fallback patterns
+## to ensure all dimensions remain functional.
+##
+## Mathematical Note: Direction vectors V_i determine the binary digit distribution in Sobol sequences
 static func _generate_direction_vectors_for_dimension(dimension: int) -> void:
 	if _sobol_direction_vectors_cache.has(dimension):
 		return
@@ -203,7 +221,13 @@ class SobolDimensionTask:
 		result_samples.resize(draws)
 
 
-## Thread worker function for generating a single dimension's samples
+## Thread worker function for generating a single dimension's samples.
+##
+## Processes different sampling methods in parallel threads for optimal performance.
+## Each thread operates independently on its assigned dimension, with deterministic 
+## seeding for reproducible results. Includes fallback mechanisms for sequence limits.
+##
+## Mathematical Note: Each dimension uses independent sequences to maintain low-discrepancy properties
 static func _generate_dimension_samples_worker(task: SobolDimensionTask) -> void:
 	match task.method:
 		SamplingMethod.RANDOM:
@@ -276,7 +300,13 @@ static func _generate_dimension_samples_worker(task: SobolDimensionTask) -> void
 				task.result_samples[i] = -1.0
 
 
-## Threaded version of generate_samples_nd for high-dimensional cases
+## Threaded version of generate_samples_nd for high-dimensional cases.
+##
+## Optimizes multi-dimensional sample generation by parallelizing across dimensions.
+## Pre-initializes all required Sobol direction vectors before spawning threads to 
+## ensure true parallelization. Uses worker thread pool for scalable performance.
+##
+## Mathematical Note: Maintains uniformity guarantees across all dimensions simultaneously
 static func _generate_samples_nd(
 	n_draws: int, 
 	dimensions: int, 
@@ -366,9 +396,13 @@ class BatchShuffleTask:
 		result_shuffles.resize(n_shuffles)
 
 
-## Optimized two-phase batch shuffle generation
-## Phase 1: Multi-threaded bulk sample generation
-## Phase 2: Multi-threaded shuffling with pre-generated samples
+## Optimized two-phase batch shuffle generation.
+##
+## Phase 1: Multi-threaded bulk sample generation for all shuffles using unified N-dimensional sampling.
+## Phase 2: Multi-threaded shuffling with pre-generated samples to avoid redundant computations.
+## This approach maximizes parallelization while maintaining coordinated shuffle properties.
+##
+## Mathematical Note: Preserves Fisher-Yates statistical guarantees across all generated shuffles
 static func _coordinated_batch_shuffles_threaded(
 	deck_size: int,
 	n_shuffles: int,
@@ -465,8 +499,11 @@ static func _coordinated_batch_shuffles_threaded(
 	return results
 
 
-## Simplified worker function that only does shuffling with pre-generated samples
-## No sample generation needed - samples are pre-generated in Phase 1
+## Simplified worker function that performs shuffling with pre-generated samples.
+##
+## No sample generation needed as samples are pre-generated in Phase 1 of the 
+## batch shuffle process. Each worker processes a chunk of shuffles using 
+## their assigned pre-generated multi-dimensional points.
 static func _batch_shuffle_worker(task: BatchShuffleTask) -> void:
 	# Simply process each shuffle with its pre-generated samples
 	for i in range(task.chunk_size):
@@ -480,13 +517,22 @@ static func _batch_shuffle_worker(task: BatchShuffleTask) -> void:
 			task.result_shuffles[i] = _create_unshuffled_deck(task.deck_size)
 
 
-## Helper function to create an unshuffled deck for error cases
+## Helper function to create an unshuffled deck for error cases.
+##
+## Returns a deck in default order [0, 1, 2, ..., deck_size-1] when shuffle 
+## operations encounter errors. Uses memory pooling for performance consistency.
 static func _create_unshuffled_deck(deck_size: int) -> Array[int]:
 	# Use pooled deck array for performance
 	return _get_pooled_deck(deck_size)
 
 
-## Optimized shuffle using pre-generated samples - avoids redundant sample generation
+## Optimized shuffle using pre-generated samples.
+##
+## Performs coordinated Fisher-Yates shuffle using a pre-generated N-dimensional point 
+## to avoid redundant sample generation. Each dimension of the point drives one step 
+## of the Fisher-Yates algorithm for perfect coordination.
+##
+## Mathematical Note: Uses (deck_size-1) dimensional point for Fisher-Yates coordination
 static func _coordinated_shuffle_with_samples(deck_size: int, sobol_point: Array) -> Array[int]:
 	if deck_size <= 1:
 		var result: Array[int] = []
@@ -848,7 +894,13 @@ static func sample_indices(
 
 # --- PRIVATE IMPLEMENTATION METHODS ---
 
-## Sampling with replacement - allows duplicates.
+## Sampling with replacement allowing duplicates.
+##
+## Generates random indices where the same index can appear multiple times.
+## Essential for bootstrap sampling and simulation techniques. Uses the specified 
+## sampling method to ensure proper statistical properties.
+##
+## Mathematical Note: Each draw is independent with uniform probability 1/population_size
 static func _with_replacement_draw(population_size: int, draw_count: int, sampling_method: SamplingMethod, rng: RandomNumberGenerator) -> Array[int]:
 	var result: Array[int] = []
 	if draw_count <= 0:
@@ -900,6 +952,12 @@ static func _with_replacement_draw(population_size: int, draw_count: int, sampli
 
 
 ## Fisher-Yates shuffle with custom sampling method for randomness.
+##
+## Performs partial Fisher-Yates shuffle to select exactly [code]draw_count[/code] items 
+## without replacement. More efficient than full shuffle when drawing small samples 
+## from large populations.
+##
+## Mathematical Note: Maintains uniform selection probability for each remaining item at each step
 static func _fisher_yates_draw(population_size: int, draw_count: int, sampling_method: SamplingMethod, rng: RandomNumberGenerator) -> Array[int]:
 	var deck: Array[int] = []
 	deck.resize(population_size)
@@ -944,6 +1002,12 @@ static func _fisher_yates_draw(population_size: int, draw_count: int, sampling_m
 
 
 ## Reservoir sampling with custom sampling method.
+##
+## Implements Vitter's reservoir algorithm for memory-efficient sampling from large 
+## populations. Maintains exactly [code]draw_count[/code] items with uniform selection 
+## probability without requiring full population in memory.
+##
+## Mathematical Note: Each item has probability draw_count/population_size of selection
 static func _reservoir_draw(population_size: int, draw_count: int, sampling_method: SamplingMethod, rng: RandomNumberGenerator) -> Array[int]:
 	var reservoir: Array[int] = []
 	reservoir.resize(draw_count)
@@ -985,6 +1049,12 @@ static func _reservoir_draw(population_size: int, draw_count: int, sampling_meth
 
 
 ## Selection tracking with custom sampling method.
+##
+## Uses hash table to track selected indices, avoiding duplicates through rejection sampling.
+## More memory-efficient than Fisher-Yates for small samples but can be slower due to 
+## potential rejection cycles.
+##
+## Mathematical Note: Expected attempts = draw_count × population_size / (population_size - selected_count + 1)
 static func _selection_tracking_draw(population_size: int, draw_count: int, sampling_method: SamplingMethod, rng: RandomNumberGenerator) -> Array[int]:
 	var selected_indices: Dictionary = {}
 	var result: Array[int] = []
@@ -1031,13 +1101,23 @@ static func _selection_tracking_draw(population_size: int, draw_count: int, samp
 # --- SOBOL SEQUENCE IMPLEMENTATION ---
 
 ## Returns the nth prime number using the PrimeNumbersData table.
-## Used for Halton sequence base selection.
+##
+## Used for Halton sequence base selection to ensure different dimensions use 
+## coprime bases, which is essential for maintaining low-discrepancy properties 
+## across multiple dimensions.
+##
+## Mathematical Note: Coprime bases ensure dimensional independence in Halton sequences
 static func _get_nth_prime(n: int) -> int:
 	return _PRIME_DATA.get_nth_prime(n)
 
 
 ## Generates Sobol sequence integers for a specific dimension.
-## ASSUMES: Direction vectors for dimension_index are already initialized.
+##
+## Produces the raw integer representation of Sobol sequence points before normalization.
+## Direction vectors for the specified dimension must be pre-initialized. Returns -1 
+## to signal errors when sequence limits are exceeded.
+##
+## Mathematical Note: Uses XOR operations with direction vectors to generate low-discrepancy points
 static func _get_sobol_1d_integers(ndraws: int, dimension_index: int, starting_index: int = 0) -> Array[int]:
 	var integers: Array[int] = []
 	if ndraws <= 0:
@@ -1101,6 +1181,12 @@ static func _get_sobol_1d_integers(ndraws: int, dimension_index: int, starting_i
 
 
 ## Generates 1D Sobol samples for a specific dimension.
+##
+## Converts Sobol integers to floating-point values in [0,1) range. Uses authoritative 
+## Joe-Kuo direction numbers for optimal uniformity. Returns -1.0 to signal errors 
+## when sequence generation fails.
+##
+## Mathematical Note: Normalization factor is 2^30 for 30-bit Sobol precision
 static func _generate_sobol_1d(ndraws: int, dimension_index: int, starting_index: int = 0) -> Array[float]:
 	var samples: Array[float] = []
 	if ndraws <= 0:
@@ -1125,6 +1211,13 @@ static func _generate_sobol_1d(ndraws: int, dimension_index: int, starting_index
 
 # --- HALTON SEQUENCE IMPLEMENTATION ---
 
+## Generates 1D Halton sequence samples using the specified base.
+##
+## Implements the radical inverse function to create Halton sequences. Each dimension 
+## should use a different prime base to maintain low-discrepancy properties across 
+## multiple dimensions.
+##
+## Mathematical Note: Radical inverse in base b: Φ_b(n) = Σ(a_i × b^(-i-1)) where n = Σ(a_i × b^i)
 static func _generate_halton_1d(ndraws: int, base: int, starting_index: int = 0) -> Array[float]:
 	var sequence: Array[float] = []
 	if ndraws <= 0: return sequence
@@ -1150,6 +1243,13 @@ static func _generate_halton_1d(ndraws: int, base: int, starting_index: int = 0)
 
 # --- LATIN HYPERCUBE IMPLEMENTATION ---
 
+## Generates 1D Latin Hypercube samples with Fisher-Yates shuffling.
+##
+## Creates stratified samples by dividing [0,1) into equal intervals and sampling 
+## once from each interval. Fisher-Yates shuffle ensures uniform permutation 
+## for optimal space-filling properties.
+##
+## Mathematical Note: Each interval [i/n, (i+1)/n) contains exactly one sample point
 static func _generate_latin_hypercube_1d(ndraws: int, rng: RandomNumberGenerator) -> Array[float]:
 	var lhs_samples: Array[float] = []
 	if ndraws <= 0:
@@ -1169,7 +1269,11 @@ static func _generate_latin_hypercube_1d(ndraws: int, rng: RandomNumberGenerator
 	return lhs_samples
 
 
-# Fast random batch shuffles
+# Fast batch shuffle generation for RANDOM method.
+##
+## Optimized path for random shuffles that bypasses complex multi-dimensional 
+## sampling infrastructure. Uses simple Fisher-Yates with standard RNG for 
+## maximum performance when coordination is not required.
 static func _fast_random_batch_shuffles(deck_size: int, n_shuffles: int, sample_seed: int) -> Array:
 	var results: Array = []
 	results.resize(n_shuffles)
@@ -1180,6 +1284,13 @@ static func _fast_random_batch_shuffles(deck_size: int, n_shuffles: int, sample_
 	return results
 
 
+## Fast single shuffle generation for RANDOM method.
+##
+## Simple Fisher-Yates shuffle implementation for cases where quasi-random 
+## coordination is not needed. Provides optimal performance for standard 
+## random shuffling operations.
+##
+## Mathematical Note: Standard Fisher-Yates ensures each permutation has probability 1/n!
 static func _fast_random_shuffle(deck_size: int, sample_seed: int) -> Array[int]:
 	var deck: Array[int] = []
 	deck.resize(deck_size)

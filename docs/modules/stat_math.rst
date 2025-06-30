@@ -2,20 +2,48 @@ StatMath
 ========
 
 StatMath - Comprehensive Statistical Functions Library
-This is the main autoload singleton that provides access to all statistical functions
-and mathematical utilities.
 
-All core functionality is organized into specialized modules
+This is the main autoload singleton that provides access to all statistical functions
+and mathematical utilities. All core functionality is organized into specialized modules
 that can be accessed through this central interface.
+
 Usage Examples:
-[codeblock]
-# Generate random numbers from distributions
-var normal_sample = StatMath.Distributions.randf_normal(0.0, 1.0)
-var poisson_sample = StatMath.Distributions.randi_poisson(3.5)
-# Calculate statistical measures
-var data = [1.0, 2.0, 3.0, 4.0, 5.0]
-var mean = StatMath.BasicStats.mean(data)
-var variance = StatMath.BasicStats.variance(data)
+
+.. code-block:: gdscript
+
+   # Generate random numbers from distributions
+   var normal_sample = StatMath.Distributions.randf_normal(0.0, 1.0)
+   var poisson_sample = StatMath.Distributions.randi_poisson(3.5)
+   
+   # Calculate statistical measures
+   var data = [1.0, 2.0, 3.0, 4.0, 5.0]
+   var mean = StatMath.BasicStats.mean(data)
+   var variance = StatMath.BasicStats.variance(data)
+   
+   # Use distribution functions
+   var cdf_value = StatMath.CdfFunctions.normal_cdf(1.96, 0.0, 1.0)
+   var quantile = StatMath.PpfFunctions.normal_ppf(0.975, 0.0, 1.0)
+   
+   # Advanced sampling
+   var samples = StatMath.SamplingGen.generate_samples(100, 2, StatMath.SamplingGen.SamplingMethod.SOBOL)
+
+Module Organization:
+
+* ``BasicStats`` - Descriptive statistics (mean, variance, quantiles, etc.)
+
+* ``Distributions`` - Random number generation from various distributions
+
+* ``CdfFunctions`` - Cumulative distribution functions
+
+* ``PpfFunctions`` - Inverse CDF/quantile functions
+
+* ``PmfPdfFunctions`` - Probability mass/density functions
+
+* ``ErrorFunctions`` - Error functions and special mathematical functions
+
+* ``HelperFunctions`` - Core mathematical utilities
+
+* ``SamplingGen`` - Advanced sampling and quasi-random sequences
 
 Usage
 -----

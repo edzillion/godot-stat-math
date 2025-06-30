@@ -16,6 +16,10 @@ Mathematical Categories:
 * Array sanitization and preprocessing utilities
 
 * Logarithmic versions for numerical stability
+Calculates the binomial coefficient C(n, r) or "n choose r".
+Computes the number of ways to choose r items from a set of n items without
+regard to the order of selection. Uses symmetry optimization and iterative
+calculation to maintain numerical precision.
 
 Usage
 -----
@@ -187,7 +191,7 @@ Functions
 
 .. function:: string_to_distribution_enum(distribution: String) -> StatMath.SupportedDistributions:
 
-   Converts a string distribution name to SupportedDistributions enum.
+   Converts a string distribution name to ``StatMath.SupportedDistributions`` enum.
 
    Centralized helper for converting string identifiers to proper enum values.
    Supports both uppercase and lowercase string inputs for flexibility.
