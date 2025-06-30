@@ -1,0 +1,1116 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Testing Standards &mdash; Godot Stat Math 0.0.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=abf8c0e6" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=1fd71caa"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Performance Testing" href="performance.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Godot Stat Math
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-methods">Installation Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#asset-library-recommended">Asset Library (Recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#manual-installation">Manual Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#git-submodule-for-developers">Git Submodule (For Developers)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#verification">Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#optional-set-global-seed">Optional: Set Global Seed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#plugin-not-appearing">Plugin Not Appearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#statmath-not-available">StatMath Not Available</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#getting-help">Getting Help</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#core-modules-overview">Core Modules Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#common-use-cases">Common Use Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#analyzing-player-data">Analyzing Player Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#procedural-content-generation">Procedural Content Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#random-events-with-probabilities">Random Events with Probabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#advanced-sampling-for-level-generation">Advanced Sampling for Level Generation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#working-with-distributions">Working with Distributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#understanding-the-flow">Understanding the Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#example-balancing-a-random-event">Example: Balancing a Random Event</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#data-cleaning-and-preprocessing">Data Cleaning and Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#reproducible-results">Reproducible Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/stat_math.html">StatMath</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/stat_math.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/stat_math.html#constants">Constants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#GODOT_STAT_MATH_SEED_VARIABLE_NAME"><code class="docutils literal notranslate"><span class="pre">GODOT_STAT_MATH_SEED_VARIABLE_NAME</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#default_seed"><code class="docutils literal notranslate"><span class="pre">_default_seed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#PRIMES"><code class="docutils literal notranslate"><span class="pre">PRIMES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INT_MAX_REPRESENTING_INF"><code class="docutils literal notranslate"><span class="pre">INT_MAX_REPRESENTING_INF</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INT64_MAX_VAL"><code class="docutils literal notranslate"><span class="pre">INT64_MAX_VAL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#FLOAT_EPSILON"><code class="docutils literal notranslate"><span class="pre">FLOAT_EPSILON</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#MAX_ITERATIONS"><code class="docutils literal notranslate"><span class="pre">MAX_ITERATIONS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#EPSILON"><code class="docutils literal notranslate"><span class="pre">EPSILON</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#FLOAT_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">FLOAT_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#HIGH_PRECISION_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">HIGH_PRECISION_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#ERF_APPROX_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">ERF_APPROX_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#NUMERICAL_DIFFERENTIATION_H"><code class="docutils literal notranslate"><span class="pre">NUMERICAL_DIFFERENTIATION_H</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SAMPLE_MEAN_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">SAMPLE_MEAN_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SAMPLING_DETERMINISM_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">SAMPLING_DETERMINISM_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INVERSE_FUNCTION_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">INVERSE_FUNCTION_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#NUMERICAL_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">NUMERICAL_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#CDF_PPF_CONSISTENCY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">CDF_PPF_CONSISTENCY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#DERIVATIVE_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">DERIVATIVE_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#PROBABILITY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">PROBABILITY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SPECIAL_VALUES_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">SPECIAL_VALUES_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#BOUNDARY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">BOUNDARY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#ASYMPTOTIC_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">ASYMPTOTIC_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INTERPOLATION_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">INTERPOLATION_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#NUMERICAL_INTEGRATION_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">NUMERICAL_INTEGRATION_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SYMMETRY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">SYMMETRY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#ERF_INV_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">ERF_INV_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#STATISTICAL_TEST_STD_DEV_MULTIPLIER"><code class="docutils literal notranslate"><span class="pre">STATISTICAL_TEST_STD_DEV_MULTIPLIER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#DEFAULT_TOLERANCE_FACTOR"><code class="docutils literal notranslate"><span class="pre">DEFAULT_TOLERANCE_FACTOR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SAMPLING_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">SAMPLING_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INVERSE_CONSISTENCY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">INVERSE_CONSISTENCY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#STABILITY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">STABILITY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#STRESS_TEST_BOUNDARY"><code class="docutils literal notranslate"><span class="pre">STRESS_TEST_BOUNDARY</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#STRESS_TEST_SMALL_VALUE"><code class="docutils literal notranslate"><span class="pre">STRESS_TEST_SMALL_VALUE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INTERFACE_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">INTERFACE_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#DETERMINISM_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">DETERMINISM_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#HYPERGEOMETRIC_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">HYPERGEOMETRIC_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#NEGATIVE_BINOMIAL_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">NEGATIVE_BINOMIAL_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#HIGH_DISTRIBUTION_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">HIGH_DISTRIBUTION_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#BETA_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">BETA_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#LANCZOS_G"><code class="docutils literal notranslate"><span class="pre">LANCZOS_G</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#LANCZOS_P"><code class="docutils literal notranslate"><span class="pre">LANCZOS_P</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#A1_ERR"><code class="docutils literal notranslate"><span class="pre">A1_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#A2_ERR"><code class="docutils literal notranslate"><span class="pre">A2_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#A3_ERR"><code class="docutils literal notranslate"><span class="pre">A3_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#A4_ERR"><code class="docutils literal notranslate"><span class="pre">A4_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#A5_ERR"><code class="docutils literal notranslate"><span class="pre">A5_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#P_ERR"><code class="docutils literal notranslate"><span class="pre">P_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#BasicStats"><code class="docutils literal notranslate"><span class="pre">BasicStats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#Distributions"><code class="docutils literal notranslate"><span class="pre">Distributions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#CdfFunctions"><code class="docutils literal notranslate"><span class="pre">CdfFunctions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#PmfPdfFunctions"><code class="docutils literal notranslate"><span class="pre">PmfPdfFunctions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#PpfFunctions"><code class="docutils literal notranslate"><span class="pre">PpfFunctions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#ErrorFunctions"><code class="docutils literal notranslate"><span class="pre">ErrorFunctions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#HelperFunctions"><code class="docutils literal notranslate"><span class="pre">HelperFunctions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SamplingGen"><code class="docutils literal notranslate"><span class="pre">SamplingGen</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/stat_math.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#ready"><code class="docutils literal notranslate"><span class="pre">_ready()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#create_and_seed_rng"><code class="docutils literal notranslate"><span class="pre">_create_and_seed_rng()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#initialize_rng"><code class="docutils literal notranslate"><span class="pre">_initialize_rng()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#get_rng"><code class="docutils literal notranslate"><span class="pre">get_rng()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#set_global_seed"><code class="docutils literal notranslate"><span class="pre">set_global_seed()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/basic_stats.html">StatMath.BasicStats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/basic_stats.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/basic_stats.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#mean"><code class="docutils literal notranslate"><span class="pre">mean()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#median"><code class="docutils literal notranslate"><span class="pre">median()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#variance"><code class="docutils literal notranslate"><span class="pre">variance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#standard_deviation"><code class="docutils literal notranslate"><span class="pre">standard_deviation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#sample_variance"><code class="docutils literal notranslate"><span class="pre">sample_variance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#sample_standard_deviation"><code class="docutils literal notranslate"><span class="pre">sample_standard_deviation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#median_absolute_deviation"><code class="docutils literal notranslate"><span class="pre">median_absolute_deviation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#range_spread"><code class="docutils literal notranslate"><span class="pre">range_spread()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#minimum"><code class="docutils literal notranslate"><span class="pre">minimum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#maximum"><code class="docutils literal notranslate"><span class="pre">maximum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#percentile"><code class="docutils literal notranslate"><span class="pre">percentile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#summary_statistics"><code class="docutils literal notranslate"><span class="pre">summary_statistics()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/distributions.html">StatMath.Distributions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/distributions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/distributions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_bernoulli"><code class="docutils literal notranslate"><span class="pre">randi_bernoulli()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_binomial"><code class="docutils literal notranslate"><span class="pre">randi_binomial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_geometric"><code class="docutils literal notranslate"><span class="pre">randi_geometric()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_poisson"><code class="docutils literal notranslate"><span class="pre">randi_poisson()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_uniform"><code class="docutils literal notranslate"><span class="pre">randi_uniform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_pseudo"><code class="docutils literal notranslate"><span class="pre">randi_pseudo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_seige"><code class="docutils literal notranslate"><span class="pre">randi_seige()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_uniform"><code class="docutils literal notranslate"><span class="pre">randf_uniform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_exponential"><code class="docutils literal notranslate"><span class="pre">randf_exponential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_erlang"><code class="docutils literal notranslate"><span class="pre">randf_erlang()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_gamma"><code class="docutils literal notranslate"><span class="pre">randf_gamma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_beta"><code class="docutils literal notranslate"><span class="pre">randf_beta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_gaussian"><code class="docutils literal notranslate"><span class="pre">randf_gaussian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_normal"><code class="docutils literal notranslate"><span class="pre">randf_normal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_lognormal"><code class="docutils literal notranslate"><span class="pre">randf_lognormal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_cauchy"><code class="docutils literal notranslate"><span class="pre">randf_cauchy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_triangular"><code class="docutils literal notranslate"><span class="pre">randf_triangular()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_pareto"><code class="docutils literal notranslate"><span class="pre">randf_pareto()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_weibull"><code class="docutils literal notranslate"><span class="pre">randf_weibull()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randv_histogram"><code class="docutils literal notranslate"><span class="pre">randv_histogram()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/cdf_functions.html">StatMath.CdfFunctions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/cdf_functions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/cdf_functions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#uniform_cdf"><code class="docutils literal notranslate"><span class="pre">uniform_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#normal_cdf"><code class="docutils literal notranslate"><span class="pre">normal_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#exponential_cdf"><code class="docutils literal notranslate"><span class="pre">exponential_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#beta_cdf"><code class="docutils literal notranslate"><span class="pre">beta_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#gamma_cdf"><code class="docutils literal notranslate"><span class="pre">gamma_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#chi_square_cdf"><code class="docutils literal notranslate"><span class="pre">chi_square_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#f_cdf"><code class="docutils literal notranslate"><span class="pre">f_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#t_cdf"><code class="docutils literal notranslate"><span class="pre">t_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#binomial_cdf"><code class="docutils literal notranslate"><span class="pre">binomial_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#poisson_cdf"><code class="docutils literal notranslate"><span class="pre">poisson_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#geometric_cdf"><code class="docutils literal notranslate"><span class="pre">geometric_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#negative_binomial_cdf"><code class="docutils literal notranslate"><span class="pre">negative_binomial_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#pareto_cdf"><code class="docutils literal notranslate"><span class="pre">pareto_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#weibull_cdf"><code class="docutils literal notranslate"><span class="pre">weibull_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#cauchy_cdf"><code class="docutils literal notranslate"><span class="pre">cauchy_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#lognormal_cdf"><code class="docutils literal notranslate"><span class="pre">lognormal_cdf()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/ppf_functions.html">StatMath.PpfFunctions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/ppf_functions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/ppf_functions.html#constants">Constants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#ACKLAM_COEFFICIENTS"><code class="docutils literal notranslate"><span class="pre">ACKLAM_COEFFICIENTS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/ppf_functions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#uniform_ppf"><code class="docutils literal notranslate"><span class="pre">uniform_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#normal_ppf"><code class="docutils literal notranslate"><span class="pre">normal_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#exponential_ppf"><code class="docutils literal notranslate"><span class="pre">exponential_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#beta_ppf"><code class="docutils literal notranslate"><span class="pre">beta_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#beta_2_2_ppf_fast"><code class="docutils literal notranslate"><span class="pre">_beta_2_2_ppf_fast()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#gamma_ppf"><code class="docutils literal notranslate"><span class="pre">gamma_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#chi_square_ppf"><code class="docutils literal notranslate"><span class="pre">chi_square_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#f_ppf"><code class="docutils literal notranslate"><span class="pre">f_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#t_ppf"><code class="docutils literal notranslate"><span class="pre">t_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#binomial_ppf"><code class="docutils literal notranslate"><span class="pre">binomial_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#poisson_ppf"><code class="docutils literal notranslate"><span class="pre">poisson_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#geometric_ppf"><code class="docutils literal notranslate"><span class="pre">geometric_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#negative_binomial_ppf"><code class="docutils literal notranslate"><span class="pre">negative_binomial_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#bernoulli_ppf"><code class="docutils literal notranslate"><span class="pre">bernoulli_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#discrete_histogram_ppf"><code class="docutils literal notranslate"><span class="pre">discrete_histogram_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#pareto_ppf"><code class="docutils literal notranslate"><span class="pre">pareto_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#weibull_ppf"><code class="docutils literal notranslate"><span class="pre">weibull_ppf()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/pmf_pdf_functions.html">StatMath.PmfPdfFunctions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/pmf_pdf_functions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/pmf_pdf_functions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#binomial_pmf"><code class="docutils literal notranslate"><span class="pre">binomial_pmf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#poisson_pmf"><code class="docutils literal notranslate"><span class="pre">poisson_pmf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#negative_binomial_pmf"><code class="docutils literal notranslate"><span class="pre">negative_binomial_pmf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#geometric_pmf"><code class="docutils literal notranslate"><span class="pre">geometric_pmf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#normal_pdf"><code class="docutils literal notranslate"><span class="pre">normal_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#exponential_pdf"><code class="docutils literal notranslate"><span class="pre">exponential_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#uniform_pdf"><code class="docutils literal notranslate"><span class="pre">uniform_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#gamma_pdf"><code class="docutils literal notranslate"><span class="pre">gamma_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#beta_pdf"><code class="docutils literal notranslate"><span class="pre">beta_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#weibull_pdf"><code class="docutils literal notranslate"><span class="pre">weibull_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#lognormal_pdf"><code class="docutils literal notranslate"><span class="pre">lognormal_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#chi_squared_pdf"><code class="docutils literal notranslate"><span class="pre">chi_squared_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#t_pdf"><code class="docutils literal notranslate"><span class="pre">t_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#f_pdf"><code class="docutils literal notranslate"><span class="pre">f_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#cauchy_pdf"><code class="docutils literal notranslate"><span class="pre">cauchy_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#pareto_pdf"><code class="docutils literal notranslate"><span class="pre">pareto_pdf()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/error_functions.html">StatMath.ErrorFunctions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/error_functions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/error_functions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#erf"><code class="docutils literal notranslate"><span class="pre">erf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#erfc"><code class="docutils literal notranslate"><span class="pre">erfc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#erf_inv"><code class="docutils literal notranslate"><span class="pre">erf_inv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#erfc_inv"><code class="docutils literal notranslate"><span class="pre">erfc_inv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#log_gamma"><code class="docutils literal notranslate"><span class="pre">log_gamma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#gamma"><code class="docutils literal notranslate"><span class="pre">gamma()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/helper_functions.html">StatMath.HelperFunctions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/helper_functions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/helper_functions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#binomial_coefficient"><code class="docutils literal notranslate"><span class="pre">binomial_coefficient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#log_factorial"><code class="docutils literal notranslate"><span class="pre">log_factorial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#log_binomial_coef"><code class="docutils literal notranslate"><span class="pre">log_binomial_coef()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#gamma_function"><code class="docutils literal notranslate"><span class="pre">gamma_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#log_gamma"><code class="docutils literal notranslate"><span class="pre">log_gamma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#beta_function"><code class="docutils literal notranslate"><span class="pre">beta_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#log_beta_function_direct"><code class="docutils literal notranslate"><span class="pre">log_beta_function_direct()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#incomplete_beta"><code class="docutils literal notranslate"><span class="pre">incomplete_beta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#lower_incomplete_gamma_regularized"><code class="docutils literal notranslate"><span class="pre">lower_incomplete_gamma_regularized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#gamma_series_expansion"><code class="docutils literal notranslate"><span class="pre">_gamma_series_expansion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#gamma_continued_fraction"><code class="docutils literal notranslate"><span class="pre">_gamma_continued_fraction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#sanitize_numeric_array"><code class="docutils literal notranslate"><span class="pre">sanitize_numeric_array()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#convert_to_float_array"><code class="docutils literal notranslate"><span class="pre">convert_to_float_array()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#validate_indices"><code class="docutils literal notranslate"><span class="pre">validate_indices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#validate_unique_indices"><code class="docutils literal notranslate"><span class="pre">validate_unique_indices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#get_cdf_value"><code class="docutils literal notranslate"><span class="pre">get_cdf_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#get_ppf_value"><code class="docutils literal notranslate"><span class="pre">get_ppf_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#string_to_distribution_enum"><code class="docutils literal notranslate"><span class="pre">string_to_distribution_enum()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/sampling_gen.html">StatMath.SamplingGen</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/sampling_gen.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/sampling_gen.html#constants">Constants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#SOBOL_DATA"><code class="docutils literal notranslate"><span class="pre">_SOBOL_DATA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#PRIME_DATA"><code class="docutils literal notranslate"><span class="pre">_PRIME_DATA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#SOBOL_BITS"><code class="docutils literal notranslate"><span class="pre">_SOBOL_BITS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#SOBOL_MAX_VAL_FLOAT"><code class="docutils literal notranslate"><span class="pre">_SOBOL_MAX_VAL_FLOAT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#MAX_POOLED_DECKS_PER_SIZE"><code class="docutils literal notranslate"><span class="pre">MAX_POOLED_DECKS_PER_SIZE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/sampling_gen.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#init"><code class="docutils literal notranslate"><span class="pre">_init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#get_pooled_deck"><code class="docutils literal notranslate"><span class="pre">_get_pooled_deck()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#return_pooled_deck"><code class="docutils literal notranslate"><span class="pre">_return_pooled_deck()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#ensure_sobol_vectors_initialized"><code class="docutils literal notranslate"><span class="pre">_ensure_sobol_vectors_initialized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#generate_direction_vectors_for_dimension"><code class="docutils literal notranslate"><span class="pre">_generate_direction_vectors_for_dimension()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#generate_dimension_samples_worker"><code class="docutils literal notranslate"><span class="pre">_generate_dimension_samples_worker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#batch_shuffle_worker"><code class="docutils literal notranslate"><span class="pre">_batch_shuffle_worker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#create_unshuffled_deck"><code class="docutils literal notranslate"><span class="pre">_create_unshuffled_deck()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#coordinated_shuffle_with_samples"><code class="docutils literal notranslate"><span class="pre">_coordinated_shuffle_with_samples()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#coordinated_shuffle_worker"><code class="docutils literal notranslate"><span class="pre">_coordinated_shuffle_worker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#with_replacement_draw"><code class="docutils literal notranslate"><span class="pre">_with_replacement_draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#fisher_yates_draw"><code class="docutils literal notranslate"><span class="pre">_fisher_yates_draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#reservoir_draw"><code class="docutils literal notranslate"><span class="pre">_reservoir_draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#selection_tracking_draw"><code class="docutils literal notranslate"><span class="pre">_selection_tracking_draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#get_nth_prime"><code class="docutils literal notranslate"><span class="pre">_get_nth_prime()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#get_sobol_1d_integers"><code class="docutils literal notranslate"><span class="pre">_get_sobol_1d_integers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#generate_sobol_1d"><code class="docutils literal notranslate"><span class="pre">_generate_sobol_1d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#generate_halton_1d"><code class="docutils literal notranslate"><span class="pre">_generate_halton_1d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#generate_latin_hypercube_1d"><code class="docutils literal notranslate"><span class="pre">_generate_latin_hypercube_1d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#fast_random_batch_shuffles"><code class="docutils literal notranslate"><span class="pre">_fast_random_batch_shuffles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#fast_random_shuffle"><code class="docutils literal notranslate"><span class="pre">_fast_random_shuffle()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tests</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="unit_testing.html">Unit Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="unit_testing.html#test-coverage">Test Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unit_testing.html#test-results-overview">Test Results Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unit_testing.html#understanding-test-status">Understanding Test Status</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance.html">Performance Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="performance.html#test-methodology">Test Methodology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance.html#understanding-the-results">Understanding the Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Testing Standards</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#standards-philosophy">1. Standards &amp; Philosophy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#core-principles">Core Principles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-dual-pillar-testing-strategy">1. The Dual-Pillar Testing Strategy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-organization-and-structure">2. Test Organization and Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-driven-standards">Data-Driven Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#required-table-data-structure">Required Table Data Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scipy-version-control">Scipy Version Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#acceptable-hardcoded-values">Acceptable Hardcoded Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exception-simple-illustrative-test-data">Exception: Simple, Illustrative Test Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-generation-requirements">Data Generation Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tolerance-constants-usage">Tolerance Constants Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tolerance-decision-tree">Tolerance Decision Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#standard-tolerances">Standard Tolerances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specialized-tolerances">Specialized Tolerances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tolerance-selection-guidelines">Tolerance Selection Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-organization">2. Implementation &amp; Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#folder-structure">Folder Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-guidelines">Implementation Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file-naming-convention">File Naming Convention</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-implementation-patterns">Test Implementation Patterns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#types-of-testing-approaches">Types of Testing Approaches</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#data-driven-testing-primary-approach">1. <strong>Data-Driven Testing</strong> (Primary Approach)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-based-testing-simple-cases-only">2. <strong>Example-Based Testing</strong> (Simple Cases Only)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#property-based-testing-future-enhancement">3. <strong>Property-Based Testing</strong> (Future Enhancement)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#standard-test-function-pattern">Standard Test Function Pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parametrized-test-pattern">Parametrized Test Pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-testing-pattern">Error Testing Pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file-organization-standards">File Organization Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-table-standards">Data Table Standards</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#generated-by-generate-test-data-py">1. Generated by <code class="docutils literal notranslate"><span class="pre">generate_test_data.py</span></code>:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#downloaded-from-authoritative-sources">2. Downloaded from authoritative sources</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#documentation-standards">Documentation Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-documentation">Test Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#code-comments">Code Comments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scipy-call-documentation">Scipy Call Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling-standards">Error Handling Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-testing-requirements">Error Testing Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-message-format">Error Message Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#infrastructure-process">3. Infrastructure &amp; Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#ci-cd-integration-and-platform-consistency">CI/CD Integration and Platform Consistency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#development-workflow">Development Workflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#core-branches">Core Branches</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pr-to-develop-verify-develop-yaml">PR to <code class="docutils literal notranslate"><span class="pre">develop</span></code> (<code class="docutils literal notranslate"><span class="pre">verify-develop.yaml</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#merge-pr-into-develop-build-develop-yaml">Merge PR into <code class="docutils literal notranslate"><span class="pre">develop</span></code> (<code class="docutils literal notranslate"><span class="pre">build-develop.yaml</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pr-to-release-verify-release-yaml">PR to <code class="docutils literal notranslate"><span class="pre">release</span></code> (<code class="docutils literal notranslate"><span class="pre">verify-release.yaml</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#merge-pr-into-release-build-release-yaml">Merge PR into <code class="docutils literal notranslate"><span class="pre">release</span></code> (<code class="docutils literal notranslate"><span class="pre">build-release.yaml</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#key-benefits">Key Benefits:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#other-workflows">Other Workflows:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-workflow">Testing Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-generation-process">1. Data Generation Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-implementation-process">2. Test Implementation Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quality-assurance-process">3. Quality Assurance Process</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-testing">4. Performance Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#performance-test-infrastructure">Performance Test Infrastructure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#baseline-generation">Baseline Generation:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#threshold-determination">Threshold Determination:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#known-regression-handling">Known Regression Handling:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#baseline-regeneration">Baseline Regeneration:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-execution-efficiency">Test Execution Efficiency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-management">Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-data-governance-process">Test Data Governance Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#minimal-governance-philosophy">Minimal Governance Philosophy</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Godot Stat Math</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Testing Standards</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/edzillion/godot-stat-math/blob/main/docs/testing_standards.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="testing-standards">
+<h1>Testing Standards<a class="headerlink" href="#testing-standards" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>This document establishes comprehensive testing standards for the Godot Stat Math project, derived from extensive data-driven conversion work and testing best practices. These standards ensure scipy-validated accuracy, maintainability, and consistency across the test suite. These standards should be treated as living documentation, updated as new patterns emerge and the project evolves.</p>
+</section>
+<section id="standards-philosophy">
+<h2>1. Standards &amp; Philosophy<a class="headerlink" href="#standards-philosophy" title="Link to this heading"></a></h2>
+<section id="core-principles">
+<h3>Core Principles<a class="headerlink" href="#core-principles" title="Link to this heading"></a></h3>
+</section>
+<section id="the-dual-pillar-testing-strategy">
+<h3>1. The Dual-Pillar Testing Strategy<a class="headerlink" href="#the-dual-pillar-testing-strategy" title="Link to this heading"></a></h3>
+<p>Our testing philosophy rests on two equally important pillars: <strong>Scipy validation</strong> for numerical accuracy and <strong>mathematical property testing</strong> for theoretical correctness. It is not a choice between them; both are required to ensure robust and reliable functions.</p>
+<p><strong>Pillar 1: Data-Driven Scipy Validation (Numerical Accuracy)</strong>
+- <strong>Purpose</strong>: To verify that our functions produce numerically precise results that match the industry-standard Scipy library. This ensures our code is correct in practice.
+- <strong>Method</strong>: All Scipy validation tests must be <strong>data-driven</strong>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Single Source of Truth</strong>: All expected values must come from Scipy-generated data stored in <code class="docutils literal notranslate"><span class="pre">/addons/godot-stat-math/tables/</span></code>.</p></li>
+<li><p><strong>Eliminate Magic Numbers</strong>: No hardcoded expected values in test assertions (except for mathematical constants and identities, which belong in property tests).</p></li>
+<li><p><strong>Traceability</strong>: All generated table data must include Scipy function call documentation to ensure scientific accuracy is traceable.</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p><strong>Example</strong>: Validating <cite>normal_cdf(1.96)</cite> returns <cite>0.9750021…</cite> by looking up the value in a data table generated by <cite>scipy.stats.norm.cdf(1.96)</cite>.</p></li>
+<li><p><strong>Location</strong>: These tests belong exclusively in <code class="docutils literal notranslate"><span class="pre">scipy_validation_test.gd</span></code> files.</p></li>
+</ul>
+<p><strong>Pillar 2: Mathematical Property Testing (Theoretical Correctness)</strong>
+- <strong>Purpose</strong>: To verify that our implementations correctly follow fundamental mathematical laws, relationships, and identities. This ensures our code is correct in theory.
+- <strong>Method</strong>: Tests assert known truths, such as boundary conditions, symmetries, or relationships between different functions. This is the appropriate place for well-known constants (e.g., <cite>erf(0) = 0</cite>).
+- <strong>Example</strong>: Verifying that <cite>gamma_pdf(x, 1.0, scale)</cite> is equivalent to <cite>exponential_pdf(x, 1.0/scale)</cite>, or that <cite>CDF(PPF(p)) == p</cite>.
+- <strong>Location</strong>: These tests belong exclusively in <code class="docutils literal notranslate"><span class="pre">mathematical_property_test.gd</span></code> files.</p>
+<p>This dual approach guarantees that our statistical library is not only numerically accurate according to scientific standards but also structurally sound based on mathematical principles.</p>
+</section>
+<section id="test-organization-and-structure">
+<h3>2. Test Organization and Structure<a class="headerlink" href="#test-organization-and-structure" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Semantic Test Names</strong>: Name tests after what they validate, not implementation details</p></li>
+<li><p><strong>Logical Grouping</strong>: Organize tests into clear sections with descriptive comments</p></li>
+<li><p><strong>Type Safety</strong>: Always use static types and typed assertions (<code class="docutils literal notranslate"><span class="pre">assert_float</span></code>, <code class="docutils literal notranslate"><span class="pre">assert_int</span></code>, etc.) Use <code class="docutils literal notranslate"><span class="pre">HelperFunctions.convert_to_float_array()</span></code> to convert untyped arrays.</p></li>
+<li><p><strong>No Redundancy</strong>: Eliminate duplicate tests and merge similar functionality</p></li>
+</ul>
+</section>
+<section id="data-driven-standards">
+<h3>Data-Driven Standards<a class="headerlink" href="#data-driven-standards" title="Link to this heading"></a></h3>
+</section>
+<section id="required-table-data-structure">
+<h3>Required Table Data Structure<a class="headerlink" href="#required-table-data-structure" title="Link to this heading"></a></h3>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard test data pattern with scipy documentation</span>
+<span class="k">const</span><span class="w"> </span><span class="n">VALUES</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">     </span><span class="s2">&quot;function_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">  </span><span class="c1"># Generated using: scipy.stats.function_name(params)</span>
+<span class="w">             </span><span class="p">{</span>
+<span class="w">                     </span><span class="s2">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="n">param1</span><span class="p">,</span><span class="w"> </span><span class="n">param2</span><span class="p">,</span><span class="w"> </span><span class="o">...</span><span class="p">],</span>
+<span class="w">                     </span><span class="s2">&quot;expected&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">scipy_calculated_result</span><span class="p">,</span>
+<span class="w">                     </span><span class="s2">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Human readable test case description&quot;</span>
+<span class="w">             </span><span class="p">}</span>
+<span class="w">     </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="scipy-version-control">
+<h3>Scipy Version Control<a class="headerlink" href="#scipy-version-control" title="Link to this heading"></a></h3>
+<p>All test data files generated by <code class="docutils literal notranslate"><span class="pre">generate_test_data.py</span></code> include version information for scipy and numpy in their headers:</p>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generated with: scipy 1.11.3, numpy 1.24.3</span>
+</pre></div>
+</div>
+<p>This provides traceability for test data generation and ensures reproducibility when debugging edge cases.</p>
+</section>
+<section id="acceptable-hardcoded-values">
+<h3>Acceptable Hardcoded Values<a class="headerlink" href="#acceptable-hardcoded-values" title="Link to this heading"></a></h3>
+<p><strong>✅ KEEP HARDCODED</strong> - Mathematical constants and well-known limits:</p>
+<ul class="simple">
+<li><p>Zero values: <code class="docutils literal notranslate"><span class="pre">erf(0.0)</span> <span class="pre">=</span> <span class="pre">0.0</span></code>, <code class="docutils literal notranslate"><span class="pre">erfc(0.0)</span> <span class="pre">=</span> <span class="pre">1.0</span></code></p></li>
+<li><p>Asymptotic limits: <code class="docutils literal notranslate"><span class="pre">erf(10.0)</span> <span class="pre">≈</span> <span class="pre">1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">erf(-10.0)</span> <span class="pre">≈</span> <span class="pre">-1.0</span></code></p></li>
+<li><p>Mathematical constants: <code class="docutils literal notranslate"><span class="pre">sqrt(PI)</span></code>, factorial identities like <code class="docutils literal notranslate"><span class="pre">0!</span> <span class="pre">=</span> <span class="pre">1</span></code></p></li>
+<li><p>Boundary conditions: <code class="docutils literal notranslate"><span class="pre">uniform_cdf(x)</span> <span class="pre">=</span> <span class="pre">0.0</span></code> when <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">&lt;</span> <span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">=</span> <span class="pre">1.0</span></code> when <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">b</span></code></p></li>
+<li><p>Identity relationships: <code class="docutils literal notranslate"><span class="pre">gamma(1.0)</span> <span class="pre">=</span> <span class="pre">1.0</span></code></p></li>
+</ul>
+<p><strong>❌ MUST CONVERT</strong> - Scipy-calculated precision values:</p>
+<ul class="simple">
+<li><p>Complex probability calculations: <code class="docutils literal notranslate"><span class="pre">0.9750021</span></code>, <code class="docutils literal notranslate"><span class="pre">0.8646647</span></code>, <code class="docutils literal notranslate"><span class="pre">0.59399415</span></code></p></li>
+<li><p>Non-obvious mathematical results requiring computation</p></li>
+<li><p>Values that appear as “magic numbers” without clear mathematical justification</p></li>
+</ul>
+</section>
+<section id="exception-simple-illustrative-test-data">
+<h3>Exception: Simple, Illustrative Test Data<a class="headerlink" href="#exception-simple-illustrative-test-data" title="Link to this heading"></a></h3>
+<p>It is acceptable to hardcode simple data directly within a single test function if its primary purpose is to illustrate a specific behavior, data handling characteristic, or edge case, rather than to validate a complex mathematical result against a scientific standard.</p>
+<p><strong>Criteria for “Simple Test Data” Exception:</strong></p>
+<ul class="simple">
+<li><p><strong>No computed expected values</strong>: The data is not the result of scientific/mathematical calculations</p></li>
+<li><p><strong>Self-evident from context</strong>: Data structure and purpose is immediately clear (e.g., <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">4,</span> <span class="pre">5]</span></code> for median testing)</p></li>
+<li><p><strong>Single test usage</strong>: Data is not reused across multiple tests</p></li>
+<li><p><strong>Illustrative purpose</strong>: Primary goal is demonstrating behavior, not validating mathematical accuracy</p></li>
+</ul>
+<p><strong>Examples of acceptable simple data:</strong></p>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="c1"># ✅ Acceptable - simple array for median behavior</span>
+<span class="k">func</span><span class="w"> </span><span class="n">test_median_with_odd_count</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Array</span><span class="p">[</span><span class="nb nb-Type">float</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">]</span>
+<span class="w">     </span><span class="n">assert_float</span><span class="p">(</span><span class="n">StatMath</span><span class="o">.</span><span class="n">BasicStats</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="o">.</span><span class="n">is_equal_approx</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">FLOAT_TOLERANCE</span><span class="p">)</span>
+
+<span class="c1"># ✅ Acceptable - edge case demonstration</span>
+<span class="k">func</span><span class="w"> </span><span class="n">test_empty_array_handling</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">empty_data</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Array</span><span class="p">[</span><span class="nb nb-Type">float</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">     </span><span class="n">assert_that</span><span class="p">(</span><span class="nb">is_nan</span><span class="p">(</span><span class="n">StatMath</span><span class="o">.</span><span class="n">BasicStats</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">empty_data</span><span class="p">)))</span><span class="o">.</span><span class="n">is_true</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><strong>Move to tables when:</strong></p>
+<ul class="simple">
+<li><p>Data is needed for more than one test</p></li>
+<li><p>Expected values represent calculated results</p></li>
+<li><p>Data represents complex scenarios requiring scipy validation</p></li>
+</ul>
+<p>This approach maintains test readability for simple cases while enforcing data-driven standards for mathematical validation.</p>
+</section>
+<section id="data-generation-requirements">
+<h3>Data Generation Requirements<a class="headerlink" href="#data-generation-requirements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Scipy Call Documentation</strong>: Every function must include exact scipy call used</p></li>
+<li><p><strong>Format</strong>: <code class="docutils literal notranslate"><span class="pre">&quot;function_name&quot;:</span> <span class="pre">[</span>&#160; <span class="pre">#</span> <span class="pre">Generated</span> <span class="pre">using:</span> <span class="pre">stats.norm.cdf(x,</span> <span class="pre">mu,</span> <span class="pre">sigma)</span></code></p></li>
+<li><p><strong>Comprehensive Coverage</strong>: Include all test scenarios needed by actual tests</p></li>
+<li><p><strong>Optimized Structure</strong>: Design for test consumption, not generation convenience</p></li>
+</ul>
+</section>
+<section id="tolerance-constants-usage">
+<h3>Tolerance Constants Usage<a class="headerlink" href="#tolerance-constants-usage" title="Link to this heading"></a></h3>
+</section>
+<section id="tolerance-decision-tree">
+<h3>Tolerance Decision Tree<a class="headerlink" href="#tolerance-decision-tree" title="Link to this heading"></a></h3>
+<p>Use this decision tree to eliminate tolerance selection paralysis:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>├── Testing mathematical identity or boundary condition?
+│   └── YES → StatMath.BOUNDARY_TOLERANCE (1.0e-10)
+│
+├── Testing against scipy validation data?
+│   ├── Basic statistical functions (mean, variance, etc.)
+│   │   └── StatMath.FLOAT_TOLERANCE (1.0e-7)
+│   ├── Approximation algorithms (erf, gamma, etc.)
+│   │   └── StatMath.ERF_APPROX_TOLERANCE (1.0e-5)
+│   ├── Inverse functions (ppf, quantiles)
+│   │   └── StatMath.INVERSE_FUNCTION_TOLERANCE
+│   └── Probability density/mass functions
+│       └── StatMath.PROBABILITY_TOLERANCE (1.0e-6)
+│
+├── Testing numerical integration or iterative methods?
+│   └── StatMath.NUMERICAL_INTEGRATION_TOLERANCE (5.0e-3)
+│
+└── High-precision mathematical operations?
+    └── StatMath.HIGH_PRECISION_TOLERANCE (1.0e-9)
+</pre></div>
+</div>
+</section>
+<section id="standard-tolerances">
+<h3>Standard Tolerances<a class="headerlink" href="#standard-tolerances" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">StatMath.FLOAT_TOLERANCE</span> <span class="pre">=</span> <span class="pre">1.0e-7</span></code> - General floating-point comparisons</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StatMath.HIGH_PRECISION_TOLERANCE</span> <span class="pre">=</span> <span class="pre">1.0e-9</span></code> - High-precision operations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StatMath.BOUNDARY_TOLERANCE</span> <span class="pre">=</span> <span class="pre">1.0e-10</span></code> - Boundary conditions</p></li>
+</ul>
+</section>
+<section id="specialized-tolerances">
+<h3>Specialized Tolerances<a class="headerlink" href="#specialized-tolerances" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">StatMath.ERF_APPROX_TOLERANCE</span> <span class="pre">=</span> <span class="pre">1.0e-5</span></code> - Error function approximations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StatMath.PROBABILITY_TOLERANCE</span> <span class="pre">=</span> <span class="pre">1.0e-6</span></code> - Probability values</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StatMath.NUMERICAL_TOLERANCE</span> <span class="pre">=</span> <span class="pre">1.0e-5</span></code> - Numerical methods</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StatMath.NUMERICAL_INTEGRATION_TOLERANCE</span> <span class="pre">=</span> <span class="pre">5.0e-3</span></code> - PDF integration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StatMath.INVERSE_FUNCTION_TOLERANCE</span></code> - PPF and inverse functions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">StatMath.CDF_PPF_CONSISTENCY_TOLERANCE</span></code> - Round-trip consistency tests</p></li>
+</ul>
+</section>
+<section id="tolerance-selection-guidelines">
+<h3>Tolerance Selection Guidelines<a class="headerlink" href="#tolerance-selection-guidelines" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use the decision tree above to eliminate guesswork</p></li>
+<li><p>Consider numerical method precision when selecting tolerances</p></li>
+<li><p>Document why specific tolerances are chosen for edge cases</p></li>
+<li><p>When in doubt, start with the most restrictive tolerance and adjust upward if tests fail</p></li>
+</ul>
+</section>
+</section>
+<section id="implementation-organization">
+<h2>2. Implementation &amp; Organization<a class="headerlink" href="#implementation-organization" title="Link to this heading"></a></h2>
+<section id="folder-structure">
+<h3>Folder Structure<a class="headerlink" href="#folder-structure" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>tests/core/
+├── [module_name]/
+│   ├── scipy_validation_test.gd     # SCIPY VALIDATION TESTS - DATA-DRIVEN
+│   ├── mathematical_property_test.gd # MATHEMATICAL PROPERTY TESTS
+│   └── parameter_validation_test.gd  # PARAMETER VALIDATION TESTS
+</pre></div>
+</div>
+</section>
+<section id="implementation-guidelines">
+<h3>Implementation Guidelines<a class="headerlink" href="#implementation-guidelines" title="Link to this heading"></a></h3>
+</section>
+<section id="file-naming-convention">
+<h3>File Naming Convention<a class="headerlink" href="#file-naming-convention" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>scipy_validation_test.gd</strong> - Contains all data-driven tests that validate against SciPy reference values</p></li>
+<li><p><strong>mathematical_property_test.gd</strong> - Contains tests for mathematical properties, relationships, and theoretical behavior</p></li>
+<li><p><strong>parameter_validation_test.gd</strong> - Contains all input validation and error handling tests</p></li>
+</ul>
+</section>
+<section id="test-implementation-patterns">
+<h3>Test Implementation Patterns<a class="headerlink" href="#test-implementation-patterns" title="Link to this heading"></a></h3>
+</section>
+<section id="types-of-testing-approaches">
+<h3>Types of Testing Approaches<a class="headerlink" href="#types-of-testing-approaches" title="Link to this heading"></a></h3>
+<section id="data-driven-testing-primary-approach">
+<h4>1. <strong>Data-Driven Testing</strong> (Primary Approach)<a class="headerlink" href="#data-driven-testing-primary-approach" title="Link to this heading"></a></h4>
+<p>Uses precomputed test cases from scipy for validation stored in <code class="docutils literal notranslate"><span class="pre">/addons/godot-stat-math/tables/</span></code>:</p>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="k">func</span><span class="w"> </span><span class="n">test_normal_cdf_scipy_validation</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">test_data</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CDF_TEST_DATA</span><span class="o">.</span><span class="n">VALUES</span><span class="p">[</span><span class="s2">&quot;normal_cdf&quot;</span><span class="p">]</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">case</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">result</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">CdfFunctions</span><span class="o">.</span><span class="n">normal_cdf</span><span class="p">(</span><span class="n">case</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">case</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">case</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">])</span>
+<span class="w">     </span><span class="n">assert_float</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">is_equal_approx</span><span class="p">(</span><span class="n">case</span><span class="p">[</span><span class="s2">&quot;expected&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">FLOAT_TOLERANCE</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="example-based-testing-simple-cases-only">
+<h4>2. <strong>Example-Based Testing</strong> (Simple Cases Only)<a class="headerlink" href="#example-based-testing-simple-cases-only" title="Link to this heading"></a></h4>
+<p>Tests specific input → output pairs using hardcoded values. Only used for the simple cases outlined in the “Simple, Illustrative Test Data” exception above:</p>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="k">func</span><span class="w"> </span><span class="n">test_median_with_odd_count</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Array</span><span class="p">[</span><span class="nb nb-Type">float</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">4.0</span><span class="p">]</span>
+<span class="w">     </span><span class="n">assert_float</span><span class="p">(</span><span class="n">StatMath</span><span class="o">.</span><span class="n">BasicStats</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">data</span><span class="p">))</span><span class="o">.</span><span class="n">is_equal_approx</span><span class="p">(</span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">FLOAT_TOLERANCE</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="property-based-testing-future-enhancement">
+<h4>3. <strong>Property-Based Testing</strong> (Future Enhancement)<a class="headerlink" href="#property-based-testing-future-enhancement" title="Link to this heading"></a></h4>
+<p>Tests mathematical relationships that should always hold using randomly generated inputs:</p>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="k">func</span><span class="w"> </span><span class="n">test_cdf_range_property</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">rng</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RandomNumberGenerator</span><span class="o">.</span><span class="n">new</span><span class="p">()</span>
+<span class="w">     </span><span class="n">rng</span><span class="o">.</span><span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12345</span>
+
+<span class="w">     </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+<span class="w">             </span><span class="k">var</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rng</span><span class="o">.</span><span class="n">randf_range</span><span class="p">(</span><span class="o">-</span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="mf">10.0</span><span class="p">)</span>
+<span class="w">             </span><span class="k">var</span><span class="w"> </span><span class="n">mu</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rng</span><span class="o">.</span><span class="n">randf_range</span><span class="p">(</span><span class="o">-</span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="mf">3.0</span><span class="p">)</span>
+<span class="w">             </span><span class="k">var</span><span class="w"> </span><span class="n">sigma</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rng</span><span class="o">.</span><span class="n">randf_range</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">)</span>
+
+<span class="w">             </span><span class="k">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">CdfFunctions</span><span class="o">.</span><span class="n">normal_cdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">mu</span><span class="p">,</span><span class="w"> </span><span class="n">sigma</span><span class="p">)</span>
+<span class="w">             </span><span class="n">assert_float</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">is_between</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Our current test suite has excellent mathematical property testing with fixed examples but lacks true property-based testing with random parameter generation. This enhancement will be undertaken at a later date. See: <a class="reference external" href="https://github.com/edzillion/godot-stat-math/issues/10">Issue #10</a> for details.</p>
+</div>
+</section>
+</section>
+<section id="standard-test-function-pattern">
+<h3>Standard Test Function Pattern<a class="headerlink" href="#standard-test-function-pattern" title="Link to this heading"></a></h3>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="k">func</span><span class="w"> </span><span class="n">test_function_name_descriptive_case</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">test_data</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TEST_DATA_TABLE</span><span class="o">.</span><span class="n">VALUES</span><span class="p">[</span><span class="s2">&quot;function_name&quot;</span><span class="p">]</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">case</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="w">  </span><span class="c1"># function_name(params) -&gt; expected</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">result</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">function_name</span><span class="p">(</span><span class="n">case</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">case</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+<span class="w">     </span><span class="n">assert_float</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">is_equal_approx</span><span class="p">(</span><span class="n">case</span><span class="p">[</span><span class="s2">&quot;expected&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">APPROPRIATE_TOLERANCE</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="parametrized-test-pattern">
+<h3>Parametrized Test Pattern<a class="headerlink" href="#parametrized-test-pattern" title="Link to this heading"></a></h3>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="k">func</span><span class="w"> </span><span class="n">test_function_comprehensive_validation</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">test_data</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TEST_DATA_TABLE</span><span class="o">.</span><span class="n">VALUES</span><span class="p">[</span><span class="s2">&quot;function_name&quot;</span><span class="p">]</span>
+<span class="w">     </span><span class="k">for</span><span class="w"> </span><span class="n">case</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">test_data</span><span class="p">:</span>
+<span class="w">             </span><span class="k">var</span><span class="w"> </span><span class="n">result</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">function_name</span><span class="p">(</span><span class="n">case</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">case</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+<span class="w">             </span><span class="n">assert_float</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="o">.</span><span class="n">is_equal_approx</span><span class="p">(</span><span class="n">case</span><span class="p">[</span><span class="s2">&quot;expected&quot;</span><span class="p">],</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">APPROPRIATE_TOLERANCE</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="error-testing-pattern">
+<h3>Error Testing Pattern<a class="headerlink" href="#error-testing-pattern" title="Link to this heading"></a></h3>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="k">func</span><span class="w"> </span><span class="n">test_function_invalid_parameter</span><span class="p">()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nb nb-Type">void</span><span class="p">:</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">test_call</span><span class="p">:</span><span class="w"> </span><span class="n">Callable</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">func</span><span class="p">():</span>
+<span class="w">             </span><span class="n">StatMath</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">function_name</span><span class="p">(</span><span class="n">invalid_param</span><span class="p">)</span>
+
+<span class="w">     </span><span class="c1"># Test error logging</span>
+<span class="w">     </span><span class="n">await</span><span class="w"> </span><span class="n">assert_error</span><span class="p">(</span><span class="n">test_call</span><span class="p">)</span><span class="o">.</span><span class="n">is_push_error</span><span class="p">(</span><span class="s2">&quot;Expected exact error message&quot;</span><span class="p">)</span>
+
+<span class="w">     </span><span class="c1"># Test sentinel return value</span>
+<span class="w">     </span><span class="k">var</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">Module</span><span class="o">.</span><span class="n">function_name</span><span class="p">(</span><span class="n">invalid_param</span><span class="p">)</span>
+<span class="w">     </span><span class="n">assert_that</span><span class="p">(</span><span class="nb">is_nan</span><span class="p">(</span><span class="n">result</span><span class="p">))</span><span class="o">.</span><span class="n">is_true</span><span class="p">()</span><span class="w">  </span><span class="c1"># or assert_that(result).is_null()</span>
+</pre></div>
+</div>
+</section>
+<section id="file-organization-standards">
+<h3>File Organization Standards<a class="headerlink" href="#file-organization-standards" title="Link to this heading"></a></h3>
+</section>
+<section id="data-table-standards">
+<h3>Data Table Standards<a class="headerlink" href="#data-table-standards" title="Link to this heading"></a></h3>
+<p>There are two types of data table in <code class="docutils literal notranslate"><span class="pre">/addons/godot-stat-math/tables/</span></code> and they must follow these strict conventions:</p>
+<section id="generated-by-generate-test-data-py">
+<h4>1. Generated by <code class="docutils literal notranslate"><span class="pre">generate_test_data.py</span></code>:<a class="headerlink" href="#generated-by-generate-test-data-py" title="Link to this heading"></a></h4>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="c1"># res://addons/godot-stat-math/tables/module_test_data.gd</span>
+
+<span class="c1">## Data table containing test values generated by scipy</span>
+<span class="c1">##</span>
+<span class="c1">## Generated with: scipy 1.11.3, numpy 1.24.3</span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">VALUES</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">     </span><span class="s2">&quot;function_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">  </span><span class="c1"># Generated using: scipy.stats.function_name(params)</span>
+<span class="w">             </span><span class="p">{</span>
+<span class="w">                     </span><span class="s2">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="n">param1</span><span class="p">,</span><span class="w"> </span><span class="n">param2</span><span class="p">],</span>
+<span class="w">                     </span><span class="s2">&quot;expected&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">scipy_result</span><span class="p">,</span>
+<span class="w">                     </span><span class="s2">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Descriptive test case&quot;</span>
+<span class="w">             </span><span class="p">}</span>
+<span class="w">     </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="downloaded-from-authoritative-sources">
+<h4>2. Downloaded from authoritative sources<a class="headerlink" href="#downloaded-from-authoritative-sources" title="Link to this heading"></a></h4>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="c1"># res://addons/godot-stat-math/tables/sobol_data.gd</span>
+
+<span class="c1"># Joe-Kuo Sobol sequence direction numbers</span>
+<span class="c1"># Source: https://web.maths.unsw.edu.au/~fkuo/sobol/</span>
+<span class="c1"># Supports up to 1024 dimensions</span>
+
+<span class="c1"># Direction numbers indexed by dimension [0=unused, 1=unused, 2=[1], 3=[1,3], ...]</span>
+<span class="k">const</span><span class="w"> </span><span class="n">DIRECTION_NUMBERS</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Array</span><span class="p">[</span><span class="nb nb-Type">Array</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">     </span><span class="p">[],</span><span class="w">             </span><span class="c1"># Dimension 0 (unused)</span>
+<span class="w">     </span><span class="p">[],</span><span class="w">             </span><span class="c1"># Dimension 1 (unused)</span>
+<span class="w">     </span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w">    </span><span class="c1"># Dimension 2</span>
+<span class="w">     </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="c1"># Dimension 3</span>
+</pre></div>
+</div>
+<p><strong>Key Requirements:</strong></p>
+<ul class="simple">
+<li><p>Data tables are <strong>plain scripts</strong> without <code class="docutils literal notranslate"><span class="pre">class_name</span></code> declarations</p></li>
+<li><p>Include scipy version information for generated tables in header comments</p></li>
+<li><p>Include source url for downloaded tables</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">VALUES:</span> <span class="pre">Dictionary</span></code> for the main data structure</p></li>
+<li><p>Include brief documentation explaining the table’s purpose</p></li>
+</ul>
+</section>
+</section>
+<section id="documentation-standards">
+<h3>Documentation Standards<a class="headerlink" href="#documentation-standards" title="Link to this heading"></a></h3>
+</section>
+<section id="test-documentation">
+<h3>Test Documentation<a class="headerlink" href="#test-documentation" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Include clear descriptions of what each test validates</p></li>
+<li><p>Document mathematical relationships being tested</p></li>
+<li><p>Explain tolerance choices for edge cases</p></li>
+<li><p>Reference scipy functions used for expected values</p></li>
+</ul>
+</section>
+<section id="code-comments">
+<h3>Code Comments<a class="headerlink" href="#code-comments" title="Link to this heading"></a></h3>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="c1"># Mathematical constant - well-known limit</span>
+<span class="n">assert_float</span><span class="p">(</span><span class="n">StatMath</span><span class="o">.</span><span class="n">ErrorFunctions</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="mf">10.0</span><span class="p">))</span><span class="o">.</span><span class="n">is_equal_approx</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">StatMath</span><span class="o">.</span><span class="n">FLOAT_TOLERANCE</span><span class="p">)</span>
+
+<span class="c1"># Scipy-validated precision value</span>
+<span class="k">var</span><span class="w"> </span><span class="n">case</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w">  </span><span class="c1"># erf(1.0) -&gt; 0.84270079</span>
+</pre></div>
+</div>
+</section>
+<section id="scipy-call-documentation">
+<h3>Scipy Call Documentation<a class="headerlink" href="#scipy-call-documentation" title="Link to this heading"></a></h3>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="n">VALUES</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">Dictionary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">     </span><span class="s2">&quot;normal_cdf&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">  </span><span class="c1"># Generated using: stats.norm.cdf(x, loc=mu, scale=sigma)</span>
+<span class="w">             </span><span class="p">{</span>
+<span class="w">                     </span><span class="s2">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">1.96</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">                     </span><span class="s2">&quot;expected&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.97500210485177963</span><span class="p">,</span>
+<span class="w">                     </span><span class="s2">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Standard normal 97.5th percentile&quot;</span>
+<span class="w">             </span><span class="p">}</span>
+<span class="w">     </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="error-handling-standards">
+<h3>Error Handling Standards<a class="headerlink" href="#error-handling-standards" title="Link to this heading"></a></h3>
+</section>
+<section id="error-testing-requirements">
+<h3>Error Testing Requirements<a class="headerlink" href="#error-testing-requirements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Every error condition must have a dedicated test</p></li>
+<li><p>Test both error logging AND return values</p></li>
+<li><p>Error messages must match exactly between implementation and test</p></li>
+<li><p>Use sentinel values (NAN, null) for invalid operations</p></li>
+</ul>
+</section>
+<section id="error-message-format">
+<h3>Error Message Format<a class="headerlink" href="#error-message-format" title="Link to this heading"></a></h3>
+<div class="highlight-gdscript notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="p">(</span><span class="n">valid_condition</span><span class="p">):</span>
+<span class="w">    </span><span class="n">push_error</span><span class="p">(</span><span class="s2">&quot;Clear description of what went wrong. Received: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="n">actual_value</span><span class="p">)</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="bp">NAN</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="infrastructure-process">
+<h2>3. Infrastructure &amp; Process<a class="headerlink" href="#infrastructure-process" title="Link to this heading"></a></h2>
+<section id="ci-cd-integration-and-platform-consistency">
+<h3>CI/CD Integration and Platform Consistency<a class="headerlink" href="#ci-cd-integration-and-platform-consistency" title="Link to this heading"></a></h3>
+</section>
+<section id="development-workflow">
+<h3>Development Workflow<a class="headerlink" href="#development-workflow" title="Link to this heading"></a></h3>
+<section id="core-branches">
+<h4>Core Branches<a class="headerlink" href="#core-branches" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">develop</span></code>: The main integration branch for new features and bugfixes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">release</span></code>: The staging branch for preparing and deploying new releases.</p></li>
+</ul>
+<p>All new code enters the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch via Pull Request. The full workflow to release is outlined below:</p>
+</section>
+<section id="pr-to-develop-verify-develop-yaml">
+<h4>PR to <code class="docutils literal notranslate"><span class="pre">develop</span></code> (<code class="docutils literal notranslate"><span class="pre">verify-develop.yaml</span></code>)<a class="headerlink" href="#pr-to-develop-verify-develop-yaml" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Trigger</strong>: Opening or updating a PR targeting the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch.</p></li>
+<li><p><strong>Goal</strong>: Quickly verify that the changes are structurally sound and don’t break core functionality.</p></li>
+<li><p><strong>Actions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Validate Structure</strong>: Checks that essential addon files like <code class="docutils literal notranslate"><span class="pre">plugin.cfg</span></code> are present and correctly configured.</p></li>
+<li><p><strong>Run Core Tests</strong>: Executes a subset of the test suite (<code class="docutils literal notranslate"><span class="pre">/tests/core</span></code> and <code class="docutils literal notranslate"><span class="pre">stat_math_test.gd</span></code>). This provides a fast feedback loop by focusing on critical unit and integration tests, excluding slower performance tests.</p></li>
+<li><p><strong>Upload Results</strong>: Test reports are uploaded as artifacts for inspection.</p></li>
+</ol>
+</li>
+</ul>
+</section>
+<section id="merge-pr-into-develop-build-develop-yaml">
+<h4>Merge PR into <code class="docutils literal notranslate"><span class="pre">develop</span></code> (<code class="docutils literal notranslate"><span class="pre">build-develop.yaml</span></code>)<a class="headerlink" href="#merge-pr-into-develop-build-develop-yaml" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Trigger</strong>: Merging a PR into the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch.</p></li>
+<li><p><strong>Goal</strong>: To create a continuously updated, testable development build of the addon.</p></li>
+<li><p><strong>Actions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Trigger AWS Runner</strong>: Spins up the AWS test runner. (Since we will run the performance test suites this time, hardware needs to be identical).</p></li>
+<li><p><strong>Run Full Test Suite</strong>: Ensures the integrity of the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch by running all tests.</p></li>
+<li><p><strong>Commit Test Results</strong>: GDUnit report goes in <code class="docutils literal notranslate"><span class="pre">reports/</span></code>, performance snapshots in <code class="docutils literal notranslate"><span class="pre">addons/godot-stat-math/tests/performance/results</span></code>.</p></li>
+<li><p><strong>Create Dev Build</strong>: Packages the <code class="docutils literal notranslate"><span class="pre">addons/godot-stat-math</span></code> directory (including the <code class="docutils literal notranslate"><span class="pre">addons/godot-stat-math/tests</span></code> folder) into a zip file named <code class="docutils literal notranslate"><span class="pre">godot-stat-math-&lt;version&gt;-dev.zip</span></code>.</p></li>
+<li><p><strong>Upload Artifact</strong>: The development build zip is uploaded as a GitHub artifact. This allows developers and testers to easily download and try out the latest dev build without waiting for an official release.</p></li>
+<li><p><strong>Shutdown AWS Runner</strong>: Attempts to shut down the runner via aws cli.</p></li>
+</ol>
+</li>
+</ul>
+</section>
+<section id="pr-to-release-verify-release-yaml">
+<h4>PR to <code class="docutils literal notranslate"><span class="pre">release</span></code> (<code class="docutils literal notranslate"><span class="pre">verify-release.yaml</span></code>)<a class="headerlink" href="#pr-to-release-verify-release-yaml" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Trigger</strong>: Opening or updating a PR targeting the <code class="docutils literal notranslate"><span class="pre">release</span></code> branch.</p></li>
+<li><p><strong>Goal</strong>: Perform a comprehensive, final check before a new version is released.</p></li>
+<li><p><strong>Actions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Check Version Bump</strong>: Ensures the project version in <code class="docutils literal notranslate"><span class="pre">project.godot</span></code> has been semantically versioned upwards.</p></li>
+<li><p><strong>Validate Structure</strong>: Checks that essential addon files like <code class="docutils literal notranslate"><span class="pre">plugin.cfg</span></code> are present and correctly configured.</p></li>
+<li><p><strong>Trigger AWS Runner</strong>: Spins up the AWS test runner, since we are also running performance tests.</p></li>
+<li><p><strong>Run Full Test Suite</strong>: Executes the <em>entire</em> test suite, including core tests, integration tests, and performance tests (<code class="docutils literal notranslate"><span class="pre">/tests</span></code>). This is a thorough validation to catch any regressions.</p></li>
+<li><p><strong>Upload Results</strong>: Full test reports are uploaded as artifacts, but <em>not</em> committed to the repo.</p></li>
+<li><p><strong>Shutdown AWS Runner</strong>: Attempts to shut down the runner via aws cli.</p></li>
+</ol>
+</li>
+</ul>
+</section>
+<section id="merge-pr-into-release-build-release-yaml">
+<h4>Merge PR into <code class="docutils literal notranslate"><span class="pre">release</span></code> (<code class="docutils literal notranslate"><span class="pre">build-release.yaml</span></code>)<a class="headerlink" href="#merge-pr-into-release-build-release-yaml" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Trigger</strong>: Merging a PR into the <code class="docutils literal notranslate"><span class="pre">develop</span></code> branch.</p></li>
+<li><p><strong>Goal</strong>: To automatically build and publish a new release on GitHub. (<code class="docutils literal notranslate"><span class="pre">verify-release</span></code> tests must pass).</p></li>
+<li><p><strong>Actions</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Extract Release Notes</strong>: Pulls the relevant release notes for the new version from <code class="docutils literal notranslate"><span class="pre">CHANGELOG.md</span></code>.</p></li>
+<li><p><strong>Create Release Build</strong>: Packages the addon into a clean, versioned-release zip file.</p>
+<ul>
+<li><p>Normal release version does not include tests, named <code class="docutils literal notranslate"><span class="pre">godot-stat-math-&lt;version&gt;.zip</span></code></p></li>
+<li><p>Environment var <code class="docutils literal notranslate"><span class="pre">RELEASE_DEBUG_DIST</span> <span class="pre">=</span> <span class="pre">true</span></code> will also build the development version, which includes all tests, named <code class="docutils literal notranslate"><span class="pre">godot-stat-math-&lt;version&gt;-debug.zip</span></code></p></li>
+</ul>
+</li>
+<li><p><strong>Build and Publish Docs</strong>: Builds the documentation and publishes it to the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch.</p></li>
+</ol>
+</li>
+</ul>
+</section>
+<section id="key-benefits">
+<h4>Key Benefits:<a class="headerlink" href="#key-benefits" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Consistent Hardware</strong>: Identical AWS instances eliminate platform-specific variations</p></li>
+<li><p><strong>Test Result History</strong>: All test reports committed to branches for historical tracking</p></li>
+<li><p><strong>Performance Baselines</strong>: Automated regression detection with snapshot comparisons</p></li>
+<li><p><strong>Isolated Testing</strong>: Fresh, identical environments for every test run</p></li>
+</ul>
+</section>
+<section id="other-workflows">
+<h4>Other Workflows:<a class="headerlink" href="#other-workflows" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Build and Publish Docs</strong> (<cite>build-and-publish-docs.yaml</cite>): Builds the documentation and publishes it to the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch.</p></li>
+<li><p><strong>Run Tests</strong> (<cite>run-tests.yaml</cite>): Runs the test suite on a self-hosted runner.</p></li>
+<li><p><strong>Run Performance Tests</strong> (<cite>run-performance-tests.yaml</cite>): Runs the performance tests on a self-hosted runner.</p></li>
+</ul>
+<p>This infrastructure allows us to focus on mathematical accuracy without worrying about hardware-specific floating-point differences that would otherwise require platform-specific tolerance adjustments.</p>
+</section>
+</section>
+<section id="testing-workflow">
+<h3>Testing Workflow<a class="headerlink" href="#testing-workflow" title="Link to this heading"></a></h3>
+</section>
+<section id="data-generation-process">
+<h3>1. Data Generation Process<a class="headerlink" href="#data-generation-process" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Identify missing or inadequate test data in <code class="docutils literal notranslate"><span class="pre">generate_test_data.py</span></code></p></li>
+<li><p>Add scipy function calls with proper parameter ranges</p></li>
+<li><p>Include scipy call documentation in comments</p></li>
+<li><p>Generate comprehensive test data covering edge cases</p></li>
+<li><p>Validate generated data through spot checks</p></li>
+</ol>
+</section>
+<section id="test-implementation-process">
+<h3>2. Test Implementation Process<a class="headerlink" href="#test-implementation-process" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Review existing test patterns for consistency</p></li>
+<li><p>Implement data-driven tests using table lookups</p></li>
+<li><p>Eliminate hardcoded expected values (except mathematical constants)</p></li>
+<li><p>Use appropriate tolerance constants</p></li>
+<li><p>Test both success and error conditions</p></li>
+</ol>
+</section>
+<section id="quality-assurance-process">
+<h3>3. Quality Assurance Process<a class="headerlink" href="#quality-assurance-process" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Run full test suite to ensure no regressions</p></li>
+<li><p>Verify all tests use data-driven patterns</p></li>
+<li><p>Check that scipy documentation is present</p></li>
+<li><p>Confirm elimination of anti-patterns</p></li>
+<li><p>Validate test coverage and edge cases</p></li>
+</ol>
+</section>
+</section>
+<section id="performance-testing">
+<h2>4. Performance Testing<a class="headerlink" href="#performance-testing" title="Link to this heading"></a></h2>
+<section id="performance-test-infrastructure">
+<h3>Performance Test Infrastructure<a class="headerlink" href="#performance-test-infrastructure" title="Link to this heading"></a></h3>
+<p>Only <code class="docutils literal notranslate"><span class="pre">build-develop.yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">verify-release.yaml</span></code> workflows run performance tests, executed on AWS spot instances. This guarantees consistent hardware (t3.medium) and should be the only place that performance baselines are generated.</p>
+</section>
+<section id="baseline-generation">
+<h3>Baseline Generation:<a class="headerlink" href="#baseline-generation" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Automatic from successful runs</strong>: Baselines are automatically updated from up to 50 most recent successful test runs (<code class="docutils literal notranslate"><span class="pre">pass_*.json</span></code> files)</p></li>
+<li><p><strong>Median-based for robustness</strong>: Uses median execution time rather than mean to be resistant to outliers and ensure stable baselines</p></li>
+<li><p><strong>Statistical metadata included</strong>: Each baseline test includes sample size, coefficient of variation, and dynamic threshold calculations</p></li>
+</ul>
+</section>
+<section id="threshold-determination">
+<h3>Threshold Determination:<a class="headerlink" href="#threshold-determination" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>95th percentile approach</strong>: Thresholds are set so only 5% of historical runs would be considered “slower” - uses percentile-based statistical analysis rather than fixed percentages</p></li>
+<li><p><strong>Volatility-aware scaling</strong>: Different minimum thresholds based on function stability - very stable functions (CV &lt; 5%) get 12% minimum, high volatility functions get 25% minimum</p></li>
+<li><p><strong>Fast function compensation</strong>: Functions under 0.5ms get higher thresholds (15% minimum) because small absolute variations create large percentage changes</p></li>
+<li><p><strong>Sample size confidence adjustment</strong>: Smaller sample sizes get 10-20% higher thresholds due to statistical uncertainty, mature baselines (25+ samples) get 30% higher tolerance</p></li>
+<li><p><strong>Safety buffers and bounds</strong>: All thresholds get a 10% safety buffer and are clamped between 8% minimum and 25% maximum to prevent both false positives and missing real regressions</p></li>
+</ul>
+</section>
+<section id="known-regression-handling">
+<h3>Known Regression Handling:<a class="headerlink" href="#known-regression-handling" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Tests with known performance issues can be marked as regression cases</p></li>
+<li><p>Marked tests will not execute until new performance baselines are established</p></li>
+<li><p>This prevents false failures while allowing continued development</p></li>
+</ul>
+</section>
+<section id="baseline-regeneration">
+<h3>Baseline Regeneration:<a class="headerlink" href="#baseline-regeneration" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Major algorithmic changes may require baseline regeneration across all functions</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">run-tests.yaml</span></code> multiple times to establish new performance baselines</p></li>
+<li><p>The system automatically commits updated baseline data to the repository</p></li>
+</ul>
+<p>This approach maintains performance monitoring while allowing flexibility during development cycles.</p>
+</section>
+<section id="performance-considerations">
+<h3>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading"></a></h3>
+</section>
+<section id="test-execution-efficiency">
+<h3>Test Execution Efficiency<a class="headerlink" href="#test-execution-efficiency" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use parallel tool execution for information gathering</p></li>
+<li><p>Minimize sequential operations in test discovery</p></li>
+<li><p>Cache table data appropriately for repeated access</p></li>
+<li><p>Avoid redundant calculations in parametrized tests</p></li>
+</ul>
+</section>
+<section id="memory-management">
+<h3>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">auto_free()</span></code> and <code class="docutils literal notranslate"><span class="pre">queue_free()</span></code> for node cleanup</p></li>
+<li><p>Monitor for orphaned nodes in complex tests</p></li>
+<li><p>Clean up temporary resources after test completion</p></li>
+</ul>
+</section>
+<section id="test-data-governance-process">
+<h3>Test Data Governance Process<a class="headerlink" href="#test-data-governance-process" title="Link to this heading"></a></h3>
+</section>
+<section id="minimal-governance-philosophy">
+<h3>Minimal Governance Philosophy<a class="headerlink" href="#minimal-governance-philosophy" title="Link to this heading"></a></h3>
+<p>Our data governance approach is intentionally minimal since we are dealing with <strong>mathematical constants and relationships</strong> that should not change across scipy versions. Mathematical functions like <code class="docutils literal notranslate"><span class="pre">norm.cdf(1.96,</span> <span class="pre">0.0,</span> <span class="pre">1.0)</span></code> represent universal mathematical truths, not implementation-specific behaviors.</p>
+<p><strong>Key Principles:</strong></p>
+<ul class="simple">
+<li><p>Test data represents mathematical constants, not software behavior</p></li>
+<li><p>Scipy version changes should not affect mathematical correctness</p></li>
+<li><p>Data regeneration is only needed when adding new functions or test cases</p></li>
+<li><p>Version tracking provides debugging context, not compatibility requirements</p></li>
+</ul>
+<p>This approach differs from typical software testing where external API changes require extensive data migration and compatibility testing.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="performance.html" class="btn btn-neutral float-left" title="Performance Testing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, edzillion.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

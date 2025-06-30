@@ -1,0 +1,1984 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Index &mdash; Godot Stat Math 0.0.6 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=abf8c0e6" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=1fd71caa"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Godot Stat Math
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-methods">Installation Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#asset-library-recommended">Asset Library (Recommended)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#manual-installation">Manual Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#git-submodule-for-developers">Git Submodule (For Developers)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#verification">Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#optional-set-global-seed">Optional: Set Global Seed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#plugin-not-appearing">Plugin Not Appearing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#statmath-not-available">StatMath Not Available</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#getting-help">Getting Help</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#core-modules-overview">Core Modules Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#common-use-cases">Common Use Cases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#analyzing-player-data">Analyzing Player Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#procedural-content-generation">Procedural Content Generation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#random-events-with-probabilities">Random Events with Probabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#advanced-sampling-for-level-generation">Advanced Sampling for Level Generation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#working-with-distributions">Working with Distributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#understanding-the-flow">Understanding the Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quick_start.html#example-balancing-a-random-event">Example: Balancing a Random Event</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#data-cleaning-and-preprocessing">Data Cleaning and Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#reproducible-results">Reproducible Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html#next-steps">Next Steps</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Core Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="modules/stat_math.html">StatMath</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/stat_math.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/stat_math.html#constants">Constants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#GODOT_STAT_MATH_SEED_VARIABLE_NAME"><code class="docutils literal notranslate"><span class="pre">GODOT_STAT_MATH_SEED_VARIABLE_NAME</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#default_seed"><code class="docutils literal notranslate"><span class="pre">_default_seed</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#PRIMES"><code class="docutils literal notranslate"><span class="pre">PRIMES</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INT_MAX_REPRESENTING_INF"><code class="docutils literal notranslate"><span class="pre">INT_MAX_REPRESENTING_INF</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INT64_MAX_VAL"><code class="docutils literal notranslate"><span class="pre">INT64_MAX_VAL</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#FLOAT_EPSILON"><code class="docutils literal notranslate"><span class="pre">FLOAT_EPSILON</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#MAX_ITERATIONS"><code class="docutils literal notranslate"><span class="pre">MAX_ITERATIONS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#EPSILON"><code class="docutils literal notranslate"><span class="pre">EPSILON</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#FLOAT_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">FLOAT_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#HIGH_PRECISION_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">HIGH_PRECISION_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#ERF_APPROX_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">ERF_APPROX_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#NUMERICAL_DIFFERENTIATION_H"><code class="docutils literal notranslate"><span class="pre">NUMERICAL_DIFFERENTIATION_H</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SAMPLE_MEAN_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">SAMPLE_MEAN_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SAMPLING_DETERMINISM_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">SAMPLING_DETERMINISM_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INVERSE_FUNCTION_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">INVERSE_FUNCTION_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#NUMERICAL_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">NUMERICAL_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#CDF_PPF_CONSISTENCY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">CDF_PPF_CONSISTENCY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#DERIVATIVE_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">DERIVATIVE_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#PROBABILITY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">PROBABILITY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SPECIAL_VALUES_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">SPECIAL_VALUES_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#BOUNDARY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">BOUNDARY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#ASYMPTOTIC_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">ASYMPTOTIC_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INTERPOLATION_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">INTERPOLATION_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#NUMERICAL_INTEGRATION_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">NUMERICAL_INTEGRATION_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SYMMETRY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">SYMMETRY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#ERF_INV_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">ERF_INV_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#STATISTICAL_TEST_STD_DEV_MULTIPLIER"><code class="docutils literal notranslate"><span class="pre">STATISTICAL_TEST_STD_DEV_MULTIPLIER</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#DEFAULT_TOLERANCE_FACTOR"><code class="docutils literal notranslate"><span class="pre">DEFAULT_TOLERANCE_FACTOR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SAMPLING_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">SAMPLING_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INVERSE_CONSISTENCY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">INVERSE_CONSISTENCY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#STABILITY_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">STABILITY_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#STRESS_TEST_BOUNDARY"><code class="docutils literal notranslate"><span class="pre">STRESS_TEST_BOUNDARY</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#STRESS_TEST_SMALL_VALUE"><code class="docutils literal notranslate"><span class="pre">STRESS_TEST_SMALL_VALUE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#INTERFACE_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">INTERFACE_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#DETERMINISM_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">DETERMINISM_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#HYPERGEOMETRIC_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">HYPERGEOMETRIC_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#NEGATIVE_BINOMIAL_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">NEGATIVE_BINOMIAL_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#HIGH_DISTRIBUTION_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">HIGH_DISTRIBUTION_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#BETA_TOLERANCE"><code class="docutils literal notranslate"><span class="pre">BETA_TOLERANCE</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#LANCZOS_G"><code class="docutils literal notranslate"><span class="pre">LANCZOS_G</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#LANCZOS_P"><code class="docutils literal notranslate"><span class="pre">LANCZOS_P</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#A1_ERR"><code class="docutils literal notranslate"><span class="pre">A1_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#A2_ERR"><code class="docutils literal notranslate"><span class="pre">A2_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#A3_ERR"><code class="docutils literal notranslate"><span class="pre">A3_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#A4_ERR"><code class="docutils literal notranslate"><span class="pre">A4_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#A5_ERR"><code class="docutils literal notranslate"><span class="pre">A5_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#P_ERR"><code class="docutils literal notranslate"><span class="pre">P_ERR</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#BasicStats"><code class="docutils literal notranslate"><span class="pre">BasicStats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#Distributions"><code class="docutils literal notranslate"><span class="pre">Distributions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#CdfFunctions"><code class="docutils literal notranslate"><span class="pre">CdfFunctions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#PmfPdfFunctions"><code class="docutils literal notranslate"><span class="pre">PmfPdfFunctions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#PpfFunctions"><code class="docutils literal notranslate"><span class="pre">PpfFunctions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#ErrorFunctions"><code class="docutils literal notranslate"><span class="pre">ErrorFunctions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#HelperFunctions"><code class="docutils literal notranslate"><span class="pre">HelperFunctions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#SamplingGen"><code class="docutils literal notranslate"><span class="pre">SamplingGen</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/stat_math.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#ready"><code class="docutils literal notranslate"><span class="pre">_ready()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#create_and_seed_rng"><code class="docutils literal notranslate"><span class="pre">_create_and_seed_rng()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#initialize_rng"><code class="docutils literal notranslate"><span class="pre">_initialize_rng()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#get_rng"><code class="docutils literal notranslate"><span class="pre">get_rng()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/stat_math.html#set_global_seed"><code class="docutils literal notranslate"><span class="pre">set_global_seed()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/basic_stats.html">StatMath.BasicStats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/basic_stats.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/basic_stats.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#mean"><code class="docutils literal notranslate"><span class="pre">mean()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#median"><code class="docutils literal notranslate"><span class="pre">median()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#variance"><code class="docutils literal notranslate"><span class="pre">variance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#standard_deviation"><code class="docutils literal notranslate"><span class="pre">standard_deviation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#sample_variance"><code class="docutils literal notranslate"><span class="pre">sample_variance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#sample_standard_deviation"><code class="docutils literal notranslate"><span class="pre">sample_standard_deviation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#median_absolute_deviation"><code class="docutils literal notranslate"><span class="pre">median_absolute_deviation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#range_spread"><code class="docutils literal notranslate"><span class="pre">range_spread()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#minimum"><code class="docutils literal notranslate"><span class="pre">minimum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#maximum"><code class="docutils literal notranslate"><span class="pre">maximum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#percentile"><code class="docutils literal notranslate"><span class="pre">percentile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/basic_stats.html#summary_statistics"><code class="docutils literal notranslate"><span class="pre">summary_statistics()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/distributions.html">StatMath.Distributions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/distributions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/distributions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_bernoulli"><code class="docutils literal notranslate"><span class="pre">randi_bernoulli()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_binomial"><code class="docutils literal notranslate"><span class="pre">randi_binomial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_geometric"><code class="docutils literal notranslate"><span class="pre">randi_geometric()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_poisson"><code class="docutils literal notranslate"><span class="pre">randi_poisson()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_uniform"><code class="docutils literal notranslate"><span class="pre">randi_uniform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_pseudo"><code class="docutils literal notranslate"><span class="pre">randi_pseudo()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randi_seige"><code class="docutils literal notranslate"><span class="pre">randi_seige()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_uniform"><code class="docutils literal notranslate"><span class="pre">randf_uniform()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_exponential"><code class="docutils literal notranslate"><span class="pre">randf_exponential()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_erlang"><code class="docutils literal notranslate"><span class="pre">randf_erlang()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_gamma"><code class="docutils literal notranslate"><span class="pre">randf_gamma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_beta"><code class="docutils literal notranslate"><span class="pre">randf_beta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_gaussian"><code class="docutils literal notranslate"><span class="pre">randf_gaussian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_normal"><code class="docutils literal notranslate"><span class="pre">randf_normal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_lognormal"><code class="docutils literal notranslate"><span class="pre">randf_lognormal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_cauchy"><code class="docutils literal notranslate"><span class="pre">randf_cauchy()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_triangular"><code class="docutils literal notranslate"><span class="pre">randf_triangular()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_pareto"><code class="docutils literal notranslate"><span class="pre">randf_pareto()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randf_weibull"><code class="docutils literal notranslate"><span class="pre">randf_weibull()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/distributions.html#randv_histogram"><code class="docutils literal notranslate"><span class="pre">randv_histogram()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/cdf_functions.html">StatMath.CdfFunctions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/cdf_functions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/cdf_functions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#uniform_cdf"><code class="docutils literal notranslate"><span class="pre">uniform_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#normal_cdf"><code class="docutils literal notranslate"><span class="pre">normal_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#exponential_cdf"><code class="docutils literal notranslate"><span class="pre">exponential_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#beta_cdf"><code class="docutils literal notranslate"><span class="pre">beta_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#gamma_cdf"><code class="docutils literal notranslate"><span class="pre">gamma_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#chi_square_cdf"><code class="docutils literal notranslate"><span class="pre">chi_square_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#f_cdf"><code class="docutils literal notranslate"><span class="pre">f_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#t_cdf"><code class="docutils literal notranslate"><span class="pre">t_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#binomial_cdf"><code class="docutils literal notranslate"><span class="pre">binomial_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#poisson_cdf"><code class="docutils literal notranslate"><span class="pre">poisson_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#geometric_cdf"><code class="docutils literal notranslate"><span class="pre">geometric_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#negative_binomial_cdf"><code class="docutils literal notranslate"><span class="pre">negative_binomial_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#pareto_cdf"><code class="docutils literal notranslate"><span class="pre">pareto_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#weibull_cdf"><code class="docutils literal notranslate"><span class="pre">weibull_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#cauchy_cdf"><code class="docutils literal notranslate"><span class="pre">cauchy_cdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/cdf_functions.html#lognormal_cdf"><code class="docutils literal notranslate"><span class="pre">lognormal_cdf()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/ppf_functions.html">StatMath.PpfFunctions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/ppf_functions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/ppf_functions.html#constants">Constants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#ACKLAM_COEFFICIENTS"><code class="docutils literal notranslate"><span class="pre">ACKLAM_COEFFICIENTS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/ppf_functions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#uniform_ppf"><code class="docutils literal notranslate"><span class="pre">uniform_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#normal_ppf"><code class="docutils literal notranslate"><span class="pre">normal_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#exponential_ppf"><code class="docutils literal notranslate"><span class="pre">exponential_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#beta_ppf"><code class="docutils literal notranslate"><span class="pre">beta_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#beta_2_2_ppf_fast"><code class="docutils literal notranslate"><span class="pre">_beta_2_2_ppf_fast()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#gamma_ppf"><code class="docutils literal notranslate"><span class="pre">gamma_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#chi_square_ppf"><code class="docutils literal notranslate"><span class="pre">chi_square_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#f_ppf"><code class="docutils literal notranslate"><span class="pre">f_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#t_ppf"><code class="docutils literal notranslate"><span class="pre">t_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#binomial_ppf"><code class="docutils literal notranslate"><span class="pre">binomial_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#poisson_ppf"><code class="docutils literal notranslate"><span class="pre">poisson_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#geometric_ppf"><code class="docutils literal notranslate"><span class="pre">geometric_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#negative_binomial_ppf"><code class="docutils literal notranslate"><span class="pre">negative_binomial_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#bernoulli_ppf"><code class="docutils literal notranslate"><span class="pre">bernoulli_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#discrete_histogram_ppf"><code class="docutils literal notranslate"><span class="pre">discrete_histogram_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#pareto_ppf"><code class="docutils literal notranslate"><span class="pre">pareto_ppf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/ppf_functions.html#weibull_ppf"><code class="docutils literal notranslate"><span class="pre">weibull_ppf()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/pmf_pdf_functions.html">StatMath.PmfPdfFunctions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/pmf_pdf_functions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/pmf_pdf_functions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#binomial_pmf"><code class="docutils literal notranslate"><span class="pre">binomial_pmf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#poisson_pmf"><code class="docutils literal notranslate"><span class="pre">poisson_pmf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#negative_binomial_pmf"><code class="docutils literal notranslate"><span class="pre">negative_binomial_pmf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#geometric_pmf"><code class="docutils literal notranslate"><span class="pre">geometric_pmf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#normal_pdf"><code class="docutils literal notranslate"><span class="pre">normal_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#exponential_pdf"><code class="docutils literal notranslate"><span class="pre">exponential_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#uniform_pdf"><code class="docutils literal notranslate"><span class="pre">uniform_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#gamma_pdf"><code class="docutils literal notranslate"><span class="pre">gamma_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#beta_pdf"><code class="docutils literal notranslate"><span class="pre">beta_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#weibull_pdf"><code class="docutils literal notranslate"><span class="pre">weibull_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#lognormal_pdf"><code class="docutils literal notranslate"><span class="pre">lognormal_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#chi_squared_pdf"><code class="docutils literal notranslate"><span class="pre">chi_squared_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#t_pdf"><code class="docutils literal notranslate"><span class="pre">t_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#f_pdf"><code class="docutils literal notranslate"><span class="pre">f_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#cauchy_pdf"><code class="docutils literal notranslate"><span class="pre">cauchy_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/pmf_pdf_functions.html#pareto_pdf"><code class="docutils literal notranslate"><span class="pre">pareto_pdf()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/error_functions.html">StatMath.ErrorFunctions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/error_functions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/error_functions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#erf"><code class="docutils literal notranslate"><span class="pre">erf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#erfc"><code class="docutils literal notranslate"><span class="pre">erfc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#erf_inv"><code class="docutils literal notranslate"><span class="pre">erf_inv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#erfc_inv"><code class="docutils literal notranslate"><span class="pre">erfc_inv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#log_gamma"><code class="docutils literal notranslate"><span class="pre">log_gamma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/error_functions.html#gamma"><code class="docutils literal notranslate"><span class="pre">gamma()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/helper_functions.html">StatMath.HelperFunctions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/helper_functions.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/helper_functions.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#binomial_coefficient"><code class="docutils literal notranslate"><span class="pre">binomial_coefficient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#log_factorial"><code class="docutils literal notranslate"><span class="pre">log_factorial()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#log_binomial_coef"><code class="docutils literal notranslate"><span class="pre">log_binomial_coef()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#gamma_function"><code class="docutils literal notranslate"><span class="pre">gamma_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#log_gamma"><code class="docutils literal notranslate"><span class="pre">log_gamma()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#beta_function"><code class="docutils literal notranslate"><span class="pre">beta_function()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#log_beta_function_direct"><code class="docutils literal notranslate"><span class="pre">log_beta_function_direct()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#incomplete_beta"><code class="docutils literal notranslate"><span class="pre">incomplete_beta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#lower_incomplete_gamma_regularized"><code class="docutils literal notranslate"><span class="pre">lower_incomplete_gamma_regularized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#gamma_series_expansion"><code class="docutils literal notranslate"><span class="pre">_gamma_series_expansion()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#gamma_continued_fraction"><code class="docutils literal notranslate"><span class="pre">_gamma_continued_fraction()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#sanitize_numeric_array"><code class="docutils literal notranslate"><span class="pre">sanitize_numeric_array()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#convert_to_float_array"><code class="docutils literal notranslate"><span class="pre">convert_to_float_array()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#validate_indices"><code class="docutils literal notranslate"><span class="pre">validate_indices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#validate_unique_indices"><code class="docutils literal notranslate"><span class="pre">validate_unique_indices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#get_cdf_value"><code class="docutils literal notranslate"><span class="pre">get_cdf_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#get_ppf_value"><code class="docutils literal notranslate"><span class="pre">get_ppf_value()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/helper_functions.html#string_to_distribution_enum"><code class="docutils literal notranslate"><span class="pre">string_to_distribution_enum()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules/sampling_gen.html">StatMath.SamplingGen</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/sampling_gen.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/sampling_gen.html#constants">Constants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#SOBOL_DATA"><code class="docutils literal notranslate"><span class="pre">_SOBOL_DATA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#PRIME_DATA"><code class="docutils literal notranslate"><span class="pre">_PRIME_DATA</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#SOBOL_BITS"><code class="docutils literal notranslate"><span class="pre">_SOBOL_BITS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#SOBOL_MAX_VAL_FLOAT"><code class="docutils literal notranslate"><span class="pre">_SOBOL_MAX_VAL_FLOAT</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#MAX_POOLED_DECKS_PER_SIZE"><code class="docutils literal notranslate"><span class="pre">MAX_POOLED_DECKS_PER_SIZE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="modules/sampling_gen.html#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#init"><code class="docutils literal notranslate"><span class="pre">_init()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#get_pooled_deck"><code class="docutils literal notranslate"><span class="pre">_get_pooled_deck()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#return_pooled_deck"><code class="docutils literal notranslate"><span class="pre">_return_pooled_deck()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#ensure_sobol_vectors_initialized"><code class="docutils literal notranslate"><span class="pre">_ensure_sobol_vectors_initialized()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#generate_direction_vectors_for_dimension"><code class="docutils literal notranslate"><span class="pre">_generate_direction_vectors_for_dimension()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#generate_dimension_samples_worker"><code class="docutils literal notranslate"><span class="pre">_generate_dimension_samples_worker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#batch_shuffle_worker"><code class="docutils literal notranslate"><span class="pre">_batch_shuffle_worker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#create_unshuffled_deck"><code class="docutils literal notranslate"><span class="pre">_create_unshuffled_deck()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#coordinated_shuffle_with_samples"><code class="docutils literal notranslate"><span class="pre">_coordinated_shuffle_with_samples()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#coordinated_shuffle_worker"><code class="docutils literal notranslate"><span class="pre">_coordinated_shuffle_worker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#with_replacement_draw"><code class="docutils literal notranslate"><span class="pre">_with_replacement_draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#fisher_yates_draw"><code class="docutils literal notranslate"><span class="pre">_fisher_yates_draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#reservoir_draw"><code class="docutils literal notranslate"><span class="pre">_reservoir_draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#selection_tracking_draw"><code class="docutils literal notranslate"><span class="pre">_selection_tracking_draw()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#get_nth_prime"><code class="docutils literal notranslate"><span class="pre">_get_nth_prime()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#get_sobol_1d_integers"><code class="docutils literal notranslate"><span class="pre">_get_sobol_1d_integers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#generate_sobol_1d"><code class="docutils literal notranslate"><span class="pre">_generate_sobol_1d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#generate_halton_1d"><code class="docutils literal notranslate"><span class="pre">_generate_halton_1d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#generate_latin_hypercube_1d"><code class="docutils literal notranslate"><span class="pre">_generate_latin_hypercube_1d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#fast_random_batch_shuffles"><code class="docutils literal notranslate"><span class="pre">_fast_random_batch_shuffles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="modules/sampling_gen.html#fast_random_shuffle"><code class="docutils literal notranslate"><span class="pre">_fast_random_shuffle()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tests</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="unit_testing.html">Unit Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="unit_testing.html#test-coverage">Test Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unit_testing.html#test-results-overview">Test Results Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unit_testing.html#understanding-test-status">Understanding Test Status</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance.html">Performance Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="performance.html#test-methodology">Test Methodology</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance.html#understanding-the-results">Understanding the Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing_standards.html">Testing Standards</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testing_standards.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_standards.html#standards-philosophy">1. Standards &amp; Philosophy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#core-principles">Core Principles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#the-dual-pillar-testing-strategy">1. The Dual-Pillar Testing Strategy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#test-organization-and-structure">2. Test Organization and Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#data-driven-standards">Data-Driven Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#required-table-data-structure">Required Table Data Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#scipy-version-control">Scipy Version Control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#acceptable-hardcoded-values">Acceptable Hardcoded Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#exception-simple-illustrative-test-data">Exception: Simple, Illustrative Test Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#data-generation-requirements">Data Generation Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#tolerance-constants-usage">Tolerance Constants Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#tolerance-decision-tree">Tolerance Decision Tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#standard-tolerances">Standard Tolerances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#specialized-tolerances">Specialized Tolerances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#tolerance-selection-guidelines">Tolerance Selection Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="testing_standards.html#implementation-organization">2. Implementation &amp; Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#folder-structure">Folder Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#implementation-guidelines">Implementation Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#file-naming-convention">File Naming Convention</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#test-implementation-patterns">Test Implementation Patterns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#types-of-testing-approaches">Types of Testing Approaches</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#data-driven-testing-primary-approach">1. <strong>Data-Driven Testing</strong> (Primary Approach)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#example-based-testing-simple-cases-only">2. <strong>Example-Based Testing</strong> (Simple Cases Only)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#property-based-testing-future-enhancement">3. <strong>Property-Based Testing</strong> (Future Enhancement)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#standard-test-function-pattern">Standard Test Function Pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#parametrized-test-pattern">Parametrized Test Pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#error-testing-pattern">Error Testing Pattern</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#file-organization-standards">File Organization Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#data-table-standards">Data Table Standards</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#generated-by-generate-test-data-py">1. Generated by <code class="docutils literal notranslate"><span class="pre">generate_test_data.py</span></code>:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#downloaded-from-authoritative-sources">2. Downloaded from authoritative sources</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#documentation-standards">Documentation Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#test-documentation">Test Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#code-comments">Code Comments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#scipy-call-documentation">Scipy Call Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#error-handling-standards">Error Handling Standards</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#error-testing-requirements">Error Testing Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#error-message-format">Error Message Format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="testing_standards.html#infrastructure-process">3. Infrastructure &amp; Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#ci-cd-integration-and-platform-consistency">CI/CD Integration and Platform Consistency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#development-workflow">Development Workflow</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#core-branches">Core Branches</a></li>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#pr-to-develop-verify-develop-yaml">PR to <code class="docutils literal notranslate"><span class="pre">develop</span></code> (<code class="docutils literal notranslate"><span class="pre">verify-develop.yaml</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#merge-pr-into-develop-build-develop-yaml">Merge PR into <code class="docutils literal notranslate"><span class="pre">develop</span></code> (<code class="docutils literal notranslate"><span class="pre">build-develop.yaml</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#pr-to-release-verify-release-yaml">PR to <code class="docutils literal notranslate"><span class="pre">release</span></code> (<code class="docutils literal notranslate"><span class="pre">verify-release.yaml</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#merge-pr-into-release-build-release-yaml">Merge PR into <code class="docutils literal notranslate"><span class="pre">release</span></code> (<code class="docutils literal notranslate"><span class="pre">build-release.yaml</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#key-benefits">Key Benefits:</a></li>
+<li class="toctree-l4"><a class="reference internal" href="testing_standards.html#other-workflows">Other Workflows:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#testing-workflow">Testing Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#data-generation-process">1. Data Generation Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#test-implementation-process">2. Test Implementation Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#quality-assurance-process">3. Quality Assurance Process</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="testing_standards.html#performance-testing">4. Performance Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#performance-test-infrastructure">Performance Test Infrastructure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#baseline-generation">Baseline Generation:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#threshold-determination">Threshold Determination:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#known-regression-handling">Known Regression Handling:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#baseline-regeneration">Baseline Regeneration:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#test-execution-efficiency">Test Execution Efficiency</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#memory-management">Memory Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#test-data-governance-process">Test Data Governance Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="testing_standards.html#minimal-governance-philosophy">Minimal Governance Philosophy</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Godot Stat Math</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Index</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/edzillion/godot-stat-math/blob/main/docs/genindex" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    _batch_shuffle_worker()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#batch_shuffle_worker">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _beta_2_2_ppf_fast()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#beta_2_2_ppf_fast">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _coordinated_shuffle_with_samples()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#coordinated_shuffle_with_samples">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _coordinated_shuffle_worker()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#coordinated_shuffle_worker">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _create_and_seed_rng()
+
+      <ul>
+        <li><a href="modules/stat_math.html#create_and_seed_rng">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _create_unshuffled_deck()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#create_unshuffled_deck">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#default_seed">_default_seed (built-in variable)</a>
+</li>
+      <li>
+    _ensure_sobol_vectors_initialized()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#ensure_sobol_vectors_initialized">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _fast_random_batch_shuffles()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#fast_random_batch_shuffles">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _fast_random_shuffle()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#fast_random_shuffle">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _fisher_yates_draw()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#fisher_yates_draw">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _gamma_continued_fraction()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#gamma_continued_fraction">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _gamma_series_expansion()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#gamma_series_expansion">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _generate_dimension_samples_worker()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#generate_dimension_samples_worker">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _generate_direction_vectors_for_dimension()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#generate_direction_vectors_for_dimension">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    _generate_halton_1d()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#generate_halton_1d">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _generate_latin_hypercube_1d()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#generate_latin_hypercube_1d">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _generate_sobol_1d()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#generate_sobol_1d">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _get_nth_prime()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#get_nth_prime">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _get_pooled_deck()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#get_pooled_deck">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _get_sobol_1d_integers()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#get_sobol_1d_integers">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _init()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#init">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _initialize_rng()
+
+      <ul>
+        <li><a href="modules/stat_math.html#initialize_rng">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/sampling_gen.html#PRIME_DATA">_PRIME_DATA (built-in variable)</a>
+</li>
+      <li>
+    _ready()
+
+      <ul>
+        <li><a href="modules/stat_math.html#ready">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _reservoir_draw()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#reservoir_draw">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _return_pooled_deck()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#return_pooled_deck">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    _selection_tracking_draw()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#selection_tracking_draw">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/sampling_gen.html#SOBOL_BITS">_SOBOL_BITS (built-in variable)</a>
+</li>
+      <li><a href="modules/sampling_gen.html#SOBOL_DATA">_SOBOL_DATA (built-in variable)</a>
+</li>
+      <li><a href="modules/sampling_gen.html#SOBOL_MAX_VAL_FLOAT">_SOBOL_MAX_VAL_FLOAT (built-in variable)</a>
+</li>
+      <li>
+    _with_replacement_draw()
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#with_replacement_draw">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#A1_ERR">A1_ERR (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#A2_ERR">A2_ERR (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#A3_ERR">A3_ERR (built-in variable)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#A4_ERR">A4_ERR (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#A5_ERR">A5_ERR (built-in variable)</a>
+</li>
+      <li><a href="modules/ppf_functions.html#ACKLAM_COEFFICIENTS">ACKLAM_COEFFICIENTS (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#ASYMPTOTIC_TOLERANCE">ASYMPTOTIC_TOLERANCE (built-in variable)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#BasicStats">BasicStats (built-in variable)</a>
+</li>
+      <li>
+    bernoulli_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#bernoulli_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    beta_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#beta_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    beta_function()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#beta_function">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    beta_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#beta_pdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    beta_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#beta_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#BETA_TOLERANCE">BETA_TOLERANCE (built-in variable)</a>
+</li>
+      <li>
+    binomial_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#binomial_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    binomial_coefficient()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#binomial_coefficient">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    binomial_pmf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#binomial_pmf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    binomial_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#binomial_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#BOUNDARY_TOLERANCE">BOUNDARY_TOLERANCE (built-in variable)</a>
+</li>
+      <li>
+    built-in function
+
+      <ul>
+        <li><a href="modules/sampling_gen.html#batch_shuffle_worker">_batch_shuffle_worker()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#beta_2_2_ppf_fast">_beta_2_2_ppf_fast()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#coordinated_shuffle_with_samples">_coordinated_shuffle_with_samples()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#coordinated_shuffle_worker">_coordinated_shuffle_worker()</a>
+</li>
+        <li><a href="modules/stat_math.html#create_and_seed_rng">_create_and_seed_rng()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#create_unshuffled_deck">_create_unshuffled_deck()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#ensure_sobol_vectors_initialized">_ensure_sobol_vectors_initialized()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#fast_random_batch_shuffles">_fast_random_batch_shuffles()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#fast_random_shuffle">_fast_random_shuffle()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#fisher_yates_draw">_fisher_yates_draw()</a>
+</li>
+        <li><a href="modules/helper_functions.html#gamma_continued_fraction">_gamma_continued_fraction()</a>
+</li>
+        <li><a href="modules/helper_functions.html#gamma_series_expansion">_gamma_series_expansion()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#generate_dimension_samples_worker">_generate_dimension_samples_worker()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#generate_direction_vectors_for_dimension">_generate_direction_vectors_for_dimension()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#generate_halton_1d">_generate_halton_1d()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#generate_latin_hypercube_1d">_generate_latin_hypercube_1d()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#generate_sobol_1d">_generate_sobol_1d()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#get_nth_prime">_get_nth_prime()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#get_pooled_deck">_get_pooled_deck()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#get_sobol_1d_integers">_get_sobol_1d_integers()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#init">_init()</a>
+</li>
+        <li><a href="modules/stat_math.html#initialize_rng">_initialize_rng()</a>
+</li>
+        <li><a href="modules/stat_math.html#ready">_ready()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#reservoir_draw">_reservoir_draw()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#return_pooled_deck">_return_pooled_deck()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#selection_tracking_draw">_selection_tracking_draw()</a>
+</li>
+        <li><a href="modules/sampling_gen.html#with_replacement_draw">_with_replacement_draw()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#bernoulli_ppf">bernoulli_ppf()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#beta_cdf">beta_cdf()</a>
+</li>
+        <li><a href="modules/helper_functions.html#beta_function">beta_function()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#beta_pdf">beta_pdf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#beta_ppf">beta_ppf()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#binomial_cdf">binomial_cdf()</a>
+</li>
+        <li><a href="modules/helper_functions.html#binomial_coefficient">binomial_coefficient()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#binomial_pmf">binomial_pmf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#binomial_ppf">binomial_ppf()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#cauchy_cdf">cauchy_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#cauchy_pdf">cauchy_pdf()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#chi_square_cdf">chi_square_cdf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#chi_square_ppf">chi_square_ppf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#chi_squared_pdf">chi_squared_pdf()</a>
+</li>
+        <li><a href="modules/helper_functions.html#convert_to_float_array">convert_to_float_array()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#discrete_histogram_ppf">discrete_histogram_ppf()</a>
+</li>
+        <li><a href="modules/error_functions.html#erf">erf()</a>
+</li>
+        <li><a href="modules/error_functions.html#erf_inv">erf_inv()</a>
+</li>
+        <li><a href="modules/error_functions.html#erfc">erfc()</a>
+</li>
+        <li><a href="modules/error_functions.html#erfc_inv">erfc_inv()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#exponential_cdf">exponential_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#exponential_pdf">exponential_pdf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#exponential_ppf">exponential_ppf()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#f_cdf">f_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#f_pdf">f_pdf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#f_ppf">f_ppf()</a>
+</li>
+        <li><a href="modules/error_functions.html#gamma">gamma()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#gamma_cdf">gamma_cdf()</a>
+</li>
+        <li><a href="modules/helper_functions.html#gamma_function">gamma_function()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#gamma_pdf">gamma_pdf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#gamma_ppf">gamma_ppf()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#geometric_cdf">geometric_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#geometric_pmf">geometric_pmf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#geometric_ppf">geometric_ppf()</a>
+</li>
+        <li><a href="modules/helper_functions.html#get_cdf_value">get_cdf_value()</a>
+</li>
+        <li><a href="modules/helper_functions.html#get_ppf_value">get_ppf_value()</a>
+</li>
+        <li><a href="modules/stat_math.html#get_rng">get_rng()</a>
+</li>
+        <li><a href="modules/helper_functions.html#incomplete_beta">incomplete_beta()</a>
+</li>
+        <li><a href="modules/helper_functions.html#log_beta_function_direct">log_beta_function_direct()</a>
+</li>
+        <li><a href="modules/helper_functions.html#log_binomial_coef">log_binomial_coef()</a>
+</li>
+        <li><a href="modules/helper_functions.html#log_factorial">log_factorial()</a>
+</li>
+        <li><a href="modules/error_functions.html#log_gamma">log_gamma()</a>, <a href="modules/helper_functions.html#log_gamma">[1]</a>
+</li>
+        <li><a href="modules/cdf_functions.html#lognormal_cdf">lognormal_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#lognormal_pdf">lognormal_pdf()</a>
+</li>
+        <li><a href="modules/helper_functions.html#lower_incomplete_gamma_regularized">lower_incomplete_gamma_regularized()</a>
+</li>
+        <li><a href="modules/basic_stats.html#maximum">maximum()</a>
+</li>
+        <li><a href="modules/basic_stats.html#mean">mean()</a>
+</li>
+        <li><a href="modules/basic_stats.html#median">median()</a>
+</li>
+        <li><a href="modules/basic_stats.html#median_absolute_deviation">median_absolute_deviation()</a>
+</li>
+        <li><a href="modules/basic_stats.html#minimum">minimum()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#negative_binomial_cdf">negative_binomial_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#negative_binomial_pmf">negative_binomial_pmf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#negative_binomial_ppf">negative_binomial_ppf()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#normal_cdf">normal_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#normal_pdf">normal_pdf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#normal_ppf">normal_ppf()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#pareto_cdf">pareto_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#pareto_pdf">pareto_pdf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#pareto_ppf">pareto_ppf()</a>
+</li>
+        <li><a href="modules/basic_stats.html#percentile">percentile()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#poisson_cdf">poisson_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#poisson_pmf">poisson_pmf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#poisson_ppf">poisson_ppf()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_beta">randf_beta()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_cauchy">randf_cauchy()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_erlang">randf_erlang()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_exponential">randf_exponential()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_gamma">randf_gamma()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_gaussian">randf_gaussian()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_lognormal">randf_lognormal()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_normal">randf_normal()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_pareto">randf_pareto()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_triangular">randf_triangular()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_uniform">randf_uniform()</a>
+</li>
+        <li><a href="modules/distributions.html#randf_weibull">randf_weibull()</a>
+</li>
+        <li><a href="modules/distributions.html#randi_bernoulli">randi_bernoulli()</a>
+</li>
+        <li><a href="modules/distributions.html#randi_binomial">randi_binomial()</a>
+</li>
+        <li><a href="modules/distributions.html#randi_geometric">randi_geometric()</a>
+</li>
+        <li><a href="modules/distributions.html#randi_poisson">randi_poisson()</a>
+</li>
+        <li><a href="modules/distributions.html#randi_pseudo">randi_pseudo()</a>
+</li>
+        <li><a href="modules/distributions.html#randi_seige">randi_seige()</a>
+</li>
+        <li><a href="modules/distributions.html#randi_uniform">randi_uniform()</a>
+</li>
+        <li><a href="modules/distributions.html#randv_histogram">randv_histogram()</a>
+</li>
+        <li><a href="modules/basic_stats.html#range_spread">range_spread()</a>
+</li>
+        <li><a href="modules/basic_stats.html#sample_standard_deviation">sample_standard_deviation()</a>
+</li>
+        <li><a href="modules/basic_stats.html#sample_variance">sample_variance()</a>
+</li>
+        <li><a href="modules/helper_functions.html#sanitize_numeric_array">sanitize_numeric_array()</a>
+</li>
+        <li><a href="modules/stat_math.html#set_global_seed">set_global_seed()</a>
+</li>
+        <li><a href="modules/basic_stats.html#standard_deviation">standard_deviation()</a>
+</li>
+        <li><a href="modules/helper_functions.html#string_to_distribution_enum">string_to_distribution_enum()</a>
+</li>
+        <li><a href="modules/basic_stats.html#summary_statistics">summary_statistics()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#t_cdf">t_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#t_pdf">t_pdf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#t_ppf">t_ppf()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#uniform_cdf">uniform_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#uniform_pdf">uniform_pdf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#uniform_ppf">uniform_ppf()</a>
+</li>
+        <li><a href="modules/helper_functions.html#validate_indices">validate_indices()</a>
+</li>
+        <li><a href="modules/helper_functions.html#validate_unique_indices">validate_unique_indices()</a>
+</li>
+        <li><a href="modules/basic_stats.html#variance">variance()</a>
+</li>
+        <li><a href="modules/cdf_functions.html#weibull_cdf">weibull_cdf()</a>
+</li>
+        <li><a href="modules/pmf_pdf_functions.html#weibull_pdf">weibull_pdf()</a>
+</li>
+        <li><a href="modules/ppf_functions.html#weibull_ppf">weibull_ppf()</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    cauchy_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#cauchy_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    cauchy_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#cauchy_pdf">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#CDF_PPF_CONSISTENCY_TOLERANCE">CDF_PPF_CONSISTENCY_TOLERANCE (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#CdfFunctions">CdfFunctions (built-in variable)</a>
+</li>
+      <li>
+    chi_square_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#chi_square_cdf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    chi_square_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#chi_square_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    chi_squared_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#chi_squared_pdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    convert_to_float_array()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#convert_to_float_array">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#DEFAULT_TOLERANCE_FACTOR">DEFAULT_TOLERANCE_FACTOR (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#DERIVATIVE_TOLERANCE">DERIVATIVE_TOLERANCE (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#DETERMINISM_TOLERANCE">DETERMINISM_TOLERANCE (built-in variable)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    discrete_histogram_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#discrete_histogram_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#Distributions">Distributions (built-in variable)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#EPSILON">EPSILON (built-in variable)</a>
+</li>
+      <li>
+    erf()
+
+      <ul>
+        <li><a href="modules/error_functions.html#erf">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#ERF_APPROX_TOLERANCE">ERF_APPROX_TOLERANCE (built-in variable)</a>
+</li>
+      <li>
+    erf_inv()
+
+      <ul>
+        <li><a href="modules/error_functions.html#erf_inv">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#ERF_INV_TOLERANCE">ERF_INV_TOLERANCE (built-in variable)</a>
+</li>
+      <li>
+    erfc()
+
+      <ul>
+        <li><a href="modules/error_functions.html#erfc">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    erfc_inv()
+
+      <ul>
+        <li><a href="modules/error_functions.html#erfc_inv">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#ErrorFunctions">ErrorFunctions (built-in variable)</a>
+</li>
+      <li>
+    exponential_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#exponential_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    exponential_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#exponential_pdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    exponential_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#exponential_ppf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    f_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#f_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    f_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#f_pdf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    f_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#f_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#FLOAT_EPSILON">FLOAT_EPSILON (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#FLOAT_TOLERANCE">FLOAT_TOLERANCE (built-in variable)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    gamma()
+
+      <ul>
+        <li><a href="modules/error_functions.html#gamma">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    gamma_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#gamma_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    gamma_function()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#gamma_function">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    gamma_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#gamma_pdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    gamma_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#gamma_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    geometric_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#geometric_cdf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    geometric_pmf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#geometric_pmf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    geometric_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#geometric_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    get_cdf_value()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#get_cdf_value">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    get_ppf_value()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#get_ppf_value">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    get_rng()
+
+      <ul>
+        <li><a href="modules/stat_math.html#get_rng">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#GODOT_STAT_MATH_SEED_VARIABLE_NAME">GODOT_STAT_MATH_SEED_VARIABLE_NAME (built-in variable)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#HelperFunctions">HelperFunctions (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#HIGH_DISTRIBUTION_TOLERANCE">HIGH_DISTRIBUTION_TOLERANCE (built-in variable)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#HIGH_PRECISION_TOLERANCE">HIGH_PRECISION_TOLERANCE (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#HYPERGEOMETRIC_TOLERANCE">HYPERGEOMETRIC_TOLERANCE (built-in variable)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    incomplete_beta()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#incomplete_beta">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#INT64_MAX_VAL">INT64_MAX_VAL (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#INT_MAX_REPRESENTING_INF">INT_MAX_REPRESENTING_INF (built-in variable)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#INTERFACE_TOLERANCE">INTERFACE_TOLERANCE (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#INTERPOLATION_TOLERANCE">INTERPOLATION_TOLERANCE (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#INVERSE_CONSISTENCY_TOLERANCE">INVERSE_CONSISTENCY_TOLERANCE (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#INVERSE_FUNCTION_TOLERANCE">INVERSE_FUNCTION_TOLERANCE (built-in variable)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#LANCZOS_G">LANCZOS_G (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#LANCZOS_P">LANCZOS_P (built-in variable)</a>
+</li>
+      <li>
+    log_beta_function_direct()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#log_beta_function_direct">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    log_binomial_coef()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#log_binomial_coef">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    log_factorial()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#log_factorial">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    log_gamma()
+
+      <ul>
+        <li><a href="modules/error_functions.html#log_gamma">built-in function</a>, <a href="modules/helper_functions.html#log_gamma">[1]</a>
+</li>
+      </ul></li>
+      <li>
+    lognormal_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#lognormal_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    lognormal_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#lognormal_pdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    lower_incomplete_gamma_regularized()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#lower_incomplete_gamma_regularized">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#MAX_ITERATIONS">MAX_ITERATIONS (built-in variable)</a>
+</li>
+      <li><a href="modules/sampling_gen.html#MAX_POOLED_DECKS_PER_SIZE">MAX_POOLED_DECKS_PER_SIZE (built-in variable)</a>
+</li>
+      <li>
+    maximum()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#maximum">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    mean()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#mean">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    median()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#median">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    median_absolute_deviation()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#median_absolute_deviation">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    minimum()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#minimum">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    negative_binomial_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#negative_binomial_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    negative_binomial_pmf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#negative_binomial_pmf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    negative_binomial_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#negative_binomial_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#NEGATIVE_BINOMIAL_TOLERANCE">NEGATIVE_BINOMIAL_TOLERANCE (built-in variable)</a>
+</li>
+      <li>
+    normal_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#normal_cdf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    normal_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#normal_pdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    normal_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#normal_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#NUMERICAL_DIFFERENTIATION_H">NUMERICAL_DIFFERENTIATION_H (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#NUMERICAL_INTEGRATION_TOLERANCE">NUMERICAL_INTEGRATION_TOLERANCE (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#NUMERICAL_TOLERANCE">NUMERICAL_TOLERANCE (built-in variable)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#P_ERR">P_ERR (built-in variable)</a>
+</li>
+      <li>
+    pareto_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#pareto_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    pareto_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#pareto_pdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    pareto_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#pareto_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    percentile()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#percentile">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#PmfPdfFunctions">PmfPdfFunctions (built-in variable)</a>
+</li>
+      <li>
+    poisson_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#poisson_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    poisson_pmf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#poisson_pmf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    poisson_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#poisson_ppf">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#PpfFunctions">PpfFunctions (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#PRIMES">PRIMES (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#PROBABILITY_TOLERANCE">PROBABILITY_TOLERANCE (built-in variable)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    randf_beta()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_beta">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randf_cauchy()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_cauchy">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randf_erlang()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_erlang">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randf_exponential()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_exponential">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randf_gamma()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_gamma">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randf_gaussian()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_gaussian">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randf_lognormal()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_lognormal">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randf_normal()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_normal">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randf_pareto()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_pareto">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randf_triangular()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_triangular">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randf_uniform()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_uniform">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    randf_weibull()
+
+      <ul>
+        <li><a href="modules/distributions.html#randf_weibull">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randi_bernoulli()
+
+      <ul>
+        <li><a href="modules/distributions.html#randi_bernoulli">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randi_binomial()
+
+      <ul>
+        <li><a href="modules/distributions.html#randi_binomial">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randi_geometric()
+
+      <ul>
+        <li><a href="modules/distributions.html#randi_geometric">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randi_poisson()
+
+      <ul>
+        <li><a href="modules/distributions.html#randi_poisson">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randi_pseudo()
+
+      <ul>
+        <li><a href="modules/distributions.html#randi_pseudo">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randi_seige()
+
+      <ul>
+        <li><a href="modules/distributions.html#randi_seige">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randi_uniform()
+
+      <ul>
+        <li><a href="modules/distributions.html#randi_uniform">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    randv_histogram()
+
+      <ul>
+        <li><a href="modules/distributions.html#randv_histogram">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    range_spread()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#range_spread">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#SAMPLE_MEAN_TOLERANCE">SAMPLE_MEAN_TOLERANCE (built-in variable)</a>
+</li>
+      <li>
+    sample_standard_deviation()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#sample_standard_deviation">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    sample_variance()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#sample_variance">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#SAMPLING_DETERMINISM_TOLERANCE">SAMPLING_DETERMINISM_TOLERANCE (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#SAMPLING_TOLERANCE">SAMPLING_TOLERANCE (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#SamplingGen">SamplingGen (built-in variable)</a>
+</li>
+      <li>
+    sanitize_numeric_array()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#sanitize_numeric_array">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    set_global_seed()
+
+      <ul>
+        <li><a href="modules/stat_math.html#set_global_seed">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/stat_math.html#SPECIAL_VALUES_TOLERANCE">SPECIAL_VALUES_TOLERANCE (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#STABILITY_TOLERANCE">STABILITY_TOLERANCE (built-in variable)</a>
+</li>
+      <li>
+    standard_deviation()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#standard_deviation">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#STATISTICAL_TEST_STD_DEV_MULTIPLIER">STATISTICAL_TEST_STD_DEV_MULTIPLIER (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#STRESS_TEST_BOUNDARY">STRESS_TEST_BOUNDARY (built-in variable)</a>
+</li>
+      <li><a href="modules/stat_math.html#STRESS_TEST_SMALL_VALUE">STRESS_TEST_SMALL_VALUE (built-in variable)</a>
+</li>
+      <li>
+    string_to_distribution_enum()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#string_to_distribution_enum">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    summary_statistics()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#summary_statistics">built-in function</a>
+</li>
+      </ul></li>
+      <li><a href="modules/stat_math.html#SYMMETRY_TOLERANCE">SYMMETRY_TOLERANCE (built-in variable)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    t_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#t_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    t_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#t_pdf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    t_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#t_ppf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    uniform_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#uniform_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    uniform_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#uniform_pdf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    uniform_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#uniform_ppf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    validate_indices()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#validate_indices">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    validate_unique_indices()
+
+      <ul>
+        <li><a href="modules/helper_functions.html#validate_unique_indices">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    variance()
+
+      <ul>
+        <li><a href="modules/basic_stats.html#variance">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    weibull_cdf()
+
+      <ul>
+        <li><a href="modules/cdf_functions.html#weibull_cdf">built-in function</a>
+</li>
+      </ul></li>
+      <li>
+    weibull_pdf()
+
+      <ul>
+        <li><a href="modules/pmf_pdf_functions.html#weibull_pdf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    weibull_ppf()
+
+      <ul>
+        <li><a href="modules/ppf_functions.html#weibull_ppf">built-in function</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, edzillion.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
