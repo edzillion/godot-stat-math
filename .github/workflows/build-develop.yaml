@@ -199,12 +199,11 @@ jobs:
             sed -i "s/config\/version=\"[^\"]*\"/config\/version=\"$NEW_VERSION\"/" ${{ env.VERSION_FILE }}
             sed -i "s/version=\"[^\"]*\"/version=\"$NEW_VERSION\"/" addons/godot-stat-math/plugin.cfg
             
-            # Commit and push the change
+            # Stage the changes but don't commit yet (will be committed with test results)
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git add ${{ env.VERSION_FILE }} addons/godot-stat-math/plugin.cfg
-            git commit -m "chore: bump develop version to $NEW_VERSION"
-            git push origin ${{ github.ref_name }}
+            echo "Version files staged for commit after tests complete"
             BUMPED=true
           else
             echo "No version bump needed - develop version is already ahead of release"
@@ -311,13 +310,29 @@ jobs:
             echo "⚠️ No reports directory found"
           fi
 
+          # Check if there are any staged changes
           if git diff --staged --quiet; then
-            echo "No new test results to commit"
+            echo "No changes to commit"
           else
-            COMMIT_MSG="📊 Test Results & Performance Data - ${{ github.workflow }} ${{ github.run_number }}"
+            # Check if version bump was performed by looking at staged files
+            VERSION_BUMPED=false
+            if git diff --staged --name-only | grep -q "${{ env.VERSION_FILE }}\|addons/godot-stat-math/plugin.cfg"; then
+              VERSION_BUMPED=true
+              echo "✅ Version bump changes detected in staging area"
+            fi
+            
+            # Create appropriate commit message
+            if [ "$VERSION_BUMPED" = "true" ] && [ "${{ steps.bump-version.outputs.bumped }}" = "true" ]; then
+              COMMIT_MSG="chore: bump develop version to ${{ steps.bump-version.outputs.new_version }} + test results - ${{ github.workflow }} ${{ github.run_number }}"
+              echo "📝 Committing version bump + test results"
+            else
+              COMMIT_MSG="📊 Test Results & Performance Data - ${{ github.workflow }} ${{ github.run_number }}"
+              echo "📝 Committing test results only"
+            fi
+            
             git commit -m "$COMMIT_MSG"
             git push git@github.com:${{ github.repository }}.git HEAD:develop
-            echo "✅ Test reports and performance results committed and pushed"
+            echo "✅ Changes committed and pushed successfully"
           fi
 
       - name: Check build status

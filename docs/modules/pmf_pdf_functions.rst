@@ -14,6 +14,8 @@ Distribution Categories:
 * PDF for continuous distributions (Normal, Exponential, Uniform, Gamma, Beta, Chi-squared, Student's t, F-distribution)
 
 * Uses logarithmic calculations for numerical stability
+Calculates the PMF of a binomial distribution: P(X = k | n, p).
+Returns the probability of observing exactly ``k`` successes in ``n``
 
 Usage
 -----
@@ -55,6 +57,16 @@ Functions
    Uses logarithmic calculations for numerical stability.
 
    Mathematical Note: ``P(X = k) = (k-1 choose r-1) p^r (1-p)^(k-r)``
+
+.. function:: geometric_pmf(k_trial: int, p_prob: float) -> float:
+
+   Calculates the PMF of a geometric distribution: P(X = k | p).
+
+   Returns the probability that the first success occurs on exactly the ``k``-th trial
+   in independent Bernoulli trials with success probability ``p``.
+   Uses standard parameterization where k ≥ 1.
+
+   Mathematical Note: ``P(X = k) = (1-p)^(k-1) * p`` for ``k ≥ 1``
 
 .. function:: normal_pdf(x: float, mu: float = 0.0, sigma: float = 1.0) -> float:
 
@@ -147,4 +159,24 @@ Functions
    with numerator degrees of freedom ``d1`` and denominator degrees of freedom ``d2``.
 
    Mathematical Note: Uses `beta_function() <helper_functions.html#beta_function>`_ relationship for numerical stability
+
+.. function:: cauchy_pdf(x: float, location: float = 0.0, scale: float = 1.0) -> float:
+
+   Calculates the PDF of a Cauchy (Lorentzian) distribution: f(x; x₀, γ).
+
+   Returns the probability density at ``x`` for a Cauchy distribution
+   with location parameter ``x₀`` and scale parameter ``γ``.
+   The Cauchy distribution has undefined mean and variance due to heavy tails.
+
+   Mathematical Note: ``f(x) = 1/(πγ(1 + ((x-x₀)/γ)²))``
+
+.. function:: pareto_pdf(x: float, scale_param: float, shape_param: float) -> float:
+
+   Calculates the PDF of a Pareto distribution: f(x; xₘ, α).
+
+   Returns the probability density at ``x`` for a Pareto distribution
+   with scale parameter ``xₘ`` and shape parameter ``α``.
+   Used to model the "80/20 rule" and power-law distributions.
+
+   Mathematical Note: ``f(x) = (α×xₘᵅ)/x^(α+1)`` for ``x ≥ xₘ``
 

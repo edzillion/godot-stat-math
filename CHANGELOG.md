@@ -1,6 +1,29 @@
 # Changelog - Godot Stat Math
 
-## [0.0.5] - 2024-12-26
+## [0.0.6] - 2025-30-06
+
+### 🔧 Fixes
+
+#### Documentation
+- **HTML Formatting** - Fixed HTML formatting issues in documentation files
+- **API Documentation** - Improved class descriptions in PPF Functions module
+- **Documentation Generation** - Enhanced documentation generation script with better RST file handling
+- **Cross-References** - Fixed various cross-reference links in documentation modules
+- **Module Documentation** - Updated and improved documentation for Sampling Generation, Statistics, and other core modules
+
+#### Technical Improvements
+- **Version Management** - Improved version bump and release process
+- **Build Process** - Enhanced CI/CD workflows for better documentation publishing
+- **Build Optimization** - Removed test data files from standard release build, reducing size from 1.19MB to 92KB
+
+### 📝 Notes
+- This is primarily a documentation and tooling improvement release
+- No breaking changes to the API
+- All core functionality remains the same as v0.0.5
+
+---
+
+## [0.0.5] - 2025-28-6
 
 ### 🎉 Initial Alpha Release
 

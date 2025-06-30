@@ -97,6 +97,7 @@ class GDScriptParser:
         in_class_doc = False
         current_doc = []
         found_class_name = False
+        found_extends = False
         
         for i, line in enumerate(lines):
             stripped = line.strip()
@@ -106,22 +107,13 @@ class GDScriptParser:
                 found_class_name = True
                 continue
             
-            # For files without explicit class_name, look at the top of the file
-            if not found_class_name and i < 20 and stripped.startswith('##'):
-                # Only collect if this is clearly class documentation
-                if not self._is_function_doc(lines, i):
-                    if not in_class_doc:
-                        in_class_doc = True
-                        current_doc = []
-                    
-                    doc_line = stripped[2:].strip()
-                    if doc_line:
-                        current_doc.append(doc_line)
-                else:
-                    # This documentation belongs to a function, stop
-                    break
-            # Only look for class docs after we've seen the class_name and before any functions
-            elif found_class_name and stripped.startswith('##'):
+            # Also mark when we find extends (for files like stat_math.gd)
+            if stripped.startswith('extends '):
+                found_extends = True
+                continue
+            
+            # For files with explicit class_name, look for docs after class_name line
+            if found_class_name and stripped.startswith('##'):
                 # Check if this is really class documentation (not function documentation)
                 if not self._is_function_doc(lines, i):
                     if not in_class_doc:
@@ -134,15 +126,43 @@ class GDScriptParser:
                 else:
                     # This documentation belongs to a function, stop collecting class docs
                     break
+            # For files with extends (like stat_math.gd), look for docs after extends line
+            elif found_extends and stripped.startswith('##'):
+                # Check if this is really class documentation (not function documentation)
+                if not self._is_function_doc(lines, i):
+                    if not in_class_doc:
+                        in_class_doc = True
+                        current_doc = []
+                    
+                    doc_line = stripped[2:].strip()
+                    if doc_line:
+                        current_doc.append(doc_line)
+                else:
+                    # This documentation belongs to a function, stop collecting class docs
+                    break
+            # For files without explicit class_name or extends, look at the top of the file (with generous limit)
+            elif not found_class_name and not found_extends and i < 100 and stripped.startswith('##'):
+                # Only collect if this is clearly class documentation
+                if not self._is_function_doc(lines, i):
+                    if not in_class_doc:
+                        in_class_doc = True
+                        current_doc = []
+                    
+                    doc_line = stripped[2:].strip()
+                    if doc_line:
+                        current_doc.append(doc_line)
+                else:
+                    # This documentation belongs to a function, stop
+                    break
             elif in_class_doc and (stripped.startswith('static func') or 
                                    stripped.startswith('func') or 
                                    stripped.startswith('const ') or
                                    stripped.startswith('var ') or
-                                   stripped.startswith('# ==')):  # Section header
-                # End of class documentation
+                                   stripped.startswith('enum ')):  # Stop at actual code, not section comments
+                # End of class documentation when we hit actual code
                 break
             elif in_class_doc and stripped and not stripped.startswith('#'):
-                # End of class documentation
+                # End of class documentation when we hit non-comment code
                 break
         
         if current_doc:
@@ -264,10 +284,6 @@ class RSTGenerator:
     
     def generate_class_rst(self, gdclass: GDScriptClass) -> None:
         """Generate RST file for a single class."""
-        # Create module directory
-        module_dir = self.output_dir / "modules"
-        module_dir.mkdir(exist_ok=True)
-        
         # Generate filename
         filename = gdclass.name.lower().replace('stats', '_stats') + '.rst'
         if gdclass.name == 'BasicStats':
@@ -289,7 +305,7 @@ class RSTGenerator:
         elif gdclass.name == 'StatMath' or 'stat_math' in gdclass.filepath.lower():
             filename = 'stat_math.rst'
         
-        output_file = module_dir / filename
+        output_file = self.output_dir / filename
         
         with open(output_file, 'w', encoding='utf-8') as f:
             self._write_class_rst(f, gdclass)

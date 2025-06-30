@@ -78,7 +78,8 @@ jobs:
             -x "*.uid" "*.tmp" "*.import~" "*.remap~" "*~" \
             "*.DS_Store" "*.DS_Store?" "*._*" "*.Spotlight-V100" "*.Trashes" \
             "*ehthumbs.db" "*Thumbs.db" \
-            "godot-stat-math/tests/*"
+            "godot-stat-math/tests/*" \
+            "godot-stat-math/tables/*_test_data.gd"
           echo "Standard release zip contents:"
           zipinfo ../godot-stat-math-${{ steps.get_version.outputs.version-string }}.zip
           FILE_SIZE=$(stat -c%s ../godot-stat-math-${{ steps.get_version.outputs.version-string }}.zip)
